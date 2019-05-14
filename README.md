@@ -9,3 +9,10 @@
 
 ### Testing API
 - `npm test` to run all the tests present inside the _test_ directory
+
+### Delta db setup
+List of commands that handle database schema
+- `npx sequelize-cli db:create`
+- `npx sequelize-cli db:migrate`
+- `npx sequelize-cli seed:generate`
+- `npx sequelize-cli db:seed:all`

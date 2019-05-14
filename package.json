@@ -28,6 +28,9 @@
     "moment": "^2.22.1",
     "mongoose": "^5.5.8",
     "nodemailer": "^4.6.4",
+    "pg": "^7.11.0",
+    "sequelize": "^5.8.6",
+    "sequelize-cli": "^5.4.0",
     "superagent": "^3.8.2",
     "watson-developer-cloud": "^3.5.3"
   },
