@@ -1,6 +1,6 @@
 {
   "name": "delta",
-  "version": "2.0",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "build": "babel src -d api-build --presets env",
@@ -9,7 +9,7 @@
     "seed": "babel-node src/seeds --presets env,stage-3",
     "start": "babel-node ./src/index.js --presets env,stage-3",
     "api": "npm run doc && babel-watch ./src/index.js",
-    "test": "jest ./src",
+    "test": "jest ./src"
   },
   "engines": {
     "node": "8.12.0",
