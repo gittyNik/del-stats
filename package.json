@@ -1,0 +1,46 @@
+{
+  "name": "delta",
+  "version": "2.0",
+  "private": true,
+  "scripts": {
+    "build": "babel src -d api-build --presets env",
+    "lint": "eslint src",
+    "doc": "apidoc -i src",
+    "seed": "babel-node src/seeds --presets env,stage-3",
+    "start": "babel-node ./src/index.js --presets env,stage-3",
+    "api": "npm run doc && babel-watch ./src/index.js",
+    "test": "jest ./src",
+  },
+  "engines": {
+    "node": "8.12.0",
+    "npm": "6.4.1"
+  },
+  "apidoc": {
+    "title": "API Documentation",
+    "sampleUrl": "http://localhost:3000/api"
+  },
+  "dependencies": {
+    "express": "^4.16.3",
+    "express-session": "^1.15.6",
+    "faker": "^4.1.0",
+    "jsonwebtoken": "^8.2.1",
+    "lodash": "^4.17.10",
+    "moment": "^2.22.1",
+    "mongoose": "5.0.11",
+    "nodemailer": "^4.6.4",
+    "superagent": "^3.8.2",
+    "watson-developer-cloud": "^3.5.3"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-stage-3": "^6.24.1",
+    "apidoc": "^0.17.6",
+    "babel-watch": "^2.0.7",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.7.0",
+    "supertest": "^3.1.0"
+  }
+}

@@ -1,0 +1,59 @@
+const { WATSONUSER, WATSONPASS} = process.env
+var NaturalLanguageUnderstandingV1 = require('watson-developer-cloud/natural-language-understanding/v1.js');
+require('dotenv').config({
+  silent: true
+}); //  optional
+
+var nlu = new NaturalLanguageUnderstandingV1({
+  version: '2018-04-05',
+  url: 'https://gateway.watsonplatform.net/natural-language-understanding/api'
+});
+
+
+const getWatsonData = (link) => {
+
+let urlFormat = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+let urlRegex = new RegExp(urlFormat)
+
+
+
+
+ return new Promise((resolve,reject) => {
+  console.log("$$$$$$$$$$$$$$")
+  console.log(link)
+  console.log(urlRegex)
+   
+   if (link.match(urlRegex)){
+
+
+  var options = {
+    url: link,
+    features: {
+      concepts: {},
+      keywords: {
+        'sentiment': true,
+        'emotion': true
+      },
+      categories: {},
+      entities: {},
+      metadata: {},
+      relations: {},
+      semantic_roles: {}
+    }
+  };
+  nlu.analyze(options, (err, res) => {
+    if (err) {
+      console.log(err);
+      reject();
+    }
+    resolve(res);
+  });
+} else {
+  reject("Please enter a valid URL")
+}
+ })
+} 
+
+// getWatsonData("google.com").then(d => console.log(d)).catch(e => console.log(e))
+
+export default getWatsonData
