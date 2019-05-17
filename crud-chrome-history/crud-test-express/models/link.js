@@ -11,11 +11,8 @@ var Sequelize=require('sequelize');
   }, {
     freezeTableName: true
   });
-  links.sync({force: true}).then(function () {
-    return links.create({
-      uid: 123,
-      url: 'www.soal.io'
-    });
+  links.sync({force: false}).then(function () {
+    return true;
   });
   /*state.seq.authenticate().then(() => {
     console.log("Success!");
@@ -62,7 +59,7 @@ var Sequelize=require('sequelize');
   }).catch((err) => {
     console.log(err);
   });*/
-  console.log(state.seq);
+  //console.log(state.seq);
   module.exports={"links":links};
 
 
