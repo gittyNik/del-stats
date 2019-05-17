@@ -1,0 +1,15 @@
+{
+  "name": "crud-test-express",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "tanuj",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "pg": "^7.11.0",
+    "sequelize": "^5.8.6"
+  }
+}
