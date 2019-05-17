@@ -1,9 +1,10 @@
-const state = require('../index');
-const Sequelize = require('sequelize');
+var state = require('../index');
+var Sequelize = require('sequelize');
 //if (state.status == 'S') {
 var Links = state.seq.define('links', {
     uid: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        //allowNull: false,
     },
     topic: {
         type: Sequelize.STRING
@@ -15,12 +16,13 @@ var Links = state.seq.define('links', {
     //freezeTableName: true
 });
 Links.sync({ force: false }).then(function() {
-    return Links.create({
-        /* uid: '1',
-         topic: 'Express',
-         url: "www.google.com"*/
-    });
+    /*console.log(Links.create({
+    uid: '1',
+    topic: 'Express',
+    url: "www.google.com"
+    }));*/
+    return true;
 });
-console.log(state.seq);
-module.export = { 'Links': Links };
+console.log(Links);
+module.export = { 'links': Links };
 //}

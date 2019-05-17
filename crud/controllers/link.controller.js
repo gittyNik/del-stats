@@ -1,13 +1,14 @@
 var Resource = require('../models/link');
-var insert = Resource.Links.sync({ force: true }).then(function() {
-    return Resource.Links.create({
+console.log(Resource.links);
+var insert = Resource.links.sync({ force: false }).then(function() {
+    return Resource.links.create({
         uid: '1',
         topic: 'Express',
         url: "www.google.com"
     });
 });
 
-var select = Resource.Links.findAll({
+var select = Resource.links.findAll({
     where: {
         topic: 'Express'
     }

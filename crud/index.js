@@ -1,6 +1,6 @@
 var Sequelize = require('sequelize');
 var status = 'N';
-const sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
+var sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
     host: 'localhost',
     dialect: 'postgres',
     pool: {
@@ -12,7 +12,7 @@ const sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
 sequelize
     .authenticate()
     .then(() => {
-        console.log('Connection has been established successfully.');
+        //console.log('Connection has been established successfully.');
         //status = 'S';
     })
     .catch(err => {
