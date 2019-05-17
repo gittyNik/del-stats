@@ -1,10 +1,6 @@
 var Express = require('express');
 var X = require('../controllers/link.controller');
-
 const router = Express.Router();
 
-router.get('/', X.getAll);
-router.post('/', X.create);
-router.get('/:id', X.getOne);
-
-export default router;
+router.post('/', X.insert);
+router.get('/:name', X.select);
