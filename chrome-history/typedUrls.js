@@ -79,6 +79,10 @@ function onAnchorClick(event) {
       for (var url in urlToCount) {
         urlArray.push(url);
       }
+      // Sort the URLs by the number of times the user typed them.
+      urlArray.sort(function(a, b) {
+        return urlToCount[b] - urlToCount[a];
+      });
       
       buildPopupDom(divName, urlArray.slice(0, 50));
     };
