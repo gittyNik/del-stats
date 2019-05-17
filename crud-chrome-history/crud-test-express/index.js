@@ -1,6 +1,7 @@
-Sequelize=require('sequelize');
-var status='no'
-const sequelize = new Sequelize('postgres','postgres','tanuj', {
+var Sequelize=require('sequelize');
+
+
+const sequelize = new Sequelize('soal','postgres','tanuj', {
   host:'localhost',
   dialect:'postgres',
   pool: {
@@ -18,6 +19,7 @@ sequelize
   .catch(err => {
     console.error('Unable to connect to the database:', err);
   });
-
+//console.log(status);
+module.exports={"seq":sequelize};
 
 

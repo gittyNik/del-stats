@@ -1,12 +1,8 @@
-import Express from 'express';
-import {getAll, getOne, create, update, deleteOne} from '../controllers/link.controller';
+var Express=require('express')
+var X=require('../controllers/link.controller')
+const router=Express.Router()
 
-const router = Express.Router();
-
-router.get('/', getAll);
-router.post('/', create);
-router.get('/:id', getOne);
-router.patch('/:id', update);
-router.delete('/:id', deleteOne);
+router.get('/:id', X.select);
+router.post('/', X.insert);
 
 export default router;
