@@ -1,10 +1,8 @@
 var state = require('../index');
 var Sequelize = require('sequelize');
-//if (state.status == 'S') {
-var Links = state.seq.define('links', {
+var links = state.seq.define('urldb', {
     uid: {
         type: Sequelize.INTEGER,
-        //allowNull: false,
     },
     topic: {
         type: Sequelize.STRING
@@ -13,16 +11,9 @@ var Links = state.seq.define('links', {
         type: Sequelize.STRING
     }
 }, {
-    //freezeTableName: true
+    freezeTableName: true
 });
-Links.sync({ force: false }).then(function() {
-    /*console.log(Links.create({
-    uid: '1',
-    topic: 'Express',
-    url: "www.google.com"
-    }));*/
+links.sync({ force: false }).then(function() {
     return true;
 });
-console.log(Links);
-module.export = { 'links': Links };
-//}
+module.exports = { "links": links };

@@ -1,6 +1,5 @@
 var Sequelize = require('sequelize');
-var status = 'N';
-var sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
+const sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
     host: 'localhost',
     dialect: 'postgres',
     pool: {
@@ -12,11 +11,9 @@ var sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
 sequelize
     .authenticate()
     .then(() => {
-        //console.log('Connection has been established successfully.');
-        //status = 'S';
+        console.log('Connection has been established successfully.');
     })
     .catch(err => {
         console.error('Unable to connect to the database:', err);
     });
-//console.log(sequelize);
 module.exports = { "seq": sequelize };
