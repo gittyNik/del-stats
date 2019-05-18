@@ -1,13 +1,25 @@
 var Resource=require('../models/link')
-var insert=Resource.links.sync({force: false}).then(function () {
+var insert=function(req,res){ Resource.links.sync({force: false}).then(function () {
   return Resource.links.create({
-    uid: 123,
+    uid: req.params.id,
     url: 'www.soal.io'
   });
 });
-var select= Resource.links.findAll({}).then((data) => {
-    console.log(data);
+res.send('inserted data'); 
+}
+
+var getAll= function(req,res){Resource.links.findAll({}).then((data) => {
+    res.json(data)
   }).catch((err) => {
     console.log(err);
-  });
- module.exports={"select":select,"insert":insert}
+  })
+}
+var getOne= function(req,res){Resource.links.findAll({ where: {
+  uid: req.params.id
+} }).then((data) => {
+  res.json(data)
+}).catch((err) => {
+  console.log(err);
+})
+}
+ module.exports={"getOne":getOne,"getAll":getAll ,"insert":insert}

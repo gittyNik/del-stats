@@ -3,7 +3,8 @@ var X=require('../controllers/link.controller')
 
 const router=Express.Router()
 console.log(X.insert)
-router.get('/:id', X.select);
-router.post('/', X.insert);
+router.get('/:id', X.getOne);
+router.get('/', X.getAll);
+router.post('/insert/:id', X.insert);
 
-module.export=router;
+module.exports={"router":router};
