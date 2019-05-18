@@ -11,13 +11,16 @@ var insert = function(req, res) {
 }
 
 var select = function(req, res) {
-    Resource.links.findAll({
-        where: {
-            topic: 'Express'
+    Resource.links.findAll({}
+        /*where: {
+            topic: 'Naming Conventions'
         }
-    }).then((data) => {
-        console.log(data);
+    }*/
+    ).then((data) => {
+        res.json(data);
+        console.log('Data retrieved');
     }).catch((err) => {
+        console.log('entered catch');
         console.log(err);
     });
 }
