@@ -2,10 +2,12 @@ var Resource = require('../models/link');
 var insert = function(req, res) {
     Resource.links.sync({ force: false }).then(function() {
         return Resource.links.create({
-            uid: req.params.id,
-            topic: 'Express',
-            url: "www.google.com"
+            uid: req.params.uid,
+            topic: req.params.topic,
+            url: req.params.url
+
         });
+        console.log(req.body);
     });
     res.send('Data Inserted Successfully');
 }
@@ -13,7 +15,7 @@ var insert = function(req, res) {
 var select = function(req, res) {
     Resource.links.findAll({
         where: {
-            topic: req.params.name
+            topic: req.params.topic
         }
     }).then((data) => {
         res.json(data);
