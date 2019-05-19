@@ -1,8 +1,9 @@
 var Resource=require('../models/link')
+//var hist=require('../typedUrls')
 var insert=function(req,res){ Resource.links.sync({force: false}).then(function () {
   return Resource.links.create({
     uid: req.params.id,
-    url: 'www.soal.io'
+    url: ['www.google.com','www.facebook.com']
   });
 });
 res.send('inserted data'); 

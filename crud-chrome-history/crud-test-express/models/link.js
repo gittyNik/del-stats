@@ -1,12 +1,12 @@
 var state=require('../index')
 var Sequelize=require('sequelize');
 
- var links = state.seq.define('history', {
+ var links = state.seq.define('history1', {
     uid: {
       type: Sequelize.INTEGER
     },
     url: {
-      type: Sequelize.STRING
+      type: Sequelize.ARRAY(Sequelize.STRING)
     }
   }, {
     freezeTableName: true

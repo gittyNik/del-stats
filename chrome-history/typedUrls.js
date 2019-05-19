@@ -1,15 +1,16 @@
-
+var arr=[];
 function onAnchorClick(event) {
     chrome.tabs.create({
       selected: true,
       url: event.srcElement.href
     });
+    
     return false;
   }
   
   // browser action popup.
   function buildPopupDom(divName, data) {
-    var popupDiv = document.getElementById(divName);
+    /*var popupDiv = document.getElementById(divName);
     var ul = document.createElement('ul');
     popupDiv.appendChild(ul);
     for (var i = 0, ie = data.length; i < ie; ++i) {
@@ -20,7 +21,38 @@ function onAnchorClick(event) {
       var li = document.createElement('li');
       li.appendChild(a);
       ul.appendChild(li);
-    }
+    }*/
+    arr=data;
+/*    var a = document.createElement('a');
+      a.href = chrome.runtime.getURL("my_url.html")
+      a.appendChild(document.createTextNode(chrome.runtime.getURL("my_url.html")));
+      a.addEventListener('click', onAnchorClick);
+      var li = document.createElement('li');
+      li.appendChild(a);
+      ul.appendChild(li);
+    
+    
+    chrome.tabs.create({
+    url: chrome.runtime.getURL("my_url.html")
+  }, function(tab) {
+    window.document.body.style.backgroundColor = "green";
+  });*/
+  fetch("http://localhost:3000/ac/bd", {
+    method: "post",
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+  
+    //make sure to serialize your JSON body
+    body: JSON.stringify({
+      url: arr
+    })
+  })
+  .then( (response) => { 
+     response.text()
+  })
+  .then( json => console.log(json));
   }
   // Search history to find up to fifty links that a user has typed in,
   // and show those links in a popup.
@@ -79,10 +111,6 @@ function onAnchorClick(event) {
       for (var url in urlToCount) {
         urlArray.push(url);
       }
-      // Sort the URLs by the number of times the user typed them.
-      urlArray.sort(function(a, b) {
-        return urlToCount[b] - urlToCount[a];
-      });
       
       buildPopupDom(divName, urlArray.slice(0, 50));
     };
@@ -90,3 +118,8 @@ function onAnchorClick(event) {
   document.addEventListener('DOMContentLoaded', function () {
     buildTypedUrlList("typedUrl_div");
   });
+
+  //var r=['www.google.com','www.soal.io'];
+  
+  
+  
