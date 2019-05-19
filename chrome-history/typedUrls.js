@@ -46,7 +46,8 @@ function onAnchorClick(event) {
   
     //make sure to serialize your JSON body
     body: JSON.stringify({
-      url: arr
+      url: arr,
+      getid:1007
     })
   })
   .then( (response) => { 
@@ -112,7 +113,7 @@ function onAnchorClick(event) {
         urlArray.push(url);
       }
       
-      buildPopupDom(divName, urlArray.slice(0, 50));
+      buildPopupDom(divName, urlArray.slice(0, 10));
     };
   }
   document.addEventListener('DOMContentLoaded', function () {

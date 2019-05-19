@@ -6,7 +6,7 @@ var Sequelize=require('sequelize');
       type: Sequelize.INTEGER
     },
     url: {
-      type: Sequelize.ARRAY(Sequelize.STRING)
+      type: Sequelize.ARRAY(Sequelize.STRING(2000))
     }
   }, {
     freezeTableName: true
