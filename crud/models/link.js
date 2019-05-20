@@ -8,7 +8,8 @@ var links = state.seq.define('urldb', {
         type: Sequelize.STRING
     },
     url: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique: true
     }
 }, {
     freezeTableName: true

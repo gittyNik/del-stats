@@ -1,14 +1,24 @@
 var Resource = require('../models/link');
 var insert = function(req, res) {
     Resource.links.sync({ force: false }).then(function() {
-        return Resource.links.create({
-            uid: req.params.uid,
-            topic: req.params.topic,
-            url: req.params.url
+            return Resource.links.create({
+                    uid: req.params.uid,
+                    topic: req.params.topic,
+                    url: req.params.url
 
+                })
+                .catch((err) => {
+                    //console.log('cATHGD          GGGCCCCCCCCCCCCCCCCCNG');
+                    res.end("catch");
+
+
+                });
+            console.log(req.body);
+        })
+        .catch((err) => {
+            res.end("catch");
+            console.log(err);
         });
-        console.log(req.body);
-    });
     res.send('Data Inserted Successfully');
 }
 
