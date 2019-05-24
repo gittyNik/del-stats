@@ -3,4 +3,6 @@ export default {
   EDUCATOR: 'educator',
   SUPERADMIN: 'superadmin',
   ALL: 'all',
+  SOALMATE: 'Soalmate',
+  CATALYST: 'Catalyst'
 }
