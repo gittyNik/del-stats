@@ -9,7 +9,6 @@ const {PORT, DEFAULT_USER, DATABASE_USERNAME, DATABASE_PASSWORD} = process.env;
 const sequelize = new Sequelize(`postgres://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@localhost/delta_development`, {
   host: 'localhost',
     dialect: 'postgres',
-
   pool: {
     max: 5,
     acquire: 30000,

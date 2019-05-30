@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize'
-const sequelize = new Sequelize('postgres://postgres:1998@localhost/delta_development', {
+import dotenv from 'dotenv/config'
+const sequelize = new Sequelize(`postgres://${process.env.DATABASE_USERNAME}:${process.env.DATABASE_PASSWORD}@localhost/delta_development`, {
   pool: {
     max: 5,
     acquire: 30000,
