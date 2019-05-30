@@ -9,8 +9,7 @@ export const insert = (req, res)=> {
             url: req.params.url
         })
     })
-    .catch(err => res.status(500).send(err));
-    
+    .catch(err => res.status(500).send(err));    
 }
 
 export const select = (req, res)=> {
