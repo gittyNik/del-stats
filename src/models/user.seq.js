@@ -7,11 +7,13 @@ export const USER_ROLES = {
   CATALYST: 'Catalyst',
   SOALMATE: 'Soalmate'
 };
- const User = db.define('users',{
-    name:DataTypes.STRING,
-    email:DataTypes.STRING,
+ const User = db.define('Users',{
+    name: DataTypes.STRING,
+    email: DataTypes.STRING,
     phone: DataTypes.STRING,
-    role:DataTypes.STRING
+    role: DataTypes.STRING,
+    location: DataTypes.STRING,
+    profile: DataTypes.ARRAY(DataTypes.JSON)
     },{
       timestamps : false
     }

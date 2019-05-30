@@ -1,7 +1,7 @@
 export default {
-  STUDENT: 'student',
-  EDUCATOR: 'educator',
-  SUPERADMIN: 'superadmin',
+  STUDENT: 'Student',
+  EDUCATOR: 'Educator',
+  SUPERADMIN: 'Superadmin',
   ALL: 'all',
   SOALMATE: 'Soalmate',
   CATALYST: 'Catalyst'
