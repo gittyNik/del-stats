@@ -5,7 +5,7 @@ import dbConnect from './util/dbConnect';
 import Sequelize from 'sequelize';
 const {PORT, DEFAULT_USER} = process.env;
 
-const sequelize = new Sequelize("postgres","postgres","postgres", {
+const sequelize = new Sequelize(`postgres://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@localhost/delta_development`, {
   host: 'localhost',
     dialect: 'postgres',
   pool: {
