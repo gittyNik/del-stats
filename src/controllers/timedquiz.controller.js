@@ -1,14 +1,6 @@
-const express = require('express');
+const Questions = require('../models/question');
 
-const router = express.Router();
-
-const db = require('../config/database');
-
-const Questions = require('../models/Questions');
-
-
-
-router.get('/', (req, res)=>{
+export const getQuestions = (req,res) => {
     Questions.findAll()
     .then(questions=>{
         console.log(questions);
@@ -17,13 +9,13 @@ router.get('/', (req, res)=>{
     .catch(err=>{
         console.log(err);
     })
-});
+}
 
-router.get('/addQuestions', (req, res)=>{
+export const addQuestions = (req,res) => {
     const data = {
         question:"Node.js is written in which language?",
         options: ["C", "C++", "JavaScript", "Java"],
-        answer: 3
+        answer: [3,2]
     };
     let {question, options, answer} = data;
     Questions.create({
@@ -31,9 +23,14 @@ router.get('/addQuestions', (req, res)=>{
         options,
         answer
     })
-    .then(questions=>res.redirect('/questions'))
+    .then(questions=>res.send("success"))
     .catch(err=>console.log(err));
+}
 
-});
+export const update = (req,res) => {
+    res.send("updated");
+}
 
-module.exports = router;
+export const deleteOne = (req,res) => {
+    res.send("Deleted");
+}

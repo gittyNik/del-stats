@@ -1,7 +1,8 @@
 const Sequelize = require('sequelize');
-const db = require('../config/database');
+import {sequelize} from '../util/dbConnect';
 
-var Questions = db.define('questions', {
+
+var Questions = sequelize.define('question', {
     question: {
       type: Sequelize.STRING,
       allowNull: false
@@ -11,7 +12,7 @@ var Questions = db.define('questions', {
       allowNull: false
     },
     answer: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.ARRAY(Sequelize.INTEGER),
       allowNull: false
     }
   });
@@ -20,4 +21,4 @@ Questions.sync({ force: false }).then(function() {
     return true;
 });
 
-  module.exports = Questions;
+module.exports = Questions;
