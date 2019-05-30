@@ -1,9 +1,18 @@
-import mongoose from 'mongoose';
-const {Schema} = mongoose;
+const db =require('../database');
+import Sequelize, { DataTypes } from 'sequelize';
 
-const Link = mongoose.model('Link', new Schema({
-  data:Schema.Types.Mixed,
-  url: String
-}));
+const links = db.define('Resources', {
+    uid:DataTypes.STRING,
+    topic: DataTypes.STRING,
+    url: {
+        type: DataTypes.STRING,
+        unique: true
+    }
+}, {
+    freezeTableName: true
+});
 
-export default Link;
+links.sync({force:false}).then(function(){
+    return true;
+});
+module.exports= links;

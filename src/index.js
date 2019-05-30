@@ -5,7 +5,9 @@ import dbConnect from './util/dbConnect';
 import Sequelize from 'sequelize';
 const {PORT, DEFAULT_USER} = process.env;
 
-const sequelize = new Sequelize('postgres://localhost/delta_development', {
+const sequelize = new Sequelize("postgres","postgres","postgres", {
+  host: 'localhost',
+    dialect: 'postgres',
   pool: {
     max: 5,
     acquire: 30000,
@@ -20,7 +22,6 @@ sequelize
   .catch(err => {
     console.error('Unable to connect to the database:', err);
   });
-
 
 dbConnect().then( () => {
 
@@ -37,3 +38,5 @@ dbConnect().then( () => {
   });
 
 }).catch(err => console.error('MongoDB connection failure' + err));
+
+module.exports={"sequelize":sequelize};
