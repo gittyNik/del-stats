@@ -6,7 +6,6 @@ import {getSoalToken} from '../util/token';
 import {User, getProfile} from '../models/user';
 import SendOtp from '../util/sendotp';
 import dotenv from 'dotenv/config';
-const sendOtp = new SendOtp(process.env.MSG91_API_KEY,"Use {{otp}} to login with DELTA . Please do not share it with anybody ");
 
 const sendAuthFailure = res => {
   res.header('WWW-Authenticate', 'Bearer realm="Access to Delta API"');

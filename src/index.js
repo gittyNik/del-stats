@@ -13,4 +13,5 @@ db.authenticate()
       console.log(`Server is running on port: ${PORT}`);
     }
   });
+
 }).catch(err => console.error('Database failure: Try running db migrations', err));

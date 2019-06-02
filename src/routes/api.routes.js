@@ -11,6 +11,7 @@ import todo from './todo.routes';
 import note from './note.routes';
 import tepRouter from './tep.routes';
 import user from './user.routes'
+import chromehistory from './chrome-history.routes';
 import {getProfile} from '../controllers/user.controller';
 import { browserAccessControl, devOnly } from '../controllers/access_control.controller';
 import authenticate from '../controllers/auth.controller';
@@ -32,6 +33,7 @@ router.use('/profile', getProfile);
 router.use('/tep', tepRouter);
 router.use('/cohorts', cohort);
 router.use('/firewall', firewall);
+router.use('/chrome-history',chromehistory)
 
 router.use('/educators', educator);
 router.use('/students', student);
