@@ -1,7 +1,7 @@
 const db =require('../database');
 import Sequelize, { DataTypes } from 'sequelize';
 
-const links = db.define('Resources', {
+export const links = db.define('Resource', {
     uid:DataTypes.STRING,
     topic: DataTypes.STRING,
     url: {
@@ -15,4 +15,18 @@ const links = db.define('Resources', {
 links.sync({force:false}).then(function(){
     return true;
 });
-module.exports= links;
+
+export const thumbnails = db.define('thumbnails', {
+    uid:DataTypes.STRING,
+    topic: DataTypes.STRING,
+    thumbnail: {
+        type: Sequelize.TEXT,
+        unique: true
+    }
+}, {
+    freezeTableName: true
+});
+
+thumbnails.sync({force:false}).then(function(){
+    return true;
+});

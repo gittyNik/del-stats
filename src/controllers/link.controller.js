@@ -1,9 +1,10 @@
-const Resource=require('../models/link')
+import imageThumbnail from 'image-thumbnail';
+import {links,thumbnails} from '../models/link';
 
 export const insert = (req, res)=> {
-    Resource.sync({ force: false })
+    links.sync({ force: false })
     .then(()=> {
-        return Resource.create({
+        return links.create({
             uid: req.params.uid,
             topic: req.params.topic,
             url: req.params.url
@@ -13,7 +14,7 @@ export const insert = (req, res)=> {
 }
 
 export const select = (req, res)=> {
-    Resource.findAll({
+    links.findAll({
         where: {
             topic: req.params.topic
         }
@@ -21,3 +22,19 @@ export const select = (req, res)=> {
     .then((data) => {res.json(data);})
     .catch(err => res.status(500).send(err));
 }
+
+export const insertImage = (req,res)=> { 
+    let options = { responseType: 'base64' }
+    imageThumbnail(req.file.path,options)
+    .then((thumbnail) => {     
+        thumbnails.sync({ force: false })
+        .then(()=> {
+        return thumbnails.create({
+                uid: req.params.uid,
+                topic: req.params.topic,
+                thumbnail: thumbnail
+            })
+        })
+    })
+    .catch(err => res.status(500).send(err));
+};
