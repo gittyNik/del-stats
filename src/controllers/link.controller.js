@@ -1,5 +1,5 @@
 import imageThumbnail from 'image-thumbnail';
-import {links,thumbnails} from '../models/link';
+import {links} from '../models/link';
 
 export const insert = (req, res)=> {
     links.sync({ force: false })
@@ -27,9 +27,9 @@ export const insertImage = (req,res)=> {
     let options = { responseType: 'base64' }
     imageThumbnail(req.file.path,options)
     .then((thumbnail) => {     
-        thumbnails.sync({ force: false })
+        links.sync({ force: false })
         .then(()=> {
-        return thumbnails.create({
+        return links.create({
                 uid: req.params.uid,
                 topic: req.params.topic,
                 thumbnail: thumbnail

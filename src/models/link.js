@@ -7,18 +7,7 @@ export const links = db.define('Resource', {
     url: {
         type: DataTypes.STRING,
         unique: true
-    }
-}, {
-    freezeTableName: true
-});
-
-links.sync({force:false}).then(function(){
-    return true;
-});
-
-export const thumbnails = db.define('thumbnails', {
-    uid:DataTypes.STRING,
-    topic: DataTypes.STRING,
+    },
     thumbnail: {
         type: Sequelize.TEXT,
         unique: true
@@ -27,6 +16,6 @@ export const thumbnails = db.define('thumbnails', {
     freezeTableName: true
 });
 
-thumbnails.sync({force:false}).then(function(){
+links.sync({force:false}).then(function(){
     return true;
 });
