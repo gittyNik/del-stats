@@ -1,6 +1,6 @@
 const index=require('../database')
 import Sequelize from 'sequelize'; 
-var links = index.define('history', {
+export const links = index.define('history', {
     user_id: {
       type: Sequelize.STRING
     },
@@ -33,9 +33,3 @@ var links = index.define('history', {
   links.sync({force: false}).then(function () {
     return true;
   });
-
-  module.exports={"links":links};
-
-
-
-
