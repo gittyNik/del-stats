@@ -1,36 +1,12 @@
 import Express from 'express';
-import {insert,select,insertImage} from '../controllers/link.controller';
-import multer from 'multer';
+import {unmoderated_requests,approve_resource, insert_report,retrieve_report,update_report} from '../controllers/link.controller';
 
 const router = Express.Router();
 
-const storage=multer.diskStorage({
-    destination:function(req,file,cb){
-        cb(null,'./uploads/')
-    },
-    filename:function(req,file,cb){
-        cb(null, file.originalname);
-    }
-});
-
-const fileFilter=(req,file,cb)=>{
-    if(file.mimetype==='image/jpeg' ||file.mimetype==='image/png'){
-        cb(null,true);
-    }
-    else{
-        cb(null,false);
-    }
-    
-}
-const upload=multer({storage:storage,limits:{
-    fileSize:1024*1024*5
-},
-fileFilter:fileFilter
-});
-
-router.post('/:uid/:topic/:url', insert);
-router.get('/:topic', select);
-router.post('/:uid/:topic', upload.single('image'),insertImage);
-
+router.get('/resources/reports',retrieve_report);
+router.post('/resources/:resource_id/reports',insert_report);
+router.patch('/resources/:resource_id/reports/:report_id/resolve',update_report);
+router.get('/resources/pending',unmoderated_requests);
+router.patch('/resources/:resource_id/approve',approve_resource);
 
 export default router;

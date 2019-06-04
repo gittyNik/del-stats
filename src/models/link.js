@@ -1,5 +1,5 @@
 const db =require('../database');
-import Sequelize, { DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 
 export const links = db.define('Resource', {
     uid:DataTypes.STRING,
@@ -8,14 +8,25 @@ export const links = db.define('Resource', {
         type: DataTypes.STRING,
         unique: true
     },
-    thumbnail: {
-        type: Sequelize.TEXT,
-        unique: true
+    status:{
+        type: DataTypes.STRING,
+        defaultValue: 'pending'
     }
-}, {
-    freezeTableName: true
 });
 
 links.sync({force:false}).then(function(){
+    return true;
+});
+
+export const resource_reports = db.define('resource_reports', {
+    resource_id:DataTypes.INTEGER,
+    report: DataTypes.STRING,
+    status:{
+        type: DataTypes.STRING,
+        defaultValue: 'pending'
+    }
+});
+
+resource_reports.sync({force:false}).then(function(){
     return true;
 });

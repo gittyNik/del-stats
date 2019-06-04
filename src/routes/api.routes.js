@@ -20,7 +20,7 @@ const router = Express.Router();
 if(process.env.NODE_ENV === 'development') {
 	router.use('/doc', Express.static('./doc'));
 }
-router.use('/links', link);
+router.use('/tep', link);
 router.use(authentication);
 
 router.use('/cohorts', cohort);
