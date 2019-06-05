@@ -1,7 +1,7 @@
-const Questions = require('../models/question');
+const question = require('../../models/question');
 
 export const getQuestions = (req,res) => {
-    Questions.findAll()
+    question.findAll()
     .then(questions=>{
         console.log(questions);
         res.status(200).json(questions);
