@@ -30,3 +30,12 @@ export const resource_reports = db.define('resource_reports', {
 resource_reports.sync({force:false}).then(function(){
     return true;
 });
+
+export const resource_comments = db.define('resource_comments', {
+    resource_id:DataTypes.INTEGER,
+    comments: DataTypes.STRING,
+});
+
+resource_comments.sync({force:false}).then(function(){
+    return true;
+});
