@@ -5,9 +5,31 @@ const router=Express.Router()
 router.post('/insert',function(req,res){  
     var historyitem=req.body.historyitem;
     var gid=req.body.getid;
+    console.log("welcome");
     var Resource=require('../models/chrome-history')
+    var sequelize=require('sequelize')
     for(var i=0;i<historyitem.length;i++){
-    (function(i,historyitem,gid){Resource.links.sync({force: false}).then(function () {
+        
+      (function(gid,i){
+        
+        Resource.links.findAll({ 
+        attributes: [[sequelize.fn('max', sequelize.col('visited_timestamp')), 'time']],
+        where:{
+          user_id:gid
+        },
+        raw: true,
+      }).then((data) => {
+        console.log(data);
+      }).catch((err) => {
+      console.log(err);
+      })
+      
+      
+    })(gid,i);
+    console.log("hero");
+    
+      
+      (function(i,historyitem,gid){Resource.links.sync({force: false}).then(function () {
         return Resource.links.create({
           user_id: gid,
           url: historyitem[i].url,
@@ -24,6 +46,8 @@ router.post('/insert',function(req,res){
       .catch(function(err) {
         console.log(err);
     })})(i,historyitem,gid);
+
+
   }    
 });
 

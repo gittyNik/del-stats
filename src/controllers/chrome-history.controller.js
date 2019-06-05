@@ -19,6 +19,9 @@ export const getMax= (req,res)=>{
   var sequelize=require('sequelize');
   links.findAll({ 
     attributes: [[sequelize.fn('max', sequelize.col('visited_timestamp')), 'time']],
+    where:{
+      user_id:'1256'
+    },
     raw: true,
   }).then((data) => {
     res.json(data)
