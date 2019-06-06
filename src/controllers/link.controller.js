@@ -20,6 +20,36 @@ export const get_top=(req, res)=> {
   .catch(err => res.status(500).send(err));
 }
 
+export const get_milestone_resources=(req,res)=>{
+  milestones.findAll({attributes: ['topics'],
+      where:{
+          id:req.params.milestone_id
+      }
+  })
+  .then((data) => {
+      links.findAll({attributes: ['url'],
+        where:{
+          topic_ids :data[0].topics
+        }
+      }).then((data1)=>{
+        res.json(data1);
+      })
+  })
+  .catch(err => res.status(500).send(err));
+}
+
+export const get_topic_resources=(req,res)=>{
+  links.findAll({attributes: ['url'],
+      where:{
+        topic_ids:req.params.topic_id
+      }
+  })
+  .then((data) => {
+      res.json(data);
+  })
+  .catch(err => res.status(500).send(err));
+}
+
 export const get_resources=(req,res)=>{
   links.findAll({})
   .then((data) => {res.json(data);})
