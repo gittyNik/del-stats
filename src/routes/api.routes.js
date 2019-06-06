@@ -20,6 +20,7 @@ import authRouter from './auth.routes';
 import link from './link.routes';
 import user from './user.routes';
 import timedquiz from './timedquiz.routes';
+import firewall from './firewall.routes';
 import {getProfile, populateCurrentUser} from '../controllers/user.controller';
 >>>>>>> 656bd58... integrated
 
@@ -51,6 +52,7 @@ router.use('/users', user)
 <<<<<<< HEAD
 =======
 router.use('/timedquiz', timedquiz);
+router.use('/firewall', firewall);
 
 router.get('/profile', populateCurrentUser, getProfile);
 >>>>>>> 656bd58... integrated

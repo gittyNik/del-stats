@@ -118,3 +118,7 @@ export const resetSpotters = async (req, res) => {
   });
 
 }
+
+export const getUpcomingCohorts = (req, res) => {
+  res.send("Lists of upcoming cohorts");
+}
