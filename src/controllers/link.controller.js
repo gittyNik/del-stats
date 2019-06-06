@@ -1,5 +1,25 @@
 import {links} from '../models/link';
 
+export const get_latest=(req, res)=> {
+  links.findAll({
+    order: [
+      ['createdAt', 'DESC'],
+    ],
+  })
+  .then((data) => {res.json(data);})
+  .catch(err => res.status(500).send(err));
+}
+
+export const get_top=(req, res)=> {
+  links.findAll({
+    order: [
+      ['vote', 'DESC'],
+    ],
+  })
+  .then((data) => {res.json(data);})
+  .catch(err => res.status(500).send(err));
+}
+
 export const get_resources=(req,res)=>{
   links.findAll({})
   .then((data) => {res.json(data);})
@@ -13,6 +33,18 @@ export const get_resource=(req,res)=>{
     }
   })
   .then((data) => {res.json(data);})
+  .catch(err => res.status(500).send(err));
+}
+
+export const insert_resource = (req, res)=> {
+  links.sync({ force: false })
+  .then(()=> {
+    return links.create({
+        uid : req.body.uid,
+        topic:req.body.topic,
+        url: req.body.url,
+    })
+})
   .catch(err => res.status(500).send(err));
 }
 

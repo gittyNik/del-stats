@@ -1,10 +1,13 @@
 import Express from 'express';
-import {get_resources,get_resource,update_resource,delete_resource,get_comments,insert_comment,delete_comment,upvote,downvote,get_report,insert_report,update_report,unmoderated_requests,approve_resource} from '../controllers/link.controller';
+import {get_latest,get_top,get_resources,get_resource,insert_resource,update_resource,delete_resource,get_comments,insert_comment,delete_comment,upvote,downvote,get_report,insert_report,update_report,unmoderated_requests,approve_resource} from '../controllers/link.controller';
 
 const router = Express.Router();
 
+router.get('/resources/latest',get_latest);
+router.get('/resources/top',get_top);
 router.get('/resources',get_resources);
 router.get('/resources/:resource_id([0-9]*)',get_resource);
+router.post('/resources',insert_resource);
 router.patch('/resources/:resource_id([0-9]*)',update_resource);
 router.delete('/resources/:resource_id([0-9]*)',delete_resource);
 router.get('/resources/:resource_id([0-9]*)/comments',get_comments);
