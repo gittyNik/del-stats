@@ -14,5 +14,5 @@
 List of commands that handle database schema
 - `npx sequelize-cli db:create`
 - `npx sequelize-cli db:migrate`
-- `npx sequelize-cli seed:generate`
 - `npx sequelize-cli db:seed:all`
+- `npx sequelize-cli seed:generate`
