@@ -8,7 +8,7 @@ mongoose.Promise = Promise;
 console.log(MONGO_HOST);
 export default () => mongoose.connect(MONGO_HOST, {user, pass});
 
-export const sequelize = new Sequelize('postgres://shivam:soal@localhost/delta_development', {
+export const sequelize = new Sequelize('postgres://shivam:soal@localhost/test_development', {
   pool: {
     max: 5,
     acquire: 30000,
