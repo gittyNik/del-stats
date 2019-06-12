@@ -1,8 +1,8 @@
 import Express from 'express';
-import {get_milestone_resources} from '../controllers/link.controller';
+import {getAllByMilestone as getMilestoneResources } from '../controllers/tep_resource.controller';
 
 const router = Express.Router();
 
-router.get('/:milestone_id/resources',get_milestone_resources);
+router.get('/:milestone_id/resources', getMilestoneResources);
 
 export default router;

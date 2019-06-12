@@ -5,8 +5,8 @@ import milestone from './tep_milestone.routes';
 
 const router = Express.Router();
 
-router.get('/resources', resource);
-router.get('/topics', topic);
-router.get('/milestones', milestone);
+router.use('/resources', resource);
+router.use('/topics', topic);
+router.use('/milestones', milestone);
 
 export default router;

@@ -1,24 +1,39 @@
 import Express from 'express';
-import {get_latest,get_top,get_resources,get_milestone_resources,get_topic_resources,get_resource,insert_resource,update_resource,delete_resource,get_comments,insert_comment,delete_comment,upvote,downvote,get_report,insert_report,update_report,unmoderated_requests,approve_resource} from '../controllers/link.controller';
+
+import { getLatest, getTop, getAll, getUnmoderated, getOne, create, update,
+  deleteOne, getComments, addComment, deleteComment, upvote, unvote, getReports,
+  addReport, resolveReport, approve } from '../controllers/tep_resource';
 
 const router = Express.Router();
 
-router.get('/latest',get_latest);
-router.get('/top',get_top);
-router.get('',get_resources);
-router.get('/:resource_id([0-9]*)',get_resource);
-router.post('',insert_resource);
-router.patch('/:resource_id([0-9]*)',update_resource);
-router.delete('/:resource_id([0-9]*)',delete_resource);
-router.get('/:resource_id([0-9]*)/comments',get_comments);
-router.post('/:resource_id([0-9]*)/comments',insert_comment);
-router.delete('/:resource_id([0-9]*)/comments/:comment_id([0-9]*)',delete_comment);
-router.post('/:resource_id/vote',upvote);
-router.delete('/:resource_id([0-9]*)/vote',downvote);
-router.get('/reports',get_report);
-router.post('/:resource_id([0-9]*)/reports',insert_report);
-router.patch('/:resource_id([0-9]*)/reports/:report_id([0-9]*)/resolve',update_report);
-router.get('/pending',unmoderated_requests);
-router.patch('/:resource_id([0-9]*)/approve',approve_resource);
+
+router.get('/reports', getReports);
+router.post('/:resource_id/reports', addReport);
+router.patch('/:resource_id/reports/:report_id/resolve', resolveReport);
+
+/**
+ * @api {get} /tep/resources/latest Get latest TEP resources
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetLatestResources
+ * @apiGroup TepResources
+ */
+router.get('/', getAll);
+router.get('/latest', getLatest);
+router.get('/top', getTop);
+router.get('/pending', getUnmoderated);
+
+router.post('/', create);
+router.get('/:resource_id', getOne);
+router.patch('/:resource_id', update);
+router.delete('/:resource_id', deleteOne);
+router.patch('/:resource_id/approve', approve);
+
+router.get('/:resource_id/comments', getComments);
+router.post('/:resource_id/comments', addComment);
+router.delete('/:resource_id/comments/:comment_id', deleteComment);
+
+router.post('/:resource_id/vote', upvote);
+router.delete('/:resource_id/vote', unvote);
+
 
 export default router;

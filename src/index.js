@@ -1,3 +1,4 @@
+import dotenv from 'dotenv/config';
 import app from './server';
 import User from './models/user';
 import {createSuperAdmin} from './seeds/users';
