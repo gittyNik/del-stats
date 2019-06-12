@@ -1,22 +1,19 @@
-'use strict';
-
-import Sequelize from 'sequelize';
-
 module.exports =
-  class Resource_reports extends Sequelize.Model {
+  class ResourceReports extends Sequelize.Model {
     static init(sequelize) {
       return super.init({
-        user_id: {
-          type: Sequelize.UUID,
-        },
         resource_id: {
           type: Sequelize.UUID,
-          allowNull: false,
           references: { model: 'resources', key: 'id' }
         },
-        vote: {
+        report: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+        },
+        status: {
           type: Sequelize.STRING,
-          allowNull:false
+          allowNull:false,
+          defaultValue: 'pending'
         }
       }, { sequelize })
     };

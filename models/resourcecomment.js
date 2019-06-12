@@ -1,9 +1,5 @@
-'use strict';
-
-import Sequelize from 'sequelize';
-
 module.exports =
-  class Resource_comments extends Sequelize.Model {
+  class ResourceComment extends Sequelize.Model {
     static init(sequelize) {
       return super.init({
         resource_id: {
@@ -18,6 +14,6 @@ module.exports =
     };
 
     static associate(models) {
-      this.belongsTo(models.Resources)
+      this.belongsTo(models.resources)
     }
   }

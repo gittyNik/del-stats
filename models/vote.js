@@ -3,21 +3,20 @@
 import Sequelize from 'sequelize';
 
 module.exports =
-  class Resource_reports extends Sequelize.Model {
+  class Vote extends Sequelize.Model {
     static init(sequelize) {
       return super.init({
+        user_id: {
+          type: Sequelize.UUID,
+        },
         resource_id: {
           type: Sequelize.UUID,
+          allowNull: false,
           references: { model: 'resources', key: 'id' }
         },
-        report: {
-          type: Sequelize.TEXT,
-          allowNull: false,
-        },
-        status: {
+        vote: {
           type: Sequelize.STRING,
-          allowNull:false,
-          defaultValue: 'pending'
+          allowNull:false
         }
       }, { sequelize })
     };
