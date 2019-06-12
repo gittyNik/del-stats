@@ -11,7 +11,7 @@ import days from './day.routes';
 import admin from './admin.routes';
 import todo from './todo.routes';
 import note from './note.routes';
-import link from './link.routes';
+import tep from './tep.routes';
 import user from './user.routes'
 import {getProfile, populateCurrentUser} from '../controllers/user.controller';
 
@@ -20,8 +20,8 @@ const router = Express.Router();
 if(process.env.NODE_ENV === 'development') {
 	router.use('/doc', Express.static('./doc'));
 }
-router.use('/tep', link);
-router.use(authentication);
+router.use('/tep', tep);
+//router.use(authentication);
 
 router.use('/cohorts', cohort);
 router.use('/educators', educator);
