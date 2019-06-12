@@ -1,7 +1,7 @@
-import links from '../../models/resource';
+import Resource from '../../models/resource';
 
-export const get_latest=(req, res)=> {
-  links.findAll({
+export const getLatest = (req, res)=> {
+  Resource.findAll({
     order: [
       ['createdAt', 'DESC'],
     ],
@@ -10,8 +10,8 @@ export const get_latest=(req, res)=> {
   .catch(err => res.status(500).send(err));
 }
 
-export const get_top=(req, res)=> {
-  links.findAll({
+export const getTop = (req, res)=> {
+  Resource.findAll({
     order: [
       ['vote', 'DESC'],
     ],
@@ -20,14 +20,14 @@ export const get_top=(req, res)=> {
   .catch(err => res.status(500).send(err));
 }
 
-export const get_milestone_resources=(req,res)=>{
+export const getAllByMilestone = (req,res)=>{
   milestones.findAll({attributes: ['topics'],
       where:{
           id:req.params.milestone_id
       }
   })
   .then((data) => {
-      links.findAll({attributes: ['url'],
+      Resource.findAll({attributes: ['url'],
         where:{
           topic_ids :data[0].topics
         }
@@ -38,8 +38,8 @@ export const get_milestone_resources=(req,res)=>{
   .catch(err => res.status(500).send(err));
 }
 
-export const get_topic_resources=(req,res)=>{
-  links.findAll({attributes: ['url'],
+export const getAllByTopic = (req,res)=>{
+  Resource.findAll({attributes: ['url'],
       where:{
         topic_ids:req.params.topic_id
       }
@@ -50,14 +50,14 @@ export const get_topic_resources=(req,res)=>{
   .catch(err => res.status(500).send(err));
 }
 
-export const get_resources=(req,res)=>{
-  links.findAll({})
+export const getAll = (req,res)=>{
+  Resource.findAll({})
   .then((data) => {res.json(data);})
   .catch(err => res.status(500).send(err));
 }
 
-export const get_resource=(req,res)=>{
-  links.findAll({
+export const getOne = (req,res)=>{
+  Resource.findAll({
     where:{
         id:req.params.resource_id
     }
@@ -66,10 +66,10 @@ export const get_resource=(req,res)=>{
   .catch(err => res.status(500).send(err));
 }
 
-export const insert_resource = (req, res)=> {
-  links.sync({ force: false })
+export const create = (req, res)=> {
+  Resource.sync({ force: false })
   .then(()=> {
-    return links.create({
+    return Resource.create({
         uid : req.body.uid,
         topic:req.body.topic,
         url: req.body.url,
@@ -78,8 +78,8 @@ export const insert_resource = (req, res)=> {
   .catch(err => res.status(500).send(err));
 }
 
-export const update_resource=(req,res)=>{
-  links.update({url: req.body.url},{
+export const update = (req,res)=>{
+  Resource.update({url: req.body.url},{
     where: {
       id: req.params.resource_id
     }
@@ -88,15 +88,15 @@ export const update_resource=(req,res)=>{
 .catch(err => res.status(500).send(err));
 }
 
-export const delete_resource=(req,res)=>{
-  links.destroy({where: {
+export const delete = (req,res)=>{
+  Resource.destroy({where: {
       id:req.params.resource_id
     }})
     .then(() => {console.log("Deleted");})
     .catch(err => res.status(500).send(err));
 }
 
-export const get_comments=(req,res)=>{
+export const getComments = (req,res)=>{
   resource_comments.findAll({
       where:{
           resource_id:req.params.resource_id
@@ -106,7 +106,7 @@ export const get_comments=(req,res)=>{
   .catch(err => res.status(500).send(err));
 }
 
-export const insert_comment=(req,res)=>{
+export const addComment = (req,res)=>{
   resource_comments.sync({ force: false })
   .then(()=> {
       return resource_comments.create({
@@ -117,7 +117,7 @@ export const insert_comment=(req,res)=>{
   .catch(err => res.status(500).send(err));
 }
 
-export const delete_comment=(req,res)=>{
+export const deleteComment = (req,res)=>{
   resource_comments.destroy({where: {
       id:req.params.comment_id
     }})
@@ -125,8 +125,8 @@ export const delete_comment=(req,res)=>{
     .catch(err => res.status(500).send(err));
 }
 
-export const upvote=(req,res)=>{
-  links.findOne({
+export const upvote = (req,res)=>{
+  Resource.findOne({
     where: { 
       id:req.params.resource_id
     }
@@ -135,8 +135,8 @@ export const upvote=(req,res)=>{
   .catch(err => res.status(500).send(err));
 };
 
-export const downvote=(req,res)=>{
-  links.findOne({
+export const unvote = (req,res)=>{
+  Resource.findOne({
     where: { 
       id:req.params.resource_id
     }
@@ -145,13 +145,13 @@ export const downvote=(req,res)=>{
   .catch(err => res.status(500).send(err));
 }
 
-export const get_report=(req,res)=>{
+export const getReports = (req,res)=>{
   resource_reports.findAll({})
   .then((data) => {res.json(data);})
   .catch(err => res.status(500).send(err));
 }
 
-export const insert_report=(req,res)=>{
+export const addReport = (req,res)=>{
   resource_reports.sync({ force: false })
   .then(()=> {
       return resource_reports.create({
@@ -162,7 +162,7 @@ export const insert_report=(req,res)=>{
   .catch(err => res.status(500).send(err));
 }
 
-export const update_report=(req,res)=>{
+export const resolveReport = (req,res)=>{
   resource_reports.update({
   status: 'resolved'
 }, {
@@ -173,8 +173,8 @@ export const update_report=(req,res)=>{
   .then(() => {console.log('Updated');})
   .catch(err => res.status(500).send(err));
 }
-export const unmoderated_requests = (req, res)=> {
-    links.findAll({
+export const getAllUnmoderated = (req, res)=> {
+    Resource.findAll({
         where: {
             status: 'pending'
         }
@@ -183,8 +183,8 @@ export const unmoderated_requests = (req, res)=> {
     .catch(err => res.status(500).send(err));
 }
 
-export const approve_resource=(req,res)=>{
-    links.update({
+export const approve = (req,res)=>{
+    Resource.update({
     status: 'approved'
   }, {
     where: {
