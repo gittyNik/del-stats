@@ -1,4 +1,3 @@
-'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('resources', {
@@ -10,7 +9,7 @@ module.exports = {
         topic_id: {
           type: Sequelize.UUID,
           allowNull:false,
-          //references:{ model: 'topics', key: 'id' }
+          references:{ model: 'topics', key: 'id' }
         },
         url: {
           type: Sequelize.STRING,
@@ -39,10 +38,10 @@ module.exports = {
         add_time: {
           type:Sequelize.DATE,
         },
-        /*level: {
+        level: {
           type:Sequelize.ENUM('beginner','advanced'),
           allowNull:false,
-        },*/
+        },
         tags: {
           type:Sequelize.ARRAY(Sequelize.STRING),
         },

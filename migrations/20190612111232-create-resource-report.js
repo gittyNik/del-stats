@@ -1,23 +1,19 @@
-'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('topics', {
+    return queryInterface.createTable('resource_reports', {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID
       },
-      title: {
+      topic_id: {
+        type: Sequelize.UUID
+      },
+      report: {
         type: Sequelize.STRING
       },
-      description: {
-        type: Sequelize.TEXT
-      },
-      program: {
+      status: {
         type: Sequelize.STRING
-      },
-      milestone_number: {
-        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
@@ -30,6 +26,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('topics');
+    return queryInterface.dropTable('resource_reports');
   }
 };
