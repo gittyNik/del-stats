@@ -1,12 +1,12 @@
 'use strict';
-
+var faker = require('faker');
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert('tests', [{
       questions: [],
       user: "Library",
-      generateTime: new Date(),
-      submitTime: new Date(),
+      generatetime: faker.date.past(),
+      submittime: faker.date.future(),
       type: "coding",
       browserSession: []
     }], {});

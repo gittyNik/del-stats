@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import {sequelize} from '../src/util/dbConnect';
 
-const Tests = sequelize.define('test', {
+const Tests = sequelize.define('tests', {
     questions: {
         type: Sequelize.ARRAY(Sequelize.UUID),
         allowNull: false,

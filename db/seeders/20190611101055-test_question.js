@@ -8,12 +8,12 @@ const isCorrect = [true, false];
 
 var questions = [];
 
-for(i=1; i<=100; i++){
+for(let c=1; c<=10; c++){
     let qtype = type[Math.floor(Math.random()*type.length)];
     if(qtype=='text'){
         let answers = [];
         let count = Math.floor(Math.random()*3) + 1;
-        for(i=1; i<=count; i++){
+        for(let i=1; i<=count; i++){
             answers.push(faker.lorem.sentence());
         }
         let text = {
@@ -70,6 +70,7 @@ for(i=1; i<=100; i++){
     }
 }
 
+console.log(questions.length)
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert('test_questions', questions, {}, { question: { type: new Sequelize.JSON() } });
