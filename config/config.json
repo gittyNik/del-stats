@@ -2,7 +2,7 @@
   "development": {
     "username": "shivam",
     "password": "soal",
-    "database": "test_development",
+    "database": "firewall_development",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },

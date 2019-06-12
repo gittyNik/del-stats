@@ -2,11 +2,6 @@ import Sequelize from 'sequelize';
 import {sequelize} from '../src/util/dbConnect';
 
 const TestQuestions = sequelize.define('test_question', {
-    id: {
-        type: Sequelize.UUID,
-        primaryKey: true,
-        defaultValue: Sequelize.UUIDv4,
-    },
     question: {
         type: Sequelize.JSON,
         allowNull: false,
@@ -15,6 +10,10 @@ const TestQuestions = sequelize.define('test_question', {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      createdAt: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
+      }
   })
 
 module.exports = TestQuestions;

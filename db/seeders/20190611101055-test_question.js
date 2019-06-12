@@ -70,7 +70,6 @@ for(let c=1; c<=10; c++){
     }
 }
 
-console.log(questions.length)
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert('test_questions', questions, {}, { question: { type: new Sequelize.JSON() } });
@@ -80,3 +79,5 @@ module.exports = {
     return queryInterface.bulkDelete('test_questions', null, {});
   }
 };
+
+console.log(questions.length)

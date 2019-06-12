@@ -2,19 +2,30 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('tests', {
+      // id: {
+      //   type: Sequelize.UUID,
+      //   primaryKey: true,
+      //   defaultValue: Sequelize.UUIDv4,
+      // },
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
       questions: {
-        type: Sequelize.ARRAY(Sequelize.UUID),
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
         allowNull: false,
       },
       user: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      gen_time: {
+      generateTime: {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      sub_time: {
+      submitTime: {
         type: Sequelize.DATE,
         allowNull: false,
       },
@@ -22,9 +33,17 @@ module.exports = {
         type: Sequelize.ENUM('coding', 'logical', 'mindset'),
         allowNull: false,
       },
-      browser_session: {
+      browserSession: {
         type: Sequelize.ARRAY(Sequelize.STRING),
         allowNull: false,
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
+      },
+      updatedAt: {
+        type: Sequelize.DATE(),
+        defaultValue: Sequelize.NOW,
       },
     });
   },
