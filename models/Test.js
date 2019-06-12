@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import {sequelize} from '../src/util/dbConnect';
 
-var Tests = sequelize.define('test', {
+const Tests = sequelize.define('test', {
     questions: {
         type: Sequelize.ARRAY(Sequelize.UUID),
         allowNull: false,
@@ -10,11 +10,11 @@ var Tests = sequelize.define('test', {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      gen_time: {
+      generateTime: {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      sub_time: {
+      submitTime: {
         type: Sequelize.DATE,
         allowNull: false,
       },
@@ -22,7 +22,7 @@ var Tests = sequelize.define('test', {
         type: Sequelize.ENUM('coding', 'logical', 'mindset'),
         allowNull: false,
       },
-      browser_session: {
+      browserSession: {
         type: Sequelize.ARRAY(Sequelize.STRING),
         allowNull: false,
       },

@@ -3,9 +3,12 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert('tests', [{
-      question: 'What is Node.js?',
-      options: ['Library', 'Framework', 'Packages', 'javascript'],
-      answer: [1,2,3],
+      questions: [],
+      user: "Library",
+      generateTime: new Date(),
+      submitTime: new Date(),
+      type: "coding",
+      browserSession: []
     }], {});
   },
 
