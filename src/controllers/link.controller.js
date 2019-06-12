@@ -1,4 +1,4 @@
-import {links} from '../models/link';
+import links from '../../models/resource';
 
 export const get_latest=(req, res)=> {
   links.findAll({
