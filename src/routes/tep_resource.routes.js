@@ -139,7 +139,8 @@ router.post('/:resource_id/vote', upvote);
  * @apiHeader {String} authorization JWT Token.
  * @apiName Unvote
  * @apiGroup TepResources
- */router.delete('/:resource_id/vote', unvote);
+ */
+router.delete('/:resource_id/vote', unvote);
 
 
 export default router;
