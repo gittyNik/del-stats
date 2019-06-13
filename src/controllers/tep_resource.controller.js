@@ -7,14 +7,14 @@ import Sequelize  from 'sequelize';
 export const getLatest = (req, res)=> {
   Resource.findAll({
     order: [
-      ['createdAt', 'DESC'],
+      ['add_time', 'DESC'],
     ],
   })
   .then((data) => {res.json(data);})
   .catch(err => res.status(500).send(err));
 }
 
-export const getTop = (req, res)=> {
+/*export const getTop = (req, res)=> {
   Resource.findAll({
     order: [
       ['vote', 'DESC'],
@@ -53,7 +53,7 @@ export const getAllByTopic = (req,res)=>{
   })
   .catch(err => res.status(500).send(err));
 }
-
+*/
 export const getAll = (req,res)=>{
   Resource.findAll({})
   .then((data) => {res.json(data);})
@@ -71,6 +71,8 @@ export const getOne = (req,res)=>{
 }
 
 export const create = (req, res)=> {
+  Resource.sync({ force: false })
+  .then(()=> {
     return Resource.create({
         topic_id:Sequelize.UUIDV1,
         url:"www.google.com",
@@ -80,6 +82,7 @@ export const create = (req, res)=> {
         program:"xyz",
         add_time:'2016-06-22 19:10:25-07'
     })
+  })
     .then(()=>{res.send("Successfully posted url");})
     .catch(err => res.status(500).send(err));
 }
@@ -90,7 +93,7 @@ export const update = (req,res)=>{
       id: req.params.resource_id
     }
   })
-.then(() => {console.log('data updated')})
+.then(() => {res.send('data updated')})
 .catch(err => res.status(500).send(err));
 }
 
@@ -98,7 +101,7 @@ export const deleteOne = (req,res)=>{
   Resource.destroy({where: {
       id:req.params.resource_id
     }})
-    .then(() => {console.log("Deleted");})
+    .then(() => {res.send("Deleted");})
     .catch(err => res.status(500).send(err));
 }
 
@@ -117,9 +120,10 @@ export const addComment = (req,res)=>{
   .then(()=> {
       return Resource_Comment.create({
           resource_id:req.params.resource_id,
-          comments: req.body.comment,
+          comments: /*req.body.comment,*/"asdsfsd",
       })
   })
+  .then(() => res.send("Comment added"))
   .catch(err => res.status(500).send(err));
 }
 
@@ -127,7 +131,7 @@ export const deleteComment = (req,res)=>{
   Resource_Comment.destroy({where: {
       id:req.params.comment_id
     }})
-    .then(() => {console.log("comment Deleted");})
+    .then(() => {res.send("Comment Deleted");})
     .catch(err => res.status(500).send(err));
 }
 
@@ -176,13 +180,14 @@ export const resolveReport = (req,res)=>{
     id: req.params.report_id
     }
   })
-  .then(() => {console.log('Updated');})
+  .then(() => {res.send('Updated');})
   .catch(err => res.status(500).send(err));
 }
+
 export const getUnmoderated = (req, res)=> {
     Resource.findAll({
         where: {
-            status: 'pending'
+            moderator: null
         }
     })
     .then((data) => {res.json(data);})
@@ -191,14 +196,12 @@ export const getUnmoderated = (req, res)=> {
 
 export const approve = (req,res)=>{
     Resource.update({
-    status: 'approved'
+    moderator: Sequelize.UUIDV1
   }, {
     where: {
       id: req.params.resource_id
     }
-  }).then(() => {
-    console.log('Updated');
-  }).catch((e) => {
-    console.log("Error"+e);
   })
+  .then(() => {res.send('Resource approved');})
+  .catch(err => res.status(500).send(err));
 }

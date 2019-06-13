@@ -1,7 +1,7 @@
-module.exports =
-  class ResourceReports extends Sequelize.Model {
-    static init(sequelize) {
-      return super.init({
+import Sequelize from 'sequelize';
+const db =require('../database');
+
+const Resource_Reports = db.define('resource_reports', {
         resource_id: {
           type: Sequelize.UUID,
           references: { model: 'resources', key: 'id' }
@@ -15,10 +15,5 @@ module.exports =
           allowNull:false,
           defaultValue: 'pending'
         }
-      }, { sequelize })
-    };
-
-    static associate(models) {
-      this.belongsTo(models.Resources)
-    }
-  }
+      });
+      module.exports = Resource_Reports;

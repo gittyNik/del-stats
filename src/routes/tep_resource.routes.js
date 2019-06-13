@@ -1,8 +1,8 @@
 import Express from 'express';
 
-import { getLatest, getTop, getAll, getUnmoderated, getOne, create, update,
-  deleteOne, getComments, addComment, deleteComment, upvote, unvote, getReports,
-  addReport, resolveReport, approve } from '../controllers/tep_resource.controller';
+import { getLatest, /*getTop,*/ getAll,getUnmoderated, getOne, create, update,
+  deleteOne, getComments, addComment, deleteComment/*, upvote, unvote*/, getReports,
+addReport, resolveReport, approve } from '../controllers/tep_resource.controller';
 
 const router = Express.Router();
 
@@ -20,7 +20,7 @@ router.get('/reports', getReports);
  * @apiName AddReport
  * @apiGroup TepResources
  */
-router.post('/:resource_id/reports', addReport);
+router.post('/reports', addReport);
 
 /**
  * @api {patch} /tep/resources/:resource_id/reports/:report_id/resolve Update TEP resource report status.
@@ -52,7 +52,7 @@ router.get('/latest', getLatest);
  * @apiName GetTop
  * @apiGroup TepResources
  */
-router.get('/top', getTop);
+//router.get('/top', getTop);
 
 /**
  * @api {get} /tep/resources/pending Get Unmoderated TEP resources
@@ -132,7 +132,7 @@ router.delete('/:resource_id/comments/:comment_id', deleteComment);
  * @apiName Upvote
  * @apiGroup TepResources
  */
-router.post('/:resource_id/vote', upvote);
+//router.post('/:resource_id/vote', upvote);
 
 /**
  * @api {delete} /tep/resources/:resource_id/vote Unvote TEP resource
@@ -140,7 +140,7 @@ router.post('/:resource_id/vote', upvote);
  * @apiName Unvote
  * @apiGroup TepResources
  */
-router.delete('/:resource_id/vote', unvote);
+//router.delete('/:resource_id/vote', unvote);
 
 
 export default router;
