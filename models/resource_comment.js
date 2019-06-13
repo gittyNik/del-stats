@@ -1,19 +1,10 @@
-module.exports =
-  class ResourceComment extends Sequelize.Model {
-    static init(sequelize) {
-      return super.init({
-        resource_id: {
-          type: Sequelize.UUID,
-          references: { model: 'resources', key: 'id' }
-        },
-        comment: {
-          type: Sequelize.TEXT,
-          allowNull: false,
-        },
-      }, { sequelize })
-    };
-
-    static associate(models) {
-      this.belongsTo(models.resources)
-    }
-  }
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const resource_comment = sequelize.define('resource_comment', {
+    id: DataTypes.UUID
+  }, {});
+  resource_comment.associate = function(models) {
+    // associations can be defined here
+  };
+  return resource_comment;
+};

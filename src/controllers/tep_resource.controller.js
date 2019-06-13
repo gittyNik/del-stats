@@ -1,4 +1,8 @@
 import Resource from '../../models/resource';
+import Resource_Comment from '../../models/resource_comment';
+import Resource_Report from '../../models/resource_report';
+import Resource_Vote from '../../models/resource_vote';
+import Sequelize  from 'sequelize';
 
 export const getLatest = (req, res)=> {
   Resource.findAll({
@@ -67,15 +71,17 @@ export const getOne = (req,res)=>{
 }
 
 export const create = (req, res)=> {
-  Resource.sync({ force: false })
-  .then(()=> {
     return Resource.create({
-        uid : req.body.uid,
-        topic:req.body.topic,
-        url: req.body.url,
+        topic_id:Sequelize.UUIDV1,
+        url:"www.google.com",
+        owner:Sequelize.UUIDV1,
+        moderator:Sequelize.UUIDV4,
+        type:"article",
+        program:"xyz",
+        add_time:'2016-06-22 19:10:25-07'
     })
-})
-  .catch(err => res.status(500).send(err));
+    .then(()=>{res.send("Successfully posted url");})
+    .catch(err => res.status(500).send(err));
 }
 
 export const update = (req,res)=>{
@@ -88,7 +94,7 @@ export const update = (req,res)=>{
 .catch(err => res.status(500).send(err));
 }
 
-export const delete = (req,res)=>{
+export const deleteOne = (req,res)=>{
   Resource.destroy({where: {
       id:req.params.resource_id
     }})
@@ -97,7 +103,7 @@ export const delete = (req,res)=>{
 }
 
 export const getComments = (req,res)=>{
-  resource_comments.findAll({
+  Resource_Comment.findAll({
       where:{
           resource_id:req.params.resource_id
       }
@@ -107,9 +113,9 @@ export const getComments = (req,res)=>{
 }
 
 export const addComment = (req,res)=>{
-  resource_comments.sync({ force: false })
+  Resource_Comment.sync({ force: false })
   .then(()=> {
-      return resource_comments.create({
+      return Resource_Comment.create({
           resource_id:req.params.resource_id,
           comments: req.body.comment,
       })
@@ -118,7 +124,7 @@ export const addComment = (req,res)=>{
 }
 
 export const deleteComment = (req,res)=>{
-  resource_comments.destroy({where: {
+  Resource_Comment.destroy({where: {
       id:req.params.comment_id
     }})
     .then(() => {console.log("comment Deleted");})
@@ -126,7 +132,7 @@ export const deleteComment = (req,res)=>{
 }
 
 export const upvote = (req,res)=>{
-  Resource.findOne({
+  Resource_Vote.findOne({
     where: { 
       id:req.params.resource_id
     }
@@ -136,7 +142,7 @@ export const upvote = (req,res)=>{
 };
 
 export const unvote = (req,res)=>{
-  Resource.findOne({
+  Resource_Vote.findOne({
     where: { 
       id:req.params.resource_id
     }
@@ -146,15 +152,15 @@ export const unvote = (req,res)=>{
 }
 
 export const getReports = (req,res)=>{
-  resource_reports.findAll({})
+  Resource_Report.findAll({})
   .then((data) => {res.json(data);})
   .catch(err => res.status(500).send(err));
 }
 
 export const addReport = (req,res)=>{
-  resource_reports.sync({ force: false })
+  Resource_Report.sync({ force: false })
   .then(()=> {
-      return resource_reports.create({
+      return Resource_Report.create({
           resource_id:req.params.resource_id,
           report: req.body.report,
       })
@@ -163,7 +169,7 @@ export const addReport = (req,res)=>{
 }
 
 export const resolveReport = (req,res)=>{
-  resource_reports.update({
+  Resource_Report.update({
   status: 'resolved'
 }, {
     where: {
@@ -173,7 +179,7 @@ export const resolveReport = (req,res)=>{
   .then(() => {console.log('Updated');})
   .catch(err => res.status(500).send(err));
 }
-export const getAllUnmoderated = (req, res)=> {
+export const getUnmoderated = (req, res)=> {
     Resource.findAll({
         where: {
             status: 'pending'

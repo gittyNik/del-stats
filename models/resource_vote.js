@@ -1,10 +1,10 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const resource_report = sequelize.define('resource_report', {
+  const resource_vote = sequelize.define('resource_vote', {
     id: DataTypes.UUID
   }, {});
-  resource_report.associate = function(models) {
+  resource_vote.associate = function(models) {
     // associations can be defined here
   };
-  return resource_report;
+  return resource_vote;
 };
