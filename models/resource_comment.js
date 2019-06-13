@@ -7,13 +7,14 @@ const Resource_Comments = db.define('resource_comments', {
     defaultValue: Sequelize.UUIDV4,
     primaryKey: true,
   },
-        resource_id: {
-          type: Sequelize.UUID,
-          references: { model: 'resources', key: 'id' }
-        },
-        comments: {
-          type: Sequelize.TEXT,
-          allowNull: false,
-        },
-      })
-      module.exports = Resource_Comments;
+  resource_id: {
+    type: Sequelize.UUID,
+    references: { model: 'resources', key: 'id' }
+  },
+  comments: {
+    type: Sequelize.TEXT,
+      allowNull: false,
+    },
+  })
+
+module.exports = Resource_Comments;

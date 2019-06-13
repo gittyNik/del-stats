@@ -71,22 +71,24 @@ export const getOne = (req,res)=>{
 }
 
 export const create = (req, res)=> {
-  Resource.sync({ force: false })
-  .then(()=> {
-    return Resource.create({
-        topic_id:Sequelize.UUIDV1,
-        url:"www.google.com",
-        owner:Sequelize.UUIDV1,
-        moderator:Sequelize.UUIDV4,
-        type:"article",
-        program:"xyz",
-        add_time:'2016-06-22 19:10:25-07'
-    })
+  const data = {
+    id:req.body.id,
+    topic_id:req.body.topic_id,
+    url:req.body.url,
+    owner:req.body.owner,
+    moderator:req.body.moderator,
+    type:req.body.type,
+    program:req.body.program,
+    add_time:req.body.add_time,
+  };
+  let {id,topic_id,url,owner,moderator,type,program,add_time} = data;
+  Resource.create({
+    id,topic_id,url,owner,moderator,type,program,add_time
   })
-    .then(()=>{res.send("Successfully posted url");})
-    .catch(err => res.status(500).send(err));
+  .then(()=>res.send("Resource Added"))
+  .catch(err=>console.log(err));
 }
-
+ 
 export const update = (req,res)=>{
   Resource.update({url: req.body.url},{
     where: {
@@ -116,15 +118,16 @@ export const getComments = (req,res)=>{
 }
 
 export const addComment = (req,res)=>{
-  Resource_Comment.sync({ force: false })
-  .then(()=> {
-      return Resource_Comment.create({
-          resource_id:req.params.resource_id,
-          comments: /*req.body.comment,*/"asdsfsd",
-      })
-  })
-  .then(() => res.send("Comment added"))
-  .catch(err => res.status(500).send(err));
+  const data={
+    resource_id:req.params.resource_id,
+    comments: req.body.comments,
+  }
+  let {resource_id,comments}=data
+    return Resource_Comment.create({
+      resource_id,comments
+    })
+    .then(() => res.send("Comment added"))
+    .catch(err => res.status(500).send(err));
 }
 
 export const deleteComment = (req,res)=>{
@@ -162,13 +165,15 @@ export const getReports = (req,res)=>{
 }
 
 export const addReport = (req,res)=>{
-  Resource_Report.sync({ force: false })
-  .then(()=> {
-      return Resource_Report.create({
-          resource_id:req.params.resource_id,
-          report: req.body.report,
-      })
+  const data={
+    resource_id:req.params.resource_id,
+    report: req.body.report,
+  }
+  let {resource_id,report} = data
+  return Resource_Report.create({
+    resource_id,report
   })
+  .then(() => res.send("Report Inserted"))
   .catch(err => res.status(500).send(err));
 }
 

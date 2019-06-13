@@ -20,7 +20,7 @@ router.get('/reports', getReports);
  * @apiName AddReport
  * @apiGroup TepResources
  */
-router.post('/reports', addReport);
+router.post('/:resource_id/reports', addReport);
 
 /**
  * @api {patch} /tep/resources/:resource_id/reports/:report_id/resolve Update TEP resource report status.
