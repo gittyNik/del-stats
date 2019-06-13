@@ -1,10 +1,25 @@
-'use strict';
-module.exports = (sequelize, DataTypes) => {
-  const resource_vote = sequelize.define('resource_vote', {
-    id: DataTypes.UUID
-  }, {});
-  resource_vote.associate = function(models) {
-    // associations can be defined here
-  };
-  return resource_vote;
-};
+import Sequelize from 'sequelize';
+
+module.exports =
+  class Vote extends Sequelize.Model {
+    static init(sequelize) {
+      return super.init({
+        user_id: {
+          type: Sequelize.UUID,
+        },
+        resource_id: {
+          type: Sequelize.UUID,
+          allowNull: false,
+          references: { model: 'resources', key: 'id' }
+        },
+        vote: {
+          type: Sequelize.STRING,
+          allowNull:false
+        }
+      }, { sequelize })
+    };
+
+    static associate(models) {
+      this.belongsTo(models.Resources)
+    }
+  }
