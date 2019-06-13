@@ -18,13 +18,37 @@ export const getAllQuestion = (req,res) => {
 }
 
 export const addQuestion = (req, res) => {
-    
+        console.log(req.body.type);
+        console.log(req.body.question);
+        console.log(req.body.qimage);
+        console.log(req.body.qtype);
+        console.log(req.body.answers);
+        //console.log(req.body.answers);
+        // test_question.create({
+        //     question,
+        //     type,
+        // })
+        // .then(questions=>res.send("insertion success"))
+        // .catch(err=>console.log(err));
 }
 
 export const deleteQuestion = (req, res) => {
-    
+    // console.log(req.params.id);
+    test_question.destroy({
+        where: {
+          id: req.params.id
+        }
+      });
 }
 
 export const updateQuestion = (req, res) => {
-    
+    //console.log(req.params.id);
+    test_question.update({
+        question: {}
+      }, {
+        where: {
+          id: req.params.id
+        }
+      });
+      // UPDATE post SET question: {} WHERE id: 2;
 }

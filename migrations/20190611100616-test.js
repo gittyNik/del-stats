@@ -8,7 +8,6 @@ module.exports = {
       //   defaultValue: Sequelize.UUIDv4,
       // },
       id: {
-        allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
@@ -23,11 +22,11 @@ module.exports = {
       },
       generateTime: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: Sequelize.NOW,
       },
       submitTime: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: true,
       },
       type: {
         type: Sequelize.ENUM('coding', 'logical', 'mindset'),
@@ -35,14 +34,14 @@ module.exports = {
       },
       browserSession: {
         type: Sequelize.ARRAY(Sequelize.STRING),
-        allowNull: false,
+        allowNull: true,
       },
       createdAt: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
       updatedAt: {
-        type: Sequelize.DATE(),
+        type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
     });

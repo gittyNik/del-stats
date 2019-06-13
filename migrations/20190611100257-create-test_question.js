@@ -5,7 +5,7 @@ module.exports = {
     // id: {
     //     type: Sequelize.UUID,
     //     primaryKey: true,
-    //     defaultValue: Sequelize.UUIDv4,
+    //     defaultValue: Sequelize.UUIDV4,
     // },
     id: {
       allowNull: false,
@@ -17,15 +17,15 @@ module.exports = {
         type: Sequelize.JSON,
         allowNull: false,
       },
-      type: {
+    type: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      createdAt: {
+    createdAt: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
-      updatedAt: {
+    updatedAt: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },

@@ -6,6 +6,8 @@ const type = ['mcq', 'text', 'code'];
 
 const isCorrect = [true, false];
 
+const questionType = ['coding', 'logical', 'mindset']
+
 var questions = [];
 
 for(let c=1; c<=10; c++){
@@ -21,7 +23,8 @@ for(let c=1; c<=10; c++){
             question: {
                 question: faker.lorem.sentence(),
                 image: faker.image.imageUrl(),
-                answers: answers
+                answers: answers,
+                qtype: questionType[Math.floor(Math.random()*questionType.length)],
             }
         }
         questions.push(text);
@@ -53,7 +56,8 @@ for(let c=1; c<=10; c++){
                         image: faker.image.imageUrl(),
                         isCorrect: isCorrect[Math.floor(Math.random()*isCorrect.length)]
                     }, 
-                ]
+                ],
+                qtype: questionType[Math.floor(Math.random()*questionType.length)],
             }
         }
         questions.push(mcq);
@@ -64,6 +68,7 @@ for(let c=1; c<=10; c++){
             question: {
                 question: faker.lorem.sentence(),
                 image: faker.image.imageUrl(),
+                qtype: questionType[Math.floor(Math.random()*questionType.length)],
             }
         }
         questions.push(code);
