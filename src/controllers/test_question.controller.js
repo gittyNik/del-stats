@@ -22,7 +22,8 @@ export const addQuestion = (req, res) => {
         console.log(req.body.question);
         console.log(req.body.qimage);
         console.log(req.body.qtype);
-        console.log(req.body.answers);
+        console.log(req.body);
+        //console.log(req.body.answers[0]);
         //console.log(req.body.answers);
         // test_question.create({
         //     question,
