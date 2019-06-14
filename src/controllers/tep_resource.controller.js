@@ -2,7 +2,8 @@ import Resource from '../../models/resource';
 import Resource_Comment from '../../models/resource_comment';
 import Resource_Report from '../../models/resource_report';
 import Resource_Vote from '../../models/resource_vote';
-import Sequelize  from 'sequelize';
+import Milestones from '../../models/milestone';
+//import Sequelize  from 'sequelize';
 
 export const getLatest = (req, res)=> {
   Resource.findAll({
@@ -23,9 +24,9 @@ export const getLatest = (req, res)=> {
   .then((data) => {res.json(data);})
   .catch(err => res.status(500).send(err));
 }
-
+*/
 export const getAllByMilestone = (req,res)=>{
-  milestones.findAll({attributes: ['topics'],
+  Milestones.findAll({attributes: ['topics'],
       where:{
           id:req.params.milestone_id
       }
@@ -33,7 +34,7 @@ export const getAllByMilestone = (req,res)=>{
   .then((data) => {
       Resource.findAll({attributes: ['url'],
         where:{
-          topic_ids :data[0].topics
+          topic_id :data[0].topics
         }
       }).then((data1)=>{
         res.json(data1);
@@ -41,7 +42,7 @@ export const getAllByMilestone = (req,res)=>{
   })
   .catch(err => res.status(500).send(err));
 }
-*/
+
 export const getAllByTopic = (req,res)=>{
   Resource.findAll({attributes: ['url'],
       where:{
