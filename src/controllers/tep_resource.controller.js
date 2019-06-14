@@ -41,11 +41,11 @@ export const getAllByMilestone = (req,res)=>{
   })
   .catch(err => res.status(500).send(err));
 }
-
+*/
 export const getAllByTopic = (req,res)=>{
   Resource.findAll({attributes: ['url'],
       where:{
-        topic_ids:req.params.topic_id
+        topic_id:req.params.topic_id
       }
   })
   .then((data) => {
@@ -53,7 +53,7 @@ export const getAllByTopic = (req,res)=>{
   })
   .catch(err => res.status(500).send(err));
 }
-*/
+
 export const getAll = (req,res)=>{
   Resource.findAll({})
   .then((data) => {res.json(data);})
@@ -95,7 +95,7 @@ export const update = (req,res)=>{
       id: req.params.resource_id
     }
   })
-.then(() => {res.send('data updated')})
+.then(() => {res.send('Resource updated')})
 .catch(err => res.status(500).send(err));
 }
 
@@ -103,7 +103,7 @@ export const deleteOne = (req,res)=>{
   Resource.destroy({where: {
       id:req.params.resource_id
     }})
-    .then(() => {res.send("Deleted");})
+    .then(() => {res.send("Deleted resource");})
     .catch(err => res.status(500).send(err));
 }
 
@@ -123,38 +123,42 @@ export const addComment = (req,res)=>{
     comments: req.body.comments,
   }
   let {resource_id,comments}=data
-    return Resource_Comment.create({
-      resource_id,comments
-    })
-    .then(() => res.send("Comment added"))
-    .catch(err => res.status(500).send(err));
+  return Resource_Comment.create({
+    resource_id,comments
+  })
+  .then(() => res.send("Comment added"))
+  .catch(err => res.status(500).send(err));
 }
 
 export const deleteComment = (req,res)=>{
   Resource_Comment.destroy({where: {
       id:req.params.comment_id
-    }})
-    .then(() => {res.send("Comment Deleted");})
-    .catch(err => res.status(500).send(err));
+    }
+  })
+  .then(() => {res.send("Comment Deleted");})
+  .catch(err => res.status(500).send(err));
 }
 
 export const upvote = (req,res)=>{
-  Resource_Vote.findOne({
-    where: { 
-      id:req.params.resource_id
-    }
-  })
-  .then(option => {return option.increment('vote');})
+  const data={
+    user_id : req.body.user_id,
+    resource_id : req.params.resource_id,
+    vote : "upvote"
+  }
+  let {user_id,resource_id,vote} = data
+  return Resource_Vote.create({user_id,resource_id,vote})
+  .then(() => res.send("Vote added"))
   .catch(err => res.status(500).send(err));
 };
 
 export const unvote = (req,res)=>{
-  Resource_Vote.findOne({
+  Resource_Vote.destroy({
     where: { 
-      id:req.params.resource_id
+      resource_id : req.params.resource_id,
+      user_id : req.body.user_id
     }
   })
-  .then(option => {return option.decrement('vote');})
+  .then(() => res.send("Vote deleted"))
   .catch(err => res.status(500).send(err));
 }
 
@@ -201,7 +205,7 @@ export const getUnmoderated = (req, res)=> {
 
 export const approve = (req,res)=>{
     Resource.update({
-    moderator: Sequelize.UUIDV1
+    moderator: req.body.id
   }, {
     where: {
       id: req.params.resource_id

@@ -1,25 +1,19 @@
 import Sequelize from 'sequelize';
+const db =require('../database');
 
-module.exports =
-  class Vote extends Sequelize.Model {
-    static init(sequelize) {
-      return super.init({
-        user_id: {
-          type: Sequelize.UUID,
-        },
-        resource_id: {
-          type: Sequelize.UUID,
-          allowNull: false,
-          references: { model: 'resources', key: 'id' }
-        },
-        vote: {
-          type: Sequelize.STRING,
-          allowNull:false
-        }
-      }, { sequelize })
-    };
-
-    static associate(models) {
-      this.belongsTo(models.Resources)
-    }
+const Resource_Vote = db.define('resource_votes', {
+  user_id: {
+    type: Sequelize.UUID,
+  },
+  resource_id: {
+    type: Sequelize.UUID,
+    allowNull: false,
+    references: { model: 'resources', key: 'id' }
+  },
+  vote: {
+    type: Sequelize.STRING,
+    allowNull:false
   }
+});
+
+module.exports = Resource_Vote;

@@ -1,7 +1,7 @@
 import Express from 'express';
 
 import { getLatest, /*getTop,*/ getAll,getUnmoderated, getOne, create, update,
-  deleteOne, getComments, addComment, deleteComment/*, upvote, unvote*/, getReports,
+  deleteOne, getComments, addComment, deleteComment, upvote, unvote, getReports,
 addReport, resolveReport, approve } from '../controllers/tep_resource.controller';
 
 const router = Express.Router();
@@ -132,7 +132,7 @@ router.delete('/:resource_id/comments/:comment_id', deleteComment);
  * @apiName Upvote
  * @apiGroup TepResources
  */
-//router.post('/:resource_id/vote', upvote);
+router.post('/:resource_id/vote', upvote);
 
 /**
  * @api {delete} /tep/resources/:resource_id/vote Unvote TEP resource
@@ -140,7 +140,7 @@ router.delete('/:resource_id/comments/:comment_id', deleteComment);
  * @apiName Unvote
  * @apiGroup TepResources
  */
-//router.delete('/:resource_id/vote', unvote);
+router.delete('/:resource_id/vote', unvote);
 
 
 export default router;
