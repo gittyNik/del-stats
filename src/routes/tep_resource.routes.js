@@ -67,6 +67,11 @@ router.get('/pending', getUnmoderated);
  * @apiHeader {String} authorization JWT Token.
  * @apiName Create
  * @apiGroup TepResources
+ *
+ * @apiParam {String} url URL of the resource
+ * @apiParam {String} topic_id Topic the resource belongs to
+ * @apiParam {String} type article/repo/video/tweet
+ * @apiParam {String} level beginner/advanced
  */
 router.post('/', create);
 

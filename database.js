@@ -1,11 +1,7 @@
-import Sequelize from 'sequelize'
-const sequelize = new Sequelize('postgres','postgres','postgres', {
-    host: 'localhost',
-    dialect: 'postgres',
-  pool: {
-    max: 5,
-    acquire: 30000,
-    idle: 10000,
-  }
-});
-module.exports =sequelize
+import Sequelize from 'sequelize';
+import dotenv from 'dotenv/config';
+
+const {DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSWORD} = process.env;
+const sequelize = new Sequelize(DATABASE_NAME, DATABASE_USERNAME,
+  DATABASE_PASSWORD, { dialect:'postgres'});
+module.exports = sequelize;

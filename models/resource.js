@@ -23,13 +23,17 @@ const Resource = db.define('resources', {
   moderator:{
     type: Sequelize.UUID,
     allowNull:false,
-  }, 
+  },
   thumbnail:{
     type:Sequelize.BLOB,
     unique:true,
-  }, 
+  },
   type: {
     type:Sequelize.ENUM('article', 'repo', 'video', 'tweet'),
+    allowNull:false,
+  },
+  level: {
+    type:Sequelize.ENUM('beginner', 'advanced'),
     allowNull:false,
   },
   program: {

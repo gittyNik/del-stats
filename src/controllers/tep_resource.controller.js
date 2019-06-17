@@ -4,6 +4,7 @@ import Resource_Report from '../../models/resource_report';
 import Resource_Vote from '../../models/resource_vote';
 import Milestones from '../../models/milestone';
 import sequelize  from 'sequelize';
+import uuid from 'uuid/v4';
 
 export const getLatest = (req, res)=> {
   Resource.findAll({
@@ -83,21 +84,25 @@ export const getOne = (req,res)=>{
 }
 
 export const create = (req, res)=> {
-  const data = {
-    id:req.body.id,
-    topic_id:req.body.topic_id,
-    url:req.body.url,
-    owner:req.body.owner,
-    moderator:req.body.moderator,
-    type:req.body.type,
-    program:req.body.program,
-    add_time:req.body.add_time,
-  };
-  let {id,topic_id,url,owner,moderator,type,program,add_time} = data;
+  let {topic_id, url, type, level} = req.body;
+  console.log('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7')
+  console.log(level)
   Resource.create({
-    id,topic_id,url,owner,moderator,type,program,add_time
+    id: uuid(),
+    owner: uuid(),       // todo: Add the user's id here after auth is set
+    moderator: uuid(),
+    program: 'tep',
+    add_time: Date.now(),
+    topic_id,
+    url,
+    type,
+    level,
   })
-  .then(()=>res.send("Resource Added"))
+  .then(tepResource => {
+    res.send({
+      data: tepResource
+    });
+  })
   .catch(err=>console.log(err));
 }
  
