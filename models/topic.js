@@ -12,13 +12,13 @@ module.exports =
           type:Sequelize.STRING,
         },
         description:{
-          type:DataTypes.TEXT,
+          type:Sequelize.TEXT,
         } ,
         program:{
-          type:DataTypes.STRING,
+          type:Sequelize.STRING,
         },
         milestone_number: {
-          type:DataTypes.INTEGER
+          type:Sequelize.INTEGER
         }
       }, { sequelize })
     };
