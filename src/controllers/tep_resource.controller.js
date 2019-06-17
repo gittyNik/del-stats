@@ -3,7 +3,7 @@ import Resource_Comment from '../../models/resource_comment';
 import Resource_Report from '../../models/resource_report';
 import Resource_Vote from '../../models/resource_vote';
 import Milestones from '../../models/milestone';
-//import Sequelize  from 'sequelize';
+import sequelize  from 'sequelize';
 
 export const getLatest = (req, res)=> {
   Resource.findAll({
@@ -15,16 +15,27 @@ export const getLatest = (req, res)=> {
   .catch(err => res.status(500).send(err));
 }
 
-/*export const getTop = (req, res)=> {
-  Resource.findAll({
-    order: [
-      ['vote', 'DESC'],
-    ],
-  })
-  .then((data) => {res.json(data);})
-  .catch(err => res.status(500).send(err));
+export const getTop = (req, res)=> {
+  Resource_Vote.findAll({
+    attributes: ['resource_id', [sequelize.fn('count', sequelize.col('resource_id')), 'count']],
+      group : ['resource_votes.resource_id'],
+      raw: true,
+      order: sequelize.literal('count DESC')
+    })
+    .then((data1)=>{
+      Resource.findAll({attributes:['url'],
+        where:{
+            id:data1[0]['resource_id']
+        }
+      })
+      .then((data) => {
+        res.json(data);
+      });
+    })
+    .catch(err => res.status(500).send(err));
 }
-*/
+
+
 export const getAllByMilestone = (req,res)=>{
   Milestones.findAll({attributes: ['topics'],
       where:{

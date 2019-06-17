@@ -1,6 +1,6 @@
 import Express from 'express';
 
-import { getLatest, /*getTop,*/ getAll,getUnmoderated, getOne, create, update,
+import { getLatest, getTop, getAll,getUnmoderated, getOne, create, update,
   deleteOne, getComments, addComment, deleteComment, upvote, unvote, getReports,
 addReport, resolveReport, approve } from '../controllers/tep_resource.controller';
 
@@ -52,7 +52,7 @@ router.get('/latest', getLatest);
  * @apiName GetTop
  * @apiGroup TepResources
  */
-//router.get('/top', getTop);
+router.get('/top', getTop);
 
 /**
  * @api {get} /tep/resources/pending Get Unmoderated TEP resources
