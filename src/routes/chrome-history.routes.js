@@ -4,7 +4,20 @@ const router=Express.Router()
 const ip=require('ip')
 router.post('/insert',controller.insert);
 
+/**
+ * @api {get} /cohorts Get all cohorts
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetCohorts
+ * @apiGroup Cohort
+ */
+
 router.get('/allresults', controller.getAll);
-router.get('/max',controller.getMax);
+
+/**
+ * @api {get} /cohorts Get all cohorts
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetCohorts
+ * @apiGroup Cohort
+ */
  
 export default router;

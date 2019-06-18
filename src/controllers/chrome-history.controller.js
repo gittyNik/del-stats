@@ -1,14 +1,14 @@
-import {links} from '../models/chrome-history';
+import {browser_history} from '../../models/browser-history';
 var localStorage=require('localStorage');
 var ip=require('ip');
-export const getAll= function(req,res){links.findAll({}).then((data) => {
+export const getAll= function(req,res){browser_history.findAll({}).then((data) => {
     res.json(data)
   }).catch((err) => {
     console.log(err);
   })
 }
 
-export const getOne= function(req,res){links.findAll({ 
+export const getOne= function(req,res){browser_history.findAll({ 
   where: {
         uid: req.params.id
     } 
@@ -18,10 +18,10 @@ export const getOne= function(req,res){links.findAll({
 
 export const getMax= (req,res)=>{
   var sequelize=require('sequelize');
-  links.findAll({ 
+  browser_history.findAll({ 
     attributes: [[sequelize.fn('max', sequelize.col('visited_timestamp')), 'time']],
     where:{
-      user_id:localStorage.getItem('userId')
+      uid:'8e3cb23a-90cc-11e9-bc42-526af7764f64'
     },
     raw: true,
   }).then((data) => {
@@ -34,27 +34,29 @@ export const getMax= (req,res)=>{
 export const insert= function(req,res){  
   var historyitem=req.body.historyitem;
   var gid=req.body.getid;
-  console.log("welcome");
-  console.log(localStorage.getItem('userId'));
-  console.log(historyitem);
-  var Resource=require('../models/chrome-history');     
+  var browser_history=require('../../models/browser-history');     
   ( function(historyitem,gid){
       var sequelize=require('sequelize');
-       Resource.links.findAll({ 
+      browser_history.browser_history.findAll({ 
       attributes: [[sequelize.fn('max', sequelize.col('visited_timestamp')), 'time']],
       where:{
-        user_id:gid
+        uid:'8e3cb23a-90cc-11e9-bc42-526af7764f64'
       },
       raw: true,
     }).then( async (data) => {
       for(var i=0;i<historyitem.length;i++){
-         var promise=new Promise((resolve,reject)=>{(function(i,historyitem,gid,data){Resource.links.sync({force: false}).then(function () {
-        if(data[0]['time']==null || data[0]['time']<historyitem[i]['lastVisitTime'])
+        var promise=new Promise((resolve,reject)=>{(function(i,historyitem,gid,data){browser_history.browser_history.sync({force: false}).then(function () {
+        var urlTime=Date.parse(historyitem[i]['lastVisitTime']);
+        if(data[0]['time']!=null){
+        var maxTime=Date.parse(data[0]['time'].toString()); 
+      }
+        var truthvalue=parseInt(maxTime)<parseInt(urlTime);
+          console.log(truthvalue);
+        if(data[0]['time']==null || truthvalue )
        { 
-         console.log("right");
          console.log(historyitem[i]['lastVisitTime']);
-        return Resource.links.create({
-          user_id: gid,
+        return browser_history.browser_history.create({
+          uid: gid,
           url: historyitem[i].url,
           ip:  ip.address(),
           visited_timestamp: historyitem[i]['lastVisitTime'],
@@ -67,9 +69,6 @@ export const insert= function(req,res){
         });
       }
       else{
-        console.log(historyitem[i]['lastVisitTime']);
-        console.log(data[0]['time']);
-        console.log("wrong");
         return true;
       }
       
@@ -80,19 +79,14 @@ export const insert= function(req,res){
       .catch(function(err) {
         console.log(err);
     })})(i,historyitem,gid,data);
-
-    
     resolve("hello");
     });
     let k =await  promise;
-    console.log("hero");
     } }
     
     ).catch((err) => {
     console.log(err);
     })
-    
-    
     
   })(historyitem,gid);
 }
