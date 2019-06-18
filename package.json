@@ -6,8 +6,7 @@
     "build": "babel src -d api-build --presets env",
     "lint": "eslint src",
     "doc": "apidoc -i src",
-    "seed": "babel-node src/seeds --presets env,stage-3",
-    "start": "nodemon --exec babel-node ./src/index.js --presets env,stage-3",
+    "start": "npm run doc && babel-node ./src/index.js --presets env,stage-3",
     "test": "jest"
   },
   "engines": {

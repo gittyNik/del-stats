@@ -7,15 +7,15 @@ const router = Express.Router();
  * @api {get} /tep/milestones/:milestone_id/resources Get TEP resources of a milestone
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetMilestoneResources
- * @apiGroup TepMilestones
+ * @apiGroup TEP Milestone
  */
 router.get('/:milestone_id/resources', getMilestoneResources);
 
 /**
- * @api {post} /tep/milestones Add a TEP Topic
+ * @api {post} /tep/milestones Add a TEP Milestone
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddNewMilestone
- * @apiGroup TepMilestone
+ * @apiGroup TEP Milestone
  *
  * @apiParam {String} title Title of the milestone
  * @apiParam {String} description Description of the milestone
