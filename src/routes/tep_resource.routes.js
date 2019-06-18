@@ -19,6 +19,8 @@ router.get('/reports', getReports);
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddReport
  * @apiGroup TepResources
+ *
+ * @apiParam {String} report report of the resource
  */
 router.post('/:resource_id/reports', addReport);
 
@@ -88,6 +90,8 @@ router.get('/:resource_id', getOne);
  * @apiHeader {String} authorization JWT Token.
  * @apiName Update
  * @apiGroup TepResources
+ *
+ * @apiParam {String} url URL of the resource
  */
 router.patch('/:resource_id', update);
 
@@ -120,6 +124,8 @@ router.get('/:resource_id/comments', getComments);
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddComment
  * @apiGroup TepResources
+ *
+ * @apiParam {String} comment comment about the resource
  */
 router.post('/:resource_id/comments', addComment);
 

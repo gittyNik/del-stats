@@ -11,10 +11,10 @@ const Topic = db.define('topics', {
     type:Sequelize.STRING,
   },
   description:{
-    type:DataTypes.TEXT,
+    type:Sequelize.TEXT,
   },
   program:{
-    type:DataTypes.STRING,
+    type:Sequelize.STRING,
     defaultValue:"tep"
   },
 });

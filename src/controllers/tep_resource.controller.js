@@ -85,8 +85,6 @@ export const getOne = (req,res)=>{
 
 export const create = (req, res)=> {
   let {topic_id, url, type, level} = req.body;
-  console.log('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7')
-  console.log(level)
   Resource.create({
     id: uuid(),
     owner: uuid(),       // todo: Add the user's id here after auth is set
@@ -112,7 +110,11 @@ export const update = (req,res)=>{
       id: req.params.resource_id
     }
   })
-.then(() => {res.send('Resource updated')})
+  .then(tepResource => {
+    res.send({
+      data: tepResource
+    });
+  })
 .catch(err => res.status(500).send(err));
 }
 
@@ -134,16 +136,17 @@ export const getComments = (req,res)=>{
   .catch(err => res.status(500).send(err));
 }
 
-export const addComment = (req,res)=>{
-  const data={
-    resource_id:req.params.resource_id,
-    comments: req.body.comments,
-  }
-  let {resource_id,comments}=data
+export const addComment = (req,res)=>{    
+  var resource_id = req.params.resource_id
+  let {comments} = req.body
   return Resource_Comment.create({
     resource_id,comments
   })
-  .then(() => res.send("Comment added"))
+  .then(tepResourceComment => {
+    res.send({
+      data: tepResourceComment
+    });
+  })
   .catch(err => res.status(500).send(err));
 }
 
@@ -157,15 +160,17 @@ export const deleteComment = (req,res)=>{
 }
 
 export const upvote = (req,res)=>{
-  const data={
-    user_id : req.body.user_id,
-    resource_id : req.params.resource_id,
-    vote : "upvote"
-  }
-  let {user_id,resource_id,vote} = data
-  return Resource_Vote.create({user_id,resource_id,vote})
-  .then(() => res.send("Vote added"))
-  .catch(err => res.status(500).send(err));
+    var id = uuid()
+    var user_id = uuid()
+    var resource_id = req.params.resource_id
+    var vote = "upvote"
+    return Resource_Vote.create({id,user_id,resource_id,vote})
+    .then(tepResourceVote => {
+      res.send({
+        data: tepResourceVote
+      });
+    })
+    .catch(err => res.status(500).send(err));
 };
 
 export const unvote = (req,res)=>{
@@ -186,15 +191,18 @@ export const getReports = (req,res)=>{
 }
 
 export const addReport = (req,res)=>{
-  const data={
-    resource_id:req.params.resource_id,
-    report: req.body.report,
-  }
-  let {resource_id,report} = data
+  let id = uuid()
+  let resource_id = req.params.resource_id
+  let report= req.body.report
+  console.log(id,resource_id,report)
   return Resource_Report.create({
-    resource_id,report
+    id,resource_id,report
   })
-  .then(() => res.send("Report Inserted"))
+  .then(tepResourceReport => {
+    res.send({
+      data: tepResourceReport
+    });
+  })
   .catch(err => res.status(500).send(err));
 }
 
@@ -206,7 +214,11 @@ export const resolveReport = (req,res)=>{
     id: req.params.report_id
     }
   })
-  .then(() => {res.send('Updated');})
+  .then(tepResourceReport => {
+    res.send({
+      data: tepResourceReport
+    });
+  })
   .catch(err => res.status(500).send(err));
 }
 
@@ -222,12 +234,16 @@ export const getUnmoderated = (req, res)=> {
 
 export const approve = (req,res)=>{
     Resource.update({
-    moderator: req.body.id
-  }, {
+    moderator: uuid()
+    }, {
     where: {
       id: req.params.resource_id
     }
-  })
-  .then(() => {res.send('Resource approved');})
-  .catch(err => res.status(500).send(err));
+    })
+    .then(tepResource => {
+      res.send({
+        data: tepResource
+      });
+    })
+    .catch(err => res.status(500).send(err));
 }

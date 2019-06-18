@@ -12,7 +12,7 @@ const Resource_Reports = db.define('resource_reports', {
     references: { model: 'resources', key: 'id' }
     },
   report: {
-    type: Sequelize.TEXT,
+    type: Sequelize.STRING,
     allowNull: false,
   },
   status: {
