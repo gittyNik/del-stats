@@ -1,8 +1,7 @@
-import Resource from '../../models/resource';
-import Resource_Comment from '../../models/resource_comment';
-import Resource_Report from '../../models/resource_report';
-import Resource_Vote from '../../models/resource_vote';
-import Milestones from '../../models/milestone';
+import {Resource} from '../../models/resource';
+import {Resource_Comment} from '../../models/resource_comment';
+import {Resource_Report} from '../../models/resource_report';
+import {Resource_Vote} from '../../models/resource_vote';
 import sequelize  from 'sequelize';
 import uuid from 'uuid/v4';
 
@@ -19,50 +18,19 @@ export const getLatest = (req, res)=> {
 export const getTop = (req, res)=> {
   Resource_Vote.findAll({
     attributes: ['resource_id', [sequelize.fn('count', sequelize.col('resource_id')), 'count']],
-      group : ['resource_votes.resource_id'],
-      raw: true,
-      order: sequelize.literal('count DESC')
-    })
-    .then((data1)=>{
-      Resource.findAll({attributes:['url'],
-        where:{
-            id:data1[0]['resource_id']
-        }
-      })
-      .then((data) => {
-        res.json(data);
-      });
-    })
-    .catch(err => res.status(500).send(err));
-}
-
-
-export const getAllByMilestone = (req,res)=>{
-  Milestones.findAll({attributes: ['topics'],
+    group : ['resource_votes.resource_id'],
+    raw: true,
+    order: sequelize.literal('count DESC')
+  })
+  .then((data1)=>{
+    Resource.findAll({attributes:['url'],
       where:{
-          id:req.params.milestone_id
+        id:data1[0]['resource_id']
       }
-  })
-  .then((data) => {
-      Resource.findAll({attributes: ['url'],
-        where:{
-          topic_id :data[0].topics
-        }
-      }).then((data1)=>{
-        res.json(data1);
-      })
-  })
-  .catch(err => res.status(500).send(err));
-}
-
-export const getAllByTopic = (req,res)=>{
-  Resource.findAll({attributes: ['url'],
-      where:{
-        topic_id:req.params.topic_id
-      }
-  })
-  .then((data) => {
+    })
+    .then((data) => {
       res.json(data);
+    });
   })
   .catch(err => res.status(500).send(err));
 }
@@ -115,22 +83,23 @@ export const update = (req,res)=>{
       data: tepResource
     });
   })
-.catch(err => res.status(500).send(err));
+  .catch(err => res.status(500).send(err));
 }
 
 export const deleteOne = (req,res)=>{
   Resource.destroy({where: {
       id:req.params.resource_id
-    }})
-    .then(() => {res.send("Deleted resource");})
-    .catch(err => res.status(500).send(err));
+    }
+  })
+  .then(() => {res.send("Deleted resource");})
+  .catch(err => res.status(500).send(err));
 }
 
 export const getComments = (req,res)=>{
   Resource_Comment.findAll({
-      where:{
-          resource_id:req.params.resource_id
-      }
+    where:{
+      resource_id:req.params.resource_id
+    }
   })
   .then((data) => {res.json(data);})
   .catch(err => res.status(500).send(err));
@@ -160,17 +129,17 @@ export const deleteComment = (req,res)=>{
 }
 
 export const upvote = (req,res)=>{
-    var id = uuid()
-    var user_id = uuid()
-    var resource_id = req.params.resource_id
-    var vote = "upvote"
-    return Resource_Vote.create({id,user_id,resource_id,vote})
-    .then(tepResourceVote => {
-      res.send({
-        data: tepResourceVote
-      });
-    })
-    .catch(err => res.status(500).send(err));
+  var id = uuid()
+  var user_id = uuid()
+  var resource_id = req.params.resource_id
+  var vote = "upvote"
+  return Resource_Vote.create({id,user_id,resource_id,vote})
+  .then(tepResourceVote => {
+    res.send({
+      data: tepResourceVote
+    });
+  })
+  .catch(err => res.status(500).send(err));
 };
 
 export const unvote = (req,res)=>{
@@ -209,7 +178,8 @@ export const addReport = (req,res)=>{
 export const resolveReport = (req,res)=>{
   Resource_Report.update({
   status: 'resolved'
-}, {
+  },
+  {
     where: {
     id: req.params.report_id
     }
@@ -223,27 +193,28 @@ export const resolveReport = (req,res)=>{
 }
 
 export const getUnmoderated = (req, res)=> {
-    Resource.findAll({
-        where: {
-            moderator: null
-        }
-    })
-    .then((data) => {res.json(data);})
-    .catch(err => res.status(500).send(err));
+  Resource.findAll({
+    where: {
+      moderator: null
+    }
+  })
+  .then((data) => {res.json(data);})
+  .catch(err => res.status(500).send(err));
 }
 
 export const approve = (req,res)=>{
-    Resource.update({
-    moderator: uuid()
-    }, {
+  Resource.update({
+  moderator: uuid()
+  },
+  {
     where: {
       id: req.params.resource_id
     }
-    })
-    .then(tepResource => {
-      res.send({
-        data: tepResource
-      });
-    })
-    .catch(err => res.status(500).send(err));
+  })
+  .then(tepResource => {
+    res.send({
+      data: tepResource
+    });
+  })
+  .catch(err => res.status(500).send(err));
 }

@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
-const db =require('../database');
+import db from '../database';
 
-const Milestone = db.define('milestones', {
+export const Milestone = db.define('milestones', {
   id: {
     type: Sequelize.UUID,
     primaryKey: true,
@@ -16,5 +16,3 @@ const Milestone = db.define('milestones', {
     type : Sequelize.ARRAY(Sequelize.UUID)
   },
 });
-
-module.exports = Milestone;

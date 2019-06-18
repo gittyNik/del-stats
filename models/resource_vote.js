@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
-const db =require('../database');
+import db from '../database';
 
-const Resource_Vote = db.define('resource_votes', {
+export const Resource_Vote = db.define('resource_votes', {
   id: {
     allowNull: false,
     primaryKey: true,
@@ -22,4 +22,3 @@ const Resource_Vote = db.define('resource_votes', {
   }
 });
 
-module.exports = Resource_Vote;

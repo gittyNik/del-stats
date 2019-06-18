@@ -1,6 +1,5 @@
 import Express from 'express';
-import {getAllByMilestone as getMilestoneResources } from '../controllers/tep_resource.controller';
-import {create} from '../controllers/tep_milestone.controller';
+import {create,getAllByMilestone as getMilestoneResources} from '../controllers/tep_milestone.controller';
 
 const router = Express.Router();
 

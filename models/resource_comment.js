@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
-const db =require('../database');
+import db from '../database';
 
-const Resource_Comments = db.define('resource_comments', {
+export const Resource_Comments = db.define('resource_comments', {
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
@@ -16,5 +16,3 @@ const Resource_Comments = db.define('resource_comments', {
       allowNull: false,
     },
   })
-
-module.exports = Resource_Comments;

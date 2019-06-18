@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
-const db =require('../database');
+import db from '../database';
 
-const Topic = db.define('topics', {
+export const Topic = db.define('topics', {
   id:{
     allowNull: false,
     primaryKey: true,
@@ -18,5 +18,3 @@ const Topic = db.define('topics', {
     defaultValue:"tep"
   },
 });
-
-module.exports = Topic

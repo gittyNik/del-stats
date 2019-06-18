@@ -1,5 +1,5 @@
 import Express from 'express';
-import {getAllByTopic as getTopicResources } from '../controllers/tep_resource.controller';
+import {getAllByTopic as getTopicResources } from '../controllers/tep_topic.controller';
 import {create} from '../controllers/tep_topic.controller';
 
 const router = Express.Router();

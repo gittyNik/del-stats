@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
-const db =require('../database');
+import db from '../database';
 
-const Resource_Reports = db.define('resource_reports', {
+export const Resource_Reports = db.define('resource_reports', {
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
@@ -21,5 +21,3 @@ const Resource_Reports = db.define('resource_reports', {
     defaultValue: 'pending'
   }
 });
-
-module.exports = Resource_Reports;
