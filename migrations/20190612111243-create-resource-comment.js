@@ -7,10 +7,12 @@ module.exports = {
         type: Sequelize.UUID
       },
       resource_id: {
-        type: Sequelize.UUID
+        type: Sequelize.UUID,
+        references:{ model: 'resources', key: 'id' }
       },
       comments: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull:false
       },
       createdAt: {
         allowNull: false,

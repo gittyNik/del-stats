@@ -6,14 +6,13 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.UUID
       },
-      topic_id: {
-        type: Sequelize.UUID
+      resource_id: {
+        type: Sequelize.UUID,
+        references:{ model: 'resources', key: 'id' }
       },
-      report: {
-        type: Sequelize.STRING
-      },
-      status: {
-        type: Sequelize.STRING
+      reports: {
+        type: Sequelize.STRING,
+        allowNull:false
       },
       createdAt: {
         allowNull: false,

@@ -10,22 +10,19 @@ module.exports = {
         type: Sequelize.STRING
       },
       description: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
       },
       program: {
-        type: Sequelize.STRING
-      },
-      milestone_number: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING,
+        defaultValue:"tep"
       },
       createdAt:
-       {
+      {
         allowNull: false,
         type: Sequelize.DATE
       },
       updatedAt: {
         allowNull: false,
-
         type: Sequelize.DATE
       }
     });

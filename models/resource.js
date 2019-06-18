@@ -17,13 +17,12 @@ const Resource = db.define('resources', {
     unique: true
   },
   owner: {
-    type: Sequelize.UUID,
-    unique: true
+    type: Sequelize.UUID
   },
   moderator:{
     type: Sequelize.UUID,
-    allowNull:false,
-  },
+    allowNull:true,
+  }, 
   thumbnail:{
     type:Sequelize.BLOB,
     unique:true,
@@ -32,16 +31,17 @@ const Resource = db.define('resources', {
     type:Sequelize.ENUM('article', 'repo', 'video', 'tweet'),
     allowNull:false,
   },
-  level: {
-    type:Sequelize.ENUM('beginner', 'advanced'),
-    allowNull:false,
-  },
   program: {
     type:Sequelize.STRING,
     allowNull:false,
+    defaultValue:'tep'
   },
   add_time: {
     type:Sequelize.DATE,
+  },
+  level: {
+    type:Sequelize.ENUM('beginner','advanced'),
+    allowNull:false,
   },
   tags: {
     type:Sequelize.ARRAY(Sequelize.STRING),

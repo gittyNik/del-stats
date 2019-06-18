@@ -1,4 +1,3 @@
-'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('milestones', {
@@ -13,7 +12,7 @@ module.exports = {
       },
       topics : {
         allowNull : false,
-        type : Sequelize.ARRAY(Sequelize.UUID)
+        type : Sequelize.ARRAY(Sequelize.UUID),
       },
       createdAt: {
         allowNull: false,

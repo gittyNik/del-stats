@@ -1,25 +1,22 @@
 import Sequelize from 'sequelize';
-module.exports =
-  class Topic extends Sequelize.Model {
-    static init(sequelize) {
-      return super.init({
-        id:{
-          allowNull: false,
-          primaryKey: true,
-          type: Sequelize.UUID
-        },
-        title:{
-          type:Sequelize.STRING,
-        },
-        description:{
-          type:Sequelize.TEXT,
-        } ,
-        program:{
-          type:Sequelize.STRING,
-        },
-        milestone_number: {
-          type:Sequelize.INTEGER
-        }
-      }, { sequelize })
-    };
-  }
+const db =require('../database');
+
+const Topic = db.define('topics', {
+  id:{
+    allowNull: false,
+    primaryKey: true,
+    type: Sequelize.UUID
+  },
+  title:{
+    type:Sequelize.STRING,
+  },
+  description:{
+    type:DataTypes.TEXT,
+  },
+  program:{
+    type:DataTypes.STRING,
+    defaultValue:"tep"
+  },
+});
+
+module.exports = Topic

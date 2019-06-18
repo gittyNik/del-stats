@@ -16,12 +16,11 @@ module.exports = {
         unique: true
       },
       owner: {
-        type: Sequelize.UUID,
-        unique: true
+        type: Sequelize.UUID
       },
       moderator:{
         type: Sequelize.UUID,
-        allowNull:false,
+        allowNull:true,
       }, 
       thumbnail:{
         type:Sequelize.BLOB,
@@ -34,6 +33,7 @@ module.exports = {
       program: {
         type:Sequelize.STRING,
         allowNull:false,
+        defaultValue:'tep'
       },
       add_time: {
         type:Sequelize.DATE,
