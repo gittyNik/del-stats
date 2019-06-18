@@ -150,6 +150,8 @@ router.post('/:resource_id/vote', upvote);
  * @apiHeader {String} authorization JWT Token.
  * @apiName Unvote
  * @apiGroup TepResources
+ *
+ * @apiParam {String} url URL of the resource
  */
 router.delete('/:resource_id/vote', unvote);
 

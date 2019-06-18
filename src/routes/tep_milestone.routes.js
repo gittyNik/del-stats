@@ -1,5 +1,6 @@
 import Express from 'express';
 import {getAllByMilestone as getMilestoneResources } from '../controllers/tep_resource.controller';
+import {create} from '../controllers/tep_milestone.controller';
 
 const router = Express.Router();
 
@@ -10,5 +11,16 @@ const router = Express.Router();
  * @apiGroup TepMilestones
  */
 router.get('/:milestone_id/resources', getMilestoneResources);
+
+/**
+ * @api {post} /tep/milestones Add a TEP Topic
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName AddNewMilestone
+ * @apiGroup TepMilestone
+ *
+ * @apiParam {String} title Title of the milestone
+ * @apiParam {String} description Description of the milestone
+ */
+router.post('/', create);
 
 export default router;
