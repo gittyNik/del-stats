@@ -1,8 +1,9 @@
 import Express from 'express';
 
 import { getLatest, getTop, getAll,getUnmoderated, getOne, create, update,
-  deleteOne, getComments, addComment, deleteComment, upvote, unvote, getReports,
-addReport, resolveReport, approve } from '../controllers/tep_resource.controller';
+  deleteOne, getComments, addComment, deleteComment, upvote, unvote,
+  getReports, addReport, resolveReport, approve, getTrending }
+  from '../controllers/tep_resource.controller';
 
 const router = Express.Router();
 
@@ -55,6 +56,14 @@ router.get('/latest', getLatest);
  * @apiGroup TepResources
  */
 router.get('/top', getTop);
+
+/**
+ * @api {get} /tep/resources/trending Get the trending TEP resources
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetTrending
+ * @apiGroup TepResources
+ */
+router.get('/top', getTrending);
 
 /**
  * @api {get} /tep/resources/pending Get Unmoderated TEP resources

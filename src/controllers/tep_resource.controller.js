@@ -1,9 +1,9 @@
-import {Resource} from '../../models/resource';
-import {Resource_Comment} from '../../models/resource_comment';
-import {Resource_Report} from '../../models/resource_report';
-import {Resource_Vote} from '../../models/resource_vote';
-import sequelize  from 'sequelize';
+import Sequelize  from 'sequelize';
 import uuid from 'uuid/v4';
+import Resource from '../../models/resource';
+import ResourceComment from '../../models/resource_comment';
+import ResourceReport from '../../models/resource_report';
+import ResourceVote from '../../models/resource_vote';
 
 export const getLatest = (req, res)=> {
   Resource.findAll({
@@ -16,11 +16,11 @@ export const getLatest = (req, res)=> {
 }
 
 export const getTop = (req, res)=> {
-  Resource_Vote.findAll({
-    attributes: ['resource_id', [sequelize.fn('count', sequelize.col('resource_id')), 'count']],
+  ResourceVote.findAll({
+    attributes: ['resource_id', [Sequelize.fn('count', Sequelize.col('resource_id')), 'count']],
     group : ['resource_votes.resource_id'],
     raw: true,
-    order: sequelize.literal('count DESC')
+    order: Sequelize.literal('count DESC')
   })
   .then((data1)=>{
     Resource.findAll({attributes:['url'],
@@ -34,6 +34,9 @@ export const getTop = (req, res)=> {
   })
   .catch(err => res.status(500).send(err));
 }
+
+// todo: Implement trending logic using google's trending url api
+export const getTrending = getTop;
 
 export const getAll = (req,res)=>{
   Resource.findAll({})
@@ -96,7 +99,7 @@ export const deleteOne = (req,res)=>{
 }
 
 export const getComments = (req,res)=>{
-  Resource_Comment.findAll({
+  ResourceComment.findAll({
     where:{
       resource_id:req.params.resource_id
     }
@@ -108,7 +111,7 @@ export const getComments = (req,res)=>{
 export const addComment = (req,res)=>{    
   var resource_id = req.params.resource_id
   let {comments} = req.body
-  return Resource_Comment.create({
+  return ResourceComment.create({
     resource_id,comments
   })
   .then(tepResourceComment => {
@@ -120,7 +123,7 @@ export const addComment = (req,res)=>{
 }
 
 export const deleteComment = (req,res)=>{
-  Resource_Comment.destroy({where: {
+  ResourceComment.destroy({where: {
       id:req.params.comment_id
     }
   })
@@ -133,7 +136,7 @@ export const upvote = (req,res)=>{
   var user_id = uuid()
   var resource_id = req.params.resource_id
   var vote = "upvote"
-  return Resource_Vote.create({id,user_id,resource_id,vote})
+  return ResourceVote.create({id,user_id,resource_id,vote})
   .then(tepResourceVote => {
     res.send({
       data: tepResourceVote
@@ -143,7 +146,7 @@ export const upvote = (req,res)=>{
 };
 
 export const unvote = (req,res)=>{
-  Resource_Vote.destroy({
+  ResourceVote.destroy({
     where: { 
       resource_id : req.params.resource_id,
       user_id : req.body.user_id
@@ -154,7 +157,7 @@ export const unvote = (req,res)=>{
 }
 
 export const getReports = (req,res)=>{
-  Resource_Report.findAll({})
+  ResourceReport.findAll({})
   .then((data) => {res.json(data);})
   .catch(err => res.status(500).send(err));
 }
@@ -164,7 +167,7 @@ export const addReport = (req,res)=>{
   let resource_id = req.params.resource_id
   let report= req.body.report
   console.log(id,resource_id,report)
-  return Resource_Report.create({
+  return ResourceReport.create({
     id,resource_id,report
   })
   .then(tepResourceReport => {
@@ -176,7 +179,7 @@ export const addReport = (req,res)=>{
 }
 
 export const resolveReport = (req,res)=>{
-  Resource_Report.update({
+  ResourceReport.update({
   status: 'resolved'
   },
   {

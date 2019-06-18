@@ -1,5 +1,5 @@
-import {Milestone} from '../../models/milestone';
 import uuid from 'uuid/v4';
+import Milestone from '../../models/milestone';
 
 export const create = (req, res)=> {
   let {name, topics} = req.body;
