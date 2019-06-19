@@ -1,7 +1,13 @@
 import uuid from 'uuid/v4';
+<<<<<<< HEAD
 import Topic from '../models/topic';
 import Resource from '../models/resource'
 import Milestone from '../models/milestone';
+=======
+import Topic from '../../models/topic';
+import Resource from '../../models/resource'
+import Milestone from '../../models/milestone';
+>>>>>>> Changed the db structure of milestone and updated respective routes
 
 export const create = (req, res)=> {
   let {name, topics} = req.body;

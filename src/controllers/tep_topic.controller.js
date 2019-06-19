@@ -9,7 +9,7 @@ export const create = (req, res)=> {
     program: 'tep',
     title,
     description,
-    milestone_id
+    milestone_id,
   })
   .then(tepTopic => {
     res.send({
