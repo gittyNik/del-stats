@@ -11,10 +11,6 @@ const Milestone = db.define('milestones', {
     allowNull : false,
     type : Sequelize.STRING
   },
-  topics : {
-    allowNull : false,
-    type : Sequelize.ARRAY(Sequelize.UUID)
-  },
 });
 
 export default Milestone;

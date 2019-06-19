@@ -1,4 +1,6 @@
 import uuid from 'uuid/v4';
+import Topic from '../models/topic';
+import Resource from '../models/resource'
 import Milestone from '../models/milestone';
 
 export const create = (req, res)=> {
@@ -17,15 +19,15 @@ export const create = (req, res)=> {
 }
 
 export const getAllByMilestone = (req,res)=>{
-  Milestone.findAll({attributes: ['topics'],
+  Topic.findAll({attributes: ['id'],
     where:{
-      id:req.params.milestone_id
+      milestone_no:req.params.milestone_id
     }
   })
   .then((data) => {
     Resource.findAll({attributes: ['url'],
       where:{
-        topic_id :data[0].topics
+        topic_id :data[0].id
       }
     })
     .then((data1)=>{

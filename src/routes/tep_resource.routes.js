@@ -63,7 +63,7 @@ router.get('/top', getTop);
  * @apiName GetTrending
  * @apiGroup TEP Resource
  */
-router.get('/top', getTrending);
+router.get('/trending', getTrending);
 
 /**
  * @api {get} /tep/resources/pending Get Unmoderated TEP resources
@@ -82,7 +82,7 @@ router.get('/pending', getUnmoderated);
  * @apiParam {String} url URL of the resource
  * @apiParam {String} topic_id Topic the resource belongs to
  * @apiParam {String} type article/repo/video/tweet
- * @apiParam {String} level beginner/advanced
+ * @apiParam {String} level beginner/advanced 
  */
 router.post('/', create);
 
