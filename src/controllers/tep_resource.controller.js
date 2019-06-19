@@ -82,9 +82,7 @@ export const update = (req,res)=>{
     }
   })
   .then(tepResource => {
-    res.send({
-      data: tepResource
-    });
+    res.send('Resource updated');
   })
   .catch(err => res.status(500).send(err));
 }
@@ -110,9 +108,9 @@ export const getComments = (req,res)=>{
 
 export const addComment = (req,res)=>{    
   var resource_id = req.params.resource_id
-  let {comments} = req.body
+  let {comment} = req.body
   return ResourceComment.create({
-    resource_id,comments
+    resource_id,comment
   })
   .then(tepResourceComment => {
     res.send({
@@ -188,9 +186,7 @@ export const resolveReport = (req,res)=>{
     }
   })
   .then(tepResourceReport => {
-    res.send({
-      data: tepResourceReport
-    });
+    res.send('Report updated');
   })
   .catch(err => res.status(500).send(err));
 }
@@ -215,9 +211,7 @@ export const approve = (req,res)=>{
     }
   })
   .then(tepResource => {
-    res.send({
-      data: tepResource
-    });
+    res.send("Resource approved");
   })
   .catch(err => res.status(500).send(err));
 }

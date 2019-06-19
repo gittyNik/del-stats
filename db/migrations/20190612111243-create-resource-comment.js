@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.UUID,
         references:{ model: 'resources', key: 'id' }
       },
-      comments: {
+      comment: {
         type: Sequelize.STRING,
         allowNull:false
       },

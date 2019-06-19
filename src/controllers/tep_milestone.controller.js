@@ -17,7 +17,7 @@ export const create = (req, res)=> {
 }
 
 export const getAllByMilestone = (req,res)=>{
-  Milestones.findAll({attributes: ['topics'],
+  Milestone.findAll({attributes: ['topics'],
     where:{
       id:req.params.milestone_id
     }

@@ -160,7 +160,7 @@ router.post('/:resource_id/vote', upvote);
  * @apiName Unvote
  * @apiGroup TEP Resource Vote
  *
- * @apiParam {String} url URL of the resource
+ * @apiParam {String} user_id id of the user
  */
 router.delete('/:resource_id/vote', unvote);
 

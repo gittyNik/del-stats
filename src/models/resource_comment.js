@@ -11,7 +11,7 @@ const ResourceComment = db.define('resource_comments', {
     type: Sequelize.UUID,
     references: { model: 'resources', key: 'id' }
   },
-  comments: {
+  comment: {
     type: Sequelize.TEXT,
       allowNull: false,
     },

@@ -17,8 +17,8 @@ router.get('/:milestone_id/resources', getMilestoneResources);
  * @apiName AddNewMilestone
  * @apiGroup TEP Milestone
  *
- * @apiParam {String} title Title of the milestone
- * @apiParam {String} description Description of the milestone
+ * @apiParam {String} name Name of the milestone
+ * @apiParam {String[]} topics UUID Array of the milestone
  */
 router.post('/', create);
 
