@@ -33,7 +33,7 @@ router.use('/profile', getProfile);
 router.use('/tep', tepRouter);
 router.use('/cohorts', cohort);
 router.use('/firewall', firewall);
-router.use('/chrome-history',chromehistory)
+router.use('/browser-history',chromehistory)
 
 router.use('/educators', educator);
 router.use('/students', student);

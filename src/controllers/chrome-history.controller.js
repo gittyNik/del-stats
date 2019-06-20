@@ -1,92 +1,91 @@
-import {browser_history} from '../../models/browser-history';
-var localStorage=require('localStorage');
-var ip=require('ip');
-export const getAll= function(req,res){browser_history.findAll({}).then((data) => {
-    res.json(data)
-  }).catch((err) => {
-    console.log(err);
-  })
+import browser_history_items from '../../models/browser_history_items';
+import browser_visit_items from '../../models/browser_visit_items';
+import ip from 'ip';
+export const getAllBrowserHistoryItems= (req,res)=>{
+  browser_history_items.findAll({})
+  .then((data) => {res.json(data)})
+  .catch((err) => {})
 }
 
-export const getOne= function(req,res){browser_history.findAll({ 
-  where: {
-        uid: req.params.id
-    } 
-  }).then((data) => {res.json(data)})
-  .catch((err) => {console.log(err);})
+export const getAllBrowserVisitItems= (req,res) => {
+  browser_visit_items.findAll({})
+  .then((data) => {res.json(data)})
+  .catch((err) => {})
 }
 
-export const getMax= (req,res)=>{
-  var sequelize=require('sequelize');
-  browser_history.findAll({ 
-    attributes: [[sequelize.fn('max', sequelize.col('visited_timestamp')), 'time']],
+export const getAllDataByUrlId= (req,res)=>{
+  browser_history_items.findAll({
     where:{
-      uid:'8e3cb23a-90cc-11e9-bc42-526af7764f64'
-    },
-    raw: true,
-  }).then((data) => {
-    res.json(data)
-  }).catch((err) => {
-  console.log(err);
+      browser_url_id:req.params.id
+    }
   })
+  .then(async (data) => {
+    var promise=browser_visit_items.findAll({attributes:["u_id","browser_url_id","visited_timestamp","visit_id","ip","transition"]},{
+      where:{
+        browser_url_id:data[0].browser_url_id
+      }
+    })
+    var k=await promise;
+    promise.then((data1)=>{
+      var datavalue=JSON.parse(JSON.stringify(data[0]));
+      datavalue['visit']=data1;
+      res.json(datavalue);
+
+    })
+  })
+  .catch(err => res.status(500).send(err));
+ }
+
+export const getAllDataByUserId= (req,res)=>{
+  browser_visit_items.findAll({
+    where:{
+      u_id:req.params.u_id
+    }
+  })
+  .then((data3)=>{
+    var arr=[]
+    for(var i=0;i<data3.length;i++){
+      arr.push(data3[i]['browser_url_id'])
+    }
+    browser_history_items.findAll({
+      where:{
+        browser_url_id:arr
+      } 
+    })
+    .then((data)=>{  
+      var datavalue=JSON.parse(JSON.stringify(data));
+      for(var j=0;j<data.length;j++){  
+        datavalue[j]['visit']=data3;
+      }
+      res.json(datavalue);
+    })
+  .catch(err => res.status(500).send(err))})
 }
 
-export const insert= function(req,res){  
+export const insert = (req,res) => {
   var historyitem=req.body.historyitem;
-  var gid=req.body.getid;
-  var browser_history=require('../../models/browser-history');     
-  ( function(historyitem,gid){
-      var sequelize=require('sequelize');
-      browser_history.browser_history.findAll({ 
-      attributes: [[sequelize.fn('max', sequelize.col('visited_timestamp')), 'time']],
-      where:{
-        uid:'8e3cb23a-90cc-11e9-bc42-526af7764f64'
-      },
-      raw: true,
-    }).then( async (data) => {
-      for(var i=0;i<historyitem.length;i++){
-        var promise=new Promise((resolve,reject)=>{(function(i,historyitem,gid,data){browser_history.browser_history.sync({force: false}).then(function () {
-        var urlTime=Date.parse(historyitem[i]['lastVisitTime']);
-        if(data[0]['time']!=null){
-        var maxTime=Date.parse(data[0]['time'].toString()); 
-      }
-        var truthvalue=parseInt(maxTime)<parseInt(urlTime);
-          console.log(truthvalue);
-        if(data[0]['time']==null || truthvalue )
-       { 
-         console.log(historyitem[i]['lastVisitTime']);
-        return browser_history.browser_history.create({
-          uid: gid,
-          url: historyitem[i].url,
-          ip:  ip.address(),
-          visited_timestamp: historyitem[i]['lastVisitTime'],
-          title: historyitem[i]['title'],
-          visitcount: historyitem[i]['visitCount'],
-          useragent: historyitem[i]['userAgent']
-        })
-        .catch(function(err) {
-            console.log(err);
-        });
-      }
-      else{
-        return true;
-      }
-      
-      
-      
+  for(var i=0;i<historyitem.length;i++){
+      (function(i,historyitem){
+        browser_history_items.create({
+          browser_url_id:historyitem[i]['id'],
+          url:historyitem[i]['url'],
+          title:historyitem[i]['title'],
+          useragent:historyitem[i]['userAgent']
+        }).catch((err)=>{});
+      })(i,historyitem);
   }
-      )
-      .catch(function(err) {
-        console.log(err);
-    })})(i,historyitem,gid,data);
-    resolve("hello");
-    });
-    let k =await  promise;
-    } }
-    
-    ).catch((err) => {
-    console.log(err);
-    })
-    
-  })(historyitem,gid);
+  for(var i=0;i<historyitem.length;i++){
+      for(var j=0;j<historyitem[i]['visit'].length;j++){
+        (function(j,historyitem){
+          browser_visit_items.create({
+            browser_url_id:historyitem[i]['visit'][j]['id'],
+            ip:ip.address(),
+            u_id:req.body.getid,
+            visited_timestamp:historyitem[i]['visit'][j]['visitTime'],
+            visit_id:historyitem[i]['visit'][j]['visitId'],
+            transition:historyitem[i]['visit'][j]['transition']
+          }).catch((err)=>{});
+        })(j,historyitem);
+      } 
+  }
 }

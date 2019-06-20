@@ -1,23 +1,22 @@
 var Express=require('express')
 var controller=require('../controllers/chrome-history.controller')
 const router=Express.Router()
-const ip=require('ip')
+
 router.post('/insert',controller.insert);
 
 /**
- * @api {get} /cohorts Get all cohorts
+ * @api {get} /browser-history/historyurl/userid/:u_id Get all the browser history and visits by userid 
  * @apiHeader {String} authorization JWT Token.
- * @apiName GetCohorts
- * @apiGroup Cohort
+ * @apiName GetBrowserHistoryByUserId
+ * @apiGroup BrowserHistory
  */
-
-router.get('/allresults', controller.getAll);
+router.get('/historyurl/userid/:u_id',controller.getAllDataByUserId);
 
 /**
- * @api {get} /cohorts Get all cohorts
+ * @api {get} /browser-history/historyurl/:id Get all the browser history and visits by browser_url_id 
  * @apiHeader {String} authorization JWT Token.
- * @apiName GetCohorts
- * @apiGroup Cohort
+ * @apiName GetBrowserHistoryByUrlId
+ * @apiGroup BrowserHistory
  */
- 
+router.get('/historyurl/:id', controller.getAllDataByUrlId); 
 export default router;
