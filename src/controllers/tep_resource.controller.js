@@ -18,19 +18,26 @@ export const getLatest = (req, res)=> {
 export const getTop = (req, res)=> {
   ResourceVote.findAll({
     attributes: ['resource_id', [Sequelize.fn('count', Sequelize.col('resource_id')), 'count']],
-    group : ['resource_votes.resource_id'],
-    raw: true,
-    order: Sequelize.literal('count DESC')
+      group : ['resource_votes.resource_id'],
+      raw: true,
+      order: Sequelize.literal('count DESC')
   })
-  .then((data1)=>{
-    Resource.findAll({attributes:['url'],
-      where:{
-        id:data1[0]['resource_id']
+  .then(async (data1)=>{
+      var arr=[];;
+      for(var i=0;i<data1.length;i++){
+        arr.push(data1[i]['resource_id'])
       }
-    })
-    .then((data) => {
-      res.json(data);
-    });
+      var result=[];
+      for(var i=0;i<arr.length;i++){
+        var promise=Resource.findAll({attributes:['url'],
+            where:{
+              id:arr[i]
+            }
+        })
+        .then((data)=>{result.push(data);})
+        var k=await promise;
+      }
+      res.json(result);
   })
   .catch(err => res.status(500).send(err));
 }
