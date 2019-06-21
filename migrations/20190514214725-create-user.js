@@ -17,6 +17,9 @@ module.exports = {
       phone: {
         type: Sequelize.STRING
       },
+      role: Sequelize.STRING,
+      location: Sequelize.STRING,
+      profile: Sequelize.ARRAY(Sequelize.JSON),
     });
   },
   down: (queryInterface, Sequelize) => {

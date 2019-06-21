@@ -1,12 +1,23 @@
-'use strict';
-module.exports = (sequelize, DataTypes) => {
-  const user = sequelize.define('users', {
-    name: DataTypes.STRING,
-    email: DataTypes.STRING,
-    phone: DataTypes.STRING
-  }, {});
-  user.associate = function(models) {
-    // associations can be defined here
-  };
-  return user;
-};
+import Sequelize from 'sequelize';
+import db from '../database';
+
+export const USER_ROLES = Object.freeze({
+  LEARNER: 'learner',
+  EDUCATOR: 'educator',
+  ENABLER: 'enabler',
+  CATALYST: 'catalyst',
+  ADMIN: 'admin',
+  GUEST: 'guest',
+  SUPERADMIN: 'superadmin',
+});
+
+const User = db.define('users', {
+  name: Sequelize.STRING,
+  email: Sequelize.STRING,
+  phone: Sequelize.STRING
+  role: Sequelize.STRING,
+  location: Sequelize.STRING,
+  profile: Sequelize.ARRAY(Sequelize.JSON),
+},{});
+
+export default User;

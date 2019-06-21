@@ -21,11 +21,11 @@ module.exports = {
       moderator:{
         type: Sequelize.UUID,
         allowNull:true,
-      }, 
+      },
       thumbnail:{
         type:Sequelize.BLOB,
         unique:true,
-      }, 
+      },
       type: {
         type:Sequelize.ENUM('article', 'repo', 'video', 'tweet'),
         allowNull:false,
