@@ -1,58 +1,36 @@
-import mongoose from 'mongoose';
-const {Schema} = mongoose;
+import Sequelize from 'sequelize';
+import db from '../database';
+import uuid from 'uuid/v4';
 
-export const USER_ROLES = {
-  STUDENT: 'Student',
-  EDUCATOR: 'Educator',
-  SUPERADMIN: 'Superadmin',
-  CATALYST: 'Catalyst',
-};
+const {DEFAULT_USER} = process.env;
 
-export const User = mongoose.model('User', new Schema({
-  name: {
-    type: 'String',
-    required: true
+export const USER_ROLES = Object.freeze({
+  LEARNER: 'learner',
+  EDUCATOR: 'educator',
+  ENABLER: 'enabler',
+  CATALYST: 'catalyst',
+  ADMIN: 'admin',
+  GUEST: 'guest',
+  SUPERADMIN: 'superadmin',
+});
+
+const User = db.define('users', {
+  name: Sequelize.STRING,
+  email: Sequelize.STRING,
+  phone: Sequelize.STRING,
+  role: Sequelize.STRING,
+  location: Sequelize.STRING,
+  profile: Sequelize.ARRAY(Sequelize.JSON),
+},{});
+
+export const createSuperAdmin = ()=> User.findOrCreate({
+  where:{
+    email: DEFAULT_USER,
+    role: USER_ROLES.SUPERADMIN
   },
-  role: {
-    type: 'String'
-  },
-  profile: Schema.Types.Mixed,
-
-  // student specific fields
-  cohorts:[{
-    type: Schema.Types.ObjectId,
-    ref: 'Cohort'
-  }],
-  currentCohort: {
-    type: Schema.Types.ObjectId,
-    ref: 'Cohort'
-  },
-  path: String,
-  secret: String,
-
-  email: {
-    type: String,
-  },
-
-  // educator specific fields
-  program: {type:String, default:"Exponent:Software"},
-  location: {type:String, default:"Hyderabad"},
-}));
-
-// can only be used for creation logic
-export class Student extends User {
-  constructor(data) {
-    data && (data.role = USER_ROLES.STUDENT);
-    super(data);
+  defaults: {
+    id: uuid()
   }
-}
-
-// can only be used for creation logic
-export class Educator extends User {
-  constructor(data) {
-    data && (data.role = USER_ROLES.EDUCATOR);
-    super(data);
-  }
-}
+});
 
 export default User;

@@ -22,7 +22,6 @@ if(process.env.NODE_ENV === 'development') {
 }
 router.use('/tep', tep);
 //router.use(authentication);
-router.use('/links', link);
 router.use('/auth',authentication);
 
 router.use('/cohorts', cohort);

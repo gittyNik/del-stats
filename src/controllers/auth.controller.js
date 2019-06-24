@@ -4,7 +4,7 @@ import request from 'superagent';
 //import { User, USER_ROLES } from '../models/user';
 import {getSpotterTeam} from './user.controller';
 import {getSoalToken} from '../util/token';
-import User from '../models/user.seq';
+import User from '../models/user';
 import SendOtp from '../util/sendotp';
 import dotenv from 'dotenv/config';
 const sendOtp = new SendOtp(process.env.SEND_OTP_API_KEY,"Use {{otp}} to login with DELTA . Please do not share it with anybody ");

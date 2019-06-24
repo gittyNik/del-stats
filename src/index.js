@@ -1,47 +1,16 @@
 import dotenv from 'dotenv/config';
 import app from './server';
-import User from './models/user';
-import {createSuperAdmin} from './seeds/users';
-import dbConnect from './util/dbConnect';
-import Sequelize from 'sequelize';
-const {PORT, DEFAULT_USER, DATABASE_USERNAME, DATABASE_PASSWORD} = process.env;
+import db from './database';
+import {createSuperAdmin} from './models/user';
 
-const sequelize = new Sequelize(`postgres://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@localhost/delta_development`, {
-  host: 'localhost',
-    dialect: 'postgres',
-  pool: {
-    max: 5,
-    acquire: 30000,
-    idle: 10000,
-  }
-});
-sequelize
-  .authenticate()
-  .then(() => {
-    console.log('Connection has been established successfully.');
-  })
-  .catch(err => {
-    console.error('Unable to connect to the database:', err);
-  });
+const {PORT} = process.env;
 
-dbConnect().then( () => {
-
-  User.findOne({ email: DEFAULT_USER }).then(async user => {
-    if(user === null){
-      await createSuperAdmin();
+db.authenticate()
+.then(createSuperAdmin)
+.then(user => {
+  app.listen(PORT, err => {
+    if (!err) {
+      console.log(`Server is running on port: ${PORT}`);
     }
-
-    app.listen(PORT, err => {
-      if (!err) {
-        console.log(`Server is running on port: ${PORT}`);
-      }
-    });
   });
-
-}).catch(err => console.error('MongoDB connection failure' + err));
-<<<<<<< HEAD
-
-module.exports={"sequelize":sequelize};
-=======
-module.exports = sequelize;
->>>>>>> 7458e2b... Send/Verify User OTP
+}).catch(err => console.error('Database failure: Try running db migrations', err));

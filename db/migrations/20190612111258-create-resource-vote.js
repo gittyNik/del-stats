@@ -29,6 +29,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('votes');
+    return queryInterface.dropTable('resource_votes');
   }
 };
