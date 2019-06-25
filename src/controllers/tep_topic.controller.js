@@ -3,13 +3,13 @@ import Topic from '../models/topic';
 import Resource from '../models/resource';
 
 export const create = (req, res)=> {
-  let {title, description,milestone_no} = req.body;
+  let {title, description,milestone_id} = req.body;
   Topic.create({
     id: uuid(),
     program: 'tep',
     title,
     description,
-    milestone_no
+    milestone_id
   })
   .then(tepTopic => {
     res.send({

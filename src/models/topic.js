@@ -17,7 +17,7 @@ const Topic = db.define('topics', {
     type:Sequelize.STRING,
     defaultValue:"tep"
   },
-  milestone_no : {
+  milestone_id : {
     type : Sequelize.UUID,
     references:{ model: 'milestones', key: 'id' }
   },

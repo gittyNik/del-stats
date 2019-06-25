@@ -10,10 +10,6 @@ module.exports = {
         allowNull : false,
         type : Sequelize.STRING
       },
-      topics : {
-        allowNull : false,
-        type : Sequelize.ARRAY(Sequelize.UUID),
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

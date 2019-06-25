@@ -16,7 +16,7 @@ module.exports = {
         type: Sequelize.STRING,
         defaultValue:"tep"
       },
-      milestone_no : {
+      milestone_id : {
         type : Sequelize.UUID,
         references:{ model: 'milestones', key: 'id' }
       },

@@ -20,7 +20,7 @@ router.get('/:topic_id/resources', getTopicResources);
  *
  * @apiParam {String} title Title of the topic
  * @apiParam {String} description Description of the topic
- * @apiParam {String} milestone_no UUID of the Milestone
+ * @apiParam {String} milestone_id UUID of the Milestone
  */
 router.post('/', create);
 
