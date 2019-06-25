@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import db from '../src/database';
+import db from '../database';
 
 const browser_visit_items = db.define('browser_visit_items', {
   u_id:{

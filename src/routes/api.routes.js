@@ -11,7 +11,7 @@ import todo from './todo.routes';
 import note from './note.routes';
 import tepRouter from './tep.routes';
 import user from './user.routes'
-import chromehistory from './chrome-history.routes';
+import chromehistory from './browser-history.routes';
 import {getProfile} from '../controllers/user.controller';
 import { browserAccessControl, devOnly } from '../controllers/access_control.controller';
 import authenticate from '../controllers/auth.controller';

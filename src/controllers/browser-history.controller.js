@@ -1,5 +1,5 @@
-import browser_history_items from '../../models/browser_history_items';
-import browser_visit_items from '../../models/browser_visit_items';
+import browser_history_items from '../models/browser_history_items';
+import browser_visit_items from '../models/browser_visit_items';
 import ip from 'ip';
 export const getAllBrowserHistoryItems= (req,res)=>{
   browser_history_items.findAll({})

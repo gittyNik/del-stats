@@ -2,7 +2,6 @@ import dotenv from 'dotenv/config';
 import app from './server';
 import db from './database';
 import {createSuperAdmin} from './models/user';
-
 const {PORT} = process.env;
 
 db.authenticate()

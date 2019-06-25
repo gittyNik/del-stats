@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import db from '../src/database';
+import db from '../database';
 
 const browser_history_items = db.define('browser_history_items', {
   browser_url_id:{
