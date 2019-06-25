@@ -1,13 +1,8 @@
 import uuid from 'uuid/v4';
-<<<<<<< HEAD
 import Topic from '../models/topic';
+import Team from './models/team';
 import Resource from '../models/resource'
 import Milestone from '../models/milestone';
-=======
-import Topic from '../../models/topic';
-import Resource from '../../models/resource'
-import Milestone from '../../models/milestone';
->>>>>>> Changed the db structure of milestone and updated respective routes
 
 export const getAllMilestones=(req,res) => {
   Milestone.findAll({})
@@ -38,7 +33,7 @@ export const create = (req, res)=> {
     });
   })
   .catch(err=>console.log(err));
-}
+} 
 
 export const update = (req,res)=>{
   Milestone.update({name: req.body.milestone_name},{
@@ -77,5 +72,50 @@ export const getAllByMilestone = (req,res)=>{
       res.json(data1);
     })
   })
+  .catch(err => res.status(500).send(err));
+}
+
+export const getTeam=(req,res) => {
+  Team.findAll({
+    where:{
+      id : req.params.team_id
+    }
+  })
+  .then((data) => {res.json(data);})
+  .catch(err => res.status(500).send(err));
+}
+
+export const createTeam = (req, res)=> {
+  let {name} = req.body;
+  Team.create({
+    id: uuid(),
+    name
+  })
+  .then(team => {
+    res.send({
+      data: team
+    });
+  })
+  .catch(err=>console.log(err));
+} 
+
+export const updateTeam = (req,res)=>{
+  Team.update({name: req.body.team_name},{
+    where: {
+      id: req.params.team_id
+    }
+  })
+  .then(team => {
+    res.send('Team updated');
+  })
+  .catch(err => res.status(500).send(err));
+}
+
+export const deleteTeam = (req,res)=>{
+  Team.destroy({where: {
+      id:req.params.team_id
+    }
+  })
+  .then(() => {res.send("Deleted team");})
   .catch(err => res.status(500).send(err));
 }

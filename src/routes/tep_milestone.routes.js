@@ -1,7 +1,44 @@
 import Express from 'express';
-import {create,update,deleteOne,getAllByMilestone as getMilestoneResources,getAllMilestones,getMilestone} from '../controllers/tep_milestone.controller';
+import {create,update,deleteOne,getAllByMilestone as getMilestoneResources,getAllMilestones,getMilestone,
+    getTeam,createTeam,updateTeam,deleteTeam} from '../controllers/tep_milestone.controller';
 
 const router = Express.Router();
+
+/**
+ * @api {get} /tep/milestones/team/:team_id Get teams
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetTeam
+ * @apiGroup TEP Team
+ */
+router.get('/team/:team_id', getTeam);
+
+/**
+ * @api {post} /tep/milestones/team Add a Team
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName AddNewTeam
+ * @apiGroup TEP Team
+ *
+ * @apiParam {String} name Name of the team
+ */
+router.post('/team', createTeam);
+
+/**
+ * @api {patch} /tep/milestones/team/:team_id Update Team
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName Update
+ * @apiGroup TEP Team
+ *
+ * @apiParam {String} team_name name of the team
+ */
+router.patch('/team/:team_id', updateTeam);
+
+/**
+ * @api {delete} /tep/milestones/team/:team_id Delete a Team
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName DeleteOne
+ * @apiGroup TEP Team
+ */
+router.delete('/team/:team_id', deleteTeam);
 
 /**
  * @api {get} /tep/milestones Get all TEP milestones
