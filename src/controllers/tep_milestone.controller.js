@@ -1,6 +1,6 @@
 import uuid from 'uuid/v4';
 import Topic from '../models/topic';
-import Team from './models/team';
+import Team from '../models/team';
 import Resource from '../models/resource'
 import Milestone from '../models/milestone';
 
