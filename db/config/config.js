@@ -1,11 +1,17 @@
 require('dotenv').config;
-module.exports= {
+
+const settings = {
   "development": {
     "username": process.env.DATABASE_USERNAME,
     "password": process.env.DATABASE_PASSWORD,
     "database": "delta_development",
     "host": "127.0.0.1",
-    "dialect": "postgres"
+    "dialect": "postgres",
+    "pool": {
+      max: 5,
+      acquire: 30000,
+      idle: 10000,
+    }
   },
   "test": {
     "username":  process.env.DATABASE_USERNAME,
@@ -22,3 +28,7 @@ module.exports= {
     "dialect": "postgres"
   }
 }
+
+settings.default = settings.development;
+
+module.exports = settings;
