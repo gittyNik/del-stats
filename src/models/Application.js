@@ -1,3 +1,9 @@
+// user_id, 
+// cohort_applied, 
+// status, 
+// cohort_joining, 
+// payment_details
+
 import Sequelize from 'sequelize';
 import db from '../database';
 
@@ -12,11 +18,11 @@ const Applications = db.define('applications', {
         allowNull:false,
       },
       cohort_applied: {
-        type: Sequelize.STRING, // program id of cohort can be kept
+        type: Sequelize.UUID, // program id of cohort can be kept
         allowNull: true,
       },
       cohort_joining: {
-        type: Sequelize.STRING, // program id of cohort can be kept
+        type: Sequelize.UUID, // program id of cohort can be kept
         allowNull: true,
       },
       status: {

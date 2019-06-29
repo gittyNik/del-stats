@@ -4,33 +4,26 @@ POST /api/firewall/test_questions       -> add a question
 DELETE /api/firewall/test_questions/:id -> delete a question
 PATCH /api/firewall/test_questions/:id  -> update a question
 */
-const test_question = require('../../models/Test_Question');
+import uuid from 'uuid/v4';
+import test_question from '../models/Test_Question';
 
 export const getAllQuestion = (req,res) => {
     test_question.findAll()
-    .then(questions=>{
-        console.log(questions);
-        res.status(200).json(questions);
-    })
-    .catch(err=>{
-        console.log(err);
-    })
+    .then((data) => {res.json(data);})
+    .catch(err => res.status(500).send(err));
 }
 
 export const addQuestion = (req, res) => {
-        console.log(req.body.type);
-        console.log(req.body.question);
-        console.log(req.body.qimage);
-        console.log(req.body.qtype);
-        console.log(req.body);
-        //console.log(req.body.answers[0]);
-        //console.log(req.body.answers);
-        // test_question.create({
-        //     question,
-        //     type,
-        // })
-        // .then(questions=>res.send("insertion success"))
-        // .catch(err=>console.log(err));
+  // console.log(req.body);
+  let {question, type, domain} = req.body;
+  test_question.create({
+    id: uuid(),
+    question,
+    type,
+    domain,
+  })
+  .then(questions=>res.status(201).send("insertion success"))
+  .catch(err=>console.status(500).log(err));
 }
 
 export const deleteQuestion = (req, res) => {
@@ -39,17 +32,25 @@ export const deleteQuestion = (req, res) => {
         where: {
           id: req.params.id
         }
-      });
+      })
+    .then((data) => {res.send("deleted", data)})
+    .catch(err => res.status(500).send(err));
 }
 
 export const updateQuestion = (req, res) => {
     //console.log(req.params.id);
+    // console.log(req.body);
+    let {question, type, domain} = req.body;
     test_question.update({
-        question: {}
+        question,
+        type,
+        domain,
       }, {
         where: {
           id: req.params.id
         }
-      });
+      })
+    .then((data) => {res.send("updated", data);})
+    .catch(err => res.status(500).send(err));
       // UPDATE post SET question: {} WHERE id: 2;
 }

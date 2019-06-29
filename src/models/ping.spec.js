@@ -1,4 +1,3 @@
-
 import {getIntentionPing} from './ping';
 import dbConnect from '../util/dbConnect';
 

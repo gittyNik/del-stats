@@ -25,7 +25,7 @@ const Tests = db.define('tests', {
     allowNull: true,
   },
   browser_history: {
-    type: Sequelize.ARRAY(Sequelize.STRING),
+    type: Sequelize.ARRAY(Sequelize.INTEGER),
     allowNull: true,
   },
   createdAt: {
