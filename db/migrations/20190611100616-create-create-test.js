@@ -1,46 +1,46 @@
+// user_id, 
+// questions[{question,answer,isCorrect,review,reviewed_by}],
+// gen_time, 
+// sub_time, 
+// browser_history[]
+
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('tests', {
-      // id: {
-      //   type: Sequelize.UUID,
-      //   primaryKey: true,
-      //   defaultValue: Sequelize.UUIDv4,
-      // },
       id: {
-        autoIncrement: true,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDv4,
         primaryKey: true,
-        type: Sequelize.INTEGER
+      },
+      user_id: {
+        type: Sequelize.UUID,
+        allowNull:false,
       },
       questions: {
-        type: Sequelize.ARRAY(Sequelize.INTEGER),
+        type: Sequelize.ARRAY(Sequelize.JSON),
         allowNull: false,
       },
-      user: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      generateTime: {
+      gen_time: {
         type: Sequelize.DATE,
-        allowNull: Sequelize.NOW,
+        defaultValue: Sequelize.NOW,
+        allowNull: true,
       },
-      submitTime: {
+      sub_time: {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      type: {
-        type: Sequelize.ENUM('coding', 'logical', 'mindset'),
-        allowNull: false,
-      },
-      browserSession: {
+      browser_history: {
         type: Sequelize.ARRAY(Sequelize.STRING),
         allowNull: true,
       },
       createdAt: {
+        allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
       updatedAt: {
+        allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
