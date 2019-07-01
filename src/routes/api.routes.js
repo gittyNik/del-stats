@@ -1,5 +1,4 @@
 import Express from 'express';
-import authentication from './auth.routes';
 import cohort from './cohort.routes';
 import educator from './educator.routes';
 import student from './student.routes';
@@ -13,16 +12,24 @@ import todo from './todo.routes';
 import note from './note.routes';
 import tep from './tep.routes';
 import user from './user.routes'
-import {getProfile, populateCurrentUser} from '../controllers/user.controller';
+import getProfile from '../controllers/user.controller';
+import { browserAccessControl, devOnly } from '../controllers/access_control.controller';
+import authenticate from '../controllers/auth.controller';
+import authRouter from './auth.routes';
 
 const router = Express.Router();
-// api doc is accessible in development environment only
-if(process.env.NODE_ENV === 'development') {
-	router.use('/doc', Express.static('./doc'));
-}
-router.use('/tep', tep);
-//router.use(authentication);
-router.use('/auth',authentication);
+
+// All routes
+router.use(browserAccessControl);
+
+// Public routes
+router.use('/auth',authRouter);
+router.use('/doc', devOnly, Express.static('./doc'));
+
+// Private Routes
+router.use(authenticate);
+router.use('/profile', getProfile);
+router.use('/tep', tepRouter);
 
 router.use('/cohorts', cohort);
 router.use('/educators', educator);
@@ -31,14 +38,10 @@ router.use('/prompts', prompt);
 router.use('/pings', ping);
 router.use('/pingpongs', pingpong);
 router.use('/mailer', mailer);
-router.use('/days', days);
 router.use('/admin', admin);
 router.use('/todos', todo);
 router.use('/notes', note);
 router.use('/users', user)
-
-
-router.get('/profile', populateCurrentUser, getProfile);
 
 router.get('/', (req, res) => res.send('API home'));
 router.use('*', (req, res) => res.sendStatus(404));
