@@ -1,4 +1,4 @@
-const { WATSONUSER, WATSONPASS} = process.env
+const { WATSON_USER, WATSON_PASS} = process.env
 var NaturalLanguageUnderstandingV1 = require('watson-developer-cloud/natural-language-understanding/v1.js');
 require('dotenv').config({
   silent: true

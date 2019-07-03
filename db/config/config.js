@@ -4,8 +4,8 @@ const settings = {
   "development": {
     "username": process.env.DATABASE_USERNAME,
     "password": process.env.DATABASE_PASSWORD,
-    "database": "delta_development",
-    "host": "127.0.0.1",
+    "database": process.env.DATABASE_NAME,
+    "host": process.env.DATABASE_HOST,
     "dialect": "postgres",
     "pool": {
       max: 5,
@@ -17,14 +17,14 @@ const settings = {
     "username":  process.env.DATABASE_USERNAME,
     "password":  process.env.DATABASE_PASSWORD,
     "database": "delta_test",
-    "host": "127.0.0.1",
+    "host": process.env.DATABASE_HOST,
     "dialect": "postgres"
   },
   "production": {
     "username": process.env.DATABASE_USERNAME,
     "password": process.env.DATABASE_PASSWORD,
     "database": "delta",
-    "host": "127.0.0.1",
+    "host": process.env.DATABASE_HOST,
     "dialect": "postgres"
   }
 }

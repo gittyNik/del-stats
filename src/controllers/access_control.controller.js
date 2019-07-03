@@ -10,7 +10,7 @@ export const devOnly = (req, res, next) => {
 
 export const browserAccessControl = (req, res, next) => {
 
-  res.header('Access-Control-Allow-Origin', process.env.REACT_APP_SERVER);
+  res.header('Access-Control-Allow-Origin', process.env.WEB_SERVER);
   res.header('Access-Control-Allow-Headers', 'Authorization, Content-Type');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE,OPTIONS');
 

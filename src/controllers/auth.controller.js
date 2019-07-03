@@ -7,7 +7,7 @@ import {getSoalToken} from '../util/token';
 import User from '../models/user';
 import SendOtp from '../util/sendotp';
 import dotenv from 'dotenv/config';
-const sendOtp = new SendOtp(process.env.SEND_OTP_API_KEY,"Use {{otp}} to login with DELTA . Please do not share it with anybody ");
+const sendOtp = new SendOtp(process.env.MSG91_API_KEY,"Use {{otp}} to login with DELTA . Please do not share it with anybody ");
 
 export const authenticate = (req, res, next) => {
 

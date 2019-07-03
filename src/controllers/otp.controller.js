@@ -2,7 +2,7 @@ import User from '../models/user';
 import SendOtp from '../util/sendotp';
 import {getSoalToken} from '../util/token';
 
-const sendOtp = new SendOtp(process.env.SEND_OTP_API_KEY, "Use {{otp}} to login with DELTA. Please do not share it with anybody! {SOAL Team}");
+const sendOtp = new SendOtp(process.env.MSG91_API_KEY, "Use {{otp}} to login with DELTA. Please do not share it with anybody! {SOAL Team}");
 
 export const sendOTP = (req, res) => {
   const {phone} = req.body;
