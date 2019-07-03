@@ -33,7 +33,7 @@ export const verifyOTP = (req, res) => {
         if(user == null) {
           try{
             user = await User.create({phone, role});
-          } catch{
+          } catch(e){
             res.sendStatus(404);
           }
         }

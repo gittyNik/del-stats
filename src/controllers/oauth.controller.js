@@ -1,15 +1,11 @@
 import Express from 'express';
 import jwt from 'jsonwebtoken';
 import request from 'superagent';
-//import { User, USER_ROLES } from '../models/user';
 import {getSpotterTeam} from './user.controller';
 import {getSoalToken} from '../util/token';
 import User from '../models/user';
 import SendOtp from '../util/sendotp';
 import dotenv from 'dotenv/config';
-import Express from 'express';
-import request from 'superagent';
-import jwt from 'jsonwebtoken';
 
 const router = Express.Router();
 
@@ -35,7 +31,8 @@ const getProfileFromGithub = ({text: githubToken}) => new Promise((resolve, reje
 
 });
 
-const export signinWithGithub = (req, res)=>{
+// Check if a user with the github profile exists in the database and authorize
+export const signinWithGithub = (req, res)=>{
   let params = {
     client_id: process.env.GITHUB_CLIENT_ID,
     client_secret: process.env.GITHUB_CLIENT_SECRET,

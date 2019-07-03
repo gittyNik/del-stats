@@ -1,7 +1,6 @@
 import Resource from '../models/cohort';
 import {getCohortStudents} from '../controllers/student.controller';
-import {resetCohortDays} from '../controllers/day.controller'
-import createChunks from "../util/createChunks"
+import createChunks from "../util/createChunks";
 
 export const getCohorts = (req, res) => {
   Resource.find().exec()
@@ -43,10 +42,7 @@ export const createCohort = (req, res) => {
   startDate = new Date(+startDate)
   new Resource({name, location, program, startDate, endDate}).save()
   .then(data => {
-    resetCohortDays(data).catch(e => {"Errored out in create all days" + e})
-  .then(() =>
-    res.status(201).json({data})
-    )
+    res.status(201).json({data});
   })
   .catch(err => res.status(500).send({err}));
 }

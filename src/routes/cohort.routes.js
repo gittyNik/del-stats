@@ -1,10 +1,7 @@
 import Express from 'express';
-import { getCohortDays, createCohortDays } from '../controllers/day.controller';
-import { getCohortByName, getCohorts, getCohort, createCohort, updateCohort, deleteCohort, resetSpotters } from '../controllers/cohort.controller';
-import { allowSuperAdminOnly } from '../controllers/roles.controller';
+import { getCohortByName, getCohorts, getCohort, createCohort, updateCohort, deleteCohort } from '../controllers/cohort.controller';
 
 const router = Express.Router();
-
 
 /**
  * @api {get} /cohorts Get all cohorts
@@ -13,23 +10,45 @@ const router = Express.Router();
  * @apiGroup Cohort
  */
 router.get('/', getCohorts);
-router.get('/:cohortName', getCohortByName);
-router.get('/id/:id', getCohort);
-router.post('/', createCohort);
-router.patch('/:id', updateCohort);
-router.delete('/:id', deleteCohort);
 
-router.get('/:cohort_id/days', getCohortDays);
 /**
- * @api {post} /cohorts/:cohort_id/days Add days to an existing cohort
+ * @api {get} /cohorts/:id Get a cohort by id
  * @apiHeader {String} authorization JWT Token.
- * @apiName ExtendCohort
+ * @apiName GetCohort
  * @apiGroup Cohort
- *
- * @apiParam {String} count Number of days to be added to the cohort.
  */
-router.post('/:cohort_id/days', createCohortDays);
+router.get('/:id', getCohort);
 
-router.patch('/:cohort_id/spotters/reset', allowSuperAdminOnly, resetSpotters);
+/**
+ * @api {get} /cohorts/:year/:cohort_name Get a cohort with name
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetCohortByName
+ * @apiGroup Cohort
+ */
+router.get('/:year(^[0-9]{4}$)/:cohort_name', getCohortByName);
+
+/**
+ * @api {post} /cohorts Create a cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName CreateCohort
+ * @apiGroup Cohort
+ */
+router.post('/', createCohort);
+
+/**
+ * @api {patch} /cohorts/:id Update a cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UpdateCohort
+ * @apiGroup Cohort
+ */
+router.patch('/:id', updateCohort);
+
+/**
+ * @api {delete} /cohorts/:id Delete a cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName DeleteCohort
+ * @apiGroup Cohort
+ */
+router.delete('/:id', deleteCohort);
 
 export default router;

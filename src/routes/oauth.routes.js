@@ -1,5 +1,6 @@
 import Express from 'express';
 import {signinWithGithub, linkWithGithub} from '../controllers/oauth.controller';
+import authenticate from '../controllers/auth.controller';
 
 const router = Express.Router();
 
@@ -14,11 +15,12 @@ router.get('/github/signin', signinWithGithub);
 
 /**
  * @api {post} /auth/oauth/github/link Link github account
- * @apiDescription This is used when a logged in user attempts to attach github account
+ * @apiHeader {String} authorization JWT Token
  * @apiName LinkGithub
+ * @apiDescription This is used when a signed-in user attempts to attach github account
  * @apiGroup SocialConnection
  * @apiParam {String} code Authentication code provided by github after login
  */
-router.post('/github/link', linkWithGithub);
+router.post('/github/link', authenticate, linkWithGithub);
 
 export default router;

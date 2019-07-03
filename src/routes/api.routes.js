@@ -6,13 +6,12 @@ import prompt from './prompt.routes';
 import ping from './ping.routes';
 import pingpong from './pingpong.routes';
 import mailer from './mailer.routes';
-import days from './day.routes';
 import admin from './admin.routes';
 import todo from './todo.routes';
 import note from './note.routes';
-import tep from './tep.routes';
+import tepRouter from './tep.routes';
 import user from './user.routes'
-import getProfile from '../controllers/user.controller';
+import {getProfile} from '../controllers/user.controller';
 import { browserAccessControl, devOnly } from '../controllers/access_control.controller';
 import authenticate from '../controllers/auth.controller';
 import authRouter from './auth.routes';
@@ -30,8 +29,8 @@ router.use('/doc', devOnly, Express.static('./doc'));
 router.use(authenticate);
 router.use('/profile', getProfile);
 router.use('/tep', tepRouter);
-
 router.use('/cohorts', cohort);
+
 router.use('/educators', educator);
 router.use('/students', student);
 router.use('/prompts', prompt);

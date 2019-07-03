@@ -1,4 +1,6 @@
 import Express from 'express';
+import oauthRouter from './oauth.routes';
+import otpRouter from './otp.routes';
 
 const router = Express.Router();
 
