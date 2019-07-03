@@ -8,11 +8,3 @@ mongoose.set('debug', NODE_ENV === 'development');
 mongoose.Promise = Promise;
 console.log(MONGO_HOST);
 export default () => mongoose.connect(MONGO_HOST, {user, pass});
-
-export const sequelize = new Sequelize(`postgres://${config.development.username}:${config.development.password}@localhost/${config.development.database}`, {
-  pool: {
-    max: 5,
-    acquire: 30000,
-    idle: 10000,
-  }
-});

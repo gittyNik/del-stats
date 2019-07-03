@@ -1,48 +1,37 @@
-/*
-GET /api/firewall/applications/             -> get lists of all applications
-GET /api/firewall/applications/:id          -> get an application with given id
-GET /api/firewall/applications/live/        -> get the lists of all live applications
-
-POST /api/firewall/applications/            -> add an application
-PATCH /api/firewall/applications/:id        -> update an application with given id
-DELETE /api/firewall/applications/:id       -> delete an application
-
-POST /api/firewall/applications/:id/payment -> payment process of an application
-*/
 import uuid from 'uuid/v4';
-import application from '../models/Application';
+import Application from '../models/application';
 
 export const getAllApplication = (req, res) => {
-	application.findAll()
+	Application.findAll()
 	.then((data) => {res.status(200).json(data);})
-	.catch(err => res.status(500).send(err));
+	.catch(err => res.sendStatus(500));
 }
 
 export const getOneApplication = (req, res) => {
   // console.log(req.params.id);
-	application.findAll({
+	Application.findAll({
 		where: {
 			id: req.params.id
 		}
 	})
 	.then((data) => {res.status(200).json(data);})
-	.catch(err => res.status(500).send(err));
+	.catch(err => res.sendStatus(500));
 }
 
 export const getLiveApplication = (req, res) => {
-  application.findAll({
+  Application.findAll({
 		where: {
 			status: "live"
 		}
 	})
 	.then((data) => {res.status(200).json(data);})
-	.catch(err => res.status(500).send(err));
+	.catch(err => res.sendStatus(500));
 }
 
 export const addApplication = (req, res) => {
   let {user_id, cohort_applied, cohort_joining, status, payment_details} = req.body;
 	// console.log(req.body);
-	application.create({
+	Application.create({
 		id: uuid(),
 		user_id, 
 		cohort_applied, 
@@ -50,14 +39,14 @@ export const addApplication = (req, res) => {
 		status, 
 		payment_details,
 	})
-	.then(data=>res.status(201).send("application added", data))
-	.catch(err=>console.status(500).log(err));
+	.then(data=>res.status(201).send("Application added", data))
+	.catch(err=>res.sendStatus(500));
 }
 
 export const updateApplication = (req, res) => {
   let {user_id, cohort_applied, cohort_joining, status, payment_details} = req.body;
 	// console.log(req.body);
-  application.update({
+  Application.update({
 			user_id, 
 			cohort_applied, 
 			cohort_joining, 
@@ -69,25 +58,25 @@ export const updateApplication = (req, res) => {
       }
     })
   .then((data) => {res.send("updated", data);})
-  .catch(err => res.status(500).send(err));
+  .catch(err => res.sendStatus(500));
     // UPDATE post SET questions: {} WHERE id: 2;
 }
 
 export const deleteApplication = (req, res) => {
   // console.log(req.params.id);
-	application.destroy({
+	Application.destroy({
 		where: {
 			id: req.params.id
 		}
 	})
 	.then((data) => {res.send("deleted", data);})
-	.catch(err => res.status(500).send(err));
+	.catch(err => res.sendStatus(500));
 }
 
 export const payment = (req, res) => {
   let {payment_details} = req.body;
 	// console.log(req.body);
-  application.update({
+  Application.update({
 			payment_details,
     }, {
       where: {
@@ -95,6 +84,6 @@ export const payment = (req, res) => {
       }
     })
   .then((data) => {res.send("payment updated", data);})
-  .catch(err => res.status(500).send(err));
+  .catch(err => res.sendStatus(500));
     // UPDATE post SET questions: {} WHERE id: 2;
 }

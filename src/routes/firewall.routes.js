@@ -10,6 +10,3 @@ router.use('/tests', test);
 router.use('/test_questions', test_question);
 
 export default router;
-
-
-

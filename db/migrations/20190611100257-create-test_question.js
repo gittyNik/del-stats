@@ -1,14 +1,8 @@
-// question, 
-// type{mcq/text/code}, 
-// domain{generic/tech/mindsets}
-
-'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('test_questions', {
     id: {
       type: Sequelize.UUID,
-      defaultValue: Sequelize.UUIDv4,
       primaryKey: true,
       },
     question: {
@@ -26,12 +20,10 @@ module.exports = {
     createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.NOW,
       },
     updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.NOW,
       },
     });
   },

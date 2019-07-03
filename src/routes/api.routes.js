@@ -15,6 +15,7 @@ import {getProfile} from '../controllers/user.controller';
 import { browserAccessControl, devOnly } from '../controllers/access_control.controller';
 import authenticate from '../controllers/auth.controller';
 import authRouter from './auth.routes';
+import firewall from './firewall.routes';
 
 const router = Express.Router();
 
@@ -40,7 +41,8 @@ router.use('/mailer', mailer);
 router.use('/admin', admin);
 router.use('/todos', todo);
 router.use('/notes', note);
-router.use('/users', user)
+router.use('/users', user);
+router.use('/firewall', firewall)
 
 router.get('/', (req, res) => res.send('API home'));
 router.use('*', (req, res) => res.sendStatus(404));

@@ -1,10 +1,9 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 
-const TestQuestions = db.define('test_question', {
+const TestQuestion = db.define('test_question', {
   id: {
     type: Sequelize.UUID,
-    defaultValue: Sequelize.UUIDv4,
     primaryKey: true,
     },
   question: {
@@ -22,13 +21,11 @@ const TestQuestions = db.define('test_question', {
   createdAt: {
       type: Sequelize.DATE,
       allowNull: false,
-      defaultValue: Sequelize.NOW,
     },
   updatedAt: {
       type: Sequelize.DATE,
       allowNull: false,
-      defaultValue: Sequelize.NOW,
     },
-  })
+})
 
-  export default TestQuestions;
+export default TestQuestion;

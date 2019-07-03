@@ -1,47 +1,41 @@
-/*
-GET /api/firewall/test_questions        -> get all questions
-POST /api/firewall/test_questions       -> add a question
-DELETE /api/firewall/test_questions/:id -> delete a question
-PATCH /api/firewall/test_questions/:id  -> update a question
-*/
 import uuid from 'uuid/v4';
-import test_question from '../models/Test_Question';
+import TestQuestion from '../models/test_question';
 
 export const getAllQuestion = (req,res) => {
-    test_question.findAll()
+    TestQuestion.findAll()
     .then((data) => {res.json(data);})
-    .catch(err => res.status(500).send(err));
+    .catch(err => res.sendStatus(500));
 }
 
 export const addQuestion = (req, res) => {
   // console.log(req.body);
   let {question, type, domain} = req.body;
-  test_question.create({
+  TestQuestion.create({
     id: uuid(),
     question,
     type,
     domain,
   })
   .then(questions=>res.status(201).send("insertion success"))
-  .catch(err=>console.status(500).log(err));
+  .catch(err=>res.sendStatus(500));
 }
 
 export const deleteQuestion = (req, res) => {
     // console.log(req.params.id);
-    test_question.destroy({
+    TestQuestion.destroy({
         where: {
           id: req.params.id
         }
       })
     .then((data) => {res.send("deleted", data)})
-    .catch(err => res.status(500).send(err));
+    .catch(err => res.sendStatus(500));
 }
 
 export const updateQuestion = (req, res) => {
     //console.log(req.params.id);
     // console.log(req.body);
     let {question, type, domain} = req.body;
-    test_question.update({
+    TestQuestion.update({
         question,
         type,
         domain,
@@ -51,6 +45,6 @@ export const updateQuestion = (req, res) => {
         }
       })
     .then((data) => {res.send("updated", data);})
-    .catch(err => res.status(500).send(err));
+    .catch(err => res.sendStatus(500));
       // UPDATE post SET question: {} WHERE id: 2;
 }
