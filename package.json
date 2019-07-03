@@ -3,10 +3,10 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "build": "babel src -d api-build --presets env",
+    "build": "babel src -d api-build",
     "lint": "eslint src",
     "doc": "apidoc -i src",
-    "start": "npm run doc && babel-node ./src/index.js --presets env,stage-3",
+    "start": "npm run doc && babel-node ./src/index.js",
     "test": "jest"
   },
   "engines": {
