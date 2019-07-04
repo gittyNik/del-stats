@@ -14,6 +14,7 @@ export const authenticate = (req, res, next) => {
   if(req.headers.authorization === undefined) {
     res.header('WWW-Authenticate', 'Bearer realm="Access to Delta API"');
     res.status(401).send('Unauthenticated request!');
+    return;
    }
 
    let token = req.headers.authorization.split(' ').pop();
