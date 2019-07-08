@@ -21,7 +21,7 @@ router.post('/send', sendOTP);
 router.post('/retry', retryOTP);
 
 /**
- * @api {verify} /auth/otp/verify Verify the OTP
+ * @api {get} /auth/otp/verify Verify the OTP
  * @apiName VerifyOTP
  * @apiDescription Verifies that the sent OTP is correct and authenticates a user
  * @apiGroup Authentication

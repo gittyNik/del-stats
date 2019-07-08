@@ -25,7 +25,7 @@ export const retryOTP = (req, res) => {
 
 // todo: clean up
 export const verifyOTP = (req, res) => {
-  const {phone, otp, apply} = req.body;
+  const {phone, otp} = req.body;
 
   sendOtp.verify(phone, otp, function (error, data) {
     if (data.type == 'success') { // OTP verified
