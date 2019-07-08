@@ -45,5 +45,5 @@ export const verifyOTP = (req, res) => {
       }).catch(e => res.sendStatus(404));
     } else if (data.type == 'error') // OTP verification failed
       res.sendStatus(401);
-    });
-  }
+  });
+}
