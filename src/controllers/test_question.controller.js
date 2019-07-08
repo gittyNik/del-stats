@@ -2,11 +2,12 @@ import uuid from 'uuid/v4';
 import TestQuestion from '../models/test_question';
 
 export const getAllQuestion = (req,res) => {
-    TestQuestion.findAll()
-    .then((data) => {res.json(data);})
-    .catch(err => res.sendStatus(500));
+  TestQuestion.findAll()
+  .then(data => res.json(data))
+  .catch(err => res.sendStatus(500));
 }
 
+// question, type{mcq/text/code}, domain{generic/tech/mindsets}
 export const addQuestion = (req, res) => {
   // console.log(req.body);
   let {question, type, domain} = req.body;
@@ -16,35 +17,35 @@ export const addQuestion = (req, res) => {
     type,
     domain,
   })
-  .then(questions=>res.status(201).send("insertion success"))
+  .then(data=>res.status(201).send("insertion success"))
   .catch(err=>res.sendStatus(500));
 }
 
 export const deleteQuestion = (req, res) => {
-    // console.log(req.params.id);
-    TestQuestion.destroy({
-        where: {
-          id: req.params.id
-        }
-      })
-    .then((data) => {res.send("deleted", data)})
-    .catch(err => res.sendStatus(500));
+  // console.log(req.params.id);
+  TestQuestion.destroy({
+      where: {
+        id: req.params.id
+      }
+    })
+  .then(data => res.send("deleted", data))
+  .catch(err => res.sendStatus(500));
 }
 
 export const updateQuestion = (req, res) => {
-    //console.log(req.params.id);
-    // console.log(req.body);
-    let {question, type, domain} = req.body;
-    TestQuestion.update({
-        question,
-        type,
-        domain,
-      }, {
-        where: {
-          id: req.params.id
-        }
-      })
-    .then((data) => {res.send("updated", data);})
-    .catch(err => res.sendStatus(500));
-      // UPDATE post SET question: {} WHERE id: 2;
+  console.log(req.params.id);
+  console.log(req.body);
+  let {question, type, domain} = req.body;
+  TestQuestion.update({
+      question,
+      type,
+      domain,
+    }, {
+      where: {
+        id: req.params.id
+      }
+    })
+  .then(data => res.send("updated", data))
+  .catch(err => res.sendStatus(500));
+  // UPDATE post SET question: {} WHERE id: 2;
 }

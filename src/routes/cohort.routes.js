@@ -51,6 +51,6 @@ router.patch('/:id', updateCohort);
  */
 router.delete('/:id', deleteCohort);
 
-router.get('/upcoming', getUpcomingCohorts);
+// router.get('/upcoming', getUpcomingCohorts);
 
 export default router;
