@@ -23,6 +23,16 @@ const User = db.define('users', {
   profile: Sequelize.ARRAY(Sequelize.JSON),
 },{});
 
+export const getOrCreateUser = phone => User.findOrCreate({
+  where:{
+    phone,
+    role: USER_ROLES.GUEST
+  },
+  defaults: {
+    id: uuid()
+  }
+});
+
 export const createSuperAdmin = ()=> User.findOrCreate({
   where:{
     email: DEFAULT_USER,
