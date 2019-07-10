@@ -1,13 +1,13 @@
 import uuid from 'uuid/v4';
 import Test from '../models/test';
 
-export const getAllTest = (req,res) => {
+export const getAllTests = (req,res) => {
   Test.findAll()
   .then(data => res.status(200).json(data))
   .catch(err => res.status(500))
 }
 
-export const getOneTest = (req, res) => {
+export const getTestById = (req, res) => {
   // console.log(req.params.id);
   Test.findAll({
       where: {
@@ -19,12 +19,11 @@ export const getOneTest = (req, res) => {
 }
 
 //questions[{qid,answer,isCorrect,review,reviewed_by}]
-export const generateSpecificTest = (req, res) => {
+export const generateTest = (req, res) => {
   // let {questions, user_id, gen_time, sub_time, browser_history} = req.body;
-  let {questions, user_id} = req.body;
+  let {questions} = req.body;
   console.log("req_body",req.body);
   console.log("questions",questions);
-  console.log("userid",user_id);
   Test.create({
     id: uuid(),
     questions,
@@ -35,13 +34,11 @@ export const generateSpecificTest = (req, res) => {
 }
 
 export const updateTest = (req, res) => {
-  let {questions, sub_time} = req.body;
+  let {sub_time} = req.body;
   console.log("req_body",req.body);
   console.log("sub_time",sub_time);
-  console.log("questions",questions);
   Test.update({
       sub_time,
-      questions
     }, {
       where: {
         id: req.params.id
@@ -49,28 +46,28 @@ export const updateTest = (req, res) => {
     })
   .then(data => res.status(201).send(data))
   .catch(err => res.status(500))
-  // UPDATE post SET questions: {} WHERE id: 2;
 }
 
 export const updateVideo = (req, res) => {
-  Test.update({
-      questions: {}
-    }, {
-      where: {
-        id: req.params.id
-      }
-    })
-  .then(data => res.status(201).send(data))
-  .catch(err => res.status(500))
+  res.status(501).send("not implemented")
+  // Test.update({
+  //     questions: {}
+  //   }, {
+  //     where: {
+  //       id: req.params.id
+  //     }
+  //   })
+  // .then(data => res.status(201).send(data))
+  // .catch(err => res.status(500))
   // UPDATE post SET questions: {} WHERE id: 2;
 }
 
 export const updateBrowsedUrl = (req, res) => {
-  let {browser_history} = req.body;
+  let {browsedUrls} = req.body;
   console.log("req_body",req.body);
-  console.log("browser_history",browser_history.length);
+  console.log(browsedUrls.length);
   Test.update({
-      browser_history
+      browser_history: browsedUrls
     }, {
       where: {
         id: req.params.id

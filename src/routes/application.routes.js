@@ -1,28 +1,76 @@
-/*
-GET /api/firewall/applications/             -> get lists of all applications
-GET /api/firewall/applications/:id          -> get an application with given id
-GET /api/firewall/applications/live/        -> get the lists of all live applications
-
-POST /api/firewall/applications/            -> add an application
-PATCH /api/firewall/applications/:id        -> update an application with given id
-DELETE /api/firewall/applications/:id       -> delete an application
-
-POST /api/firewall/applications/:id/payment -> payment process of an application
-*/
-
 import Express from 'express';
-import { getAllApplication, getOneApplication, getLiveApplication, addApplication, updateApplication, deleteApplication, payment} from '../controllers/application.controller';
+import { getAllApplications, getApplicationById, getLiveApplications, addApplication, updateApplication, deleteApplication, payment} from '../controllers/application.controller';
 
 const router = Express.Router();
+/**
+ * @api {get} /firewall/applications Get all Applications
+ * @apiDescription get all Applications
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetApplications
+ * @apiGroup Application
+ */
+router.get('/', getAllApplications);
 
-router.get('/', getAllApplication);
-router.get('/:id', getOneApplication);
-router.get('/live', getLiveApplication);
+/**
+ * @api {get} /firewall/applications/live Get live Applications
+ * @apiDescription get live Applications
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetLiveApplications
+ * @apiGroup Application
+ */
+router.get('/live', getLiveApplications);
 
+/**
+ * @api {get} /firewall/applications/:id Get a Application
+ * @apiDescription get an Application
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetApplication
+ * @apiGroup Application
+ */
+router.get('/:id', getApplicationById);
+
+/**
+ * @api {post} /firewall/applications/ Add Application
+ * @apiDescription Add an application
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName AddApplication
+ * @apiGroup Application
+ * 
+ * @apiParam {String} cohort_applied  
+ */
 router.post('/', addApplication);
+
+/**
+ * @api {patch} /firewall/applications/:id  Update Application
+ * @apiDescription Update an application
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UpdateApplication
+ * @apiGroup Application
+ * 
+ * @apiParam {String} cohort_joining
+ * @apiParam {String} status
+ */
 router.patch('/:id', updateApplication);
+
+/**
+ * @api {delete} /firewall/applications/:id Delete Application
+ * @apiDescription Delete an application
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName DeleteApplication
+ * @apiGroup Application
+ */
 router.delete('/:id', deleteApplication);
 
-router.post('/:id/payment', payment);
+/**
+ * @api {patch} /firewall/applications/:id/payment Add Payment
+ * @apiDescription Add payment details of an application
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ApplicationPayment
+ * @apiGroup Application
+ * 
+ * @apiParam {object} payment_details Payment details
+ */
+router.patch('/:id/payment', payment);
 
 export default router;
+

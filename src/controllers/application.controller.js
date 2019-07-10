@@ -1,13 +1,13 @@
 import uuid from 'uuid/v4';
 import Application from '../models/application';
 
-export const getAllApplication = (req, res) => {
+export const getAllApplications = (req, res) => {
 	Application.findAll()
 	.then(data => res.status(200).json(data))
 	.catch(err => res.sendStatus(500))
 }
 
-export const getOneApplication = (req, res) => {
+export const getApplicationById = (req, res) => {
   console.log(req.params.id);
 	Application.findAll({
 		where: {
@@ -18,10 +18,10 @@ export const getOneApplication = (req, res) => {
 	.catch(err => res.sendStatus(500))
 }
 
-export const getLiveApplication = (req, res) => {
+export const getLiveApplications = (req, res) => {
   Application.findAll({
 		where: {
-			status: "live"
+			status: ['applied','review_pending','offered']
 		}
 	})
 	.then(data => res.status(200).json(data))
@@ -29,17 +29,15 @@ export const getLiveApplication = (req, res) => {
 }
 
 export const addApplication = (req, res) => {
-  let {user_id, cohort_applied, cohort_joining, status, payment_details} = req.body;
+  let {cohort_applied} = req.body;
 	console.log(req.body);
 	Application.create({
 		id: uuid(),
-		user_id, 
+		user_id: "393a1571-29c5-4f5a-8a3d-2fe9682d768d", 
 		cohort_applied, 
-		cohort_joining, 
-		status, 
-		payment_details,
+		status: "applied", 
 	})
-	.then(data=>res.status(201).send("Application added", data))
+	.then(data=>res.status(201).json(data))
 	.catch(err=>res.sendStatus(500));
 }
 
@@ -57,7 +55,7 @@ export const updateApplication = (req, res) => {
         id: req.params.id
       }
     })
-  .then(data => res.send("updated", data))
+  .then(data => res.status(200).json(data))
   .catch(err => res.sendStatus(500));
   // UPDATE post SET questions: {} WHERE id: 2;
 }
@@ -69,7 +67,7 @@ export const deleteApplication = (req, res) => {
 			id: req.params.id
 		}
 	})
-	.then(data => res.send("deleted", data))
+	.then(data => res.status(200).json(data))
 	.catch(err => res.sendStatus(500));
 }
 
@@ -83,7 +81,7 @@ export const payment = (req, res) => {
         id: req.params.id
       }
     })
-  .then(data => res.send("payment updated", data))
+  .then(data => res.status(200).json(data))
   .catch(err => res.sendStatus(500));
   // UPDATE post SET questions: {} WHERE id: 2;
 }

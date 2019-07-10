@@ -1,9 +1,9 @@
 import uuid from 'uuid/v4';
 import TestQuestion from '../models/test_question';
 
-export const getAllQuestion = (req,res) => {
+export const getAllQuestions = (req,res) => {
   TestQuestion.findAll()
-  .then(data => res.json(data))
+  .then(data => res.status(200).send(data))
   .catch(err => res.sendStatus(500));
 }
 
@@ -17,7 +17,7 @@ export const addQuestion = (req, res) => {
     type,
     domain,
   })
-  .then(data=>res.status(201).send("insertion success"))
+  .then(data=>res.status(201).send(data))
   .catch(err=>res.sendStatus(500));
 }
 
@@ -28,7 +28,7 @@ export const deleteQuestion = (req, res) => {
         id: req.params.id
       }
     })
-  .then(data => res.send("deleted", data))
+  .then(data => res.sendStatus(200))
   .catch(err => res.sendStatus(500));
 }
 
@@ -45,7 +45,7 @@ export const updateQuestion = (req, res) => {
         id: req.params.id
       }
     })
-  .then(data => res.send("updated", data))
+  .then(data => res.status(200).send(data))
   .catch(err => res.sendStatus(500));
   // UPDATE post SET question: {} WHERE id: 2;
 }
