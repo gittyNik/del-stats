@@ -1,5 +1,5 @@
 import Express from 'express';
-import { getAllTests, getTestById, generateTest, updateTest, updateVideo, updateBrowsedUrl} from '../controllers/test.controller';
+import { addTest, getAllTests, getTestById, generateTest, updateTest, updateVideo, updateBrowsedUrl} from '../controllers/test.controller';
 
 const router = Express.Router();
 
@@ -27,8 +27,19 @@ router.get('/:id', getTestById);
  * @apiHeader {String} authorization JWT Token.
  * @apiName GenerateTest
  * @apiGroup Test
- */
+*/
 router.get('/generate', generateTest);
+
+/**
+ * @api {post} /firewall/tests/add Add a Test
+ * @apiDescription add a new test
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName AddTest
+ * @apiGroup Test
+ * 
+ * @apiParam {json} questions Questions detail questions[{qid,answer,isCorrect,review,reviewed_by}]
+*/
+router.post('/add', addTest);
 
 /**
  * @api {patch} /firewall/tests/:id Update a Test
@@ -57,7 +68,7 @@ router.patch('/:id/video', updateVideo);
  * @apiName UpdateBrowsedUrls of a testTest
  * @apiGroup Test
  * 
- * @apiParam {String[]} browsedUrls BrowsedUrls details {browsedUrls:[]}
+ * @apiParam {json} browsedUrls BrowsedUrls details {browsedUrls:[]}
  */
 router.patch('/:id/history', updateBrowsedUrl);
 

@@ -20,7 +20,7 @@ router.get('/', getAllQuestions);
  *
  * @apiParam {String} type Type of question
  * @apiParam {String} domain Domain of question
- * @apiParam {Object} question Question details {text, image, options[{text, image, isCorrect}]}
+ * @apiParam {json} question Question details {text, image, options[{text, image, isCorrect}]}
  */
 router.post('/', addQuestion);
 
@@ -42,7 +42,7 @@ router.delete('/:id', deleteQuestion);
  * 
  * @apiParam {String} type Type of question
  * @apiParam {String} domain Domain of question
- * @apiParam {Object} question Question details {text, image, options[{text, image, isCorrect}]}
+ * @apiParam {json} question Question details {text, image, options[{text, image, isCorrect}]}
  */
 router.patch('/:id', updateQuestion);
 
