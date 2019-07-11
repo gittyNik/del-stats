@@ -30,11 +30,12 @@ export const getLiveApplications = (req, res) => {
 }
 
 export const addApplication = (req, res) => {
+  const user_id = req.jwtData.user.id;
   const {cohort_applied} = req.body;
 	console.log(req.body);
 	Application.create({
 		id: uuid(),
-		user_id: "393a1571-29c5-4f5a-8a3d-2fe9682d768d", 
+		user_id,
 		cohort_applied, 
 		status: "applied", 
 	})
@@ -45,9 +46,9 @@ export const addApplication = (req, res) => {
 export const updateApplication = (req, res) => {
   const {cohort_joining, status} = req.body;
 	console.log(req.body);
-  Application.update({ 
-			cohort_joining, 
-			status, 
+  Application.update({
+			cohort_joining,
+			status,
     }, {
       where: {
         id: req.params.id

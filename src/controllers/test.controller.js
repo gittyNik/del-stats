@@ -12,10 +12,10 @@ export const getTestById = (req, res) => {
   console.log(req.params.id);
   const id = req.params.id;
   Test.findAll({
-      where: {
-        id
-      }
-    })
+    where: {
+      id
+    }
+  })
   .then(data => res.status(200).json(data))
   .catch(err => res.status(500))
 }
@@ -35,12 +35,13 @@ export const generateTest = (req, res) => {
 // questions[{qid,answer,isCorrect,review,reviewed_by}]
 
 export const addTest = (req, res) => {
+  const user_id = req.jwtData.user.id;
   const {questions} = req.body;
   const quests = JSON.parse(questions);
   console.log(quests);
   Test.create({
+    user_id,
     id: uuid(),
-    user_id: "5b1ccbb5-57e4-4949-9fb9-056d0ca36cc6",
     questions: quests.questions,
   })
   .then(data=>res.status(201).send(data))
@@ -52,12 +53,12 @@ export const updateTest = (req, res) => {
   const id = req.params.id;
   console.log("req_body",req.body);
   Test.update({
-      sub_time,
-    }, {
-      where: {
-        id
-      }
-    })
+    sub_time,
+  }, {
+    where: {
+      id
+    }
+  })
   .then(data => res.status(201).send(data))
   .catch(err => res.status(500))
 }
@@ -84,12 +85,12 @@ export const updateBrowsedUrl = (req, res) => {
   console.log("req_body",req.body);
   console.log(history.urls);
   Test.update({
-      browser_history: history.urls
-    }, {
-      where: {
-        id
-      }
-    })
+    browser_history: history.urls
+  }, {
+    where: {
+      id
+    }
+  })
   .then(data => res.status(201).send(data))
   .catch(err => res.sendStatus(500))
   // UPDATE post SET browserSession: {} WHERE id: 2;

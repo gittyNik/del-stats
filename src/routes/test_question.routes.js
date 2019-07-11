@@ -1,5 +1,6 @@
 import Express from 'express';
-import { getAllQuestions, addQuestion, deleteQuestion, updateQuestion} from '../controllers/test_question.controller';
+import { getAllQuestions, addQuestion, deleteQuestion,
+  updateQuestion} from '../controllers/test_question.controller';
 
 const router = Express.Router();
 /**
@@ -39,7 +40,7 @@ router.delete('/:id', deleteQuestion);
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateTestQuestion
  * @apiGroup TestQuestion
- * 
+ *
  * @apiParam {String} type Type of question
  * @apiParam {String} domain Domain of question
  * @apiParam {json} question Question details {text, image, options[{text, image, isCorrect}]}

@@ -9,7 +9,6 @@ export const getAllQuestions = (req,res) => {
 
 // question, type{mcq/text/code}, domain{generic/tech/mindsets}
 export const addQuestion = (req, res) => {
-  console.log(req.body);
   const {question, type, domain} = req.body;
   const quest = JSON.parse(question);
   TestQuestion.create({
@@ -23,32 +22,24 @@ export const addQuestion = (req, res) => {
 }
 
 export const deleteQuestion = (req, res) => {
-  console.log(req.params.id);
-  const id = req.params.id;
+  const {id} = req.params;
   TestQuestion.destroy({
-      where: {
-        id 
-      }
-    })
-  .then(data => res.sendStatus(200))
+    where: {
+      id
+    }
+  }).then(data => res.sendStatus(200))
   .catch(err => res.sendStatus(500));
 }
 
 export const updateQuestion = (req, res) => {
-  console.log(req.params.id);
-  console.log(req.body);
-  const id = req.params.id;
+  const {id} = req.params;
   const {question, type, domain} = req.body;
   const quest = JSON.parse(question);
   TestQuestion.update({
-      question: quest,
-      type,
-      domain,
-    }, {
-      where: {
-        id
-      }
-    })
+    question: quest,
+    type,
+    domain,
+  }, {where: {id }})
   .then(data => res.status(200).send(data))
   .catch(err => res.sendStatus(500));
   // UPDATE post SET question: {} WHERE id: 2;

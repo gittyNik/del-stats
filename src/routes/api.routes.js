@@ -27,10 +27,11 @@ router.use('/auth',authRouter);
 router.use('/doc', devOnly, Express.static('./doc'));
 
 // Private Routes
-// router.use(authenticate);
+router.use(authenticate);
 router.use('/profile', getProfile);
 router.use('/tep', tepRouter);
 router.use('/cohorts', cohort);
+router.use('/firewall', firewall);
 
 router.use('/educators', educator);
 router.use('/students', student);
@@ -42,7 +43,6 @@ router.use('/admin', admin);
 router.use('/todos', todo);
 router.use('/notes', note);
 router.use('/users', user);
-router.use('/firewall', firewall)
 
 router.get('/', (req, res) => res.send('API home'));
 router.use('*', (req, res) => res.sendStatus(404));
