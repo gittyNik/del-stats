@@ -33,13 +33,15 @@ export const generateTest = (req, res) => {
 
 // test: {questions, user_id, gen_time, sub_time, browser_history}
 // questions[{qid,answer,isCorrect,review,reviewed_by}]
+
 export const addTest = (req, res) => {
   const {questions} = req.body;
   const quests = JSON.parse(questions);
+  console.log(quests);
   Test.create({
     id: uuid(),
     user_id: "5b1ccbb5-57e4-4949-9fb9-056d0ca36cc6",
-    questions: quests,
+    questions: quests.questions,
   })
   .then(data=>res.status(201).send(data))
   .catch(err=>res.status(500))

@@ -13,6 +13,15 @@ const router = Express.Router();
 router.get('/', getAllTests);
 
 /**
+ * @api {get} /firewall/tests/generate Generate a Test
+ * @apiDescription generate a new test
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GenerateTest
+ * @apiGroup Test
+*/
+router.get('/generate', generateTest);
+
+/**
  * @api {get} /firewall/tests/:id Get Test by id
  * @apiDescription get a test by id
  * @apiHeader {String} authorization JWT Token.
@@ -21,14 +30,6 @@ router.get('/', getAllTests);
  */
 router.get('/:id', getTestById);
 
-/**
- * @api {get} /firewall/tests/generate Generate a Test
- * @apiDescription generate a new test
- * @apiHeader {String} authorization JWT Token.
- * @apiName GenerateTest
- * @apiGroup Test
-*/
-router.get('/generate', generateTest);
 
 /**
  * @api {post} /firewall/tests/add Add a Test
