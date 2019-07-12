@@ -20,7 +20,7 @@ router.get('/', getCohorts);
 router.get('/:id', getCohort);
 
 /**
- * @api {get} /cohorts/:year/:cohort_name Get a cohort with name
+ * @api {get} /cohorts/:year/:city/:cohort_name Get a cohort with name
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetCohortByName
  * @apiGroup Cohort

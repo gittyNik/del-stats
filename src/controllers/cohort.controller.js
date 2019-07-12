@@ -1,16 +1,18 @@
-import Resource from '../models/cohort';
+import Cohort from '../models/cohort';
 import {getCohortStudents} from '../controllers/student.controller';
 import createChunks from "../util/createChunks";
 
 export const getCohorts = (req, res) => {
-  Resource.find().exec()
+  Cohort.findAll()
   .then(data => res.json({data}))
   .catch(err => res.status(500).send(err));
 }
 
 export const getCohortByName = (req, res) => {
-  let {year, city} = req.query
-  Resource.find({name : req.params.cohortName, location : city}).lean().exec().then( cohorts => {
+  const {year, city, cohort_name} = req.params;
+
+  Cohort.find({name : cohort_name, location : city})
+  .then( cohorts => {
     cohorts.map( (cohort, i) => {
       let date = cohort.startDate;
       if (date.getFullYear().toString()===year){
