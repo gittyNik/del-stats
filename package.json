@@ -3,6 +3,8 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
+    "migrate": "sequelize db:migrate",
+    "seed": "sequelize db:seed:all",
     "build": "babel src -d api-build",
     "lint": "eslint src",
     "doc": "apidoc -i src",
