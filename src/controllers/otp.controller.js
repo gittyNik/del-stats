@@ -10,14 +10,17 @@ export const sendOTP = (req, res) => {
   sendOtp.setOtpExpiry(5);
   sendOtp.send(phone, 'SOALIO', (error, data) => {
     console.log(data);
-    res.send(data);
+    if (error == null && data.type == 'success') {
+      res.send(data);
+    } else
+      res.sendStatus(400);
   });
 }
 
 export const retryOTP = (req, res) => {
   const {phone, retryVoice} = req.body;
 
-  //retryVoice Boolean value to enable Voice Call or disable Voice Call and use SMS 
+  //retryVoice Boolean value to enable Voice Call or disable Voice Call and use SMS
   sendOtp.retry(phone, retryVoice, (error, data) => {
     console.log(data);
     res.send(data);
