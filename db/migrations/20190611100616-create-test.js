@@ -5,7 +5,7 @@ module.exports = {
         type: Sequelize.UUID,
         primaryKey: true,
       },
-      user_id: {
+      application_id: {
         type: Sequelize.UUID,
         allowNull:false,
       },

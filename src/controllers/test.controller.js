@@ -20,32 +20,20 @@ export const getTestById = (req, res) => {
   .catch(err => res.status(500))
 }
 
-// pending
-// what to do?
-// get n test_questions of each domain(generic/tech/mindsets)
-// then create a test and return it
-// but as of now returning all questions
-export const generateTest = (req, res) => {
-  TestQuestion.findAll()
-  .then(data => res.status(201).send(data))
-  .catch(err => res.status(500));
-}
-
-// test: {questions, user_id, gen_time, sub_time, browser_history}
-// questions[{qid,answer,isCorrect,review,reviewed_by}]
-
-export const addTest = (req, res) => {
-  const user_id = req.jwtData.user.id;
-  const {questions} = req.body;
-  const quests = JSON.parse(questions);
-  console.log(quests);
-  Test.create({
-    user_id,
-    id: uuid(),
-    questions: quests.questions,
-  })
-  .then(data=>res.status(201).send(data))
-  .catch(err=>res.status(500))
+/*
+  TODO: randomly select the questions
+  questions[{qid,answer,isCorrect,review,reviewed_by}]
+*/
+export const generateTestForLearner = application => {
+  
+  return TestQuestion.findAll().then(allQuestions => {
+    // todo: add logic to filter which questions are actually needed
+    return Test.create({
+      application_id: application.id,
+      id: uuid(),
+      questions: allQuestions
+    });
+  });
 }
 
 export const updateTest = (req, res) => {

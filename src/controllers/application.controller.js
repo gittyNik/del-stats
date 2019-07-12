@@ -1,5 +1,6 @@
 import uuid from 'uuid/v4';
 import Application from '../models/application';
+import {generateTestForLearner} = from './test.controller';
 
 export const getAllApplications = (req, res) => {
 	Application.findAll()
@@ -36,10 +37,17 @@ export const addApplication = (req, res) => {
 	Application.create({
 		id: uuid(),
 		user_id,
-		cohort_applied, 
-		status: "applied", 
+		cohort_applied,
+		status: "applied",
 	})
-	.then(data=>res.status(201).json(data))
+  .then(application => {
+    generateTestForLearner(application).then(test=>{
+      res.status(201).json({
+        application,
+        test
+      });
+    });
+  })
 	.catch(err=>res.sendStatus(500));
 }
 
