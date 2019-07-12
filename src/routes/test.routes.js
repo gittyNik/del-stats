@@ -1,5 +1,5 @@
 import Express from 'express';
-import {addTest, getAllTests, getTestById, generateTest, updateTest,
+import {getAllTests, getTestById, updateTest,
   updateVideo, updateBrowsedUrl} from '../controllers/test.controller';
 
 const router = Express.Router();
@@ -14,15 +14,6 @@ const router = Express.Router();
 router.get('/', getAllTests);
 
 /**
- * @api {get} /firewall/tests/generate Generate a Test
- * @apiDescription generate a new test
- * @apiHeader {String} authorization JWT Token.
- * @apiName GenerateTest
- * @apiGroup Test
-*/
-router.get('/generate', generateTest);
-
-/**
  * @api {get} /firewall/tests/:id Get Test by id
  * @apiDescription get a test by id
  * @apiHeader {String} authorization JWT Token.
@@ -30,17 +21,6 @@ router.get('/generate', generateTest);
  * @apiGroup Test
  */
 router.get('/:id', getTestById);
-
-/**
- * @api {post} /firewall/tests/add Add a Test
- * @apiDescription add a new test
- * @apiHeader {String} authorization JWT Token.
- * @apiName AddTest
- * @apiGroup Test
- *
- * @apiParam {json} questions Questions detail questions[{qid,answer,isCorrect,review,reviewed_by}]
-*/
-router.post('/add', addTest);
 
 /**
  * @api {patch} /firewall/tests/:id Update a Test

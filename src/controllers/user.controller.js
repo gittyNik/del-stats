@@ -1,9 +1,16 @@
 import {User, USER_ROLES} from '../models/user';
 
 import Cohort from '../models/cohort';
-import { getCohortByName } from '../controllers/cohort.controller'
+import { getCohortByName } from '../controllers/cohort.controller';
+
+/**
+ * @api {get} /profile Get the profile
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetProfile
+ * @apiGroup Profile
+ */
 export const getProfile = (req, res) => {
-  res.json({data: req.user});
+  res.json({user: req.jwtData.user});
 }
 
 export const getSpotterTeam = student => new Promise(async (resolve, reject) =>{

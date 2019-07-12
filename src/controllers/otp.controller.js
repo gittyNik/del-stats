@@ -29,7 +29,7 @@ export const retryOTP = (req, res) => {
 
 // todo: clean up
 const signInUserByPhone = (phone, res) => {
-  getOrCreateUser(phone).then(user => {
+  getOrCreateUser(phone).then(([user]) => {
     res.send({
       user,
       soalToken: getSoalToken(user),

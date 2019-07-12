@@ -1,6 +1,6 @@
 import uuid from 'uuid/v4';
 import Application from '../models/application';
-import {generateTestForLearner} = from './test.controller';
+import {generateTestForLearner} from './test.controller';
 
 export const getAllApplications = (req, res) => {
 	Application.findAll()

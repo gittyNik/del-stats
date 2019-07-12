@@ -35,8 +35,6 @@ router.get('/:id', getApplicationById);
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddApplication
  * @apiGroup Application
- *
- * @apiParam {String} cohort_applied  
  */
 router.post('/', addApplication);
 

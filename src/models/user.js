@@ -14,7 +14,7 @@ export const USER_ROLES = Object.freeze({
   SUPERADMIN: 'superadmin',
 });
 
-const User = db.define('users', {
+export const User = db.define('users', {
   name: Sequelize.STRING,
   email: Sequelize.STRING,
   phone: Sequelize.STRING,
@@ -22,6 +22,8 @@ const User = db.define('users', {
   location: Sequelize.STRING,
   profile: Sequelize.ARRAY(Sequelize.JSON),
 },{});
+
+export const getProfile = userId => User.findByPk(userId);
 
 export const getOrCreateUser = phone => User.findOrCreate({
   where:{
