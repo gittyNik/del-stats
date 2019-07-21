@@ -19,8 +19,8 @@ router.get('/', getAllQuestions);
  * @apiName AddTestQuestion
  * @apiGroup TestQuestion
  *
- * @apiParam {String} type Type of question
- * @apiParam {String} domain Domain of question
+ * @apiParam {String} type {mcq/text/code}
+ * @apiParam {String} domain {generic/tech/mindsets}
  * @apiParam {json} question Question details {text, image, options[{text, image, isCorrect}]}
  */
 router.post('/', addQuestion);
@@ -41,8 +41,8 @@ router.delete('/:id', deleteQuestion);
  * @apiName UpdateTestQuestion
  * @apiGroup TestQuestion
  *
- * @apiParam {String} type Type of question
- * @apiParam {String} domain Domain of question
+ * @apiParam {String} type {mcq/text/code}
+ * @apiParam {String} domain {generic/tech/mindsets}
  * @apiParam {json} question Question details {text, image, options[{text, image, isCorrect}]}
  */
 router.patch('/:id', updateQuestion);

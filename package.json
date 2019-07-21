@@ -17,7 +17,7 @@
   },
   "apidoc": {
     "title": "API Documentation",
-    "sampleUrl": "http://localhost:3000/api"
+    "sampleUrl": "https://delta-api.herokuapp.com/api"
   },
   "dependencies": {
     "babel-cli": "^6.26.0",

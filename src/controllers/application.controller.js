@@ -1,20 +1,20 @@
 import uuid from 'uuid/v4';
 import Application from '../models/application';
-import {generateTestForLearner} from './test.controller';
+import Test from '../models/test';
+import {generateTestForLearner,} from './test.controller';
 
 export const getAllApplications = (req, res) => {
 	Application.findAll()
-	.then(data => res.status(200).json(data))
+	.then(data => {
+		console.log(data.length)
+		res.status(200).json(data)})
 	.catch(err => res.sendStatus(500))
 }
 
 export const getApplicationById = (req, res) => {
 	const {id} = req.params;
 	Application.findAll({
-		where: {
-			id
-		}
-	})
+		where: { id }})
 	.then(data => res.status(200).json(data))
 	.catch(err => res.sendStatus(500))
 }
@@ -25,18 +25,20 @@ export const getLiveApplications = (req, res) => {
 			status: ['applied','review_pending','offered']
 		}
 	})
-	.then(data => res.status(200).json(data))
+	.then(data => {
+		console.log(data.length)
+		res.status(200).json(data)})
 	.catch(err => res.sendStatus(500))
 }
 
 
 export const addApplication = (req, res) => {
-  // const user_id = req.jwtData.user.id;
+  const user_id = req.jwtData.user.id;
   const {cohort_applied} = req.body;
 	console.log(req.body);
 	Application.create({
 		id: uuid(),
-		user_id: "dd6f9a03-0018-4819-bfce-08c702320e4f",
+		user_id,
 		cohort_applied,
 		status: "applied",
 	})
@@ -54,28 +56,46 @@ export const addApplication = (req, res) => {
 export const updateApplication = (req, res) => {
 	const {cohort_joining, status} = req.body;
 	const {id} = req.params;
-  Application.update({
+	if(cohort_joining && status){
+		Application.update({
 			cohort_joining,
 			status,
     }, {
-      where: {
-        id
-      }
-    })
-  .then(data => res.status(200).json(data))
-  .catch(err => res.sendStatus(500));
-  // UPDATE post SET questions: {} WHERE id: 2;
+      where: { id }})
+		.then(data => res.status(200).json(data))
+		.catch(err => res.sendStatus(500));
+	}
+	else if(cohort_joining){
+		Application.update({
+			cohort_joining,
+    }, {
+      where: { id }})
+		.then(data => res.status(200).json(data))
+		.catch(err => res.sendStatus(500));
+	}
+	else if(status){
+		Application.update({
+			status,
+    }, {
+      where: { id }})
+		.then(data => res.status(200).json(data))
+		.catch(err => res.sendStatus(500));
+	}
+	else{
+		res.send("please add some data to update");
+	}
 }
 
 export const deleteApplication = (req, res) => {
-  const {id} = req.params;
+	const {id} = req.params;
+	Test.destroy({
+		where: { application_id: id }}
+	)
+	
 	Application.destroy({
-		where: {
-			id
-		}
-	})
+		where: { id }})
 	.then(data => res.sendStatus(200))
-	.catch(err => res.sendStatus(500));
+	.catch(err => res.sendStatus(500))
 }
 
 export const payment = (req, res) => {
@@ -85,11 +105,7 @@ export const payment = (req, res) => {
   Application.update({
 			payment_details: payment,
     }, {
-      where: {
-        id
-      }
-    })
+      where: { id }})
   .then(data => res.status(200).json(data))
   .catch(err => res.sendStatus(500));
-  // UPDATE post SET questions: {} WHERE id: 2;
 }

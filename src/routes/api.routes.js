@@ -27,7 +27,7 @@ router.use('/auth',authRouter);
 router.use('/doc', devOnly, Express.static('./doc'));
 
 // Private Routes
-// router.use(authenticate);
+router.use(authenticate);
 router.use('/profile', getProfile);
 router.use('/tep', tepRouter);
 router.use('/cohorts', cohort);
