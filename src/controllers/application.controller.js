@@ -5,9 +5,7 @@ import {generateTestForLearner,} from './test.controller';
 
 export const getAllApplications = (req, res) => {
 	Application.findAll()
-	.then(data => {
-		console.log(data.length)
-		res.status(200).json(data)})
+	.then(data => res.status(200).json(data))
 	.catch(err => res.sendStatus(500))
 }
 
@@ -25,12 +23,9 @@ export const getLiveApplications = (req, res) => {
 			status: ['applied','review_pending','offered']
 		}
 	})
-	.then(data => {
-		console.log(data.length)
-		res.status(200).json(data)})
+	.then(data => res.status(200).json(data))
 	.catch(err => res.sendStatus(500))
 }
-
 
 export const addApplication = (req, res) => {
   const user_id = req.jwtData.user.id;

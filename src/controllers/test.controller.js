@@ -38,11 +38,9 @@ export const updateBrowsedUrl = (req, res) => {
     where: { id }})
   .then(data => res.status(201).send(data))
   .catch(err => res.sendStatus(500))
-  // UPDATE post SET browserSession: {} WHERE id: 2;
 }
 
 // questions[{qid,answer,isCorrect,review,reviewed_by}]
-
 export const generateTestForLearner = application => {
   return TestQuestion.findAll().then(allQuestions => {
     let generic = [];
