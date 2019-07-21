@@ -1,5 +1,7 @@
 import Express from 'express';
-import { getAllApplications, getApplicationById, getLiveApplications, addApplication, updateApplication, deleteApplication, payment} from '../controllers/application.controller';
+import { getAllApplications, getApplicationById, getLiveApplications, 
+  addApplication, updateApplication, deleteApplication, payment } 
+  from '../controllers/application.controller';
 
 const router = Express.Router();
 /**
@@ -35,6 +37,8 @@ router.get('/:id', getApplicationById);
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddApplication
  * @apiGroup Application
+ * 
+ * @apiParam {String} cohort_applied
  */
 router.post('/', addApplication);
 
@@ -66,7 +70,7 @@ router.delete('/:id', deleteApplication);
  * @apiName ApplicationPayment
  * @apiGroup Application
  *
- * @apiParam {object} payment_details Payment details
+ * @apiParam {json} payment_details Payment details
  */
 router.patch('/:id/payment', payment);
 

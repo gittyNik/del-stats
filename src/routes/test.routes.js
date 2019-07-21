@@ -49,7 +49,7 @@ router.patch('/:id/video', updateVideo);
  * @apiName UpdateBrowsedUrls of a testTest
  * @apiGroup Test
  *
- * @apiParam {json} browsedUrls BrowsedUrls details {browsedUrls:[]}
+ * @apiParam {json} browsedUrls BrowsedUrls details {"urls":[]}
  */
 router.patch('/:id/history', updateBrowsedUrl);
 

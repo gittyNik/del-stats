@@ -9,8 +9,7 @@ export const getAllApplications = (req, res) => {
 }
 
 export const getApplicationById = (req, res) => {
-	const id = req.params.id;
-  console.log(req.params.id);
+	const {id} = req.params;
 	Application.findAll({
 		where: {
 			id
@@ -30,13 +29,14 @@ export const getLiveApplications = (req, res) => {
 	.catch(err => res.sendStatus(500))
 }
 
+
 export const addApplication = (req, res) => {
-  const user_id = req.jwtData.user.id;
+  // const user_id = req.jwtData.user.id;
   const {cohort_applied} = req.body;
 	console.log(req.body);
 	Application.create({
 		id: uuid(),
-		user_id,
+		user_id: "dd6f9a03-0018-4819-bfce-08c702320e4f",
 		cohort_applied,
 		status: "applied",
 	})
@@ -52,14 +52,14 @@ export const addApplication = (req, res) => {
 }
 
 export const updateApplication = (req, res) => {
-  const {cohort_joining, status} = req.body;
-	console.log(req.body);
+	const {cohort_joining, status} = req.body;
+	const {id} = req.params;
   Application.update({
 			cohort_joining,
 			status,
     }, {
       where: {
-        id: req.params.id
+        id
       }
     })
   .then(data => res.status(200).json(data))
@@ -68,8 +68,7 @@ export const updateApplication = (req, res) => {
 }
 
 export const deleteApplication = (req, res) => {
-  const id = req.params.id;
-  console.log(req.params.id);
+  const {id} = req.params;
 	Application.destroy({
 		where: {
 			id
@@ -80,9 +79,8 @@ export const deleteApplication = (req, res) => {
 }
 
 export const payment = (req, res) => {
-	console.log(req.body);
   const {payment_details} = req.body;
-	const id = req.params.id;
+	const {id} = req.params;
 	const payment = JSON.parse(payment_details);
   Application.update({
 			payment_details: payment,

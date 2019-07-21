@@ -9,46 +9,93 @@ export const getAllTests = (req,res) => {
 }
 
 export const getTestById = (req, res) => {
-  console.log(req.params.id);
-  const id = req.params.id;
+  const {id} = req.params;
   Test.findAll({
-    where: {
-      id
-    }
-  })
+    where: { id }})
   .then(data => res.status(200).json(data))
   .catch(err => res.status(500))
 }
 
-/*
-  TODO: randomly select the questions
-  questions[{qid,answer,isCorrect,review,reviewed_by}]
-*/
-export const generateTestForLearner = application => {
-  
-  return TestQuestion.findAll().then(allQuestions => {
-    // todo: add logic to filter which questions are actually needed
-    return Test.create({
-      application_id: application.id,
-      id: uuid(),
-      questions: allQuestions
-    });
-  });
-}
-
 export const updateTest = (req, res) => {
   const {sub_time} = req.body;
-  const id = req.params.id;
-  console.log("req_body",req.body);
+  const {id} = req.params;
   Test.update({
     sub_time,
   }, {
-    where: {
-      id
-    }
-  })
+    where: { id }})
   .then(data => res.status(201).send(data))
   .catch(err => res.status(500))
+}
+
+export const updateBrowsedUrl = (req, res) => {
+  const {browsedUrls} = req.body;
+  const history = JSON.parse(browsedUrls);
+  console.log(history);
+  const {id} = req.params;
+  Test.update({
+    browser_history: history.urls
+  }, {
+    where: { id }})
+  .then(data => res.status(201).send(data))
+  .catch(err => res.sendStatus(500))
+  // UPDATE post SET browserSession: {} WHERE id: 2;
+}
+
+// questions[{qid,answer,isCorrect,review,reviewed_by}]
+
+export const generateTestForLearner = application => {
+  return TestQuestion.findAll().then(allQuestions => {
+    let generic = [];
+    let tech = [];
+    let mindsets = [];
+    let qid = [];
+    for(let i=0;  i<allQuestions.length; i++){
+      if(allQuestions[i].domain == 'generic'){
+        generic.push(allQuestions[i].id);
+      }
+      else if(allQuestions[i].domain == 'tech'){
+        tech.push(allQuestions[i].id);
+      }
+      else if(allQuestions[i].domain == 'mindsets'){
+        mindsets.push(allQuestions[i].id);
+      }
+    }
+  
+    for(let i=0; i<process.env.GENERIC_QUESTS_COUNT; i++){
+      let id = generic[Math.floor(Math.random()*generic.length)];
+      generic.splice(generic.indexOf(id), 1);
+      qid.push(id);
+    }
+    
+    for(let i=0; i<process.env.TECH_QUESTS_COUNT; i++){
+      let id = tech[Math.floor(Math.random()*tech.length)];
+      tech.splice(tech.indexOf(id), 1);
+      qid.push(id);
+    }
+  
+    for(let i=0; i<process.env.MINDSETS_QUESTS_COUNT; i++){
+      let id = mindsets[Math.floor(Math.random()*mindsets.length)];
+      mindsets.splice(mindsets.indexOf(id), 1);
+      qid.push(id);
+    }
+
+    let questions = [];
+    for(let i=0; i<qid.length; i++){
+      let quest = new Object();
+      quest.qid=qid[i];
+      quest.answer = null;
+      quest.isCorrect = null;
+      quest.review = null;
+      quest.reviewed_by = null;
+      questions.push(quest);
+    }
+  
+    return Test.create({
+      application_id: application.id,
+      id: uuid(),
+      questions
+    });
+  });
 }
 
 //pending
@@ -64,22 +111,4 @@ export const updateVideo = (req, res) => {
   // .then(data => res.status(201).send(data))
   // .catch(err => res.status(500))
   // UPDATE post SET questions: {} WHERE id: 2;
-}
-
-export const updateBrowsedUrl = (req, res) => {
-  const {browsedUrls} = req.body;
-  const history = JSON.parse(browsedUrls);
-  const id = req.params.id;
-  console.log("req_body",req.body);
-  console.log(history.urls);
-  Test.update({
-    browser_history: history.urls
-  }, {
-    where: {
-      id
-    }
-  })
-  .then(data => res.status(201).send(data))
-  .catch(err => res.sendStatus(500))
-  // UPDATE post SET browserSession: {} WHERE id: 2;
 }

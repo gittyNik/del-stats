@@ -13,7 +13,6 @@ module.exports = {
         type: Sequelize.ARRAY(Sequelize.JSON),
         allowNull: false,
       },
-      gen_time: Sequelize.DATE,
       sub_time: Sequelize.DATE,
       browser_history: Sequelize.ARRAY(Sequelize.UUID),
       createdAt: {
