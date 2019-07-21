@@ -11,7 +11,7 @@ module.exports = {
       },
       cohort_applied: Sequelize.UUID, 
       cohort_joining: Sequelize.UUID,
-      status: Sequelize.ENUM('applied', 'review_pending', 'offered', 'rejected', 'joined'), 
+      status: Sequelize.ENUM('applied', 'review_pending', 'offered', 'rejected', 'joined', 'archieved'), 
       payment_details: Sequelize.JSON,
       createdAt: {
         allowNull: false,

@@ -82,15 +82,12 @@ export const updateApplication = (req, res) => {
 }
 
 export const deleteApplication = (req, res) => {
-	const {id} = req.params;
-	Test.destroy({
-		where: { application_id: id }}
-	)
-	
-	Application.destroy({
+	Application.update({
+		status: 'archieved',
+	}, {
 		where: { id }})
-	.then(data => res.sendStatus(200))
-	.catch(err => res.sendStatus(500))
+	.then(data => res.status(200).json(data))
+	.catch(err => res.sendStatus(500));
 }
 
 export const payment = (req, res) => {

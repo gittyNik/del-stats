@@ -59,19 +59,19 @@ export const generateTestForLearner = application => {
       }
     }
   
-    for(let i=0; i<process.env.GENERIC_QUESTS_COUNT; i++){
+    for(let i=0; i<3; i++){
       let id = generic[Math.floor(Math.random()*generic.length)];
       generic.splice(generic.indexOf(id), 1);
       qid.push(id);
     }
     
-    for(let i=0; i<process.env.TECH_QUESTS_COUNT; i++){
+    for(let i=0; i<3; i++){
       let id = tech[Math.floor(Math.random()*tech.length)];
       tech.splice(tech.indexOf(id), 1);
       qid.push(id);
     }
   
-    for(let i=0; i<process.env.MINDSETS_QUESTS_COUNT; i++){
+    for(let i=0; i<3; i++){
       let id = mindsets[Math.floor(Math.random()*mindsets.length)];
       mindsets.splice(mindsets.indexOf(id), 1);
       qid.push(id);
