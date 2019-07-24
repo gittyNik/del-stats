@@ -11,7 +11,7 @@ const TestQuestion = db.define('test_question', {
       allowNull: false,
     },
   type: {
-      type: Sequelize.ENUM('mcq', 'text', 'code'),
+      type: Sequelize.ENUM('mcq', 'text', 'code', 'rate'),
       allowNull: false,
     },
   domain: {
