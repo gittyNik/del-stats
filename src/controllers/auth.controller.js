@@ -1,11 +1,6 @@
-import Express from 'express';
 import jwt from 'jsonwebtoken';
 import request from 'superagent';
-import {getSpotterTeam} from './user.controller';
-import {getSoalToken} from '../util/token';
-import {User, getProfile} from '../models/user';
-import SendOtp from '../util/sendotp';
-import dotenv from 'dotenv/config';
+import {getProfile} from '../models/user';
 
 const sendAuthFailure = res => {
   res.header('WWW-Authenticate', 'Bearer realm="Access to Delta API"');
