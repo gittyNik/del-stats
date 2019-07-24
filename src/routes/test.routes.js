@@ -1,5 +1,5 @@
 import Express from 'express';
-import {getAllTests, getTestById, updateTest,
+import {getAllTests, getTestById, updateTest, getTestByApplicationId,
   updateVideo, updateBrowsedUrl} from '../controllers/test.controller';
 
 const router = Express.Router();
@@ -12,6 +12,15 @@ const router = Express.Router();
  * @apiGroup Test
  */
 router.get('/', getAllTests);
+
+/**
+ * @api {get} /firewall/tests/application/:id Get Test by ApplicationId
+ * @apiDescription get a test by ApplicationId
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetTestByApplicationId
+ * @apiGroup Test
+ */
+router.get('/application/:id', getTestByApplicationId);
 
 /**
  * @api {get} /firewall/tests/:id Get Test by id

@@ -8,6 +8,14 @@ export const getAllTests = (req,res) => {
   .catch(err => res.status(500))
 }
 
+export const getTestByApplicationId = (req, res) => {
+  const {id} = req.params;
+  Test.findAll({
+    where: { application_id: id }})
+  .then(data => res.status(200).json(data))
+  .catch(err => res.status(500))
+}
+
 export const getTestById = (req, res) => {
   const {id} = req.params;
   Test.findAll({
