@@ -17,6 +17,14 @@ export const getApplicationById = (req, res) => {
 	.catch(err => res.sendStatus(500))
 }
 
+export const getApplicationByUserId = (req, res) => {
+	const {id} = req.params;
+	Application.findAll({
+		where: { user_id: id }})
+	.then(data => res.status(200).json(data))
+	.catch(err => res.sendStatus(500))
+}
+
 export const getLiveApplications = (req, res) => {
   Application.findAll({
 		where: {

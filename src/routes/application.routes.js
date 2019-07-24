@@ -1,5 +1,5 @@
 import Express from 'express';
-import { getAllApplications, getApplicationById, getLiveApplications, 
+import { getAllApplications, getApplicationByUserId, getApplicationById, getLiveApplications, 
   addApplication, updateApplication, deleteApplication, payment } 
   from '../controllers/application.controller';
 
@@ -21,6 +21,15 @@ router.get('/', getAllApplications);
  * @apiGroup Application
  */
 router.get('/live', getLiveApplications);
+
+/**
+ * @api {get} /firewall/applications/user/:id Get an Application 
+ * @apiDescription get an Application by user id
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetApplicationByUserId
+ * @apiGroup Application
+ */
+router.get('/user/:id', getApplicationByUserId);
 
 /**
  * @api {get} /firewall/applications/:id Get a Application
