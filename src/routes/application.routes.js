@@ -23,7 +23,7 @@ router.get('/', getAllApplications);
 router.get('/live', getLiveApplications);
 
 /**
- * @api {get} /firewall/applications/user/:id Get an Application 
+ * @api {get} /firewall/applications/user/:id Get Applications by UserId
  * @apiDescription get an Application by user id
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetApplicationByUserId
@@ -32,7 +32,7 @@ router.get('/live', getLiveApplications);
 router.get('/user/:id', getApplicationByUserId);
 
 /**
- * @api {get} /firewall/applications/:id Get a Application
+ * @api {get} /firewall/applications/:id Get an Application
  * @apiDescription get an Application
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetApplication
