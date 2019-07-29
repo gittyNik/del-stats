@@ -10,6 +10,7 @@ module.exports = {
         allowNull:false,
       },
       purpose: Sequelize.STRING,
+      duration: Sequelize.INTEGER,
       questions: {
         type: Sequelize.ARRAY(Sequelize.JSON),
         allowNull: false,

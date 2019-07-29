@@ -48,66 +48,54 @@ export const updateBrowsedUrl = (req, res) => {
   .catch(err => res.sendStatus(500))
 }
 
-// questions[{qid,answer,isCorrect,review,reviewed_by}]
-export const generateTestSeries = (template, applicationId) => {
+// NOTE: this logic must be changed if the question count is more than 3 digits
+const generateTest = (template, application, allQuestions) => {
   /*
-    Generating a test:
-      - get the test_series_template of program
-      - generate the tests by choosing the right test_questions
+  test_series_example:[{
+    duration: 15*60*1000, // Max durations in milliseconds
+    purpose: 'know', // Purpose of having this test in series
+    random: {generic: 5}, // Domains & counts of the random questions
+    questions_fixed: [],  // An array of fixed questions
+  }]
   */
+  const questions = allQuestions.filter(q => template.questions_fixed.includes(q.id));
 
+  for(domain of template.random){
+    let randomQuestions = allQuestions.filter(q => q.domain===domain);
+    questions = _.shuffle(randomQuestions)
+      .splice(0,template.random[domain]).concat(questions);
+  }
+
+  let cleanQuestions = questions.map(q => {
+    delete q.answer;
+    return q;
+  });
+
+  let testQuestions = questions.map(q=>{
+    return { qid: q.id, answer: null, isCorrect: null,
+      review: null, reviewed_by: null, };
+  });
+
+  const {purpose, duration} = template;
+  return Test.create({
+    id: uuid(),
+    application_id: application.id,
+    purpose,
+    duration,
+    questions: testQuestions,
+  });
+}
+
+// questions[{qid,answer,isCorrect,review,reviewed_by}]
+export const generateTestSeries = (template, application) => {
 
   return TestQuestion.findAll().then(allQuestions => {
-    let generic = [];
-    let tech = [];
-    let mindsets = [];
-    let qid = [];
-    for(let i=0;  i<allQuestions.length; i++){
-      if(allQuestions[i].domain == 'generic'){
-        generic.push(allQuestions[i].id);
-      }
-      else if(allQuestions[i].domain == 'tech'){
-        tech.push(allQuestions[i].id);
-      }
-      else if(allQuestions[i].domain == 'mindsets'){
-        mindsets.push(allQuestions[i].id);
-      }
+    return Promise.all(template.map(testTemplate, application, allQuestions));
+  }).then(test_series => {
+    return {
+      application,
+      test_series,
     }
-  
-    for(let i=0; i<3; i++){
-      let id = generic[Math.floor(Math.random()*generic.length)];
-      generic.splice(generic.indexOf(id), 1);
-      qid.push(id);
-    }
-    
-    for(let i=0; i<3; i++){
-      let id = tech[Math.floor(Math.random()*tech.length)];
-      tech.splice(tech.indexOf(id), 1);
-      qid.push(id);
-    }
-  
-    for(let i=0; i<3; i++){
-      let id = mindsets[Math.floor(Math.random()*mindsets.length)];
-      mindsets.splice(mindsets.indexOf(id), 1);
-      qid.push(id);
-    }
-
-    let questions = [];
-    for(let i=0; i<qid.length; i++){
-      let quest = new Object();
-      quest.qid=qid[i];
-      quest.answer = null;
-      quest.isCorrect = null;
-      quest.review = null;
-      quest.reviewed_by = null;
-      questions.push(quest);
-    }
-  
-    return Test.create({
-      application_id: application.id,
-      id: uuid(),
-      questions
-    });
   });
 }
 
