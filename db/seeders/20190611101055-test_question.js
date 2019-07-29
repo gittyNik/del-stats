@@ -1,17 +1,14 @@
 // todos
 // need to make changes as per the latest db structure
 // createdAt and updatedAt are not inserted using seeders(gives not null error)
-// "id" is not generated using seeders(gives not null error)
 'use strict';
-
-var faker = require('faker');
+const uuid = require('uuid/v4');
+const faker = require('faker');
 
 const type = ['mcq', 'text', 'code'];
+const questionType = ['generic', 'mindsets', 'tech'];
 
 const isCorrect = [true, false];
-
-const questionType = ['coding', 'logical', 'mindset']
-
 var questions = [];
 
 for(let c=1; c<=10; c++){
@@ -23,18 +20,24 @@ for(let c=1; c<=10; c++){
 			answers.push(faker.lorem.sentence());
 		}
 		let text = {
+      id: uuid(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
 			type: qtype,
 			question: {
 				question: faker.lorem.sentence(),
 				image: faker.image.imageUrl(),
 				answers: answers,
-				qtype: questionType[Math.floor(Math.random()*questionType.length)],
-			}
+			},
+      domain: questionType[Math.floor(Math.random()*questionType.length)],
 		}
 		questions.push(text);
 	}
   else if(qtype=='mcq'){
     let mcq = {
+      id: uuid(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       type: qtype,
 			question: {
 				question: faker.lorem.sentence(),
@@ -61,19 +64,22 @@ for(let c=1; c<=10; c++){
 						isCorrect: isCorrect[Math.floor(Math.random()*isCorrect.length)]
 					}, 
         	],
-				qtype: questionType[Math.floor(Math.random()*questionType.length)],
-        }
+        },
+        domain: questionType[Math.floor(Math.random()*questionType.length)],
       }
       questions.push(mcq);
     }
     else if(qtype=='code'){
 			let code = {
+        id: uuid(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
 				type: qtype,
 				question: {
 					question: faker.lorem.sentence(),
 					image: faker.image.imageUrl(),
-					qtype: questionType[Math.floor(Math.random()*questionType.length)],
-				}
+			  },
+        domain: questionType[Math.floor(Math.random()*questionType.length)],
 			}
 			questions.push(code);
     }
@@ -89,4 +95,4 @@ module.exports = {
   }
 };
 
-console.log(questions.length)
+console.log(questions.length);
