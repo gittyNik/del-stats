@@ -4,41 +4,41 @@ import Test from '../models/test';
 import { generateTestSeries } from './test.controller';
 
 export const getAllApplications = (req, res) => {
-	Application.findAll()
-	.then(data => res.status(200).json(data))
-	.catch(err => res.sendStatus(500))
+  Application.findAll()
+  .then(data => res.status(200).json(data))
+  .catch(err => res.sendStatus(500))
 }
 
 export const getApplicationById = (req, res) => {
-	const {id} = req.params;
-	Application.findAll({
-		where: { id }})
-	.then(data => res.status(200).json(data))
-	.catch(err => res.sendStatus(500))
+  const {id} = req.params;
+  Application.findAll({
+    where: { id }})
+  .then(data => res.status(200).json(data))
+  .catch(err => res.sendStatus(500))
 }
 
 export const getApplicationByUserId = (req, res) => {
-	const {id} = req.params;
-	Application.findAll({
-		order: Sequelize.col('createdAt'),
-		where: { user_id: id }})
-	.then(data => {
-		if(data.length>0)
-		res.status(200).json(data[data.length-1]);
-		else
-		res.sendStatus(404);
-	})
-	.catch(err => res.sendStatus(500));
+  const {id} = req.params;
+  Application.findAll({
+    order: Sequelize.col('createdAt'),
+    where: { user_id: id }})
+  .then(data => {
+    if(data.length>0)
+    res.status(200).json(data[data.length-1]);
+    else
+    res.sendStatus(404);
+  })
+  .catch(err => res.sendStatus(500));
 }
 
 export const getLiveApplications = (req, res) => {
   Application.findAll({
-		where: {
-			status: ['applied','review_pending','offered']
-		}
-	})
-	.then(data => res.status(200).json(data))
-	.catch(err => res.sendStatus(500))
+    where: {
+      status: ['applied','review_pending','offered']
+    }
+  })
+  .then(data => res.status(200).json(data))
+  .catch(err => res.sendStatus(500))
 }
 
 export const addApplication = (req, res) => {
@@ -60,57 +60,57 @@ export const addApplication = (req, res) => {
       res.status(201).json(application);
     });
   });
-	.catch(err=>res.sendStatus(500));
+  .catch(err=>res.sendStatus(500));
 }
 
 export const updateApplication = (req, res) => {
-	const {cohort_joining, status} = req.body;
-	const {id} = req.params;
-	if(cohort_joining && status){
-		Application.update({
-			cohort_joining,
-			status,
+  const {cohort_joining, status} = req.body;
+  const {id} = req.params;
+  if(cohort_joining && status){
+    Application.update({
+      cohort_joining,
+      status,
     }, {
       where: { id }})
-		.then(data => res.status(200).json(data))
-		.catch(err => res.sendStatus(500));
-	}
-	else if(cohort_joining){
-		Application.update({
-			cohort_joining,
+    .then(data => res.status(200).json(data))
+    .catch(err => res.sendStatus(500));
+  }
+  else if(cohort_joining){
+    Application.update({
+      cohort_joining,
     }, {
       where: { id }})
-		.then(data => res.status(200).json(data))
-		.catch(err => res.sendStatus(500));
-	}
-	else if(status){
-		Application.update({
-			status,
+    .then(data => res.status(200).json(data))
+    .catch(err => res.sendStatus(500));
+  }
+  else if(status){
+    Application.update({
+      status,
     }, {
       where: { id }})
-		.then(data => res.status(200).json(data))
-		.catch(err => res.sendStatus(500));
-	}
-	else{
-		res.send("please add some data to update");
-	}
+    .then(data => res.status(200).json(data))
+    .catch(err => res.sendStatus(500));
+  }
+  else{
+    res.send("please add some data to update");
+  }
 }
 
 export const deleteApplication = (req, res) => {
-	Application.update({
-		status: 'archieved',
-	}, {
-		where: { id }})
-	.then(data => res.status(200).json(data))
-	.catch(err => res.sendStatus(500));
+  Application.update({
+    status: 'archieved',
+  }, {
+    where: { id }})
+  .then(data => res.status(200).json(data))
+  .catch(err => res.sendStatus(500));
 }
 
 export const payment = (req, res) => {
   const {payment_details} = req.body;
-	const {id} = req.params;
-	const payment = JSON.parse(payment_details);
+  const {id} = req.params;
+  const payment = JSON.parse(payment_details);
   Application.update({
-			payment_details: payment,
+      payment_details: payment,
     }, {
       where: { id }})
   .then(data => res.status(200).json(data))
