@@ -3,9 +3,9 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "create-db": "sequelize db:create",
+    "db:init": "sequelize db:create",
+    "db:reset": "sequelize db:migrate:undo:all && sequelize db:migrate && sequelize db:seed:undo:all && sequelize db:seed:all",
     "migrate": "sequelize db:migrate",
-    "seed": "sequelize db:seed:all",
     "build": "babel src -d api-build",
     "lint": "eslint src",
     "doc": "apidoc -i src",

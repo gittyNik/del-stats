@@ -15,7 +15,7 @@ const Topic = db.define('topics', {
   },
   program:{
     type:Sequelize.STRING,
-    defaultValue:"tep"
+    defaultValue:"demo"
   },
   milestone_id : {
     type : Sequelize.UUID,

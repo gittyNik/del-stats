@@ -25,15 +25,17 @@ module.exports = {
       thumbnail:{
         type:Sequelize.BLOB,
         unique:true,
+        allowNull:true,
       },
       type: {
         type:Sequelize.ENUM('article', 'repo', 'video', 'tweet'),
         allowNull:false,
+        defaultValue: 'article',
       },
       program: {
         type:Sequelize.STRING,
         allowNull:false,
-        defaultValue:'tep'
+        defaultValue:'demo'
       },
       add_time: {
         type:Sequelize.DATE,

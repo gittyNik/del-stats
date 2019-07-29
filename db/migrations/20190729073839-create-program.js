@@ -7,7 +7,7 @@ module.exports = {
       name: Sequelize.STRING,
       location: Sequelize.STRING,
       duration: Sequelize.INTEGER, //in weeks
-      test_template: Sequelize.JSON,
+      test_series: Sequelize.JSON,
       milestone_review_rubric: Sequelize.JSON,
       createdAt: Sequelize.DATE,
       updatedAt: Sequelize.DATE,
