@@ -9,6 +9,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull:false,
       },
+      purpose: Sequelize.STRING,
       questions: {
         type: Sequelize.ARRAY(Sequelize.JSON),
         allowNull: false,
