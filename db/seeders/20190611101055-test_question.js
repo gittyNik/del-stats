@@ -11,7 +11,7 @@ const questionType = ['generic', 'mindsets', 'tech'];
 const isCorrect = [true, false];
 var questions = [];
 
-for(let c=1; c<=10; c++){
+for(let c=1; c<=100; c++){
 	let qtype = type[Math.floor(Math.random()*type.length)];
 	if(qtype=='text'){
 		let answers = [];

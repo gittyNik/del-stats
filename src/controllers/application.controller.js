@@ -1,7 +1,7 @@
 import uuid from 'uuid/v4';
 import Application from '../models/application';
 import Test from '../models/test';
-import {generateTestForLearner,} from './test.controller';
+import { generateTestSeries } from './test.controller';
 
 export const getAllApplications = (req, res) => {
 	Application.findAll()
@@ -38,21 +38,22 @@ export const getLiveApplications = (req, res) => {
 export const addApplication = (req, res) => {
   const user_id = req.jwtData.user.id;
   const {cohort_applied} = req.body;
-	console.log(req.body);
-	Application.create({
-		id: uuid(),
-		user_id,
-		cohort_applied,
-		status: "applied",
-	})
-  .then(application => {
-    generateTestForLearner(application).then(test=>{
-      res.status(201).json({
-        application,
-        test
-      });
+
+  Program.findOne({where:{'cohorts.id':cohort_applied}, include: [Cohort]})
+  .then(program => { // existence of cohort verified
+    const testSeriesTemplate = program.test_series;
+    const applicationId = uuid();
+    return Application.create({
+      id: applicationId,
+      user_id,
+      cohort_applied,
+      status: "applied",
+    })
+    .then(application => generateTestSeries(testSeriesTemplate, application))
+    .then(application => {
+      res.status(201).json(application);
     });
-  })
+  });
 	.catch(err=>res.sendStatus(500));
 }
 

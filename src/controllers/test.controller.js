@@ -49,7 +49,14 @@ export const updateBrowsedUrl = (req, res) => {
 }
 
 // questions[{qid,answer,isCorrect,review,reviewed_by}]
-export const generateTestForLearner = application => {
+export const generateTestSeries = (template, applicationId) => {
+  /*
+    Generating a test:
+      - get the test_series_template of program
+      - generate the tests by choosing the right test_questions
+  */
+
+
   return TestQuestion.findAll().then(allQuestions => {
     let generic = [];
     let tech = [];
