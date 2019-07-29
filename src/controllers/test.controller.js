@@ -58,7 +58,7 @@ const generateTest = (template, application, allQuestions) => {
     questions_fixed: [],  // An array of fixed questions
   }]
   */
-  const questions = allQuestions.filter(q => template.questions_fixed.includes(q.id));
+  let questions = allQuestions.filter(q => template.questions_fixed.includes(q.id));
 
   for(domain of template.random){
     let randomQuestions = allQuestions.filter(q => q.domain===domain);

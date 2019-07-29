@@ -59,7 +59,7 @@ export const addApplication = (req, res) => {
     .then(application => {
       res.status(201).json(application);
     });
-  });
+  })
   .catch(err=>res.sendStatus(500));
 }
 
