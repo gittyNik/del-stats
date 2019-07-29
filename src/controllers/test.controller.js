@@ -1,6 +1,7 @@
 import uuid from 'uuid/v4';
 import Test from '../models/test';
 import TestQuestion from '../models/test_question';
+import _ from 'lodash';
 
 export const getAllTests = (req,res) => {
   Test.findAll()
@@ -58,9 +59,9 @@ const generateTest = (template, application, allQuestions) => {
     questions_fixed: [],  // An array of fixed questions
   }]
   */
-  let questions = allQuestions.filter(q => template.questions_fixed.includes(q.id));
+  let questions = allQuestions.filter(q => template.questions_fixed && template.questions_fixed.includes(q.id));
 
-  for(domain of template.random){
+  for(let domain in template.random){
     let randomQuestions = allQuestions.filter(q => q.domain===domain);
     questions = _.shuffle(randomQuestions)
       .splice(0,template.random[domain]).concat(questions);
@@ -86,9 +87,9 @@ const generateTest = (template, application, allQuestions) => {
 
 // questions[{qid,answer,isCorrect,review,reviewed_by}]
 export const generateTestSeries = (template, application) => {
-
+  template = template.tests;
   return TestQuestion.findAll().then(allQuestions => {
-    return Promise.all(template.map(testTemplate, application, allQuestions));
+    return Promise.all(template.map(testTemplate => generateTest(testTemplate, application, allQuestions)));
   }).then(test_series => {
     return {
       application,

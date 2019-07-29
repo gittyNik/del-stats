@@ -46,8 +46,16 @@ export const addApplication = (req, res) => {
   const user_id = req.jwtData.user.id;
   const {cohort_applied} = req.body;
 
-  Program.findAll({where:{}, include: [{model:Cohort, where:{'id':cohort_applied}}]})
+  Cohort.findByPk(cohort_applied).then(cohort => {
+    if(cohort === null){
+      return Promise.reject('cohort not found');
+    }
+    return Program.findOne({where: {id: cohort.program_id}});
+  })
   .then(program => { // existence of cohort verified
+    if(program === null){
+      return Promise.reject('program not found');
+    }
     const testSeriesTemplate = program.test_series;
     const applicationId = uuid();
     return Application.create({
