@@ -25,46 +25,30 @@ const milestone1 = {
   id: uuid(),
   name: 'Upward Spiral',
   program: 'demo',
-}
+};
 
-const topic1 = {
+const topicFactory = (title, milestone_id)=>({
   id: uuid(),
-  title: 'Photosynthesis',
+  title,
   description: faker.lorem.paragraph(),
   program: 'demo',
-  milestone_id: milestone1.id,
-}
+  milestone_id,
+});
 
-const topic2 = {
+const resourceFactory = (topic_id)=>({
   id: uuid(),
-  title: 'Climate change',
-  description: faker.lorem.paragraph(),
-  program: 'demo',
-  milestone_id: milestone1.id,
-}
-
-const articleResource1 = {
-  id: uuid(),
-  topic_id: topic1.id,
+  topic_id,
   url: faker.internet.url(),
   tags: [faker.lorem.slug(), faker.lorem.word(), faker.lorem.word()],
   level: 'beginner',
-}
+});
 
-const articleResource2 = {
-  id: uuid(),
-  topic_id: topic2.id,
-  url: faker.internet.url(),
-  tags: [faker.lorem.slug(), faker.lorem.word(), faker.lorem.word()],
-  level: 'beginner',
-}
-const articleResource3 = {
-  id: uuid(),
-  topic_id: topic1.id,
-  url: faker.internet.url(),
-  tags: [faker.lorem.slug(), faker.lorem.word(), faker.lorem.word()],
-  level: 'beginner',
-}
+const topic1 = topicFactory('Photosynthesis', milestone1.id);
+const topic2 = topicFactory('Climate change', milestone1.id);
+
+const resource1 = resourceFactory(topic1.id);
+const resource2 = resourceFactory(topic1.id);
+const resource3 = resourceFactory(topic2.id);
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
@@ -76,13 +60,14 @@ module.exports = {
           test_series: { type: new Sequelize.JSON() },
           milestone_review_rubric: { type: new Sequelize.JSON() }
         });
-      // const addResources = queryInterface.bulkInsert('resources', [],
-      //   { transaction: t });
-      // const addMilestones =  queryInterface.bulkInsert('milestones', [],
-      //   { transaction: t });
+      const addMilestones =  queryInterface.bulkInsert('milestones',
+        [milestone1], { transaction: t });
+      const addTopics = queryInterface.bulkInsert('topics',
+        [topic1, topic2], { transaction: t });
+      const addResources = queryInterface.bulkInsert('resources',
+        [resource1, resource2, resource3], { transaction: t });
 
-      return Promise.all([ addPrograms]);
-      // return Promise.all([ addPrograms, addResources, addMilestones]);
+      return Promise.all([ addPrograms, ]);
     })
   },
 
@@ -90,8 +75,9 @@ module.exports = {
     return queryInterface.sequelize.transaction((t) => {
       return Promise.all([
         queryInterface.bulkDelete('programs', null, {}),
-        queryInterface.bulkDelete('resources', null, {}),
         queryInterface.bulkDelete('milestones', null, {}),
+        queryInterface.bulkDelete('topics', null, {}),
+        queryInterface.bulkDelete('resources', null, {}),
       ]);
     });
   }
