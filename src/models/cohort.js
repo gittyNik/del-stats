@@ -1,17 +1,16 @@
-import mongoose from 'mongoose';
-const {Schema} = mongoose;
+import Sequelize from 'sequelize';
+import db from '../database';
 
-export default mongoose.model('Cohort', new Schema({
-  startDate: {type:Date, required:true},
-  endDate: Date,
-  name: String,
-  program: {type:String, default:"Exponent:Software"},
-  location: {type:String, default:"Hyderabad"},
-  spotters: [{
-    teamName: String,
-    students: [{
-      type: Schema.Types.ObjectId,
-      ref: 'User'
-    }],
-  }],
-}));
+const Cohort = db.define('cohorts', {
+  id: {
+    type: Sequelize.UUID,
+    primaryKey: true,
+  },
+  name: Sequelize.STRING,
+  location: Sequelize.STRING,
+  learners: Sequelize.ARRAY(Sequelize.UUID),
+  program_id: Sequelize.STRING,
+  start_date: Sequelize.DATE,
+  learning_ops_manager: Sequelize.UUID,
+})
+export default Cohort;
