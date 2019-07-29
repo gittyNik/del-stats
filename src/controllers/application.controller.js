@@ -1,6 +1,7 @@
 import uuid from 'uuid/v4';
 import Application from '../models/application';
-import Test from '../models/test';
+import Program from '../models/program';
+import Cohort from '../models/cohort';
 import { generateTestSeries } from './test.controller';
 
 export const getAllApplications = (req, res) => {
