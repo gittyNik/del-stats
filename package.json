@@ -21,6 +21,14 @@
     "sampleUrl": "https://delta-api.herokuapp.com/api"
   },
   "dependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-json-strings": "^7.2.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/plugin-syntax-import-meta": "^7.2.0",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/register": "^7.5.5",
     "compression": "^1.7.4",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
@@ -40,10 +48,8 @@
     "watson-developer-cloud": "^3.5.3"
   },
   "devDependencies": {
+    "@babel/node": "^7.5.5",
     "apidoc": "^0.17.6",
-    "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-stage-3": "^6.24.1",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.11.0",

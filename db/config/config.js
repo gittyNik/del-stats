@@ -1,4 +1,6 @@
 require('dotenv').config();
+require('@babel/register');
+
 const settings = {
   "development": {
     "username": process.env.DATABASE_USERNAME,

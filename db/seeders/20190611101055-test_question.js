@@ -2,7 +2,7 @@
 // need to make changes as per the latest db structure
 // createdAt and updatedAt are not inserted using seeders(gives not null error)
 'use strict';
-const uuid = require('uuid/v4');
+import uuid from 'uuid/v4';
 const faker = require('faker');
 
 const type = ['mcq', 'text', 'code'];
