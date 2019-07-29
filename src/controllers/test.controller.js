@@ -71,18 +71,16 @@ const generateTest = (template, application, allQuestions) => {
     return q;
   });
 
-  let testQuestions = questions.map(q=>{
-    return { qid: q.id, answer: null, isCorrect: null,
-      review: null, reviewed_by: null, };
-  });
-
   const {purpose, duration} = template;
   return Test.create({
     id: uuid(),
     application_id: application.id,
     purpose,
     duration,
-    questions: testQuestions,
+    questions: questions.map(q=>q.id),
+  }).then(test => {
+    test.questions = cleanQuestions;
+    return test;
   });
 }
 
