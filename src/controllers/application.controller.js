@@ -46,7 +46,7 @@ export const addApplication = (req, res) => {
   const user_id = req.jwtData.user.id;
   const {cohort_applied} = req.body;
 
-  Program.findOne({where:{'cohorts.id':cohort_applied}, include: [Cohort]})
+  Program.findAll({where:{}, include: [{model:Cohort, where:{'id':cohort_applied}}]})
   .then(program => { // existence of cohort verified
     const testSeriesTemplate = program.test_series;
     const applicationId = uuid();
@@ -61,7 +61,10 @@ export const addApplication = (req, res) => {
       res.status(201).json(application);
     });
   })
-  .catch(err=>res.sendStatus(500));
+  .catch(err=>{
+    console.error(err);
+    res.sendStatus(500);
+  });
 }
 
 export const updateApplication = (req, res) => {

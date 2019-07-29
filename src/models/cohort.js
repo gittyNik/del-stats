@@ -1,4 +1,5 @@
 import Sequelize from 'sequelize';
+import Program from './program';
 import db from '../database';
 
 const Cohort = db.define('cohorts', {
@@ -13,4 +14,7 @@ const Cohort = db.define('cohorts', {
   start_date: Sequelize.DATE,
   learning_ops_manager: Sequelize.UUID,
 })
+
+Program.hasMany(Cohort, { foreignKey: 'program_id' });
+
 export default Cohort;

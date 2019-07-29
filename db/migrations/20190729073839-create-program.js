@@ -5,7 +5,7 @@ module.exports = {
     return queryInterface.createTable('programs', {
       id: {
         type: Sequelize.STRING,
-        unique: true,
+        primaryKey: true,
       },
       name: Sequelize.STRING,
       location: Sequelize.STRING,
