@@ -1,17 +1,16 @@
-'use strict';
-
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('programs', {
-      id: {
-        type: Sequelize.STRING,
-        unique: true,
-      },
+    return queryInterface.createTable('cohorts', {
+      id: Sequelize.UUID,
       name: Sequelize.STRING,
       location: Sequelize.STRING,
-      duration: Sequelize.INTEGER, //in weeks
-      test_series: Sequelize.JSON,
-      milestone_review_rubric: Sequelize.JSON,
+      learners: Sequelize.ARRAY(Sequelize.UUID),
+      program_id: {
+        type: Sequelize.STRING,
+        references:{ model: 'programs', key: 'id' },
+      },
+      start_date: Sequelize.DATE,
+      learning_ops_manager: Sequelize.UUID,
       createdAt: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('NOW()'),
@@ -23,6 +22,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('programs');
+    return queryInterface.dropTable('cohorts');
   }
 };
