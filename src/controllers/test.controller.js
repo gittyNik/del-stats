@@ -29,16 +29,35 @@ export const getTestById = (req, res) => {
   .catch(err => res.status(500))
 }
 
-export const updateTest = (req, res) => {
-  const {sub_time} = req.body;
+export const submitTest = (req, res) => {
   const {id} = req.params;
-  Test.update({
-    sub_time,
-  }, {
-    where: { id }})
-  .then(data => res.status(201).send(data))
+  Test.update({sub_time: new Date()}, {where: { id }})
+  .then(data => res.send(data))
+  .catch(err => res.status(500));
+}
+
+export const updateTestResponses = (req, res) => {
+  const {responses} = req.body;
+  const {id} = req.params;
+
+  Test.findByPk(id)
+  .then(test => {
+    // use response sent by client or the original from db
+    let finalResponses = test.responses.map(dbResponse => {
+      return responses.find(r=>r.question_id===dbResponse.question_id) || dbResponse;
+    });
+    return Test.update({
+      responses:finalResponses,
+      sub_time: new Date()
+    }, {where: {id}});
+  })
+  .then(data => {
+    res.status(201).send(data);
+  })
   .catch(err => res.status(500))
 }
+
+export const updateTest = updateTestResponses;
 
 export const updateBrowsedUrl = (req, res) => {
   const {browsedUrls} = req.body;
