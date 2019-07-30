@@ -38,7 +38,7 @@ router.get('/:id', getTestById);
  * @apiName UpdateTest
  * @apiGroup Test
  * 
- * @apiParam {String} sub_time Time at which test is submitted
+ * @apiParam {json} responses List of responses to be saved
  */
 router.patch('/:id', updateTest);
 
