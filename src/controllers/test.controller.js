@@ -5,7 +5,7 @@ import {populateQuestionDetails} from './test_question.controller';
 import _ from 'lodash';
 
 export const getAllTests = (req,res) => {
-  Test.findAll()
+  Test.findAll({raw : true})
   .then(populateQuestionDetails)
   .then(data => res.status(200).json(data))
   .catch(err => res.status(500))
@@ -13,7 +13,7 @@ export const getAllTests = (req,res) => {
 
 export const getTestByApplicationId = (req, res) => {
   const {id} = req.params;
-  Test.findAll({where: { application_id: id }})
+  Test.findAll({where: { application_id: id }, raw : true})
   .then(populateQuestionDetails)
   .then(testSeries => {
     res.status(200).json(testSeries);
@@ -23,8 +23,7 @@ export const getTestByApplicationId = (req, res) => {
 
 export const getTestById = (req, res) => {
   const {id} = req.params;
-  Test.findAll({
-    where: { id }})
+  Test.findAll({where: { id }, raw : true})
   .then(populateQuestionDetails)
   .then(data => res.status(200).json(data))
   .catch(err => res.status(500))
@@ -86,7 +85,7 @@ const generateTest = (template, application, allQuestions) => {
     purpose,
     duration,
     responses,
-  }).then(test => {
+  }, {raw : true}).then(test => {
     test.questionDetails = questionDetails;
     return test;
   });

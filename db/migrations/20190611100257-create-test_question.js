@@ -1,30 +1,31 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('test_questions', {
-    id: {
-      type: Sequelize.UUID,
-      primaryKey: true,
+      id: {
+        type: Sequelize.UUID,
+        primaryKey: true,
       },
-    question: {
+      question: {
         type: Sequelize.JSON,
         allowNull: false,
       },
-    type: {
+      answer: Sequelize.JSON,
+      type: {
         type: Sequelize.ENUM('mcq', 'text', 'code', 'rate'),
         allowNull: false,
       },
-    domain: {
+      domain: {
         type: Sequelize.ENUM('generic', 'tech', 'mindsets'),
         allowNull: false,
       },
-    createdAt: {
+      createdAt: {
         type: Sequelize.DATE,
-        allowNull: false,
+        defaultValue: Sequelize.literal('NOW()'),
       },
-    updatedAt: {
+      updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false,
-      },
+        defaultValue: Sequelize.literal('NOW()'),
+      }
     });
   },
   down: (queryInterface, Sequelize) => {
