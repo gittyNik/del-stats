@@ -10,7 +10,7 @@ const Test = db.define('tests', {
     type: Sequelize.UUID,
     allowNull:false,
   },
-  questions: {
+  responses: {
     type: Sequelize.ARRAY(Sequelize.JSON),
     allowNull: false,
   },

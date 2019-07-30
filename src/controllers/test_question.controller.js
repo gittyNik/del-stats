@@ -2,7 +2,6 @@ import uuid from 'uuid/v4';
 import TestQuestion from '../models/test_question';
 
 export const populateQuestionDetails = testSeries => {
-  console.log(testSeries.toJSON())
   // Alternatively, the query can take an array and return only few questions
   return TestQuestion.findAll().then(allQuestions => {
     allQuestions = allQuestions.map(q => {
@@ -11,7 +10,7 @@ export const populateQuestionDetails = testSeries => {
     });
 
     testSeries.forEach(test => {
-      let questionIds = test.questions.map(testQuestion => testQuestion.qid);
+      let questionIds = test.responses.map(response => response.question_id);
       test.questionDetails = allQuestions.filter(q => questionIds.includes(q.id));
     });
 

@@ -11,7 +11,7 @@ module.exports = {
       },
       purpose: Sequelize.STRING,
       duration: Sequelize.INTEGER,
-      questions: {
+      responses: {
         type: Sequelize.ARRAY(Sequelize.JSON),
         allowNull: false,
       },

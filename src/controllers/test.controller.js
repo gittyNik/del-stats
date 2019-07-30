@@ -64,18 +64,20 @@ const generateTest = (template, application, allQuestions) => {
     questions_fixed: [],  // An array of fixed questions
   }]
   */
-  let questions = allQuestions.filter(q => template.questions_fixed && template.questions_fixed.includes(q.id));
+  let testQuestions = allQuestions.filter(q => template.questions_fixed && template.questions_fixed.includes(q.id));
 
   for(let domain in template.random){
     let randomQuestions = allQuestions.filter(q => q.domain===domain);
-    questions = _.shuffle(randomQuestions)
-      .splice(0,template.random[domain]).concat(questions);
+    testQuestions = _.shuffle(randomQuestions)
+      .splice(0,template.random[domain]).concat(testQuestions);
   }
 
-  let cleanQuestions = questions.map(q => {
+  let questionDetails = testQuestions.map(q => {
     delete q.answer;
     return q;
   });
+
+  let responses = testQuestions.map(q => ({question_id: q.id}));
 
   const {purpose, duration} = template;
   return Test.create({
@@ -83,9 +85,9 @@ const generateTest = (template, application, allQuestions) => {
     application_id: application.id,
     purpose,
     duration,
-    questions: questions.map(q=>q.id),
+    responses,
   }).then(test => {
-    test.questions = cleanQuestions;
+    test.questionDetails = questionDetails;
     return test;
   });
 }
