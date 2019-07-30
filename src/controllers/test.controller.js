@@ -1,26 +1,31 @@
 import uuid from 'uuid/v4';
 import Test from '../models/test';
 import TestQuestion from '../models/test_question';
+import {populateQuestionDetails} from './test_question.controller';
 import _ from 'lodash';
 
 export const getAllTests = (req,res) => {
   Test.findAll()
+  .then(populateQuestionDetails)
   .then(data => res.status(200).json(data))
   .catch(err => res.status(500))
 }
 
 export const getTestByApplicationId = (req, res) => {
   const {id} = req.params;
-  Test.findAll({
-    where: { application_id: id }})
-  .then(data => res.status(200).json(data))
-  .catch(err => res.status(500))
+  Test.findAll({where: { application_id: id }})
+  .then(populateQuestionDetails)
+  .then(testSeries => {
+    res.status(200).json(testSeries);
+  })
+  .catch(err => res.status(500));
 }
 
 export const getTestById = (req, res) => {
   const {id} = req.params;
   Test.findAll({
     where: { id }})
+  .then(populateQuestionDetails)
   .then(data => res.status(200).json(data))
   .catch(err => res.status(500))
 }

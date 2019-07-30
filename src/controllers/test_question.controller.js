@@ -1,6 +1,24 @@
 import uuid from 'uuid/v4';
 import TestQuestion from '../models/test_question';
 
+export const populateQuestionDetails = testSeries => {
+  console.log(testSeries.toJSON())
+  // Alternatively, the query can take an array and return only few questions
+  return TestQuestion.findAll().then(allQuestions => {
+    allQuestions = allQuestions.map(q => {
+      delete q.answer;
+      return q;
+    });
+
+    testSeries.forEach(test => {
+      let questionIds = test.questions.map(testQuestion => testQuestion.qid);
+      test.questionDetails = allQuestions.filter(q => questionIds.includes(q.id));
+    });
+
+    return testSeries;
+  });
+}
+
 export const getAllQuestions = (req,res) => {
   TestQuestion.findAll()
   .then(data => res.status(200).send(data))
