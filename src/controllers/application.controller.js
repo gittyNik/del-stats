@@ -1,4 +1,5 @@
 import uuid from 'uuid/v4';
+import Sequelize from 'sequelize';
 import Application from '../models/application';
 import Program from '../models/program';
 import Cohort from '../models/cohort';
