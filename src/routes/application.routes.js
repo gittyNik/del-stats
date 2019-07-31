@@ -1,5 +1,5 @@
 import Express from 'express';
-import { getAllApplications, getApplicationsyUserId, getApplicationById,
+import { getAllApplications, getApplicationsByUserId, getApplicationById,
   getLiveApplications, addApplication, updateApplication, deleteApplication,
   payment } from '../controllers/application.controller';
 

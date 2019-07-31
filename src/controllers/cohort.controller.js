@@ -1,5 +1,6 @@
 import Cohort from '../models/cohort';
 import {getCohortStudents} from '../controllers/student.controller';
+import Sequelize from 'sequelize';
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
@@ -105,7 +106,7 @@ export const getUpcomingCohorts = (req, res) => {
   tonight.setSeconds(59);
 
   Cohort.findAll({ where: {
-    start_date: {$gt: tonight}
+    start_date: {[Sequelize.Op.gt]: tonight}
   }}).then(data => {
     res.send({data});
   }).catch(err => res.sendStatus(404));
