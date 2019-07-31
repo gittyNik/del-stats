@@ -8,41 +8,47 @@ export const getCohorts = (req, res) => {
   .catch(err => res.status(500).send(err));
 }
 
+const getCohortLearners = cohort => {
+  return Promise.resolve([]);
+}
+
 export const getCohortByName = (req, res) => {
   const {year, city, cohort_name} = req.params;
 
-  Cohort.find({name : cohort_name, location : city})
+  Cohort.findAll({where: {name : cohort_name, location : city}})
   .then( cohorts => {
-    cohorts.map( (cohort, i) => {
-      let date = cohort.startDate;
-      if (date.getFullYear().toString()===year){
-        getCohortStudents(cohort)
-        .then(students => {
-           cohort.students = students;
-          res.json({cohort})
-        })
-      }
-    })
+    let learnerGetters = cohorts.filter(c=>c.start_date.getFullYear().toString()===year)
+    .map(cohort => {
+      return getCohortLearners(cohort).then(learners => {
+        cohort.learnerDetails = learnerDetails;
+        return cohort;
+      });
+    });
+    return Promise.all(learnerGetters);
+  }).then(cohorts=>{
+    res.json({cohorts});
   }).catch(e => res.status(500).send(e))
 
 }
 
 export const getCohort = (req, res) => {
-  Resource.findById(req.params.id).lean().exec()
+  Cohort.findByPk(req.params.id)
   .then(cohort => {
-    getCohortStudents(cohort)
-    .then(students => {
-      cohort.students = students;
-      res.json({cohort: cohort})
-    })
+    return getCohortLearners(cohort).then(learners => {
+      cohort.learners = learners;
+      return cohort;
+    });
+  })
+  .then(cohort => {
+    res.json({cohort});
   })
   .catch(err => res.status(500).send(err));
 }
 
 export const createCohort = (req, res) => {
-  let {name, location, program, startDate, endDate} = req.body;
-  startDate = new Date(+startDate)
-  new Resource({name, location, program, startDate, endDate}).save()
+  let {name, location, program, start_date} = req.body;
+  start_date = new Date(+start_date)
+  Cohort.create({name, location, program, start_date})
   .then(data => {
     res.status(201).json({data});
   })
@@ -50,75 +56,42 @@ export const createCohort = (req, res) => {
 }
 
 export const updateCohort = (req, res) => {
-  const {location, program, startDate} = req.body;
-  Resource.findByIdAndUpdate(req.params.id, {location, program, startDate})
+  const {location, program, start_date} = req.body;
+  const {id} = req.params;
+  Cohort.update({location, program, start_date}, {where: {id}})
   .then(data => res.json({data}))
   .catch(err => res.status(500).send(err));
 }
 
 export const deleteCohort = (req, res) => {
-  Resource.remove({id:req.params.id}).exec()
+  Cohort.destroy({where: {id}})
   .then(() => res.status(204))
   .catch(err => res.status(500).send(err));
 }
 
 export const createSpotters = (cohort) => {
-  return getCohortStudents(cohort).then((students) => {
-    students = students.map(s => s._id)
-    let p = createChunks(students, 3)
+  return Promise.resolve(cohort);
+}
 
-    for (let i = 0; i < p.length; i++) {
-      if (p[i].students.length <= 1) {
-        p[i-1].students = p[i].students.concat(p[i - 1].students)
-        p.pop()
-      }
-    }
-    cohort.spotters = p
-    return cohort.save()
-    })
-  }
+export const populateCurrentCohorts = () => {
+  let today = new Date();
+  let tonight = new Date();
 
-export const populateCurrentCohorts = () =>{
-  let today = new Date()
-  let tonight = new Date()
+  today.setHours(0);
+  today.setMinutes(0);
+  today.setSeconds(0);
 
-  today.setHours(0)
-  today.setMinutes(0)
-  today.setSeconds(0)
+  tonight.setHours(23);
+  tonight.setMinutes(59);
+  tonight.setSeconds(59);
 
-  tonight.setHours(23)
-  tonight.setMinutes(59)
-  tonight.setSeconds(59)
-
-  return Resource.find({
-    'startDate': {
-      '$gte': today,
-      '$lt': tonight
-    }
-  })
-  .then( cohorts => {//console.log(cohorts)
-    console.log("PopulateCurrentCohort")
-    let p =[]
-    for (let i = 0; i < cohorts.length; i++) {
-      p.push(createSpotters(cohorts[i]))
-    }
-    return Promise.all(p)
-  })
-  .catch(e => console.log("Errored out in populateCurrentCohorts" + e))
-
+  return Cohort.findAll({ where: {
+    start_date: {$between: [today, tonight]}
+  }});
 } 
 
 export const resetSpotters = async (req, res) => {
-
-  Resource.findById(req.params.cohort_id)
-  .then(cohort => createSpotters(cohort))
-  .then(cohort => {
-    res.send(cohort);
-  })
-  .catch(err => {
-    res.sendStatus(500);
-  });
-
+  res.sendStatus(500);
 }
 
 export const getUpcomingCohorts = (req, res) => {
