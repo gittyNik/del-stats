@@ -1,7 +1,7 @@
 import Express from 'express';
-import { getAllApplications, getApplicationByUserId, getApplicationById, getLiveApplications, 
-  addApplication, updateApplication, deleteApplication, payment } 
-  from '../controllers/application.controller';
+import { getAllApplications, getApplicationsyUserId, getApplicationById,
+  getLiveApplications, addApplication, updateApplication, deleteApplication,
+  payment } from '../controllers/application.controller';
 
 const router = Express.Router();
 /**
@@ -24,12 +24,12 @@ router.get('/live', getLiveApplications);
 
 /**
  * @api {get} /firewall/applications/user/:id Get Applications by UserId
- * @apiDescription get an Application by user id
+ * @apiDescription get all applications by user id
  * @apiHeader {String} authorization JWT Token.
- * @apiName GetApplicationByUserId
+ * @apiName GetApplicationsByUserId
  * @apiGroup Application
  */
-router.get('/user/:id', getApplicationByUserId);
+router.get('/user/:id', getApplicationsByUserId);
 
 /**
  * @api {get} /firewall/applications/:id Get an Application

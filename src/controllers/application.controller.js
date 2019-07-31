@@ -19,16 +19,16 @@ export const getApplicationById = (req, res) => {
   .catch(err => res.sendStatus(500))
 }
 
-export const getApplicationByUserId = (req, res) => {
+export const getApplicationsByUserId = (req, res) => {
   const {id} = req.params;
   Application.findAll({
     order: Sequelize.col('createdAt'),
     where: { user_id: id }})
   .then(data => {
-    if(data.length>0)
-    res.status(200).json(data[data.length-1]);
+    if(data.length===0)
+      res.sendStatus(404);
     else
-    res.sendStatus(404);
+      res.send({data});
   })
   .catch(err => res.sendStatus(500));
 }
