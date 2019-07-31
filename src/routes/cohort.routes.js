@@ -1,5 +1,6 @@
 import Express from 'express';
-import { getCohortByName, getCohorts, getCohort, createCohort, updateCohort, deleteCohort } from '../controllers/cohort.controller';
+import { getCohortByName, getCohorts, getCohort, createCohort, updateCohort,
+ getUpcomingCohorts, deleteCohort } from '../controllers/cohort.controller';
 
 const router = Express.Router();
 
@@ -12,6 +13,14 @@ const router = Express.Router();
 router.get('/', getCohorts);
 
 /**
+ * @api {get} /cohorts/upcoming Get upcoming cohorts
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetUpcomingCohorts
+ * @apiGroup Cohort
+ */
+router.get('/upcoming', getUpcomingCohorts);
+
+/**
  * @api {get} /cohorts/:id Get a cohort by id
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetCohort
@@ -20,12 +29,12 @@ router.get('/', getCohorts);
 router.get('/:id', getCohort);
 
 /**
- * @api {get} /cohorts/:year/:city/:cohort_name Get a cohort with name
+ * @api {get} /cohorts/:year/:location/:name Get a cohort with name
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetCohortByName
  * @apiGroup Cohort
  */
-router.get('/:year(^[0-9]{4}$)/:cohort_name', getCohortByName);
+router.get('/:year/:location/:name', getCohortByName);
 
 /**
  * @api {post} /cohorts Create a cohort
@@ -50,7 +59,5 @@ router.patch('/:id', updateCohort);
  * @apiGroup Cohort
  */
 router.delete('/:id', deleteCohort);
-
-// router.get('/upcoming', getUpcomingCohorts);
 
 export default router;

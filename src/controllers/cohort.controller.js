@@ -1,6 +1,5 @@
 import Cohort from '../models/cohort';
 import {getCohortStudents} from '../controllers/student.controller';
-import createChunks from "../util/createChunks";
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
@@ -13,21 +12,24 @@ const getCohortLearners = cohort => {
 }
 
 export const getCohortByName = (req, res) => {
-  const {year, city, cohort_name} = req.params;
+  const {year, location, name} = req.params;
 
-  Cohort.findAll({where: {name : cohort_name, location : city}})
+  Cohort.findAll({where: {name, location}, raw: true})
   .then( cohorts => {
     let learnerGetters = cohorts.filter(c=>c.start_date.getFullYear().toString()===year)
     .map(cohort => {
       return getCohortLearners(cohort).then(learners => {
-        cohort.learnerDetails = learnerDetails;
+        cohort.learnerDetails = learners;
         return cohort;
       });
     });
     return Promise.all(learnerGetters);
   }).then(cohorts=>{
     res.json({cohorts});
-  }).catch(e => res.status(500).send(e))
+  }).catch(e => {
+    console.error(e);
+    res.sendStatus(404);
+  });
 
 }
 
@@ -42,7 +44,7 @@ export const getCohort = (req, res) => {
   .then(cohort => {
     res.json({cohort});
   })
-  .catch(err => res.status(500).send(err));
+  .catch(err => res.sendStatus(404));
 }
 
 export const createCohort = (req, res) => {
@@ -73,6 +75,7 @@ export const createSpotters = (cohort) => {
   return Promise.resolve(cohort);
 }
 
+// currently returning cohorts starting today
 export const populateCurrentCohorts = () => {
   let today = new Date();
   let tonight = new Date();
@@ -95,5 +98,15 @@ export const resetSpotters = async (req, res) => {
 }
 
 export const getUpcomingCohorts = (req, res) => {
-  res.send("Lists of upcoming cohorts");
+  let tonight = new Date();
+
+  tonight.setHours(23);
+  tonight.setMinutes(59);
+  tonight.setSeconds(59);
+
+  Cohort.findAll({ where: {
+    start_date: {$gt: tonight}
+  }}).then(data => {
+    res.send({data});
+  }).catch(err => res.sendStatus(404));
 }
