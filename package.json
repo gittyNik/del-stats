@@ -40,10 +40,10 @@
     "watson-developer-cloud": "^3.5.3"
   },
   "devDependencies": {
+    "apidoc": "^0.17.6",
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-3": "^6.24.1",
-    "apidoc": "^0.17.6",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.11.0",

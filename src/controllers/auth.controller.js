@@ -15,7 +15,6 @@ export const authenticate = (req, res, next) => {
 
   let token = req.headers.authorization.split(' ').pop();
   jwt.verify(token, process.env.JWT_SECRET, (err, jwtData) => {
-    console.log(jwtData);
     if(err || !jwtData) {
       sendAuthFailure(res);
     } else {
