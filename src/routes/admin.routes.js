@@ -1,10 +1,18 @@
 import Express from 'express';
-import {switchUser, switchUserByEmail} from '../controllers/admin.controller';
+import {switchUser, switchUserByEmail, switchToFakeUser} from '../controllers/admin.controller';
 import {allowSuperAdminOnly} from '../controllers/roles.controller';
 
 const router = Express.Router();
 
 router.use(allowSuperAdminOnly);
+/**
+ * @api {get} /admin/switch_user/fake Switch to a fake user
+ * @apiDescription Gain access to a fake user's data by generating an access token
+ * @apiHeader {String} authorization JWT Token of superadmin
+ * @apiName SwitchFakeUser
+ * @apiGroup Admin
+ */
+router.get('/switch_user/fake', switchToFakeUser);
 /**
  * @api {get} /admin/switch_user/:user_id Switch User
  * @apiDescription Gain access to another user's data by generating an access token
