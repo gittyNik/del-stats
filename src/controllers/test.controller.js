@@ -123,6 +123,12 @@ export const generateTestSeries = (template, application) => {
   });
 }
 
+export const populateTestSeries = (application) => {
+  return Test.findAll({where: { application_id: application.id }, raw : true})
+  .then(populateQuestionDetails)
+  .then(test_series => ({ application, test_series}));
+}
+
 //pending
 export const updateVideo = (req, res) => {
   res.status(501).send("not implemented")

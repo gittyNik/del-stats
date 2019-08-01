@@ -24,7 +24,7 @@ router.get('/live', getLiveApplications);
 
 /**
  * @api {get} /firewall/applications/latest Get latest application by current user
- * @apiDescription get latest application by current user id
+ * @apiDescription get latest application by current user id along with the test details
  * @apiHeader {String} authorization JWT Token.
  * @apiName getLatestApplication
  * @apiGroup Application

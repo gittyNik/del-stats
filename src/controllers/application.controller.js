@@ -3,7 +3,7 @@ import Sequelize from 'sequelize';
 import Application from '../models/application';
 import Program from '../models/program';
 import Cohort from '../models/cohort';
-import { generateTestSeries } from './test.controller';
+import { generateTestSeries, populateTestSeries } from './test.controller';
 
 export const getAllApplications = (req, res) => {
   Application.findAll()
@@ -38,11 +38,14 @@ export const getLatestApplication = (req, res) => {
   Application.findOne({
     order: [[Sequelize.col('createdAt'), Sequelize.literal('DESC')]],
     where: { user_id }})
-  .then(data => {
-    if(data)
-      res.send({data});
+  .then(application => {
+    if(application)
+      return populateTestSeries(application);
     else
       res.sendStatus(404);
+  })
+  .then(data => {
+    res.send({data});
   })
   .catch(err => res.sendStatus(500));
 }
