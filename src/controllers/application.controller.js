@@ -33,6 +33,20 @@ export const getApplicationsByUserId = (req, res) => {
   .catch(err => res.sendStatus(500));
 }
 
+export const getLatestApplication = (req, res) => {
+  const user_id = req.jwtData.user.id;
+  Application.findOne({
+    order: [[Sequelize.col('createdAt'), Sequelize.literal('DESC')]],
+    where: { user_id }})
+  .then(data => {
+    if(data)
+      res.send({data});
+    else
+      res.sendStatus(404);
+  })
+  .catch(err => res.sendStatus(500));
+}
+
 export const getLiveApplications = (req, res) => {
   Application.findAll({
     where: {
