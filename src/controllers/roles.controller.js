@@ -7,34 +7,27 @@
 */
 import {USER_ROLES} from '../models/user';
 
-// Restrict students in these routes
-export const allowSuperAdminOnly = (req, res, next) => {
-  switch(req.jwtData.scope) {
-    case USER_ROLES.SUPERADMIN:
-      next();
-      break;
-    default:
-      res.status(403).send('You do not have admin privileges!');
-  }
-}
+const ERRMSG = 'You do not have access to this data!';
 
 export const allowLearnerWithId = learnerId => (req, res, next) => {
   const {role, id} = req.jwtData.user;
   if(id === learnerId && role === USER_ROLES.LEARNER){
     next();
   } else {
-    res.status(403).send('You do not have access to this data!');
+    res.status(403).send(ERRMSG);
   }
 }
 
-const allowRole = role => (req, res, next) => {
+const allowRole = (role, errorMessage=ERRMSG) => (req, res, next) => {
   if(req.jwtData.user.role === role)
     next();
   else
-    res.status(403).send('You do not have access to this data!');
+    res.status(403).send(errorMessage);
 }
 
+export const allowSuperAdminOnly = allowRole(USER_ROLES.SUPERADMIN,
+  'You do not have superadmin privileges!')
 export const allowLearnersOnly = allowRole(USER_ROLES.LEARNER);
 export const allowAdminsOnly = allowRole(USER_ROLES.ADMIN);
-export const allowEducatorsOnly = allowRole(USER_ROLES.LEARNER);
+export const allowEducatorsOnly = allowRole(USER_ROLES.EDUCATOR);
 export const allowEnablersOnly = allowRole(USER_ROLES.ENABLER);

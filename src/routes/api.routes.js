@@ -6,7 +6,7 @@ import prompt from './prompt.routes';
 import ping from './ping.routes';
 import pingpong from './pingpong.routes';
 import mailer from './mailer.routes';
-import admin from './admin.routes';
+import adminRouter from './admin.routes';
 import todo from './todo.routes';
 import note from './note.routes';
 import tepRouter from './tep.routes';
@@ -34,6 +34,7 @@ router.use('/tep', tepRouter);
 router.use('/cohorts', cohort);
 router.use('/firewall', firewall);
 router.use('/browser-history',chromehistory)
+router.use('/admin', adminRouter);
 
 router.use('/educators', educator);
 router.use('/students', student);
@@ -41,7 +42,6 @@ router.use('/prompts', prompt);
 router.use('/pings', ping);
 router.use('/pingpongs', pingpong);
 router.use('/mailer', mailer);
-router.use('/admin', admin);
 router.use('/todos', todo);
 router.use('/notes', note);
 router.use('/users', user);
