@@ -105,7 +105,7 @@ const generateTest = (template, application, allQuestions) => {
     duration,
     responses,
   }, {raw : true}).then(test => {
-    test.questionDetails = questionDetails;
+    test.dataValues.questionDetails = questionDetails;
     return test;
   });
 }
