@@ -113,7 +113,7 @@ const generateTest = (template, application, allQuestions) => {
 // questions[{qid,answer,isCorrect,review,reviewed_by}]
 export const generateTestSeries = (template, application) => {
   template = template.tests;
-  return TestQuestion.findAll().then(allQuestions => {
+  return TestQuestion.findAll({raw:true}).then(allQuestions => {
     return Promise.all(template.map(testTemplate => generateTest(testTemplate, application, allQuestions)));
   }).then(test_series => {
     return {
