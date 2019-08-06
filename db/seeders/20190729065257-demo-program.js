@@ -14,7 +14,7 @@ const demoProgram = {
         questions_fixed: [],  // An array of fixed questions
       },
       { duration: 15*60*1000, purpose: 'think', random: {tech: 1}},
-      { duration: 15*60*1000, purpose: 'code', random: {tech: 1}},
+      { duration: 15*60*1000, purpose: 'play', random: {tech: 1}},
       { duration: 15*60*1000, purpose: 'reflect', random: {mindsets: 5}},
     ],
   },

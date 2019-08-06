@@ -10,6 +10,8 @@ const Test = db.define('tests', {
     type: Sequelize.UUID,
     allowNull:false,
   },
+  purpose: Sequelize.STRING,
+  duration: Sequelize.INTEGER,
   responses: {
     type: Sequelize.ARRAY(Sequelize.JSON),
     allowNull: false,
