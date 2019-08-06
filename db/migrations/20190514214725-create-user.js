@@ -11,7 +11,7 @@ module.exports = {
       phone: Sequelize.STRING,
       role: Sequelize.STRING,
       location: Sequelize.STRING,
-      profile: Sequelize.ARRAY(Sequelize.JSON),
+      profile: Sequelize.JSON,
       createdAt: Sequelize.DATE,
       updatedAt: Sequelize.DATE,
     });

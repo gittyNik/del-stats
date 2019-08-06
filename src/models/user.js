@@ -20,7 +20,7 @@ export const User = db.define('users', {
   phone: Sequelize.STRING,
   role: Sequelize.STRING,
   location: Sequelize.STRING,
-  profile: Sequelize.ARRAY(Sequelize.JSON),
+  profile: Sequelize.JSON,        // profile: {key: {value, source, details}}
 },{});
 
 export const getProfile = userId => User.findByPk(userId);
