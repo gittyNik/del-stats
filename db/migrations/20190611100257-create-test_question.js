@@ -11,7 +11,7 @@ module.exports = {
       },
       answer: Sequelize.JSON,
       type: {
-        type: Sequelize.ENUM('mcq', 'text', 'code', 'rate'),
+        type: Sequelize.ENUM('mcq', 'text', 'code', 'rate', 'logo'),
         allowNull: false,
       },
       domain: {
@@ -29,6 +29,12 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('test_questions');
+    return queryInterface.sequelize.transaction(t => {
+      return Promise.all([
+        queryInterface.dropTable('test_questions'),
+        queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_test_questions_type";'),
+        queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_test_questions_domain";'),
+      ]);
+    });
   }
 };

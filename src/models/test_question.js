@@ -12,7 +12,7 @@ const TestQuestion = db.define('test_question', {
   },
   answer: Sequelize.JSON,
   type: {
-    type: Sequelize.ENUM('mcq', 'text', 'code', 'rate'),
+    type: Sequelize.ENUM('mcq', 'text', 'code', 'rate', 'logo'),
     allowNull: false,
   },
   domain: {
