@@ -16,7 +16,7 @@ import {getProfile} from '../controllers/user.controller';
 import { browserAccessControl, devOnly } from '../controllers/access_control.controller';
 import authenticate from '../controllers/auth.controller';
 import authRouter from './auth.routes';
-import firewall from './firewall.routes';
+import firewallRouter from './firewall.routes';
 
 const router = Express.Router();
 
@@ -27,12 +27,14 @@ router.use(browserAccessControl);
 router.use('/auth',authRouter);
 router.use('/doc', devOnly, Express.static('./doc'));
 
-// Private Routes
+// Partially private routes
+router.use('/firewall', firewallRouter);
+
+// Completely private routes
 router.use(authenticate);
 router.use('/profile', getProfile);
 router.use('/tep', tepRouter);
 router.use('/cohorts', cohort);
-router.use('/firewall', firewall);
 router.use('/browser-history',chromehistory)
 router.use('/admin', adminRouter);
 

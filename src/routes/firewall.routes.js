@@ -1,12 +1,23 @@
 import Express from 'express';
-import application from './application.routes';
-import test from './test.routes';
-import test_question from './test_question.routes';
+import applicationRouter from './application.routes';
+import testRouter from './test.routes';
+import testQuestionRouter from './test_question.routes';
+import getPublicStats from '../controllers/firewall.controller';
+import authenticate from '../controllers/auth.controller';
 
 const router = Express.Router();
-
-router.use('/applications', application);
-router.use('/tests', test);
-router.use('/test_questions', test_question);
+// Public routes
+/**
+ * @api {get} /firewall/stats Get firewall public stats
+ * @apiDescription Get firewall public stats like total applications etc
+ * @apiName GetFirewallStats
+ * @apiGroup Firewall
+ */
+router.get('/stats', getPublicStats);
+// Private routes
+router.use(authenticate);
+router.use('/applications', applicationRouter);
+router.use('/tests', testRouter);
+router.use('/test_questions', testQuestionRouter);
 
 export default router;
