@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
-import request from 'superagent';
-import {getProfile} from '../models/user';
+import User from '../models/user';
 
 const sendAuthFailure = res => {
   res.header('WWW-Authenticate', 'Bearer realm="Access to Delta API"');
@@ -18,9 +17,8 @@ export const authenticate = (req, res, next) => {
     if(err || !jwtData) {
       sendAuthFailure(res);
     } else {
-      getProfile(jwtData.userId).then(profile =>{
-        req.jwtData = jwtData;
-        req.jwtData.user = profile;
+      User.findByPk(jwtData.userId).then(user =>{
+        req.jwtData = {user, ...jwtData};
         next();
       }).catch(err => sendAuthFailure(res));
     }

@@ -8,7 +8,7 @@ export const PROVIDERS = Object.freeze({
   LINKEDIN: 'linkedin',
 });
 
-export const User = db.define('social_connections', {
+export const SocialConnection = db.define('social_connections', {
   id: Sequelize.UUID,
   user_id: Sequelize.UUID,
   provider: Sequelize.STRING,

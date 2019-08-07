@@ -25,6 +25,13 @@ export const User = db.define('users', {
 
 export const getProfile = userId => User.findByPk(userId);
 
+
+export const getUserFromEmails = emails => User.findOne({
+  where: {
+    email: {[Sequelize.Op.in]: emails}
+  }}, {raw:true}
+);
+
 export const getOrCreateUser = phone => User.findOrCreate({
   where:{
     phone,
