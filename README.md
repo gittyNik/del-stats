@@ -11,6 +11,10 @@
 - `npm test` to run all the tests present inside the _test_ directory
 
 ### Delta db setup
+
+Configure a postgres database in `db/config/config.js`
+You may choose to install `PostgreSQL` on your OS
+
 List of commands that handle database schema
 - `npx sequelize-cli db:create`
 - `npx sequelize-cli db:migrate`
