@@ -8,14 +8,27 @@ const demoProgram = {
   duration: 2, //weeks
   test_series: {
     tests:[{
-        duration: 15*60*1000, // Max durations in milliseconds
-        purpose: 'know', // Purpose of having this test in series
-        random: {generic: 5}, // Domains & counts of the random questions
-        questions_fixed: [],  // An array of fixed questions
       },
       { duration: 15*60*1000, purpose: 'think', random: {tech: 1}},
       { duration: 15*60*1000, purpose: 'play', random: {tech: 1}},
       { duration: 15*60*1000, purpose: 'reflect', random: {mindsets: 5}},
+    ],
+    tests:[{
+      duration: 15*60*1000, // Max durations in milliseconds
+      purpose: 'know', // Purpose of having this test in series
+      random: {generic: 5}, // Domains & counts of the random questions
+      questions_fixed: [],  // An array of fixed questions
+      typesAllowed: ['mcq', 'rate'],
+    },
+    {
+      duration: 15*60*1000, purpose: 'think',
+      typesAllowed: ['logo'], random: {tech: 1}},
+    {
+      duration: 15*60*1000, purpose: 'play',
+      typesAllowed: ['code'], random: {tech: 1}},
+    {
+      duration: 15*60*1000, purpose: 'reflect',
+      typesAllowed: ['mcq', 'rate'], random: {mindsets: 5}},
     ],
   },
   milestone_review_rubric: {},
