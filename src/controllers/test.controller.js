@@ -78,6 +78,7 @@ const generateTest = (template, application, allQuestions) => {
   test_series_example:[{
     duration: 15*60*1000, // Max durations in milliseconds
     purpose: 'know', // Purpose of having this test in series
+    typesAllowed: ['mcq', 'rate'],
     random: {generic: 5}, // Domains & counts of the random questions
     questions_fixed: [],  // An array of fixed questions
   }]
@@ -85,7 +86,8 @@ const generateTest = (template, application, allQuestions) => {
   let testQuestions = allQuestions.filter(q => template.questions_fixed && template.questions_fixed.includes(q.id));
 
   for(let domain in template.random){
-    let randomQuestions = allQuestions.filter(q => q.domain===domain);
+    let randomQuestions = allQuestions.filter(q => q.domain===domain)
+      .filter(q => !template.typesAllowed || template.typesAllowed.includes(q.type));
     testQuestions = _.shuffle(randomQuestions)
       .splice(0,template.random[domain]).concat(testQuestions);
   }
