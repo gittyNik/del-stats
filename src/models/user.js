@@ -40,6 +40,7 @@ export const createSuperAdmin = ()=> User.findOrCreate({
     email: DEFAULT_USER,
     role: USER_ROLES.SUPERADMIN
   },
+  raw: true,
   defaults: {
     id: uuid()
   }

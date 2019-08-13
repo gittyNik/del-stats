@@ -5,6 +5,7 @@
   "scripts": {
     "db:init": "sequelize db:create",
     "db:reset": "sequelize db:migrate:undo:all && sequelize db:migrate && sequelize db:seed:undo:all && sequelize db:seed:all",
+    "admin" : "babel-node src/util/admin.js",
     "migrate": "sequelize db:migrate",
     "build": "babel src -d api-build",
     "lint": "eslint src",
@@ -30,6 +31,7 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/register": "^7.5.5",
     "compression": "^1.7.4",
+    "dotenv": "^8.0.0",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
     "faker": "^4.1.0",
