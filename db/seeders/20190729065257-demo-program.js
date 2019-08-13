@@ -8,12 +8,6 @@ const demoProgram = {
   duration: 2, //weeks
   test_series: {
     tests:[{
-      },
-      { duration: 15*60*1000, purpose: 'think', random: {tech: 1}},
-      { duration: 15*60*1000, purpose: 'play', random: {tech: 1}},
-      { duration: 15*60*1000, purpose: 'reflect', random: {mindsets: 5}},
-    ],
-    tests:[{
       duration: 15*60*1000, // Max durations in milliseconds
       purpose: 'know', // Purpose of having this test in series
       random: {generic: 5}, // Domains & counts of the random questions
