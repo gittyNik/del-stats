@@ -40,12 +40,11 @@ export const getLatestApplication = (req, res) => {
     where: { user_id }})
   .then(application => {
     if(application)
-      return populateTestSeries(application);
+      return populateTestSeries(application).then(data => {
+        res.send({data});
+      });
     else
       res.sendStatus(404);
-  })
-  .then(data => {
-    res.send({data});
   })
   .catch(err => res.sendStatus(500));
 }

@@ -67,15 +67,14 @@ const addGithubProfile = ({profile, githubToken, expiry, user }) => {
       else
         return SocialConnection.create({...where, ...newValues, ...updateValues});
     })
-    // .then(socialConnection => ({ user, socialConnection }));
-  .then(socialConnection => ({ user, socialConnection }));
+    .then(socialConnection => ({ user, socialConnection }));
 
 }
 
 // An otp authenticated route to link github
 export const linkWithGithub = (req, res) => {
   const { user } = req.jwtData;
-  const { code } = req.query;
+  const { code } = req.body;
 
   getGithubAccessToken(code)
     .then(fetchProfileFromGithub)
@@ -86,6 +85,11 @@ export const linkWithGithub = (req, res) => {
         return {
           profile, githubToken, expiry, user,
         };
+      } else if(user.email === null) {
+        // If the user doesn't have email, use email from github
+        return {
+          profile, githubToken, expiry, user: {email: profile.emails[0], ...user},
+        };
       }
       return Promise.reject('INVALID_EMAIL');
     })
@@ -93,12 +97,12 @@ export const linkWithGithub = (req, res) => {
     .then(({ user, socialConnection }) => {
     // TODO: Do any user updates here.
     // e.g. add avatar_url from github to user profile
-      const { provider, username, email } = socialConnection;
-      res.send({ data: { provider, username, email } });
+      const { provider, username, email, profile } = socialConnection;
+      res.send({ data: { provider, username, email, profile } });
     })
     .catch((err) => {
-      if(err.status === 404){
-        res.status(404).send('Invalid token');
+      if(err.status === 401){
+        res.status(401).send(err.response.text);
       } else if (err === 'INVALID_EMAIL') {
         res.status(401).send('Invalid email');
       } else {
