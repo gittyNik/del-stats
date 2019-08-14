@@ -39,19 +39,38 @@ const fetchProfileFromGithub = ({ githubToken, expiry }) => {
 
 
 // fetch profile and add it to social_connections
-const addGithubProfile = ({profile, githubToken, expiry, user }) => SocialConnection.create({
-  id: uuid(),
-  profile,
-  access_token: githubToken,
-  expiry,
-  user_id: user.id,
-  email: user.email,
-  username: profile.username,
-  provider: PROVIDERS.GITHUB,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-}, {})
+const addGithubProfile = ({profile, githubToken, expiry, user }) => {
+  const where = {
+    user_id: user.id,
+    provider: PROVIDERS.GITHUB,
+  }
+
+  // Insert if the provider is not connected, update if already connected
+  return SocialConnection .findOne({where})
+    .then(socialConnection => {
+      const updateValues = {
+        profile,
+        expiry,
+        access_token: githubToken,
+        updatedAt: new Date(),
+      }
+
+      const newValues = {
+        id: uuid(),
+        email: user.email,
+        username: profile.login,
+        createdAt: new Date(),
+      }
+
+      if(socialConnection)
+        return socialConnection.update(updateValues);
+      else
+        return SocialConnection.create({...where, ...newValues, ...updateValues});
+    })
+    // .then(socialConnection => ({ user, socialConnection }));
   .then(socialConnection => ({ user, socialConnection }));
+
+}
 
 // An otp authenticated route to link github
 export const linkWithGithub = (req, res) => {
@@ -108,7 +127,7 @@ export const signinWithGithub = (req, res) => {
             profile, githubToken, expiry, user,
           };
         }))
-    .then(addGithubProfile) // TODO: this is adding social_connection for every signin
+    .then(addGithubProfile)
     .then(({ user, socialConnection }) => {
       res.send({
         user,
