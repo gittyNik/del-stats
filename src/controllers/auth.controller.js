@@ -17,7 +17,7 @@ export const authenticate = (req, res, next) => {
     if(err || !jwtData) {
       sendAuthFailure(res);
     } else {
-      User.findByPk(jwtData.userId).then(user =>{
+      User.findByPk(jwtData.userId, {raw: true}).then(user =>{
         req.jwtData = {user, ...jwtData};
         next();
       }).catch(err => sendAuthFailure(res));

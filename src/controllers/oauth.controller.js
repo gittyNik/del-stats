@@ -88,7 +88,7 @@ export const linkWithGithub = (req, res) => {
       } else if(user.email === null) {
         // If the user doesn't have email, use email from github
         return {
-          profile, githubToken, expiry, user: {email: profile.emails[0], ...user},
+          profile, githubToken, expiry, user: {...user, email: profile.emails[0]},
         };
       }
       return Promise.reject('INVALID_EMAIL');
