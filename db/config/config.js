@@ -17,14 +17,14 @@ const settings = {
   "test": {
     "username":  process.env.DATABASE_USERNAME,
     "password":  process.env.DATABASE_PASSWORD,
-    "database": "delta_test",
+    "database": process.env.DATABASE_NAME,
     "host": process.env.DATABASE_HOST,
     "dialect": "postgres"
   },
   "production": {
     "username": process.env.DATABASE_USERNAME,
     "password": process.env.DATABASE_PASSWORD,
-    "database": "delta",
+    "database": process.env.DATABASE_NAME,
     "host": process.env.DATABASE_HOST,
     "dialect": "postgres"
   }
