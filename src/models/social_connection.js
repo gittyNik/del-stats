@@ -9,7 +9,10 @@ export const PROVIDERS = Object.freeze({
 });
 
 export const SocialConnection = db.define('social_connections', {
-  id: Sequelize.UUID,
+  id: {
+    type: Sequelize.UUID,
+    primaryKey: true,
+  },
   user_id: Sequelize.UUID,
   provider: Sequelize.STRING,
   username: Sequelize.STRING,
