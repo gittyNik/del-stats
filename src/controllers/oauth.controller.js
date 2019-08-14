@@ -21,7 +21,7 @@ const getGithubAccessToken = (code) => {
     }));
 };
 
-const fetchProfileFromGithub = ({ githubToken, expiry }) =>
+const fetchProfileFromGithub = ({ githubToken, expiry }) => {
   // TODO: reject if expired
 
   // fetching profile details from github
@@ -35,12 +35,11 @@ const fetchProfileFromGithub = ({ githubToken, expiry }) =>
           return { profile, githubToken, expiry };
         });
     });
+}
 
 
 // fetch profile and add it to social_connections
-const addGithubProfile = ({
-  profile, githubToken, expiry, user,
-}) => SocialConnection.create({
+const addGithubProfile = ({profile, githubToken, expiry, user }) => SocialConnection.create({
   id: uuid(),
   profile,
   access_token: githubToken,
@@ -79,11 +78,12 @@ export const linkWithGithub = (req, res) => {
       res.send({ data: { provider, username, email } });
     })
     .catch((err) => {
-      if (err === 'INVALID_EMAIL') {
-        res.send(401).send('Invalid email');
+      if(err.status === 404){
+        res.status(404).send('Invalid token');
+      } else if (err === 'INVALID_EMAIL') {
+        res.status(401).send('Invalid email');
       } else {
-        console.error(err);
-        res.send(500);
+        res.sendStatus(500);
       }
     });
 };
@@ -117,14 +117,14 @@ export const signinWithGithub = (req, res) => {
       });
     })
     .catch((err) => {
-      if (err === 'NO_EMAIL') {
+      if(err.status === 404){
+        res.status(404).send('Invalid token');
+      } else if (err === 'NO_EMAIL') {
         // TODO: if the user is not found with emails,
         // save the profile details in session and ask for otp authentication
-        res.send(404).send('No user found with email');
+        res.status(404).send('No user found with email');
       } else {
-        console.error(err);
-        res.send(500);
+        res.sendStatus(500);
       }
     });
 };
-
