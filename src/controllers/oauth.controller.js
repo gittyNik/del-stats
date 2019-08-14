@@ -25,7 +25,7 @@ const fetchProfileFromGithub = ({ githubToken, expiry }) => {
   // TODO: reject if expired
 
   // fetching profile details from github
-  request.get(`https://api.github.com/user?${githubToken}`)
+  return request.get(`https://api.github.com/user?${githubToken}`)
     .then((profileResponse) => {
       const profile = profileResponse.body;
       // fetching all emails from github
@@ -117,14 +117,14 @@ export const signinWithGithub = (req, res) => {
       });
     })
     .catch((err) => {
-      if(err.status === 404){
-        res.status(404).send('Invalid token');
+      if(err.status === 401){
+        res.status(401).send(err.response.text);
       } else if (err === 'NO_EMAIL') {
         // TODO: if the user is not found with emails,
         // save the profile details in session and ask for otp authentication
         res.status(404).send('No user found with email');
       } else {
-        res.sendStatus(500);
+        res.status(500).send('Authentication Failed');
       }
     });
 };
