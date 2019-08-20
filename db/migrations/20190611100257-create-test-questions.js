@@ -1,4 +1,4 @@
-module.exports = {
+const migration = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('test_questions', {
     id: {
       type: Sequelize.UUID,
@@ -32,3 +32,5 @@ module.exports = {
     queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_test_questions_domain";', { transaction }),
   ])),
 };
+
+export default migration;

@@ -1,4 +1,4 @@
-module.exports = {
+const migration = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('users', {
     id: {
       allowNull: false,
@@ -16,3 +16,5 @@ module.exports = {
   }),
   down: queryInterface => queryInterface.dropTable('users'),
 };
+
+export default migration;
