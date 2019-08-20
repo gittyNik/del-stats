@@ -1,35 +1,23 @@
 const migration = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('milestone_learner_teams', {
     id: {
-      allowNull: false,
-      autoIncrement: true,
       primaryKey: true,
-      type: Sequelize.INTEGER,
-    },
-    team_id: {
       type: Sequelize.UUID,
-      references: { model: 'teams', key: 'id' },
     },
-    milestone_id: {
+    cohort_milestone_id: {
       type: Sequelize.UUID,
-      references: { model: 'milestones', key: 'id' },
+      references: { model: 'cohort_milestones', key: 'id' },
     },
-    status: {
-      allowNull: false,
-      type: Sequelize.ENUM('pending', 'completed'),
+    learners: Sequelize.ARRAY(Sequelize.UUID),
+    github_repo_link: Sequelize.STRING,
+    product_demo_link: Sequelize.STRING,
+    review: Sequelize.TEXT,
+    reviewed_by: {
+      type: Sequelize.UUID,
+      references: { model: 'users', key: 'id' },
     },
-    github_repo_link: {
-      allowNull: false,
-      type: Sequelize.STRING,
-    },
-    created_at: {
-      allowNull: false,
-      type: Sequelize.DATE,
-    },
-    updated_at: {
-      allowNull: false,
-      type: Sequelize.DATE,
-    },
+    created_at: Sequelize.DATE,
+    updated_at: Sequelize.DATE,
   }),
   down: queryInterface => queryInterface.dropTable('milestone_learner_teams'),
 };
