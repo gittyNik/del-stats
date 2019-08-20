@@ -1,14 +1,14 @@
 module.exports = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('teams', {
     id: {
-      allowNull: false,
       primaryKey: true,
       type: Sequelize.UUID,
     },
-    name: {
-      allowNull: false,
-      type: Sequelize.STRING,
-    },
+    cohort_id: Sequelize.UUID,
+    milestone_id: Sequelize.UUID,
+    reviewer_id: Sequelize.UUID,
+    review_scheduled: Sequelize.DATE,
+    review_time: Sequelize.DATE,
     createdAt: {
       allowNull: false,
       type: Sequelize.DATE,
@@ -18,5 +18,5 @@ module.exports = {
       type: Sequelize.DATE,
     },
   }),
-  down: (queryInterface, Sequelize) => queryInterface.dropTable('teams'),
+  down: queryInterface => queryInterface.dropTable('teams'),
 };

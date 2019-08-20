@@ -11,10 +11,12 @@ const createCohort = () => ({
   learning_ops_manager: null,
 });
 
-module.exports = {
+const seeder = {
   up: (queryInterface, Sequelize) => queryInterface.bulkInsert('cohorts', [
     createCohort(), createCohort(), createCohort(),
   ], {}, { learners: { type: Sequelize.ARRAY(Sequelize.UUID) } }),
 
-  down: (queryInterface, Sequelize) => queryInterface.bulkDelete('cohorts', null, {}),
+  down: queryInterface => queryInterface.bulkDelete('cohorts', null, {}),
 };
+
+export default seeder;

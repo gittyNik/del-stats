@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "db:init": "sequelize db:create",
-    "db:reset": "sequelize db:migrate:undo:all && sequelize db:migrate && sequelize db:seed:undo:all && sequelize db:seed:all",
+    "db:reset": "sequelize db:migrate:undo:all && sequelize db:migrate && sequelize db:seed:all",
     "admin": "babel-node src/util/admin.js",
     "migrate": "sequelize db:migrate",
     "build": "babel src -d api-build",

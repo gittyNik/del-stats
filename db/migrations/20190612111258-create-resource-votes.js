@@ -1,15 +1,19 @@
 module.exports = {
-  up: (queryInterface, Sequelize) => queryInterface.createTable('resource_comments', {
+  up: (queryInterface, Sequelize) => queryInterface.createTable('resource_votes', {
     id: {
-      allowNull: false,
-      primaryKey: true,
       type: Sequelize.UUID,
+      primaryKey: true,
+    },
+    user_id: {
+      type: Sequelize.UUID,
+      allowNull: false,
     },
     resource_id: {
       type: Sequelize.UUID,
+      allowNull: false,
       references: { model: 'resources', key: 'id' },
     },
-    comment: {
+    vote: {
       type: Sequelize.STRING,
       allowNull: false,
     },
@@ -22,5 +26,5 @@ module.exports = {
       type: Sequelize.DATE,
     },
   }),
-  down: (queryInterface, Sequelize) => queryInterface.dropTable('resource_comments'),
+  down: queryInterface => queryInterface.dropTable('resource_votes'),
 };

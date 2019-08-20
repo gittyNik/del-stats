@@ -32,5 +32,5 @@ module.exports = {
       type: Sequelize.DATE,
     },
   }),
-  down: (queryInterface, Sequelize) => queryInterface.dropTable('browser_history_items'),
+  down: queryInterface => queryInterface.dropTable('browser_history_items'),
 };

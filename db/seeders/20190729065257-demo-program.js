@@ -43,17 +43,17 @@ const milestone1 = {
   program: 'demo',
 };
 
-const topicFactory = (title, milestone_id) => ({
+const topicFactory = (title, milestoneId) => ({
   id: uuid(),
   title,
   description: faker.lorem.paragraph(),
   program: 'demo',
-  milestone_id,
+  milestone_id: milestoneId,
 });
 
-const resourceFactory = topic_id => ({
+const resourceFactory = topicId => ({
   id: uuid(),
-  topic_id,
+  topic_id: topicId,
   url: faker.internet.url(),
   tags: [faker.lorem.slug(), faker.lorem.word(), faker.lorem.word()],
   level: 'beginner',
@@ -66,7 +66,7 @@ const resource1 = resourceFactory(topic1.id);
 const resource2 = resourceFactory(topic1.id);
 const resource3 = resourceFactory(topic2.id);
 
-module.exports = {
+const seeder = {
   up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction((t) => {
     const addPrograms = queryInterface.bulkInsert(
       'programs', [demoProgram],
@@ -88,13 +88,15 @@ module.exports = {
       [resource1, resource2, resource3], { transaction: t },
     );
 
-    return Promise.all([addPrograms]);
+    return Promise.all([addPrograms, addMilestones, addTopics, addResources]);
   }),
 
-  down: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(t => Promise.all([
-    queryInterface.bulkDelete('programs', null, {}),
-    queryInterface.bulkDelete('milestones', null, {}),
-    queryInterface.bulkDelete('topics', null, {}),
-    queryInterface.bulkDelete('resources', null, {}),
+  down: queryInterface => queryInterface.sequelize.transaction(t => Promise.all([
+    queryInterface.bulkDelete('programs', null, { transaction: t }),
+    queryInterface.bulkDelete('milestones', null, { transaction: t }),
+    queryInterface.bulkDelete('topics', null, { transaction: t }),
+    queryInterface.bulkDelete('resources', null, { transaction: t }),
   ])),
 };
+
+export default seeder;

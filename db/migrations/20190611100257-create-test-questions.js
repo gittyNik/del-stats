@@ -26,9 +26,9 @@ module.exports = {
       defaultValue: Sequelize.literal('NOW()'),
     },
   }),
-  down: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(t => Promise.all([
-    queryInterface.dropTable('test_questions'),
-    queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_test_questions_type";'),
-    queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_test_questions_domain";'),
+  down: queryInterface => queryInterface.sequelize.transaction(transaction => Promise.all([
+    queryInterface.dropTable('test_questions', { transaction }),
+    queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_test_questions_type";', { transaction }),
+    queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_test_questions_domain";', { transaction }),
   ])),
 };

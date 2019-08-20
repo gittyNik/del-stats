@@ -3,14 +3,15 @@ import { USER_ROLES } from '../../src/models/user';
 
 const { DEFAULT_USER } = process.env;
 
-module.exports = {
-  up: (queryInterface, Sequelize) => queryInterface.bulkInsert('users', [{
+const seeder = {
+  up: queryInterface => queryInterface.bulkInsert('users', [{
     id: uuid(),
     role: USER_ROLES.SUPERADMIN,
     name: 'Super Admin',
     email: DEFAULT_USER,
   }], {}),
 
-  down: (queryInterface, Sequelize) => queryInterface.bulkDelete('users', null, {}),
+  down: queryInterface => queryInterface.bulkDelete('users', null, {}),
 };
 
+export default seeder;

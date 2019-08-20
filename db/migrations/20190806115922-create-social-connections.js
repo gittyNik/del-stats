@@ -17,7 +17,7 @@ const migration = {
     createdAt: Sequelize.DATE,
     updatedAt: Sequelize.DATE,
   }),
-  down: (queryInterface, Sequelize) => queryInterface.dropTable('social_connections'),
+  down: queryInterface => queryInterface.dropTable('social_connections'),
 };
 
 export default migration;

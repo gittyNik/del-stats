@@ -1,5 +1,5 @@
 module.exports = {
-  up: (queryInterface, Sequelize) => queryInterface.createTable('resource_reports', {
+  up: (queryInterface, Sequelize) => queryInterface.createTable('resource_comments', {
     id: {
       allowNull: false,
       primaryKey: true,
@@ -9,14 +9,9 @@ module.exports = {
       type: Sequelize.UUID,
       references: { model: 'resources', key: 'id' },
     },
-    report: {
+    comment: {
       type: Sequelize.STRING,
       allowNull: false,
-    },
-    status: {
-      type: Sequelize.STRING,
-      allowNull: false,
-      defaultValue: 'pending',
     },
     createdAt: {
       allowNull: false,
@@ -27,5 +22,5 @@ module.exports = {
       type: Sequelize.DATE,
     },
   }),
-  down: (queryInterface, Sequelize) => queryInterface.dropTable('resource_reports'),
+  down: queryInterface => queryInterface.dropTable('resource_comments'),
 };

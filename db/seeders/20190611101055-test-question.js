@@ -25,7 +25,7 @@ const generateTestQuestion = (type) => {
   })));
 
   switch (type) {
-    case 'rate':
+    case 'rate': {
       const maxRating = 10;
       Object.assign(testQuestion.question, { maxRating });
       return Object.assign(testQuestion, {
@@ -33,12 +33,13 @@ const generateTestQuestion = (type) => {
           rating: _.random(maxRating),
         },
       });
+    }
     case 'code':
     case 'logo':
       return Object.assign(testQuestion, {
         domain: 'tech',
       });
-    case 'mcq':
+    case 'mcq': {
       const optionsCount = 4;
       Object.assign(testQuestion.question, {
         options: getOptions(optionsCount),
@@ -56,6 +57,7 @@ const generateTestQuestion = (type) => {
           options: [...options],
         },
       });
+    }
     case 'text':
     default:
       return testQuestion;
@@ -72,7 +74,7 @@ const seeder = {
     answer: { type: new Sequelize.JSON() },
   }),
 
-  down: (queryInterface, Sequelize) => queryInterface.bulkDelete('test_questions', null, {}),
+  down: queryInterface => queryInterface.bulkDelete('test_questions', null, {}),
 };
 
 export default seeder;
