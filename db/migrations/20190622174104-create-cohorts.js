@@ -1,6 +1,9 @@
 const migration = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('cohorts', {
-    id: Sequelize.UUID,
+    id: {
+      primaryKey: true,
+      type: Sequelize.UUID,
+    },
     name: Sequelize.STRING,
     location: Sequelize.STRING,
     learners: Sequelize.ARRAY(Sequelize.UUID),

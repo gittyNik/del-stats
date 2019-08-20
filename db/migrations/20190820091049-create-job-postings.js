@@ -1,5 +1,5 @@
 const migration = {
-  up: (queryInterface, Sequelize) => queryInterface.createTable('soal_events', {
+  up: (queryInterface, Sequelize) => queryInterface.createTable('job_postings', {
     id: {
       type: Sequelize.UUID,
       primaryKey: true,
@@ -8,7 +8,7 @@ const migration = {
     created_at: Sequelize.DATE,
     updated_at: Sequelize.DATE,
   }),
-  down: queryInterface => queryInterface.dropTable('soal_events'),
+  down: queryInterface => queryInterface.dropTable('job_postings'),
 };
 
 export default migration;

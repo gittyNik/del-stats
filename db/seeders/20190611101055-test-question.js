@@ -15,8 +15,8 @@ const generateTestQuestion = (type) => {
     },
     domain: getRandomQueDomain(),
     answer: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    created_at: new Date(),
+    updated_at: new Date(),
   };
 
   const getOptions = count => (_.times(count, () => ({
