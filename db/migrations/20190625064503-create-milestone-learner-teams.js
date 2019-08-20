@@ -1,5 +1,5 @@
 const migration = {
-  up: (queryInterface, Sequelize) => queryInterface.createTable('progresses', {
+  up: (queryInterface, Sequelize) => queryInterface.createTable('milestone_learner_teams', {
     id: {
       allowNull: false,
       autoIncrement: true,
@@ -31,7 +31,7 @@ const migration = {
       type: Sequelize.DATE,
     },
   }),
-  down: queryInterface => queryInterface.dropTable('progresses'),
+  down: queryInterface => queryInterface.dropTable('milestone_learner_teams'),
 };
 
 export default migration;
