@@ -8,8 +8,8 @@ const Program = db.define('programs', {
   },
   name: Sequelize.STRING,
   location: Sequelize.STRING,
-  duration: Sequelize.INTEGER, //in weeks
+  duration: Sequelize.INTEGER, // in weeks
   test_series: Sequelize.JSON,
-  milestone_review_rubric: Sequelize.JSON
-})
+  milestone_review_rubric: Sequelize.JSON,
+});
 export default Program;

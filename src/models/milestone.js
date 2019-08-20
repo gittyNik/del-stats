@@ -7,9 +7,9 @@ const Milestone = db.define('milestones', {
     primaryKey: true,
     allowNull: false,
   },
-  name : {
-    allowNull : false,
-    type : Sequelize.STRING
+  name: {
+    allowNull: false,
+    type: Sequelize.STRING,
   },
 });
 

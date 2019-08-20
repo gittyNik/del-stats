@@ -8,7 +8,7 @@ const Test = db.define('tests', {
   },
   application_id: {
     type: Sequelize.UUID,
-    allowNull:false,
+    allowNull: false,
   },
   purpose: Sequelize.STRING,
   duration: Sequelize.INTEGER,
@@ -26,5 +26,5 @@ const Test = db.define('tests', {
     allowNull: false,
     type: Sequelize.DATE,
   },
-})
+});
 export default Test;

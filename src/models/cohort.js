@@ -13,7 +13,7 @@ const Cohort = db.define('cohorts', {
   program_id: Sequelize.STRING,
   start_date: Sequelize.DATE,
   learning_ops_manager: Sequelize.UUID,
-})
+});
 
 Program.hasMany(Cohort, { foreignKey: 'program_id' });
 

@@ -2,24 +2,24 @@ import Sequelize from 'sequelize';
 import db from '../database';
 
 const Topic = db.define('topics', {
-  id:{
+  id: {
     allowNull: false,
     primaryKey: true,
-    type: Sequelize.UUID
+    type: Sequelize.UUID,
   },
-  title:{
-    type:Sequelize.STRING,
+  title: {
+    type: Sequelize.STRING,
   },
-  description:{
-    type:Sequelize.TEXT,
+  description: {
+    type: Sequelize.TEXT,
   },
-  program:{
-    type:Sequelize.STRING,
-    defaultValue:"demo"
+  program: {
+    type: Sequelize.STRING,
+    defaultValue: 'demo',
   },
-  milestone_id : {
-    type : Sequelize.UUID,
-    references:{ model: 'milestones', key: 'id' }
+  milestone_id: {
+    type: Sequelize.UUID,
+    references: { model: 'milestones', key: 'id' },
   },
 });
 

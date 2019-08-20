@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
-const {Schema} = mongoose;
-import User from "./user.js";
+
+const { Schema } = mongoose;
 export default mongoose.model('Note', new Schema({
-  text: {type:String, required:true},
+  text: { type: String, required: true },
   createdTime: Date,
-  deleted: {type:Boolean, default:false},
+  deleted: { type: Boolean, default: false },
   color: String,
   user: {
-      type: Schema.Types.ObjectId,
-      ref: 'User'
-    },
-  
-  }));
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+
+}));

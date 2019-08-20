@@ -1,8 +1,8 @@
 import Sequelize from 'sequelize';
-import db from '../database';
 import uuid from 'uuid/v4';
+import db from '../database';
 
-const {DEFAULT_USER} = process.env;
+const { DEFAULT_USER } = process.env;
 
 export const USER_ROLES = Object.freeze({
   LEARNER: 'learner',
@@ -20,37 +20,37 @@ export const User = db.define('users', {
   phone: Sequelize.STRING,
   role: Sequelize.STRING,
   location: Sequelize.STRING,
-  profile: Sequelize.JSON,        // profile: {key: {value, source, details}}
-},{});
+  profile: Sequelize.JSON, // profile: {key: {value, source, details}}
+}, {});
 
 export const getProfile = userId => User.findByPk(userId);
 
 
 export const getUserFromEmails = emails => User.findOne({
   where: {
-    email: {[Sequelize.Op.in]: emails}
-  }}, {raw:true}
-);
+    email: { [Sequelize.Op.in]: emails },
+  },
+}, { raw: true });
 
 export const getOrCreateUser = phone => User.findOrCreate({
-  where:{
+  where: {
     phone,
-    role: USER_ROLES.GUEST
+    role: USER_ROLES.GUEST,
   },
   defaults: {
-    id: uuid()
-  }
+    id: uuid(),
+  },
 });
 
-export const createSuperAdmin = ()=> User.findOrCreate({
-  where:{
+export const createSuperAdmin = () => User.findOrCreate({
+  where: {
     email: DEFAULT_USER,
-    role: USER_ROLES.SUPERADMIN
+    role: USER_ROLES.SUPERADMIN,
   },
   raw: true,
   defaults: {
-    id: uuid()
-  }
+    id: uuid(),
+  },
 });
 
 export default User;

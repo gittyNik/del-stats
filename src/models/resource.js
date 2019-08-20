@@ -9,42 +9,42 @@ const Resource = db.define('resources', {
   },
   topic_id: {
     type: Sequelize.UUID,
-    allowNull:true,
-    references:{ model: 'topics', key: 'id' }
+    allowNull: true,
+    references: { model: 'topics', key: 'id' },
   },
   url: {
     type: Sequelize.STRING,
-    unique: true
+    unique: true,
   },
   owner: {
-    type: Sequelize.UUID
-  },
-  moderator:{
     type: Sequelize.UUID,
-    allowNull:true,
-  }, 
-  thumbnail:{
-    type:Sequelize.BLOB,
-    unique:true,
+  },
+  moderator: {
+    type: Sequelize.UUID,
+    allowNull: true,
+  },
+  thumbnail: {
+    type: Sequelize.BLOB,
+    unique: true,
   },
   type: {
-    type:Sequelize.ENUM('article', 'repo', 'video', 'tweet'),
-    allowNull:false,
+    type: Sequelize.ENUM('article', 'repo', 'video', 'tweet'),
+    allowNull: false,
   },
   program: {
-    type:Sequelize.STRING,
-    allowNull:false,
-    defaultValue:'tep'
+    type: Sequelize.STRING,
+    allowNull: false,
+    defaultValue: 'tep',
   },
   add_time: {
-    type:Sequelize.DATE,
+    type: Sequelize.DATE,
   },
   level: {
-    type:Sequelize.ENUM('beginner','advanced'),
-    allowNull:false,
+    type: Sequelize.ENUM('beginner', 'advanced'),
+    allowNull: false,
   },
   tags: {
-    type:Sequelize.ARRAY(Sequelize.STRING),
+    type: Sequelize.ARRAY(Sequelize.STRING),
   },
 });
 

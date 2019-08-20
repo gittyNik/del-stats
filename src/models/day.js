@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
-const {Schema} = mongoose;
+
+const { Schema } = mongoose;
 
 export default mongoose.model('Day', new Schema({
   date: {
@@ -9,7 +10,7 @@ export default mongoose.model('Day', new Schema({
   day: {
     type: Number,
     min: 1,
-    max: 500
+    max: 500,
   },
   data: [{}],
   cohort: {
@@ -24,36 +25,36 @@ export default mongoose.model('Day', new Schema({
     teamName: String,
     students: [{
       type: Schema.Types.ObjectId,
-      ref: 'User'
+      ref: 'User',
     }],
   }],
 
   timeline: [{
     prompt: {
       type: Schema.Types.ObjectId,
-      ref: 'Prompt'
+      ref: 'Prompt',
     },
     startTime: Date,
-    data: Schema.Types.Mixed
+    data: Schema.Types.Mixed,
   }],
 
   pingpongs: [{
     triggerTime: Date,
     by: {
       type: Schema.Types.ObjectId,
-      ref: 'User'
+      ref: 'User',
     },
     to: {
       type: Schema.Types.ObjectId,
-      ref: 'User'
+      ref: 'User',
     },
     ping: {
       type: Schema.Types.ObjectId,
-      ref: 'Ping'
+      ref: 'Ping',
     },
-    pong: Schema.Types.Mixed
-  }]
+    pong: Schema.Types.Mixed,
+  }],
 
 }, {
-  collection: 'days'
+  collection: 'days',
 }));

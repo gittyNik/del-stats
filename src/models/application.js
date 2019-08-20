@@ -8,11 +8,11 @@ const Application = db.define('applications', {
   },
   user_id: {
     type: Sequelize.UUID,
-    allowNull:false,
+    allowNull: false,
   },
-  cohort_applied: Sequelize.UUID, 
+  cohort_applied: Sequelize.UUID,
   cohort_joining: Sequelize.UUID,
-  status: Sequelize.ENUM('applied', 'review_pending', 'offered', 'rejected', 'joined', 'archieved'), 
+  status: Sequelize.ENUM('applied', 'review_pending', 'offered', 'rejected', 'joined', 'archieved'),
   payment_details: Sequelize.JSON,
   created_at: {
     allowNull: false,
@@ -22,6 +22,6 @@ const Application = db.define('applications', {
     allowNull: false,
     type: Sequelize.DATE,
   },
-})
+});
 
 export default Application;

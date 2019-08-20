@@ -5,21 +5,21 @@ const ResourceVote = db.define('resource_votes', {
   id: {
     allowNull: false,
     primaryKey: true,
-    type: Sequelize.UUID
+    type: Sequelize.UUID,
   },
   user_id: {
     type: Sequelize.UUID,
-    allowNull:false
+    allowNull: false,
   },
   resource_id: {
     type: Sequelize.UUID,
     allowNull: false,
-    references: { model: 'resources', key: 'id' }
+    references: { model: 'resources', key: 'id' },
   },
   vote: {
     type: Sequelize.STRING,
-    allowNull:false
-  }
+    allowNull: false,
+  },
 });
 
 export default ResourceVote;

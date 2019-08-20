@@ -22,6 +22,6 @@ export const SocialConnection = db.define('social_connections', {
   expiry: Sequelize.DATE,
   created_at: Sequelize.DATE,
   updated_at: Sequelize.DATE,
-},{});
+}, {});
 
 export default SocialConnection;

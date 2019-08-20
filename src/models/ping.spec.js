@@ -1,4 +1,4 @@
-import {getIntentionPing} from './ping';
+import { getIntentionPing } from './ping';
 import dbConnect from '../util/dbConnect';
 
 let db;
@@ -12,9 +12,7 @@ afterAll(async () => {
 });
 
 it('should get an intention ping if exists, create if doesnt', async () => {
-
   const ping = await getIntentionPing();
 
   expect(ping.type).toEqual('Intention');
-
 });

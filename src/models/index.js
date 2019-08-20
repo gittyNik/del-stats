@@ -4,4 +4,7 @@ import Prompt from './prompt';
 import Ping from './ping';
 import Day from './day';
 
-module.exports = {User, Cohort, Ping, Prompt, Day};
+
+export default {
+  User, Cohort, Ping, Prompt, Day,
+};

@@ -1,10 +1,11 @@
 import mongoose from 'mongoose';
-const {Schema} = mongoose;
+
+const { Schema } = mongoose;
 
 module.exports = mongoose.model('Prompt', new Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   duration: Number, // in Minutes
   tags: [String],
@@ -13,5 +14,5 @@ module.exports = mongoose.model('Prompt', new Schema({
     ref: 'Ping',
   }],
   type: String,
-  data: Schema.Types.Mixed
+  data: Schema.Types.Mixed,
 }));

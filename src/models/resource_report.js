@@ -9,17 +9,17 @@ const ResourceReport = db.define('resource_reports', {
   },
   resource_id: {
     type: Sequelize.UUID,
-    references: { model: 'resources', key: 'id' }
-    },
+    references: { model: 'resources', key: 'id' },
+  },
   report: {
     type: Sequelize.STRING,
     allowNull: false,
   },
   status: {
     type: Sequelize.STRING,
-    allowNull:false,
-    defaultValue: 'pending'
-  }
+    allowNull: false,
+    defaultValue: 'pending',
+  },
 });
 
 export default ResourceReport;

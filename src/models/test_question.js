@@ -18,7 +18,7 @@ const TestQuestion = db.define('test_question', {
   domain: {
     type: Sequelize.ENUM('generic', 'tech', 'mindsets'),
     allowNull: false,
-  }
-})
+  },
+});
 
 export default TestQuestion;

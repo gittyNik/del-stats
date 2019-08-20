@@ -9,12 +9,12 @@ const ResourceComment = db.define('resource_comments', {
   },
   resource_id: {
     type: Sequelize.UUID,
-    references: { model: 'resources', key: 'id' }
+    references: { model: 'resources', key: 'id' },
   },
   comment: {
     type: Sequelize.TEXT,
-      allowNull: false,
-    },
-  })
+    allowNull: false,
+  },
+});
 
 export default ResourceComment;
