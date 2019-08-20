@@ -1,3 +1,5 @@
+import { FIREWALL_APPLICATION_STATUS } from '../common/enums';
+
 const migration = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('applications', {
     id: {
@@ -10,7 +12,7 @@ const migration = {
     },
     cohort_applied: Sequelize.UUID,
     cohort_joining: Sequelize.UUID,
-    status: Sequelize.ENUM('applied', 'review_pending', 'offered', 'rejected', 'joined', 'archieved'),
+    status: Sequelize.ENUM(...FIREWALL_APPLICATION_STATUS),
     payment_details: Sequelize.JSON,
     createdAt: {
       allowNull: false,

@@ -1,3 +1,5 @@
+import { TEST_QUESTION_TYPE, TEST_QUESTION_DOMAIN } from '../common/enums';
+
 const migration = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('test_questions', {
     id: {
@@ -10,11 +12,11 @@ const migration = {
     },
     answer: Sequelize.JSON,
     type: {
-      type: Sequelize.ENUM('mcq', 'text', 'code', 'rate', 'logo'),
+      type: Sequelize.ENUM(...TEST_QUESTION_TYPE),
       allowNull: false,
     },
     domain: {
-      type: Sequelize.ENUM('generic', 'tech', 'mindsets'),
+      type: Sequelize.ENUM(...TEST_QUESTION_DOMAIN),
       allowNull: false,
     },
     createdAt: {
