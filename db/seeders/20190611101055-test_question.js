@@ -2,10 +2,10 @@ import uuid from 'uuid/v4';
 import faker from 'faker';
 import _ from 'lodash';
 
-const queTypes = ['mcq', 'text', 'code', 'rate', 'logo',];
+const queTypes = ['mcq', 'text', 'code', 'rate', 'logo'];
 const getRandomQueDomain = () => _.sample(['generic', 'mindsets', 'tech']);
 
-const generateTestQuestion = type => {
+const generateTestQuestion = (type) => {
   const testQuestion = {
     id: uuid(),
     type,
@@ -19,19 +19,19 @@ const generateTestQuestion = type => {
     updatedAt: new Date(),
   };
 
-  const getOptions = count => (_.times(count, ()=>({
+  const getOptions = count => (_.times(count, () => ({
     option: faker.lorem.sentence(),
     image: faker.image.imageUrl(),
   })));
 
-  switch(type){
+  switch (type) {
     case 'rate':
       const maxRating = 10;
-      Object.assign(testQuestion.question, {maxRating});
+      Object.assign(testQuestion.question, { maxRating });
       return Object.assign(testQuestion, {
         answer: {
           rating: _.random(maxRating),
-        }
+        },
       });
     case 'code':
     case 'logo':
@@ -45,15 +45,15 @@ const generateTestQuestion = type => {
         allowMultiple: _.sample([true, false]),
       });
 
-      let options = new Set([_.random(optionsCount)]);
-      if(testQuestion.allowMultiple) {
+      const options = new Set([_.random(optionsCount)]);
+      if (testQuestion.allowMultiple) {
         options.add(_.random(optionsCount));
         options.add(_.random(optionsCount));
       }
 
       return Object.assign(testQuestion, {
         answer: {
-          options: [...options]
+          options: [...options],
         },
       });
     case 'text':
@@ -67,16 +67,12 @@ const questions = [..._.times(100, () => _.sample(queTypes)), ...queTypes]
   .map(generateTestQuestion);
 
 const seeder = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.bulkInsert('test_questions', questions, {}, {
-      question: { type: new Sequelize.JSON() },
-      answer: { type: new Sequelize.JSON() },
-    });
-  },
+  up: (queryInterface, Sequelize) => queryInterface.bulkInsert('test_questions', questions, {}, {
+    question: { type: new Sequelize.JSON() },
+    answer: { type: new Sequelize.JSON() },
+  }),
 
-  down: (queryInterface, Sequelize) => {
-    return queryInterface.bulkDelete('test_questions', null, {});
-  }
+  down: (queryInterface, Sequelize) => queryInterface.bulkDelete('test_questions', null, {}),
 };
 
 export default seeder;

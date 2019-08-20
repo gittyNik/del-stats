@@ -5,24 +5,33 @@ const demoProgram = {
   id: 'demo',
   name: 'Demo',
   location: faker.address.city(),
-  duration: 2, //weeks
+  duration: 2, // weeks
   test_series: {
-    tests:[{
-      duration: 15*60*1000, // Max durations in milliseconds
+    tests: [{
+      duration: 15 * 60 * 1000, // Max durations in milliseconds
       purpose: 'know', // Purpose of having this test in series
-      random: {generic: 5}, // Domains & counts of the random questions
-      questions_fixed: [],  // An array of fixed questions
+      random: { generic: 5 }, // Domains & counts of the random questions
+      questions_fixed: [], // An array of fixed questions
       typesAllowed: ['mcq', 'rate'],
     },
     {
-      duration: 15*60*1000, purpose: 'think',
-      typesAllowed: ['logo'], random: {tech: 1}},
+      duration: 15 * 60 * 1000,
+      purpose: 'think',
+      typesAllowed: ['logo'],
+      random: { tech: 1 },
+    },
     {
-      duration: 15*60*1000, purpose: 'play',
-      typesAllowed: ['code'], random: {tech: 1}},
+      duration: 15 * 60 * 1000,
+      purpose: 'play',
+      typesAllowed: ['code'],
+      random: { tech: 1 },
+    },
     {
-      duration: 15*60*1000, purpose: 'reflect',
-      typesAllowed: ['mcq', 'rate'], random: {mindsets: 5}},
+      duration: 15 * 60 * 1000,
+      purpose: 'reflect',
+      typesAllowed: ['mcq', 'rate'],
+      random: { mindsets: 5 },
+    },
     ],
   },
   milestone_review_rubric: {},
@@ -34,7 +43,7 @@ const milestone1 = {
   program: 'demo',
 };
 
-const topicFactory = (title, milestone_id)=>({
+const topicFactory = (title, milestone_id) => ({
   id: uuid(),
   title,
   description: faker.lorem.paragraph(),
@@ -42,7 +51,7 @@ const topicFactory = (title, milestone_id)=>({
   milestone_id,
 });
 
-const resourceFactory = (topic_id)=>({
+const resourceFactory = topic_id => ({
   id: uuid(),
   topic_id,
   url: faker.internet.url(),
@@ -58,34 +67,34 @@ const resource2 = resourceFactory(topic1.id);
 const resource3 = resourceFactory(topic2.id);
 
 module.exports = {
-  up: (queryInterface, Sequelize) => {
+  up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction((t) => {
+    const addPrograms = queryInterface.bulkInsert(
+      'programs', [demoProgram],
+      { transaction: t }, {
+        test_series: { type: new Sequelize.JSON() },
+        milestone_review_rubric: { type: new Sequelize.JSON() },
+      },
+    );
+    const addMilestones = queryInterface.bulkInsert(
+      'milestones',
+      [milestone1], { transaction: t },
+    );
+    const addTopics = queryInterface.bulkInsert(
+      'topics',
+      [topic1, topic2], { transaction: t },
+    );
+    const addResources = queryInterface.bulkInsert(
+      'resources',
+      [resource1, resource2, resource3], { transaction: t },
+    );
 
-    return queryInterface.sequelize.transaction((t) => {
+    return Promise.all([addPrograms]);
+  }),
 
-      const addPrograms = queryInterface.bulkInsert('programs', [demoProgram],
-        { transaction: t }, {
-          test_series: { type: new Sequelize.JSON() },
-          milestone_review_rubric: { type: new Sequelize.JSON() }
-        });
-      const addMilestones =  queryInterface.bulkInsert('milestones',
-        [milestone1], { transaction: t });
-      const addTopics = queryInterface.bulkInsert('topics',
-        [topic1, topic2], { transaction: t });
-      const addResources = queryInterface.bulkInsert('resources',
-        [resource1, resource2, resource3], { transaction: t });
-
-      return Promise.all([ addPrograms, ]);
-    })
-  },
-
-  down: (queryInterface, Sequelize) => {
-    return queryInterface.sequelize.transaction((t) => {
-      return Promise.all([
-        queryInterface.bulkDelete('programs', null, {}),
-        queryInterface.bulkDelete('milestones', null, {}),
-        queryInterface.bulkDelete('topics', null, {}),
-        queryInterface.bulkDelete('resources', null, {}),
-      ]);
-    });
-  }
+  down: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(t => Promise.all([
+    queryInterface.bulkDelete('programs', null, {}),
+    queryInterface.bulkDelete('milestones', null, {}),
+    queryInterface.bulkDelete('topics', null, {}),
+    queryInterface.bulkDelete('resources', null, {}),
+  ])),
 };

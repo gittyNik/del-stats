@@ -12,13 +12,9 @@ const createCohort = () => ({
 });
 
 module.exports = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.bulkInsert('cohorts', [
-      createCohort(), createCohort(), createCohort()
-    ], {}, { learners: {type:Sequelize.ARRAY(Sequelize.UUID)}});
-  },
+  up: (queryInterface, Sequelize) => queryInterface.bulkInsert('cohorts', [
+    createCohort(), createCohort(), createCohort(),
+  ], {}, { learners: { type: Sequelize.ARRAY(Sequelize.UUID) } }),
 
-  down: (queryInterface, Sequelize) => {
-    return queryInterface.bulkDelete('cohorts', null, {});
-  }
+  down: (queryInterface, Sequelize) => queryInterface.bulkDelete('cohorts', null, {}),
 };
