@@ -46,11 +46,11 @@ const migration = {
     tags: {
       type: Sequelize.ARRAY(Sequelize.STRING),
     },
-    createdAt: {
+    created_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.literal('NOW()'),
     },
-    updatedAt: {
+    updated_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.literal('NOW()'),
     },

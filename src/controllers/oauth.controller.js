@@ -52,14 +52,14 @@ const addGithubProfile = ({profile, githubToken, expiry, user }) => {
         profile,
         expiry,
         access_token: githubToken,
-        updatedAt: new Date(),
+        updated_at: new Date(),
       }
 
       const newValues = {
         id: uuid(),
         email: user.email,
         username: profile.login,
-        createdAt: new Date(),
+        created_at: new Date(),
       }
 
       if(socialConnection)

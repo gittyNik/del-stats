@@ -9,11 +9,11 @@ const migration = {
     duration: Sequelize.INTEGER, // in weeks
     test_series: Sequelize.JSON,
     milestone_review_rubric: Sequelize.JSON,
-    createdAt: {
+    created_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.literal('NOW()'),
     },
-    updatedAt: {
+    updated_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.literal('NOW()'),
     },

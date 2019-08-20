@@ -14,11 +14,11 @@ const Application = db.define('applications', {
   cohort_joining: Sequelize.UUID,
   status: Sequelize.ENUM('applied', 'review_pending', 'offered', 'rejected', 'joined', 'archieved'), 
   payment_details: Sequelize.JSON,
-  createdAt: {
+  created_at: {
     allowNull: false,
     type: Sequelize.DATE,
   },
-  updatedAt: {
+  updated_at: {
     allowNull: false,
     type: Sequelize.DATE,
   },

@@ -13,11 +13,11 @@ const migration = {
       type: Sequelize.STRING,
       allowNull: false,
     },
-    createdAt: {
+    created_at: {
       allowNull: false,
       type: Sequelize.DATE,
     },
-    updatedAt: {
+    updated_at: {
       allowNull: false,
       type: Sequelize.DATE,
     },

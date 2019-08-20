@@ -11,8 +11,8 @@ const migration = {
     role: Sequelize.STRING,
     location: Sequelize.STRING,
     profile: Sequelize.JSON,
-    createdAt: Sequelize.DATE,
-    updatedAt: Sequelize.DATE,
+    created_at: Sequelize.DATE,
+    updated_at: Sequelize.DATE,
   }),
   down: queryInterface => queryInterface.dropTable('users'),
 };

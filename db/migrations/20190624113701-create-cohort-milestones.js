@@ -9,11 +9,11 @@ const migration = {
     reviewer_id: Sequelize.UUID,
     review_scheduled: Sequelize.DATE,
     review_time: Sequelize.DATE,
-    createdAt: {
+    created_at: {
       allowNull: false,
       type: Sequelize.DATE,
     },
-    updatedAt: {
+    updated_at: {
       allowNull: false,
       type: Sequelize.DATE,
     },

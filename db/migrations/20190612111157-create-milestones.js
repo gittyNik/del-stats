@@ -14,11 +14,11 @@ const migration = {
     problem_statement: Sequelize.TEXT,
     learning_competencies: Sequelize.ARRAY(Sequelize.STRING),
     guidelines: Sequelize.TEXT,
-    createdAt: {
+    created_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.literal('NOW()'),
     },
-    updatedAt: {
+    updated_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.literal('NOW()'),
     },

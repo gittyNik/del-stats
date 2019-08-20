@@ -14,11 +14,11 @@ const migration = {
     cohort_joining: Sequelize.UUID,
     status: Sequelize.ENUM(...FIREWALL_APPLICATION_STATUS),
     payment_details: Sequelize.JSON,
-    createdAt: {
+    created_at: {
       allowNull: false,
       type: Sequelize.DATE,
     },
-    updatedAt: {
+    updated_at: {
       allowNull: false,
       type: Sequelize.DATE,
     },

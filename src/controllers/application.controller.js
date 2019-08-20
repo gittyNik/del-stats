@@ -22,7 +22,7 @@ export const getApplicationById = (req, res) => {
 export const getApplicationsByUserId = (req, res) => {
   const {id} = req.params;
   Application.findAll({
-    order: Sequelize.col('createdAt'),
+    order: Sequelize.col('created_at'),
     where: { user_id: id }})
   .then(data => {
     if(data.length===0)
@@ -36,7 +36,7 @@ export const getApplicationsByUserId = (req, res) => {
 export const getLatestApplication = (req, res) => {
   const user_id = req.jwtData.user.id;
   Application.findOne({
-    order: [[Sequelize.col('createdAt'), Sequelize.literal('DESC')]],
+    order: [[Sequelize.col('created_at'), Sequelize.literal('DESC')]],
     where: { user_id }})
   .then(application => {
     if(application)

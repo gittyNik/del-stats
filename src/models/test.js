@@ -18,11 +18,11 @@ const Test = db.define('tests', {
   },
   sub_time: Sequelize.DATE,
   browser_history: Sequelize.ARRAY(Sequelize.UUID),
-  createdAt: {
+  created_at: {
     allowNull: false,
     type: Sequelize.DATE,
   },
-  updatedAt: {
+  updated_at: {
     allowNull: false,
     type: Sequelize.DATE,
   },

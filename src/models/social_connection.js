@@ -20,8 +20,8 @@ export const SocialConnection = db.define('social_connections', {
   profile: Sequelize.JSON,
   access_token: Sequelize.STRING,
   expiry: Sequelize.DATE,
-  createdAt: Sequelize.DATE,
-  updatedAt: Sequelize.DATE,
+  created_at: Sequelize.DATE,
+  updated_at: Sequelize.DATE,
 },{});
 
 export default SocialConnection;

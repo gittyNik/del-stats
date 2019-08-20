@@ -19,11 +19,11 @@ const migration = {
       type: Sequelize.UUID,
       references: { model: 'milestones', key: 'id' },
     },
-    createdAt: {
+    created_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.literal('NOW()'),
     },
-    updatedAt: {
+    updated_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.literal('NOW()'),
     },
