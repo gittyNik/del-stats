@@ -9,6 +9,20 @@ export const FIREWALL_APPLICATION_STATUS =
 
 export const EVENT_INVITATION_STATUS = ['invited', 'rsvp', 'attended'];
 
+export const BREAKOUT_TYPE = ['lecture', 'codealong', 'questionhour', 'activity', 'groupdiscussion'];
+
+export const PING_TYPE = ['immediate', 'trigger'];
+
+export const PING_STATUS = ['draft', 'sent', 'delivered'];
+
+export const CHALLENGE_DIFFICULTY = ['easy', 'medium', 'difficult'];
+
+export const CHALLENGE_SIZE = ['tiny', 'small', 'large'];
+
+export const JOB_TYPE = ['internship', 'fulltime', 'intern2hire'];
+
+export const JOB_POSTING_EXCLUSIVITY = ['all', 'hired', 'non-hired'];
+
 export default {
   domain: TEST_QUESTION_DOMAIN,
   question_type: TEST_QUESTION_TYPE,
