@@ -4,8 +4,16 @@ const migration = {
       type: Sequelize.UUID,
       primaryKey: true,
     },
-    name: Sequelize.STRING,
-    created_at: Sequelize.DATE,
+    ping_id: {
+      type: Sequelize.UUID,
+      references: { model: 'pings', key: 'id' },
+    },
+    learner_id: {
+      type: Sequelize.UUID,
+      references: { model: 'users', key: 'id' },
+    },
+    response: Sequelize.JSON,
+    created_at: Sequelize.DATE, // response_time
     updated_at: Sequelize.DATE,
   }),
   down: queryInterface => queryInterface.dropTable('pongs'),
