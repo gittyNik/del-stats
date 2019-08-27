@@ -21,11 +21,11 @@ const getGithubAccessToken = (code) => {
     }));
 };
 
-const fetchProfileFromGithub = ({ githubToken, expiry }) => {
+const fetchProfileFromGithub = ({ githubToken, expiry }) =>
   // TODO: reject if expired
 
   // fetching profile details from github
-  return request.get(`https://api.github.com/user?${githubToken}`)
+  request.get(`https://api.github.com/user?${githubToken}`)
     .then((profileResponse) => {
       const profile = profileResponse.body;
       // fetching all emails from github
@@ -35,41 +35,39 @@ const fetchProfileFromGithub = ({ githubToken, expiry }) => {
           return { profile, githubToken, expiry };
         });
     });
-}
 
 
 // fetch profile and add it to social_connections
-const addGithubProfile = ({profile, githubToken, expiry, user }) => {
+const addGithubProfile = ({
+  profile, githubToken, expiry, user,
+}) => {
   const where = {
     user_id: user.id,
     provider: PROVIDERS.GITHUB,
-  }
+  };
 
   // Insert if the provider is not connected, update if already connected
-  return SocialConnection .findOne({where})
-    .then(socialConnection => {
+  return SocialConnection.findOne({ where })
+    .then((socialConnection) => {
       const updateValues = {
         profile,
         expiry,
         access_token: githubToken,
         updated_at: new Date(),
-      }
+      };
 
       const newValues = {
         id: uuid(),
         email: user.email,
         username: profile.login,
         created_at: new Date(),
-      }
+      };
 
-      if(socialConnection)
-        return socialConnection.update(updateValues);
-      else
-        return SocialConnection.create({...where, ...newValues, ...updateValues});
+      if (socialConnection) { return socialConnection.update(updateValues); }
+      return SocialConnection.create({ ...where, ...newValues, ...updateValues });
     })
     .then(socialConnection => ({ user, socialConnection }));
-
-}
+};
 
 // An otp authenticated route to link github
 export const linkWithGithub = (req, res) => {
@@ -85,10 +83,10 @@ export const linkWithGithub = (req, res) => {
         return {
           profile, githubToken, expiry, user,
         };
-      } else if(user.email === null) {
+      } else if (user.email === null) {
         // If the user doesn't have email, use email from github
         return {
-          profile, githubToken, expiry, user: {...user, email: profile.emails[0]},
+          profile, githubToken, expiry, user: { ...user, email: profile.emails[0] },
         };
       }
       return Promise.reject('INVALID_EMAIL');
@@ -97,11 +95,17 @@ export const linkWithGithub = (req, res) => {
     .then(({ user, socialConnection }) => {
     // TODO: Do any user updates here.
     // e.g. add avatar_url from github to user profile
-      const { provider, username, email, profile } = socialConnection;
-      res.send({ data: { provider, username, email, profile } });
+      const {
+        provider, username, email, profile,
+      } = socialConnection;
+      res.send({
+        data: {
+          provider, username, email, profile,
+        },
+      });
     })
     .catch((err) => {
-      if(err.status === 401){
+      if (err.status === 401) {
         res.status(401).send(err.response.text);
       } else if (err === 'INVALID_EMAIL') {
         res.status(401).send('Invalid email');
@@ -140,7 +144,7 @@ export const signinWithGithub = (req, res) => {
       });
     })
     .catch((err) => {
-      if(err.status === 401){
+      if (err.status === 401) {
         res.status(401).send(err.response.text);
       } else if (err === 'NO_EMAIL') {
         // TODO: if the user is not found with emails,

@@ -1,9 +1,9 @@
 import Express from 'express';
-
-import { getLatest, getTop, getAll,getUnmoderated, getOne, create, update,
+import {
+  getLatest, getTop, getAll, getUnmoderated, getOne, create, update,
   deleteOne, getComments, addComment, deleteComment, upvote, unvote,
-  getReports, addReport, resolveReport, approve, getTrending }
-  from '../controllers/tep_resource.controller';
+  getReports, addReport, resolveReport, approve, getTrending,
+} from '../controllers/tep_resource.controller';
 
 const router = Express.Router();
 
@@ -26,7 +26,8 @@ router.get('/reports', getReports);
 router.post('/:resource_id/reports', addReport);
 
 /**
- * @api {patch} /tep/resources/:resource_id/reports/:report_id/resolve Update TEP resource report status.
+ * @api {patch} /tep/resources/:resource_id/reports/:report_id/resolve Update resource report
+ * status.
  * @apiHeader {String} authorization JWT Token.
  * @apiName ResolveReport
  * @apiGroup TEP Resource Report
@@ -82,7 +83,7 @@ router.get('/pending', getUnmoderated);
  * @apiParam {String} url URL of the resource
  * @apiParam {String} topic_id Topic the resource belongs to
  * @apiParam {String} type article/repo/video/tweet
- * @apiParam {String} level beginner/advanced 
+ * @apiParam {String} level beginner/advanced
  */
 router.post('/', create);
 

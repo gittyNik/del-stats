@@ -1,121 +1,125 @@
 import uuid from 'uuid/v4';
 import Topic from '../models/topic';
 import Team from '../models/team';
-import Resource from '../models/resource'
+import Resource from '../models/resource';
 import Milestone from '../models/milestone';
 
-export const getAllMilestones=(req,res) => {
+export const getAllMilestones = (req, res) => {
   Milestone.findAll({})
-  .then((data) => {res.json(data);})
-  .catch(err => res.status(500).send(err));
-}
+    .then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
 
-export const getMilestone=(req,res) => {
+export const getMilestone = (req, res) => {
   Milestone.findAll({
-    where:{
-      id : req.params.milestone_id
-    }
+    where: {
+      id: req.params.milestone_id,
+    },
   })
-  .then((data) => {res.json(data);})
-  .catch(err => res.status(500).send(err));
-}
+    .then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
 
-export const create = (req, res)=> {
-  let {name, topics} = req.body;
+export const create = (req, res) => {
+  const { name, topics } = req.body;
   Milestone.create({
     id: uuid(),
     name,
-    topics
+    topics,
   })
-  .then(tepMilestone => {
-    res.send({
-      data: tepMilestone
-    });
-  })
-  .catch(err=>console.log(err));
-} 
+    .then((tepMilestone) => {
+      res.send({
+        data: tepMilestone,
+      });
+    })
+    .catch(err => console.log(err));
+};
 
-export const update = (req,res)=>{
-  Milestone.update({name: req.body.milestone_name},{
+export const update = (req, res) => {
+  Milestone.update({ name: req.body.milestone_name }, {
     where: {
-      id: req.params.milestone_id
-    }
+      id: req.params.milestone_id,
+    },
   })
-  .then(tepMilestone => {
-    res.send('Milestone updated');
-  })
-  .catch(err => res.status(500).send(err));
-}
-
-export const deleteOne = (req,res)=>{
-  Milestone.destroy({where: {
-      id:req.params.milestone_id
-    }
-  })
-  .then(() => {res.send("Deleted milestone");})
-  .catch(err => res.status(500).send(err));
-}
-
-export const getAllByMilestone = (req,res)=>{
-  Topic.findAll({attributes: ['id'],
-    where:{
-      milestone_id:req.params.milestone_id
-    }
-  })
-  .then((data) => {
-    Resource.findAll({attributes: ['url'],
-      where:{
-        topic_id :data[0].id
-      }
+    .then((tepMilestone) => {
+      res.send('Milestone updated');
     })
-    .then((data1)=>{
-      res.json(data1);
-    })
-  })
-  .catch(err => res.status(500).send(err));
-}
+    .catch(err => res.status(500).send(err));
+};
 
-export const getTeam=(req,res) => {
+export const deleteOne = (req, res) => {
+  Milestone.destroy({
+    where: {
+      id: req.params.milestone_id,
+    },
+  })
+    .then(() => { res.send('Deleted milestone'); })
+    .catch(err => res.status(500).send(err));
+};
+
+export const getAllByMilestone = (req, res) => {
+  Topic.findAll({
+    attributes: ['id'],
+    where: {
+      milestone_id: req.params.milestone_id,
+    },
+  })
+    .then((data) => {
+      Resource.findAll({
+        attributes: ['url'],
+        where: {
+          topic_id: data[0].id,
+        },
+      })
+        .then((data1) => {
+          res.json(data1);
+        });
+    })
+    .catch(err => res.status(500).send(err));
+};
+
+export const getTeam = (req, res) => {
   Team.findAll({
-    where:{
-      id : req.params.team_id
-    }
+    where: {
+      id: req.params.team_id,
+    },
   })
-  .then((data) => {res.json(data);})
-  .catch(err => res.status(500).send(err));
-}
+    .then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
 
-export const createTeam = (req, res)=> {
-  let {name} = req.body;
+export const createTeam = (req, res) => {
+  const { name } = req.body;
   Team.create({
     id: uuid(),
-    name
+    name,
   })
-  .then(team => {
-    res.send({
-      data: team
-    });
-  })
-  .catch(err=>console.log(err));
-} 
+    .then((team) => {
+      res.send({
+        data: team,
+      });
+    })
+    .catch(err => console.log(err));
+};
 
-export const updateTeam = (req,res)=>{
-  Team.update({name: req.body.team_name},{
+export const updateTeam = (req, res) => {
+  Team.update({ name: req.body.team_name }, {
     where: {
-      id: req.params.team_id
-    }
+      id: req.params.team_id,
+    },
   })
-  .then(team => {
-    res.send('Team updated');
-  })
-  .catch(err => res.status(500).send(err));
-}
+    .then((team) => {
+      res.send('Team updated');
+    })
+    .catch(err => res.status(500).send(err));
+};
 
-export const deleteTeam = (req,res)=>{
-  Team.destroy({where: {
-      id:req.params.team_id
-    }
+export const deleteTeam = (req, res) => {
+  Team.destroy({
+    where: {
+      id: req.params.team_id,
+    },
   })
-  .then(() => {res.send("Deleted team");})
-  .catch(err => res.status(500).send(err));
-}
+    .then(() => { res.send('Deleted team'); })
+    .catch(err => res.status(500).send(err));
+};

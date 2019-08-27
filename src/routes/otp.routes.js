@@ -1,5 +1,5 @@
 import Express from 'express';
-import {sendOTP, retryOTP, verifyOTP} from '../controllers/otp.controller';
+import { sendOTP, retryOTP, verifyOTP } from '../controllers/otp.controller';
 
 const router = Express.Router();
 

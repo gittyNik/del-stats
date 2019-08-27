@@ -1,6 +1,8 @@
 import Express from 'express';
-import {create,update,deleteOne,getAllByMilestone as getMilestoneResources,getAllMilestones,getMilestone,
-    getTeam,createTeam,updateTeam,deleteTeam} from '../controllers/tep_milestone.controller';
+import {
+  create, update, deleteOne, getAllByMilestone as getMilestoneResources,
+  getAllMilestones, getMilestone, getTeam, createTeam, updateTeam, deleteTeam,
+} from '../controllers/tep_milestone.controller';
 
 const router = Express.Router();
 

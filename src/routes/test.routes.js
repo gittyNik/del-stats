@@ -1,6 +1,8 @@
 import Express from 'express';
-import {getAllTests, getTestById, updateTest, getTestByApplicationId,
-  updateVideo, updateBrowsedUrl} from '../controllers/test.controller';
+import {
+  getAllTests, getTestById, updateTest, getTestByApplicationId,
+  updateVideo, updateBrowsedUrl,
+} from '../controllers/test.controller';
 
 const router = Express.Router();
 
@@ -37,7 +39,7 @@ router.get('/:id', getTestById);
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateTest
  * @apiGroup Test
- * 
+ *
  * @apiParam {json} responses List of responses to be saved
  */
 router.patch('/:id', updateTest);

@@ -8,7 +8,7 @@ const router = Express.Router();
  * @apiHeader {String} authorization JWT Token.
  * @apiName InsertBrowserHistory
  * @apiGroup BrowserHistory
- * 
+ *
  * @apiParam {String} id browser id
  * @apiParam {String} url url
  * @apiParam {String} title title
@@ -23,7 +23,7 @@ router.post('/', insertHistory);
  * @apiName GetBrowserHistoryByUserId
  * @apiGroup BrowserHistory
  */
-router.get('/user/:user_id',getAllDataByUserId);
+router.get('/user/:user_id', getAllDataByUserId);
 
 /**
  * @api {get} /browser_history/url/:url_id Get all the browser history and visits by browser_url_id

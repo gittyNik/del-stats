@@ -1,6 +1,8 @@
 import Express from 'express';
-import { getAllQuestions, addQuestion, deleteQuestion,
-  updateQuestion} from '../controllers/test_question.controller';
+import {
+  getAllQuestions, addQuestion, deleteQuestion,
+  updateQuestion,
+} from '../controllers/test_question.controller';
 
 const router = Express.Router();
 /**

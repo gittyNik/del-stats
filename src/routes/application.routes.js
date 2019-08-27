@@ -1,7 +1,9 @@
 import Express from 'express';
-import { getAllApplications, getApplicationsByUserId, getApplicationById,
+import {
+  getAllApplications, getApplicationsByUserId, getApplicationById,
   getLiveApplications, addApplication, updateApplication, deleteApplication,
-  payment, getLatestApplication } from '../controllers/application.controller';
+  payment, getLatestApplication,
+} from '../controllers/application.controller';
 
 const router = Express.Router();
 /**
@@ -55,7 +57,7 @@ router.get('/:id', getApplicationById);
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddApplication
  * @apiGroup Application
- * 
+ *
  * @apiParam {String} cohort_applied
  */
 router.post('/', addApplication);

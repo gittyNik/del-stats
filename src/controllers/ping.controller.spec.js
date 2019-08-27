@@ -1,7 +1,7 @@
 import app from '../server';
 import request from 'supertest';
 import dbConnect from '../util/dbConnect';
-import {getFakeToken} from '../util/token';
+import { getFakeToken } from '../util/token';
 
 let db;
 
@@ -14,11 +14,8 @@ afterAll(async () => {
 });
 
 describe('Ping Controller', () => {
-
   it('should add a ping', () => request(app)
     .post('/api/pings')
-    .set('Authorization',`Bearer ${getFakeToken()}`)
-    .expect(201)
-  );
-
+    .set('Authorization', `Bearer ${getFakeToken()}`)
+    .expect(201));
 });

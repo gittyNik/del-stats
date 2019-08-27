@@ -3,7 +3,10 @@
   import {getAll} from '../controllers/resource.controller';
 */
 import Express from 'express';
-const {getAll, getOne, create, update, deleteOne} = require(`../controllers/${require('path').basename(__filename).split('.')[0]}`)
+
+const {
+  getAll, getOne, create, update, deleteOne,
+} = require(`../controllers/${require('path').basename(__filename).split('.')[0]}`);
 
 const router = Express.Router();
 

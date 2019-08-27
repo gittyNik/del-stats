@@ -1,5 +1,5 @@
 import Express from 'express';
-import {getAll, getOne, create, update, deleteOne} from '../controllers/ping.controller';
+import { getAll, getOne, create, update, deleteOne } from '../controllers/ping.controller';
 
 const router = Express.Router();
 
