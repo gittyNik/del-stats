@@ -93,9 +93,9 @@ const seeder = {
 
   down: queryInterface => queryInterface.sequelize.transaction(t => Promise.all([
     queryInterface.bulkDelete('programs', null, { transaction: t }),
-    queryInterface.bulkDelete('milestones', null, { transaction: t }),
-    queryInterface.bulkDelete('topics', null, { transaction: t }),
     queryInterface.bulkDelete('resources', null, { transaction: t }),
+    queryInterface.bulkDelete('topics', null, { transaction: t }),
+    queryInterface.bulkDelete('milestones', null, { transaction: t }),
   ])),
 };
 

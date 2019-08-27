@@ -17,7 +17,11 @@ const migration = {
     created_at: Sequelize.DATE,
     updated_at: Sequelize.DATE,
   }),
-  down: queryInterface => queryInterface.dropTable('challenges'),
+  down: queryInterface => queryInterface.sequelize.transaction(transaction => Promise.all([
+    queryInterface.dropTable('challenges', { transaction }),
+    queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_challenges_size";', { transaction }),
+    queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_challenges_difficulty";', { transaction }),
+  ])),
 };
 
 export default migration;

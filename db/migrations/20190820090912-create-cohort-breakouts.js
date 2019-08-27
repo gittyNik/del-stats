@@ -17,8 +17,8 @@ const migration = {
       references: { model: 'cohorts', key: 'id' },
     },
     time_scheduled: Sequelize.DATE,
-    dutaion: Sequelize.INTERGER,
-    locaiton: Sequelize.STRING,
+    duration: Sequelize.INTEGER,
+    location: Sequelize.STRING,
     catalyst_id: {
       type: Sequelize.UUID,
       references: { model: 'users', key: 'id' },
@@ -26,11 +26,15 @@ const migration = {
     status: Sequelize.ENUM(...EVENT_STATUS),
     catalyst_notes: Sequelize.TEXT,
     catalyst_feedback: Sequelize.TEXT,
-    attendance_count: Sequelize.INTERGER,
+    attendance_count: Sequelize.INTEGER,
     created_at: Sequelize.DATE,
     updated_at: Sequelize.DATE,
   }),
-  down: queryInterface => queryInterface.dropTable('cohort_breakouts'),
+  down: queryInterface => queryInterface.sequelize.transaction(transaction => Promise.all([
+    queryInterface.dropTable('cohort_breakouts', { transaction }),
+    queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_cohort_breakouts_type";', { transaction }),
+    queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_cohort_breakouts_status";', { transaction }),
+  ])),
 };
 
 export default migration;
