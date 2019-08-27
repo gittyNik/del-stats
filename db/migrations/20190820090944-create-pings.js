@@ -11,7 +11,7 @@ const migration = {
       references: { model: 'ping_templates', key: 'id' },
     },
     type: Sequelize.ENUM(...PING_TYPE),
-    trigger: Sequelize.JSON,  // {type: 'breakout', id: 'uuid'}
+    trigger: Sequelize.JSON, // {type: 'breakout', id: 'uuid'}
     educator_id: {
       type: Sequelize.UUID,
       references: { model: 'users', key: 'id' },
