@@ -9,6 +9,8 @@ export const FIREWALL_APPLICATION_STATUS =
 
 export const EVENT_INVITATION_STATUS = ['invited', 'rsvp', 'attended'];
 
+export const EVENT_STATUS = ['scheduled', 'started', 'cancelled', 'aborted', 'running'];
+
 export const BREAKOUT_TYPE = ['lecture', 'codealong', 'questionhour', 'activity', 'groupdiscussion'];
 
 export const PING_TYPE = ['immediate', 'trigger'];
