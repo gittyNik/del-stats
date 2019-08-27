@@ -6,7 +6,7 @@ const migration = {
       primaryKey: true,
       type: Sequelize.INTEGER,
     },
-    u_id: {
+    user_id: {
       type: Sequelize.UUID,
       allowNull: false,
     },

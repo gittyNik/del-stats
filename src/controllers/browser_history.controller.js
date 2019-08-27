@@ -16,11 +16,11 @@ export const getAllBrowserVisitItems= (req,res) => {
 export const getAllDataByUrlId= (req,res)=>{
   browser_history_items.findAll({
     where:{
-      browser_url_id:req.params.id
+      browser_url_id:req.params.url_id
     }
   })
   .then(async (data) => {
-    var promise=browser_visit_items.findAll({attributes:["u_id","browser_url_id","visited_timestamp","visit_id","ip","transition"]},{
+    var promise=browser_visit_items.findAll({attributes:["user_id","browser_url_id","visited_timestamp","visit_id","ip","transition"]},{
       where:{
         browser_url_id:data[0].browser_url_id
       }
@@ -39,7 +39,7 @@ export const getAllDataByUrlId= (req,res)=>{
 export const getAllDataByUserId= (req,res)=>{
   browser_visit_items.findAll({
     where:{
-      u_id:req.params.u_id
+      user_id:req.params.user_id
     }
   })
   .then((data3)=>{
@@ -62,7 +62,7 @@ export const getAllDataByUserId= (req,res)=>{
   .catch(err => res.status(500).send(err))})
 }
 
-export const insert = (req,res) => {
+export const insertHistory = (req,res) => {
   var historyitem=req.body.historyitem;
   for(var i=0;i<historyitem.length;i++){
       (function(i,historyitem){
@@ -80,7 +80,7 @@ export const insert = (req,res) => {
           browser_visit_items.create({
             browser_url_id:historyitem[i]['visit'][j]['id'],
             ip:ip.address(),
-            u_id:req.body.getid,
+            user_id:req.body.getid,
             visited_timestamp:historyitem[i]['visit'][j]['visitTime'],
             visit_id:historyitem[i]['visit'][j]['visitId'],
             transition:historyitem[i]['visit'][j]['transition']
