@@ -103,6 +103,8 @@ const generateTest = (template, application, allQuestions) => {
     purpose,
     duration,
     responses,
+    created_at: new Date(),
+    updated_at: new Date(),
   }, { raw: true }).then((test) => {
     test.dataValues.questionDetails = questionDetails;
     return test;
