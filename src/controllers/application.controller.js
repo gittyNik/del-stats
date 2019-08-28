@@ -78,6 +78,8 @@ export const addApplication = (req, res) => {
         user_id,
         cohort_applied,
         status: 'applied',
+        created_at: new Date(),
+        updated_at: new Date(),
       })
         .then(application => generateTestSeries(testSeriesTemplate, application))
         .then((application) => {

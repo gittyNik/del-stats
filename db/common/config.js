@@ -13,6 +13,11 @@ const settings = {
       acquire: 30000,
       idle: 10000,
     },
+    define: {
+      timestamps: false,
+      underscored: true,
+      underscoredAll: true,
+    },
   },
   test: {
     username: process.env.DATABASE_USERNAME,
