@@ -11,7 +11,7 @@
     "build": "babel src -d api-build",
     "lint": "eslint src",
     "doc": "apidoc -i src",
-    "start": "nodemon --watch src --exec \"apidoc -i src && babel-node\" src",
+    "start": "nodemon --watch src --exec \"apidoc -i src && babel-node --inspect\" src",
     "test": "jest"
   },
   "engines": {
