@@ -1,3 +1,5 @@
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
 import dotenv from 'dotenv/config';
 import app from './server';
 import db from './database';

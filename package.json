@@ -5,13 +5,16 @@
   "scripts": {
     "db:init": "sequelize db:create",
     "db:clean": "sequelize db:seed:undo:all && sequelize db:migrate:undo:all",
+    "db:migrate": "sequelize db:seed:all && sequelize db:migrate",
     "db:reset": "sequelize db:seed:undo:all && sequelize db:migrate:undo:all && sequelize db:migrate && sequelize db:seed:all",
     "admin": "babel-node src/util/admin.js",
     "migrate": "sequelize db:migrate",
     "build": "babel src -d api-build",
     "lint": "eslint src",
     "doc": "apidoc -i src",
-    "start": "nodemon --watch src --exec \"apidoc -i src && babel-node --inspect\" src",
+    "start-dev": "nodemon --watch src --exec \"apidoc -i src && babel-node --inspect\" src",
+    "start-prod": "node api-build",
+    "start": "if [ $NODE_ENV = 'production' ]; then npm run start-prod; else npm run start-dev; fi;",
     "test": "jest"
   },
   "engines": {
@@ -31,7 +34,9 @@
     "@babel/plugin-syntax-import-meta": "^7.2.0",
     "@babel/preset-env": "^7.5.5",
     "@babel/register": "^7.5.5",
+    "@babel/runtime": "^7.5.5",
     "compression": "^1.7.4",
+    "core-js": "^3.2.1",
     "dotenv": "^8.0.0",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
@@ -45,6 +50,7 @@
     "multer": "^1.4.1",
     "nodemailer": "^4.6.4",
     "pg": "^7.11.0",
+    "regenerator-runtime": "^0.13.3",
     "sequelize": "^5.8.9",
     "sequelize-cli": "^5.5.0",
     "superagent": "^3.8.2",
@@ -53,6 +59,7 @@
   },
   "devDependencies": {
     "@babel/node": "^7.5.5",
+    "@babel/plugin-transform-runtime": "^7.5.5",
     "apidoc": "^0.17.6",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
