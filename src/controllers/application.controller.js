@@ -4,6 +4,7 @@ import Application from '../models/application';
 import Program from '../models/program';
 import Cohort from '../models/cohort';
 import { generateTestSeries, populateTestSeries } from './test.controller';
+import { sendSms } from '../util/sms';
 
 export const getAllApplications = (req, res) => {
   Application.findAll()
@@ -112,8 +113,18 @@ export const updateApplication = (req, res) => {
     Application.update({
       status,
     }, { where: { id } })
-      .then(data => res.status(200).json(data))
-      .catch(err => res.sendStatus(500));
+      .then(async data => {
+        const { name, phone } = req.jwtData.user;
+        name = name || 'candidate';
+        sendSms(phone, `Dear ${name}, your application is under review. You will be notified of any updates.`)
+        .then(res => console.log(res));
+        .catch(err => console.log(err));
+        res.status(200).json(data);
+      })
+      .catch(err => {
+        console.log(err);
+        res.sendStatus(500);
+      });
   } else {
     res.send('please add some data to update');
   }
