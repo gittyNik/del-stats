@@ -13,6 +13,7 @@ import user from './user.routes';
 import browserHistory from './browser_history.routes';
 import { getProfile } from '../controllers/user.controller';
 import { browserAccessControl, devOnly } from '../controllers/access_control.controller';
+import { send404, sendSampleResponse } from '../controllers/api.controller';
 import authenticate from '../controllers/auth.controller';
 import authRouter from './auth.routes';
 import firewallRouter from './firewall.routes';
@@ -47,7 +48,7 @@ router.use('/todos', todo);
 router.use('/notes', note);
 router.use('/users', user);
 
-router.get('/', (req, res) => res.send('API home'));
-router.use('*', (req, res) => res.sendStatus(404));
+router.get('/', sendSampleResponse);
+router.use('*', send404);
 
 export default router;
