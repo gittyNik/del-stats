@@ -4,6 +4,7 @@ import {
   getLiveApplications, addApplication, updateApplication, deleteApplication,
   payment, getLatestApplication,
 } from '../controllers/application.controller';
+import { apiNotReady } from '../controllers/api.controller';
 
 const router = Express.Router();
 /**
@@ -73,6 +74,17 @@ router.post('/', addApplication);
  * @apiParam {String} status
  */
 router.patch('/:id', updateApplication);
+
+/**
+ * @api {patch} /firewall/applications/:id/review Submit review of application
+ * @apiDescription Review an application
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ReviewApplication
+ * @apiGroup Application
+ *
+ * @apiParam {String} status
+ */
+router.patch('/:id', apiNotReady);
 
 /**
  * @api {delete} /firewall/applications/:id Delete Application

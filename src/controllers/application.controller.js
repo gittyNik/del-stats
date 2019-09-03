@@ -117,7 +117,7 @@ export const updateApplication = (req, res) => {
         const { name, phone } = req.jwtData.user;
         name = name || 'candidate';
         sendSms(phone, `Dear ${name}, your application is under review. You will be notified of any updates.`)
-        .then(res => console.log(res));
+        .then(res => console.log(res))
         .catch(err => console.log(err));
         res.status(200).json(data);
       })
