@@ -1,5 +1,5 @@
 import { getOrCreateUser } from '../models/user';
-import SendOtp from '../util/sendotp';
+import SendOtp from 'sendotp';
 import { getSoalToken } from '../util/token';
 
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, 'Use {{otp}} to login with DELTA. Please do not share it with anybody! {SOAL Team}');
