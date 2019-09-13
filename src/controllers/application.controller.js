@@ -113,13 +113,13 @@ export const updateApplication = (req, res) => {
     Application.update({
       status,
     }, { where: { id } })
-      .then(async data => {
+      .then(async (data) => {
         sendSms(req.jwtData.user.phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
-        .then(res => console.log(res))
-        .catch(err => console.log(err));
+          .then(res => console.log(res))
+          .catch(err => console.log(err));
         res.status(200).json(data);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         res.sendStatus(500);
       });

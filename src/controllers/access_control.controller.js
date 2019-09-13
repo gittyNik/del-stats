@@ -1,5 +1,3 @@
-import Express from 'express';
-
 export const devOnly = (req, res, next) => {
   if (process.env.NODE_ENV !== 'development') {
     res.sendStatus(404);

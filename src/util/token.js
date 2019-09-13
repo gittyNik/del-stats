@@ -1,7 +1,7 @@
-import {USER_ROLES} from '../models/user';
 import jwt from 'jsonwebtoken';
+import { USER_ROLES } from '../models/user';
 
-export const getSoalToken = (user, githubToken=null) => jwt.sign({
+export const getSoalToken = (user, githubToken = null) => jwt.sign({
   userId: user.id,
   githubToken,
   scope: user.role,
@@ -13,4 +13,4 @@ export const getFakeToken = () => {
     role: USER_ROLES.SUPERADMIN,
   };
   return getSoalToken(fakeAdmin);
-}
+};

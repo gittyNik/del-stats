@@ -1,7 +1,7 @@
-import { getSoalToken } from '../util/token';
 import faker from 'faker';
 import uuid from 'uuid/v4';
-import User from '../models/user';
+import { User } from '../models/user';
+import { getSoalToken } from '../util/token';
 
 const switchUserResponse = (userPromise, res) => {
   userPromise.then((user) => {
@@ -20,8 +20,8 @@ const switchUserResponse = (userPromise, res) => {
 
 // get Access as any user with id
 export const switchUser = async (req, res) => {
-  const { user_id } = req.params;
-  const userPromise = User.findByPk(user_id);
+  const { user_id: id } = req.params;
+  const userPromise = User.findByPk(id);
 
   switchUserResponse(userPromise, res);
 };
