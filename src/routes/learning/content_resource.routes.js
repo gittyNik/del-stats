@@ -3,82 +3,82 @@ import {
   getLatest, getTop, getAll, getUnmoderated, getOne, create, update,
   deleteOne, getComments, addComment, deleteComment, upvote, unvote,
   getReports, addReport, resolveReport, approve, getTrending,
-} from '../../controllers/tep_resource.controller';
+} from '../../controllers/content_resource.controller';
 
 const router = Express.Router();
 
 /**
- * @api {get} /tep/resources/reports Get all TEP resource reports
+ * @api {get} /content/resources/reports Get all Content resource reports
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetAllReports
- * @apiGroup TEP Resource Report
+ * @apiGroup Content Resource Report
  */
 router.get('/reports', getReports);
 
 /**
- * @api {post} /tep/resources/:resource_id/reports Report TEP resource
+ * @api {post} /content/resources/:resource_id/reports Report Content resource
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddReport
- * @apiGroup TEP Resource Report
+ * @apiGroup Content Resource Report
  *
  * @apiParam {String} report report of the resource
  */
 router.post('/:resource_id/reports', addReport);
 
 /**
- * @api {patch} /tep/resources/:resource_id/reports/:report_id/resolve Update resource report
+ * @api {patch} /content/resources/:resource_id/reports/:report_id/resolve Update resource report
  * status.
  * @apiHeader {String} authorization JWT Token.
  * @apiName ResolveReport
- * @apiGroup TEP Resource Report
+ * @apiGroup Content Resource Report
  */
 router.patch('/:resource_id/reports/:report_id/resolve', resolveReport);
 
 /**
- * @api {get} /tep/resources Get all TEP resources
+ * @api {get} /content/resources Get all Content resources
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetAll
- * @apiGroup TEP Resource
+ * @apiGroup Content Resource
  */
 router.get('/', getAll);
 
 /**
- * @api {get} /tep/resources/latest Get latest TEP resources
+ * @api {get} /content/resources/latest Get latest Content resources
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetLatest
- * @apiGroup TEP Resource
+ * @apiGroup Content Resource
  */
 router.get('/latest', getLatest);
 
 /**
- * @api {get} /tep/resources/top Get the top TEP resources
+ * @api {get} /content/resources/top Get the top Content resources
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetTop
- * @apiGroup TEP Resource
+ * @apiGroup Content Resource
  */
 router.get('/top', getTop);
 
 /**
- * @api {get} /tep/resources/trending Get the trending TEP resources
+ * @api {get} /content/resources/trending Get the trending Content resources
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetTrending
- * @apiGroup TEP Resource
+ * @apiGroup Content Resource
  */
 router.get('/trending', getTrending);
 
 /**
- * @api {get} /tep/resources/pending Get Unmoderated TEP resources
+ * @api {get} /content/resources/pending Get Unmoderated Content resources
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetUnmoderated
- * @apiGroup TEP Resource
+ * @apiGroup Content Resource
  */
 router.get('/pending', getUnmoderated);
 
 /**
- * @api {post} /tep/resources Add new TEP resources
+ * @api {post} /content/resources Add new Content resources
  * @apiHeader {String} authorization JWT Token.
  * @apiName Create
- * @apiGroup TEP Resource
+ * @apiGroup Content Resource
  *
  * @apiParam {String} url URL of the resource
  * @apiParam {String} topic_id Topic the resource belongs to
@@ -88,82 +88,81 @@ router.get('/pending', getUnmoderated);
 router.post('/', create);
 
 /**
- * @api {get} /tep/resources/:resource_id Get one TEP resource
+ * @api {get} /content/resources/:resource_id Get one Content resource
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetOne
- * @apiGroup TEP Resource
+ * @apiGroup Content Resource
  */
 router.get('/:resource_id', getOne);
 
 /**
- * @api {patch} /tep/resources/:resource_id Update TEP resource
+ * @api {patch} /content/resources/:resource_id Update Content resource
  * @apiHeader {String} authorization JWT Token.
  * @apiName Update
- * @apiGroup TEP Resource
+ * @apiGroup Content Resource
  *
  * @apiParam {String} url URL of the resource
  */
 router.patch('/:resource_id', update);
 
 /**
- * @api {delete} /tep/resources/:resource_id Delete TEP resource
+ * @api {delete} /content/resources/:resource_id Delete Content resource
  * @apiHeader {String} authorization JWT Token.
  * @apiName DeleteOne
- * @apiGroup TEP Resource
+ * @apiGroup Content Resource
  */
 router.delete('/:resource_id', deleteOne);
 
 /**
- * @api {patch} /tep/resources/:resource_id/approve Update TEP resource status
+ * @api {patch} /content/resources/:resource_id/approve Update Content resource status
  * @apiHeader {String} authorization JWT Token.
  * @apiName Approve
- * @apiGroup TEP Resource
+ * @apiGroup Content Resource
  */
 router.patch('/:resource_id/approve', approve);
 
 /**
- * @api {get} /tep/resources/:resource_id/comments Get TEP resource comments
+ * @api {get} /content/resources/:resource_id/comments Get Content resource comments
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetComments
- * @apiGroup TEP Resource Comment
+ * @apiGroup Content Resource Comment
  */
 router.get('/:resource_id/comments', getComments);
 
 /**
- * @api {post} /tep/resources/:resource_id/comments Add TEP resource comments
+ * @api {post} /content/resources/:resource_id/comments Add Content resource comments
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddComment
- * @apiGroup TEP Resource Comment
+ * @apiGroup Content Resource Comment
  *
  * @apiParam {String} comment comment about the resource
  */
 router.post('/:resource_id/comments', addComment);
 
 /**
- * @api {delete} /tep/resources/:resource_id/comments/:comment_id Delete TEP resource comment
+ * @api {delete} /content/resources/:resource_id/comments/:comment_id Delete Content resource comment
  * @apiHeader {String} authorization JWT Token.
  * @apiName DeleteComment
- * @apiGroup TEP Resource Comment
+ * @apiGroup Content Resource Comment
  */
 router.delete('/:resource_id/comments/:comment_id', deleteComment);
 
 /**
- * @api {post} /tep/resources/:resource_id/vote Vote TEP resource
+ * @api {post} /content/resources/:resource_id/vote Vote Content resource
  * @apiHeader {String} authorization JWT Token.
  * @apiName Upvote
- * @apiGroup TEP Resource Vote
+ * @apiGroup Content Resource Vote
  */
 router.post('/:resource_id/vote', upvote);
 
 /**
- * @api {delete} /tep/resources/:resource_id/vote Unvote TEP resource
+ * @api {delete} /content/resources/:resource_id/vote Unvote Content resource
  * @apiHeader {String} authorization JWT Token.
  * @apiName Unvote
- * @apiGroup TEP Resource Vote
+ * @apiGroup Content Resource Vote
  *
  * @apiParam {String} user_id id of the user
  */
 router.delete('/:resource_id/vote', unvote);
-
 
 export default router;

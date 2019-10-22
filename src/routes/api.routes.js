@@ -6,6 +6,7 @@ import communityRouter from './community';
 import firewallRouter from './firewall';
 import learningRouter from './learning';
 
+import toolsetRouter from './toolset';
 import authRouter from './auth';
 import adminRouter from './admin.routes';
 
@@ -30,6 +31,7 @@ router.use(authenticate);
 router.use('/career', careerRouter);
 router.use('/community', communityRouter);
 router.use('/learning', learningRouter);
+router.use('/toolset', toolsetRouter);
 router.use('/admin', adminRouter);
 /**
  * @api {get} /profile Get profile

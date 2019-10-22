@@ -10,7 +10,5 @@ router.patch('/:id', update);
 router.patch('/', updateAll);
 router.delete('/:id', deleteOne);
 router.delete('/', deleteMultiple);
-router.get('/student/:studentID', getStudentToDos);
-
 
 export default router;

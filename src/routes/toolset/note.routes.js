@@ -8,6 +8,5 @@ router.post('/', create);
 router.get('/:id', getOne);
 router.patch('/:id', update);
 router.delete('/:id', deleteOne);
-router.get('/student/:studentID', getStudentNotes);
 
 export default router;
