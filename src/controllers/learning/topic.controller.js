@@ -19,7 +19,7 @@ export const create = (req, res) => {
     .catch(err => console.log(err));
 };
 
-export const getAllByTopic = (req, res) => {
+export const getAllResourcesByTopic = (req, res) => {
   Resource.findAll({
     attributes: ['url'],
     where: {

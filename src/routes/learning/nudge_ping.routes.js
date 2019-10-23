@@ -4,38 +4,38 @@ import { apiNotReady } from '../../controllers/api.controller';
 const router = Express.Router();
 
 /**
- * @api {get} /learning/ping/templates Get all Ping Nudges
- * @apiDescription get all Ping Nudges
+ * @api {get} /learning/nudge/pings Get all Nudge Pings
+ * @apiDescription get all Nudge Pings
  * @apiHeader {String} authorization JWT Token.
- * @apiName GetPingNudges
- * @apiGroup PingNudges
+ * @apiName GetNudgePings
+ * @apiGroup NudgePings
  */
 router.get('/', apiNotReady);
 
 /**
- * @api {post} /learning/ping/templates/ Add Career Counsellor
- * @apiDescription Add a Ping Nudge
+ * @api {post} /learning/nudge/pings/ Add Nudge Ping
+ * @apiDescription Add a Nudge Ping
  * @apiHeader {String} authorization JWT Token.
- * @apiName AddPingNudges
- * @apiGroup PingNudges
+ * @apiName AddNudgePing
+ * @apiGroup NudgePing
  */
 router.post('/', apiNotReady);
 
 /**
- * @api {patch} /learning/ping/templates/:id  Update Career Counsellor
- * @apiDescription Update a Ping Nudge
+ * @api {patch} /learning/nudge/pings/:id  Update Nudge Pings
+ * @apiDescription Update a Nudge Ping
  * @apiHeader {String} authorization JWT Token.
- * @apiName UpdatePingNudges
- * @apiGroup PingNudges
+ * @apiName UpdateNudgePing
+ * @apiGroup NudgePing
  */
 router.patch('/:id', apiNotReady);
 
 /**
- * @api {delete} /learning/ping/templates/:id Delete Career Counsellor
- * @apiDescription Delete a Ping Nudge
+ * @api {delete} /learning/nudge/pings/:id Delete Nudge Pings
+ * @apiDescription Delete a Nudge Ping
  * @apiHeader {String} authorization JWT Token.
- * @apiName DeletePingNudges
- * @apiGroup PingNudges
+ * @apiName DeleteNudgePing
+ * @apiGroup NudgePing
  */
 router.delete('/:id', apiNotReady);
 
