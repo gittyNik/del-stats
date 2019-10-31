@@ -1,7 +1,7 @@
 import { User, USER_ROLES } from '../../models/user';
 
 import Cohort from '../../models/cohort';
-import { getCohortByName } from '../cohort.controller';
+import { getCohortByName } from '../learning/cohort.controller';
 
 /**
  * @api {get} /profile Get the profile

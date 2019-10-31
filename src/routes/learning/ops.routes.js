@@ -8,7 +8,5 @@ const router = Express.Router();
 router.use('/breakouts', breakoutRouter);
 router.use('/reviews', reviewRouter);
 router.use('/assessments', assessmentRouter);
-router.use('/milestones', milestoneRouter);
-router.use('/challenges', challengeRouter);
 
 export default router;
