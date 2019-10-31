@@ -3,7 +3,7 @@ import milestoneTeamRouter from './milestone_team.routes';
 import {
   create, update, deleteOne, getAllByMilestone as getMilestoneResources,
   getAllMilestones, getMilestone, getTeam, createTeam, updateTeam, deleteTeam,
-} from '../../controllers/tep_milestone.controller';
+} from '../../controllers/learning/milestone.controller';
 
 const router = Express.Router();
 

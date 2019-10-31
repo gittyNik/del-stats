@@ -3,7 +3,7 @@ import {
   getLatest, getTop, getAll, getUnmoderated, getOne, create, update,
   deleteOne, getComments, addComment, deleteComment, upvote, unvote,
   getReports, addReport, resolveReport, approve, getTrending,
-} from '../../controllers/content_resource.controller';
+} from '../../controllers/learning/content_resource.controller';
 
 const router = Express.Router();
 

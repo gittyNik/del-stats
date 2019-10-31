@@ -2,7 +2,7 @@ import Express from 'express';
 import {
   getAllQuestions, addQuestion, deleteQuestion,
   updateQuestion,
-} from '../../controllers/test_question.controller';
+} from '../../controllers/firewall/test_question.controller';
 
 const router = Express.Router();
 /**

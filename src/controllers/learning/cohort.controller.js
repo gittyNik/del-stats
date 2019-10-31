@@ -1,5 +1,5 @@
-import Cohort from '../models/cohort';
-import { getCohortStudents } from '../controllers/student.controller';
+import Cohort from '../../models/cohort';
+import { getCohortStudents } from './student.controller';
 import Sequelize from 'sequelize';
 
 export const getCohorts = (req, res) => {

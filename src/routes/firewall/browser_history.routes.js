@@ -1,5 +1,5 @@
 import Express from 'express';
-import { insertHistory, getAllDataByUserId, getAllDataByUrlId } from '../../controllers/browser_history.controller';
+import { insertHistory, getAllDataByUserId, getAllDataByUrlId } from '../../controllers/firewall/browser_history.controller';
 
 const router = Express.Router();
 

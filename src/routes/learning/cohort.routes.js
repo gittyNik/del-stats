@@ -2,7 +2,7 @@ import Express from 'express';
 import {
   getCohortByName, getCohorts, getCohort, createCohort, updateCohort,
   getUpcomingCohorts, deleteCohort,
-} from '../../controllers/cohort.controller';
+} from '../../controllers/learning/cohort.controller';
 
 const router = Express.Router();
 

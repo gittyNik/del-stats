@@ -1,5 +1,7 @@
 import Express from 'express';
-import { getTeams, getTeam, resetTeams } from '../../controllers/tep_milestone.controller';
+import { getTeam} from '../../controllers/learning/milestone.controller';
+import { apiNotReady } from '../../controllers/api.controller';
+
 const router = Express.Router();
 
 /**
@@ -8,7 +10,7 @@ const router = Express.Router();
  * @apiName GetMilestoneTeams
  * @apiGroup MilestoneTeam
  */
-router.get('/teams', getTeams);
+router.get('/teams', apiNotReady);
 
 /**
  * @api {get} /learning/milestones/:milestone_id/team Get team details
@@ -24,6 +26,6 @@ router.get('/teams/:id', getTeam);
  * @apiName Reset the milestone teams
  * @apiGroup MilestoneTeam
  */
-router.patch('/teams', resetTeams);
+router.patch('/teams', apiNotReady);
 
 export default router;

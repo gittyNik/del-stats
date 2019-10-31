@@ -2,7 +2,7 @@ import Express from 'express';
 import {
   getAllTests, getTestById, updateTest, getTestByApplicationId,
   updateVideo, updateBrowsedUrl,
-} from '../../controllers/test.controller';
+} from '../../controllers/firewall/test.controller';
 
 const router = Express.Router();
 

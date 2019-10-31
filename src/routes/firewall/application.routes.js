@@ -3,7 +3,7 @@ import {
   getAllApplications, getApplicationsByUserId, getApplicationById,
   getLiveApplications, addApplication, updateApplication, deleteApplication,
   payment, getLatestApplication,
-} from '../../controllers/application.controller';
+} from '../../controllers/firewall/application.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
