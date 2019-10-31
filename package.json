@@ -2,6 +2,7 @@
   "name": "delta",
   "version": "2.1.0",
   "private": true,
+  "main": "lib/index.js",
   "scripts": {
     "db:init": "sequelize db:create",
     "db:clean": "sequelize db:seed:undo:all && sequelize db:migrate:undo:all",

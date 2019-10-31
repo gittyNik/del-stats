@@ -22,10 +22,6 @@ router.use(browserAccessControl);
 
 // Public routes
 router.use('/auth', authRouter);
-router.use('/doc.json', (req, res) => {
-  const doc = apidoc.createDoc();
-  res.send(doc);
-});
 router.use('/doc', devOnly, Express.static('./doc'));
 
 // Partially private routes
