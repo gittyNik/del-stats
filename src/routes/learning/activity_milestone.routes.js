@@ -1,5 +1,4 @@
 import Express from 'express';
-import milestoneTeamRouter from './milestone_team.routes';
 import {
   create, update, deleteOne, getAllByMilestone as getMilestoneResources,
   getAllMilestones, getMilestone, getTeam, createTeam, updateTeam, deleteTeam,
@@ -7,7 +6,29 @@ import {
 
 const router = Express.Router();
 
-router.use('/:milestone_id/teams', milestoneTeamRouter);
+/**
+ * @api {get} /learning/milestones/:milestone_id/teams Get milestone teams
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetMilestoneTeams
+ * @apiGroup MilestoneTeam
+ */
+router.get('/:milestone_id/teams', apiNotReady);
+
+
+/**
+ * @api {patch} /learning/milestones/:milestone_id/teams Reset Milestone Teams
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName Reset the milestone teams
+ * @apiGroup MilestoneTeam
+ */
+router.patch(':/milestone_id/teams', apiNotReady);
+/**
+ * @api {get} /learning/milestones/:milestone_id/team Get team details
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetMilestoneTeam
+ * @apiGroup MilestoneTeam
+ */
+router.get('/:milestone_id/teams/:id', getTeam);
 
 /**
  * @api {get} /learning/milestones/:milestone_id Get milestone by Id
