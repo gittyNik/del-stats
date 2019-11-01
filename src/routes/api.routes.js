@@ -1,19 +1,20 @@
 import Express from 'express';
-import apidocSwagger from 'apidoc-swagger';
 
 // Delta modules
 import careerRouter from './career';
 import communityRouter from './community';
 import firewallRouter from './firewall';
 import learningRouter from './learning';
-
 import toolsetRouter from './toolset';
+
 import authRouter from './auth';
 import adminRouter from './admin.routes';
 
 import authenticate from '../controllers/auth/auth.controller';
-import { browserAccessControl, devOnly, send404, sendSampleResponse } from '../controllers/api.controller';
+import { allowSuperAdminOnly } from '../controllers/auth/roles.controller';
 import { getProfile } from '../controllers/community/user.controller';
+import { browserAccessControl, devOnly, send404, sendSampleResponse, getSwagger
+  } from '../controllers/api.controller';
 
 const router = Express.Router();
 
@@ -22,11 +23,6 @@ router.use(browserAccessControl);
 
 // Public routes
 router.use('/auth', authRouter);
-router.use('/swagger.json', (req, res) => {
-  let src = __dirname + '/../../src';
-  let swagger = apidocSwagger(src);
-  res.send(swagger);
-});
 router.use('/doc', devOnly, Express.static('./doc'));
 
 // Partially private routes
@@ -56,6 +52,15 @@ router.use('/profile', getProfile);
  * @apiGroup Profile
  */
 router.get('/', sendSampleResponse);
+
+/**
+ * @api {get} / Get swagger json
+ * @apiDescription Get swgger json
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetSwaggerJson
+ * @apiGroup API
+ */
+router.get('/swagger.json', allowSuperAdminOnly, getSwagger);
 router.use('*', send404);
 
 export default router;
