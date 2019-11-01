@@ -1,5 +1,5 @@
 import Express from 'express';
-import apidoc from 'apidoc';
+import apidocSwagger from 'apidoc-swagger';
 
 // Delta modules
 import careerRouter from './career';
@@ -22,6 +22,10 @@ router.use(browserAccessControl);
 
 // Public routes
 router.use('/auth', authRouter);
+router.use('/swagger.json', (req, res) => {
+  let swagger = apidocSwagger(__dirname + '/../src');
+  res.send(swagger);
+});
 router.use('/doc', devOnly, Express.static('./doc'));
 
 // Partially private routes

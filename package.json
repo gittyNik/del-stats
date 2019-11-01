@@ -37,6 +37,7 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/register": "^7.5.5",
     "@babel/runtime": "^7.5.5",
+    "apidoc-swagger": "github:schoolofacceleratedlearning/apidoc-swagger",
     "compression": "^1.7.4",
     "core-js": "^3.2.1",
     "dotenv": "^8.0.0",
@@ -72,5 +73,7 @@
     "nodemon": "^1.19.1",
     "supertest": "^3.1.0"
   },
-  "eslintIgnore": [ "**/*.spec.js" ]
+  "eslintIgnore": [
+    "**/*.spec.js"
+  ]
 }
