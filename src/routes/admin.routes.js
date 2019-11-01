@@ -28,7 +28,7 @@ router.get('/switch_user/:user_id', switchUser);
  * @apiName SwitchUserByEmail
  * @apiGroup Admin
  *
- * @apiParam email Email id of the user
+ * @apiParam {String} email Email id of the user
  */
 router.get('/switch_user', switchUserByEmail);
 
