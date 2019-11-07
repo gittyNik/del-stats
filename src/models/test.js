@@ -16,6 +16,7 @@ const Test = db.define('tests', {
     type: Sequelize.ARRAY(Sequelize.JSON),
     allowNull: false,
   },
+  start_time: Sequelize.DATE,
   sub_time: Sequelize.DATE,
   browser_history: Sequelize.ARRAY(Sequelize.UUID),
   created_at: {
