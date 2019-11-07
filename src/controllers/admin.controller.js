@@ -2,6 +2,7 @@ import faker from 'faker';
 import uuid from 'uuid/v4';
 import { User } from '../models/user';
 import { getSoalToken } from '../util/token';
+import ConfigParam from '../models/config_param';
 
 const switchUserResponse = (userPromise, res) => {
   userPromise.then((user) => {
@@ -50,10 +51,10 @@ export const getConfig = (req, res) => {
   .catch(err => res.status(500).send(err));
 }
 export const addConfig = (req, res) => {
-  const { key, value, details } = req.body;
+  const { name, value, details } = req.body;
   ConfigParam.create({
     id: uuid(),
-    key,
+    name,
     value,
     details,
     created_at: Date.now(),
@@ -64,9 +65,9 @@ export const addConfig = (req, res) => {
 }
 
 export const updateConfig = (req, res) => {
-  const { key, value, details } = req.body;
+  const { name, value, details } = req.body;
   ConfigParam.update({ value, details }, {
-    where: { key },
+    where: { name },
   })
   .then(param => res.send(param))
   .catch(err => res.status(500).send(err));

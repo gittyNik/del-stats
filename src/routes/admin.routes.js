@@ -20,6 +20,10 @@ router.get('/config_params', getConfig);
  * @apiHeader {String} authorization JWT Token of superadmin
  * @apiName AddAdminConfiguration
  * @apiGroup Admin
+ *
+ * @apiParam {String} name Name of the configuration parameter
+ * @apiParam {String} value Value of the configuration parameter
+ * @apiParam {Object} details Details of the configuration parameter
  */
 router.post('/config_params', addConfig);
 /**
@@ -28,6 +32,9 @@ router.post('/config_params', addConfig);
  * @apiHeader {String} authorization JWT Token of superadmin
  * @apiName UpdateAdminConfiguration
  * @apiGroup Admin
+ *
+ * @apiParam {String} name Name of the configuration parameter
+ * @apiParam {String} value Value of the configuration parameter
  */
 router.patch('/config_params', updateConfig);
 /**

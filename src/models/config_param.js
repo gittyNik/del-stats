@@ -6,7 +6,7 @@ const ConfigParam = db.define('config_params', {
     type: Sequelize.UUID,
     primaryKey: true,
   },
-  key: {
+  name: {
     type: Sequelize.STRING,
     allowNull: false,
     unique: true,

@@ -4,7 +4,7 @@ const migration = {
       type: Sequelize.UUID,
       primaryKey: true,
     },
-    key: Sequelize.STRING,
+    name: Sequelize.STRING,
     value: Sequelize.TEXT,
     details: Sequelize.JSON,
     created_at: Sequelize.DATE,
