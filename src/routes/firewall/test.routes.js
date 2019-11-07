@@ -34,15 +34,33 @@ router.get('/application/:id', getTestByApplicationId);
 router.get('/:id', getTestById);
 
 /**
- * @api {patch} /firewall/tests/:id Update a Test
- * @apiDescription Update a test
+ * @api {patch} /firewall/tests/:id/responses Update Test responses
+ * @apiDescription Update test responses
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateTest
  * @apiGroup Test
  *
  * @apiParam {json} responses List of responses to be saved
  */
-router.patch('/:id', updateTest);
+router.patch('/:id/responses', updateTestResponses);
+
+/*
+ * @api {patch} /firewall/tests/:id/start Start a Test
+ * @apiDescription Start a test
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName StartTest
+ * @apiGroup Test
+ */
+router.patch('/:id/start', startTest);
+
+/*
+ * @api {patch} /firewall/tests/:id/submit Submit a Test
+ * @apiDescription Submit a test
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName StartTest
+ * @apiGroup Test
+ */
+router.post('/:id/submit', submitTest);
 
 /**
  * @api {patch} /firewall/tests/:id/video Update RecordedScreen

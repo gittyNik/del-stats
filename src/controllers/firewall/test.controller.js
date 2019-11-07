@@ -38,16 +38,46 @@ export const getTestById = (req, res) => {
     });
 };
 
+// TODO
+// if null, update sub_time to current timestamp
+// check the other tests which have not been attempted yet
+// responds with the list of tests(id, purpose, duration) with start_time = null
+// if no other tests found,
+// then update the application status to review_pending
+
+// if active test, then submit
+// if inactive test, ignore
+
 export const submitTest = (req, res) => {
   const { id } = req.params;
-  Test.update({ sub_time: new Date() }, { where: { id } })
-    .then(data => res.send(data))
+  Test.update({ sub_time: new Date() }, { where: { id }, returning: true })
+    .then(results => results[1][0])  // returns the test data
+    .then(test => res.send(test))
     .catch((err) => {
       console.log(err);
       res.sendStatus(500);
     });
 };
 
+// todo: submit other tests in the same application
+// todo: update only if not started yet
+export const startTest = (req, res) => {
+  const { id } = req.params;
+  Test.update({ start_time: new Date() }, { where: { id }, returning: true })
+    .then(results => results[1])  // returns the test_series data
+    .then(populateQuestionDetails)
+    .then(testSeries => res.send(testSeries[0]))
+    .catch((err) => {
+      console.log(err);
+      res.sendStatus(500);
+    });
+};
+
+
+ // update responses only if sub_time is null
+ // and start_time + duration < now
+ // else,
+ //  submit the test updateTestResponses
 export const updateTestResponses = (req, res) => {
   const { responses } = req.body;
   const { id } = req.params;
