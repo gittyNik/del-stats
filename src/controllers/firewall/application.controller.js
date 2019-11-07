@@ -5,6 +5,7 @@ import Program from '../../models/program';
 import Cohort from '../../models/cohort';
 import { generateTestSeries, populateTestSeries } from './test.controller';
 import { sendSms } from '../../util/sms';
+import { slackFirewallApplication } from '../../util/slack';
 
 export const getAllApplications = (req, res) => {
   Application.findAll()
@@ -113,11 +114,15 @@ export const updateApplication = (req, res) => {
     Application.update({
       status,
     }, { where: { id } })
-      .then(async (data) => {
-        sendSms(req.jwtData.user.phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
-          .then(res => console.log(res))
-          .catch(err => console.log(err));
-        res.status(200).json(data);
+      .then(async (application) => {
+        if(status === 'review_pending') {
+          await Promise.all([
+            sendSms(req.jwtData.user.phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
+            .then(res => console.log(res)).catch(err => console.log(err)),
+            slackFirewallApplication(application, req.jwtData.user.phone)
+          ]);
+        }
+        res.status(200).json(application);
       })
       .catch((err) => {
         console.log(err);
