@@ -5,10 +5,10 @@ const { SLACK_WEBHOOK } = process.env;
 
 const formatResponse = test => {
   switch(test.purpose) {
-    'know':
+    case 'know':
       return scoreTest(test);
-    'think':
-    'play':
+    case 'think':
+    case 'play':
       return test.responses.map(r => `\`${r.answer.answer}\``).join('\n');
   }
   return '<hidden content>';  // reflect

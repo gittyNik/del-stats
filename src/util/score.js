@@ -16,7 +16,7 @@ const getScore = (option, questionIndex)=>{
   return score[option]
 }
 
-export default scoreTest = test => {
+const scoreTest = test => {
   const MAX_SCORE = 60;
   const OPTIONS = ['Highly fixed', 'Fixed', 'Growth', 'Highly growth'];
   let score = 0;
@@ -29,3 +29,5 @@ export default scoreTest = test => {
 
   return score;
 }
+
+export default scoreTest;

@@ -3,6 +3,7 @@ import Sequelize from 'sequelize';
 import Application from '../../models/application';
 import Program from '../../models/program';
 import Cohort from '../../models/cohort';
+import Test from '../../models/test';
 import { generateTestSeries, populateTestSeries } from './test.controller';
 import { sendSms } from '../../util/sms';
 import { slackFirewallApplication } from '../../util/slack';
