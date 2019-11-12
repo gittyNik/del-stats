@@ -111,23 +111,20 @@ export const updateApplication = (req, res) => {
       .then(data => res.status(200).json(data))
       .catch(err => res.sendStatus(500));
   } else if (status) {
-    Application.update({
-      status,
-    }, { where: { id } })
-      .then(async (application) => {
-        if (status === 'review_pending') {
-          await Promise.all([
-            sendSms(req.jwtData.user.phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
-              .then(res => console.log(res)).catch(err => console.log(err)),
-            slackFirewallApplication(application, req.jwtData.user.phone),
-          ]);
-        }
-        res.status(200).json(application);
-      })
-      .catch((err) => {
-        console.log(err);
-        res.sendStatus(500);
-      });
+    Application.update({ status }, { where: { id } })
+    .then(application => {
+      console.log(application);
+      return (status !== 'review_pending') ? application : Promise.all([
+        sendSms(req.jwtData.user.phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
+          .then(res => console.log(res)).catch(err => console.log(err)),
+        slackFirewallApplication(application, req.jwtData.user.phone),
+      ]);
+    })
+    .then(application => res.send(application))
+    .catch((err) => {
+      console.log(err);
+      res.sendStatus(500);
+    });
   } else {
     res.send('please add some data to update');
   }
