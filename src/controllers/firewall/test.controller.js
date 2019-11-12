@@ -8,7 +8,10 @@ export const getAllTests = (req, res) => {
   Test.findAll({ raw: true })
     .then(populateQuestionDetails)
     .then(data => res.status(200).json(data))
-    .catch(err => res.sendStatus(500));
+    .catch(err => {
+      console.log(err);
+      res.sendStatus(500);
+    });
 };
 
 export const getTestByApplicationId = (req, res) => {
@@ -18,7 +21,10 @@ export const getTestByApplicationId = (req, res) => {
     .then((testSeries) => {
       res.status(200).json(testSeries);
     })
-    .catch(err => res.sendStatus(500));
+    .catch(err => {
+      console.log(err);
+      res.sendStatus(500);
+    });
 };
 
 export const getTestById = (req, res) => {
@@ -26,14 +32,20 @@ export const getTestById = (req, res) => {
   Test.findAll({ where: { id }, raw: true })
     .then(populateQuestionDetails)
     .then(data => res.status(200).json(data))
-    .catch(err => res.sendStatus(500));
+    .catch(err => {
+      console.log(err);
+      res.sendStatus(500);
+    });
 };
 
 export const submitTest = (req, res) => {
   const { id } = req.params;
   Test.update({ sub_time: new Date() }, { where: { id } })
     .then(data => res.send(data))
-    .catch(err => res.sendStatus(500));
+    .catch(err => {
+      console.log(err);
+      res.sendStatus(500);
+    });
 };
 
 export const updateTestResponses = (req, res) => {
@@ -52,7 +64,10 @@ export const updateTestResponses = (req, res) => {
     .then((data) => {
       res.status(201).send(data);
     })
-    .catch(err => res.sendStatus(500));
+    .catch(err => {
+      console.log(err);
+      res.sendStatus(500);
+    });
 };
 
 export const updateTest = updateTestResponses;
