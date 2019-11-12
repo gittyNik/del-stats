@@ -47,9 +47,9 @@ export const switchToFakeUser = (req, res) => {
 
 export const getConfig = (req, res) => {
   ConfigParam.findAll()
-  .then((data) => { res.json(data); })
-  .catch(err => res.status(500).send(err));
-}
+    .then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
 export const addConfig = (req, res) => {
   const { name, value, details } = req.body;
   ConfigParam.create({
@@ -60,17 +60,17 @@ export const addConfig = (req, res) => {
     created_at: Date.now(),
     updated_at: Date.now(),
   })
-  .then(param => res.sendStatus(201))
-  .catch(err => res.status(500).send(err));
-}
+    .then(param => res.sendStatus(201))
+    .catch(err => res.status(500).send(err));
+};
 
 export const updateConfig = (req, res) => {
   const { name, value, details } = req.body;
   ConfigParam.update({ value, details }, {
     where: { name },
   })
-  .then(param => res.send(param))
-  .catch(err => res.status(500).send(err));
-}
+    .then(param => res.send(param))
+    .catch(err => res.status(500).send(err));
+};
 
 export default switchUser;

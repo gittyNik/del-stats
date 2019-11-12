@@ -1,7 +1,7 @@
 import Express from 'express';
 import {
   create, update, deleteOne, getAllByMilestone as getMilestoneResources,
-  getAllMilestones, getMilestone, getTeam, createTeam, updateTeam, deleteTeam,
+  getAllMilestones, getMilestone, getTeam,
 } from '../../controllers/learning/milestone.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 

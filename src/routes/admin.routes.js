@@ -1,6 +1,8 @@
 import Express from 'express';
-import { switchUser, switchUserByEmail, switchToFakeUser, getConfig, addConfig,
-  updateConfig } from '../controllers/admin.controller';
+import {
+  switchUser, switchUserByEmail, switchToFakeUser, getConfig, addConfig,
+  updateConfig,
+} from '../controllers/admin.controller';
 import { allowSuperAdminOnly } from '../controllers/auth/roles.controller';
 
 const router = Express.Router();

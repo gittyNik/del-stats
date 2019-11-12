@@ -3,7 +3,7 @@ import applicationRouter from './application.routes';
 import testRouter from './test.routes';
 import testQuestionRouter from './test_question.routes';
 import browserHistory from './browser_history.routes';
-import getPublicStats from '../../controllers/firewall/firewall.controller';
+import { getPublicStats } from '../../controllers/firewall/firewall.controller';
 import authenticate from '../../controllers/auth/auth.controller';
 
 const router = Express.Router();

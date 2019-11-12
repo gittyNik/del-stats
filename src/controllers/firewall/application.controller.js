@@ -115,11 +115,11 @@ export const updateApplication = (req, res) => {
       status,
     }, { where: { id } })
       .then(async (application) => {
-        if(status === 'review_pending') {
+        if (status === 'review_pending') {
           await Promise.all([
             sendSms(req.jwtData.user.phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
-            .then(res => console.log(res)).catch(err => console.log(err)),
-            slackFirewallApplication(application, req.jwtData.user.phone)
+              .then(res => console.log(res)).catch(err => console.log(err)),
+            slackFirewallApplication(application, req.jwtData.user.phone),
           ]);
         }
         res.status(200).json(application);

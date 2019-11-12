@@ -1,8 +1,8 @@
 import apidocSwagger from 'apidoc-swagger';
 
 export const getSwagger = (req, res) => {
-  let src = __dirname + '/../../src';
-  let swagger = apidocSwagger(src);
+  const src = `${__dirname}/../../src`;
+  const swagger = apidocSwagger(src);
   res.send(swagger);
 };
 

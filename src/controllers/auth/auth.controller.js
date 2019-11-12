@@ -6,7 +6,7 @@ const sendAuthFailure = (res) => {
   res.status(401).send('Unauthenticated request!');
 };
 
-export const authenticate = (req, res, next) => {
+export const authenticateRequest = (req, res, next) => {
   if (req.headers.authorization === undefined) {
     return sendAuthFailure(res);
   }
@@ -24,4 +24,4 @@ export const authenticate = (req, res, next) => {
   });
 };
 
-export default authenticate;
+export default authenticateRequest;

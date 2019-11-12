@@ -1,6 +1,5 @@
 import Express from 'express';
-import { getAll, getOne, create, update, deleteOne, getStudentToDos, updateAll,
-  deleteMultiple } from '../../controllers/toolset/todo.controller';
+import { getAll, getOne, create, update, deleteOne, updateAll, deleteMultiple } from '../../controllers/toolset/todo.controller';
 
 const router = Express.Router();
 
