@@ -1,8 +1,8 @@
 import uuid from 'uuid/v4';
+import _ from 'lodash';
 import Test from '../../models/test';
 import TestQuestion from '../../models/test_question';
 import { populateQuestionDetails } from './test_question.controller';
-import _ from 'lodash';
 
 export const getAllTests = (req, res) => {
   Test.findAll({ raw: true })
@@ -51,7 +51,7 @@ export const getTestById = (req, res) => {
 export const submitTest = (req, res) => {
   const { id } = req.params;
   Test.update({ sub_time: new Date() }, { where: { id }, returning: true })
-    .then(results => results[1][0])  // returns the test data
+    .then(results => results[1][0]) // returns the test data
     .then(test => res.send(test))
     .catch((err) => {
       console.log(err);
@@ -64,7 +64,7 @@ export const submitTest = (req, res) => {
 export const startTest = (req, res) => {
   const { id } = req.params;
   Test.update({ start_time: new Date() }, { where: { id }, returning: true })
-    .then(results => results[1])  // returns the test_series data
+    .then(results => results[1]) // returns the test_series data
     .then(populateQuestionDetails)
     .then(testSeries => res.send(testSeries[0]))
     .catch((err) => {
@@ -73,11 +73,10 @@ export const startTest = (req, res) => {
     });
 };
 
-
- // update responses only if sub_time is null
- // and start_time + duration < now
- // else,
- //  submit the test updateTestResponses
+// update responses only if sub_time is null
+// and start_time + duration < now
+// else,
+//  submit the test updateTestResponses
 export const updateTestResponses = (req, res) => {
   const { responses } = req.body;
   const { id } = req.params;
@@ -111,7 +110,10 @@ export const updateBrowsedUrl = (req, res) => {
     browser_history: history.urls,
   }, { where: { id } })
     .then(data => res.status(201).send(data))
-    .catch(err => res.sendStatus(500));
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
 };
 
 // NOTE: this logic must be changed if the question count is more than 3 digits

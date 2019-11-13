@@ -1,7 +1,7 @@
 import Express from 'express';
 import {
-  getAllTests, getTestById, updateTest, getTestByApplicationId,
-  updateVideo, updateBrowsedUrl,
+  getAllTests, getTestById, startTest, submitTest, updateTestResponses,
+  getTestByApplicationId, updateVideo, updateBrowsedUrl,
 } from '../../controllers/firewall/test.controller';
 
 const router = Express.Router();
