@@ -14,12 +14,16 @@ export const authenticateRequest = (req, res, next) => {
   const token = req.headers.authorization.split(' ').pop();
   jwt.verify(token, process.env.JWT_SECRET, (err, jwtData) => {
     if (err || !jwtData) {
+      console.error(err);
       sendAuthFailure(res);
     } else {
       User.findByPk(jwtData.userId, { raw: true }).then((user) => {
         req.jwtData = { user, ...jwtData };
         next();
-      }).catch(err => sendAuthFailure(res));
+      }).catch(err => {
+        console.error(err);
+        sendAuthFailure(res);
+      });
     }
   });
 };

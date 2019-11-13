@@ -1,14 +1,7 @@
 import { User, USER_ROLES } from '../../models/user';
-
 import Cohort from '../../models/cohort';
 import { getCohortByName } from '../learning/cohort.controller';
 
-/**
- * @api {get} /profile Get the profile
- * @apiHeader {String} authorization JWT Token.
- * @apiName GetProfile
- * @apiGroup Profile
- */
 export const getProfile = (req, res) => {
   res.json({ user: req.jwtData.user });
 };

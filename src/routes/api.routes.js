@@ -41,7 +41,7 @@ router.use('/admin', adminRouter);
  * @apiName GetProfile
  * @apiGroup Profile
  */
-router.use('/profile', getProfile);
+router.get('/profile', getProfile);
 
 /**
  * @api {get} / Get sample response
@@ -53,7 +53,7 @@ router.use('/profile', getProfile);
 router.get('/', sendSampleResponse);
 
 /**
- * @api {get} / Get swagger json
+ * @api {get} /swagger.json Get swagger json
  * @apiDescription Get swgger json
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetSwaggerJson
