@@ -63,7 +63,7 @@ export const submitTest = (req, res) => {
 // todo: update only if not started yet
 export const startTest = (req, res) => {
   const { id } = req.params;
-  Test.update({ start_time: new Date() }, { where: { id }, returning: true })
+  Test.update({ start_time: new Date() }, { where: { id }, returning: true, raw: true })
     .then(results => results[1]) // returns the test_series data
     .then(populateQuestionDetails)
     .then(testSeries => res.send(testSeries[0]))
