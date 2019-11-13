@@ -44,7 +44,7 @@ router.get('/:id', getTestById);
  */
 router.patch('/:id/responses', updateTestResponses);
 
-/*
+/**
  * @api {patch} /firewall/tests/:id/start Start a Test
  * @apiDescription Start a test
  * @apiHeader {String} authorization JWT Token.
@@ -53,7 +53,7 @@ router.patch('/:id/responses', updateTestResponses);
  */
 router.patch('/:id/start', startTest);
 
-/*
+/**
  * @api {patch} /firewall/tests/:id/submit Submit a Test
  * @apiDescription Submit a test
  * @apiHeader {String} authorization JWT Token.
