@@ -27,10 +27,9 @@ const buildFirewallResult = (fullName, phone, tests) =>  `{  "type": "home",
       "type": "section",
       "text": {
         "type": "mrkdwn",
-        "text": "${tests.map(t => `${t.purpose}:    \`${
+        "text": "${tests.map(t => `${t.purpose}:    ${
           formatResponse(t)
-        }\``).join('\n\n')}",
-        "text": "know:    \`Growth Mindset\` \n Think:    \`fd 100 \\n rt 90 fd 100\` \n play:\n     \`console.log('test')\`\n\n    \`sdsdfs\`\n\n    \`sdfkshfs kffkshfd skdah kf sjkdf skdf skdf sa\`"
+        }`).join('\n\n')}"
       }
     },
     {

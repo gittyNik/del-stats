@@ -95,9 +95,10 @@ export const addApplication = (req, res) => {
     });
 };
 
-const populateTestResponses = application => Test.findAll(
-  { where: { application_id: application.id }, raw: true }
-).then(test_series => ({ ...application, test_series }));
+const populateTestResponses = application => {
+  return Test.findAll({ where: { application_id: application.id }, raw: true
+  }).then(test_series => ({ ...application, test_series }));
+}
 
 export const updateApplication = (req, res) => {
   const { cohort_joining, status } = req.body;
@@ -116,16 +117,17 @@ export const updateApplication = (req, res) => {
       .then(data => res.status(200).json(data))
       .catch(err => res.sendStatus(500));
   } else if (status) {
-    Application.update({ status }, { where: { id } })
+    Application.update({ status }, { where: { id }, returning: true, raw: true })
+    .then(result => result[1][0])
     .then(application => {
-      console.log(application);
+      let {phone} = req.jwtData.user;
       return (status !== 'review_pending') ? application : Promise.all([
-        sendSms(req.jwtData.user.phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
-          .then(res => console.log(res)).catch(err => console.log(err)),
-        populateTestResponses(application).then(
-          slackFirewallApplication(application, req.jwtData.user.phone)
-        ),
-      ]);
+        sendSms(phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
+          .catch(err => console.log(err)),
+        populateTestResponses(application)
+          .then( application => slackFirewallApplication(application, phone))
+          .catch(err => console.log(err)),
+      ]).then(responses => application);
     })
     .then(application => res.send(application))
     .catch((err) => {
