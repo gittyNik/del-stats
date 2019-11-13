@@ -50,7 +50,7 @@ export const getTestById = (req, res) => {
 
 export const submitTest = (req, res) => {
   const { id } = req.params;
-  Test.update({ sub_time: new Date() }, { where: { id }, returning: true })
+  Test.update({ sub_time: new Date() }, { where: { id }, returning: true, raw: true })
     .then(results => results[1][0]) // returns the test data
     .then(test => res.send(test))
     .catch((err) => {
