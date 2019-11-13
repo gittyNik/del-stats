@@ -40,7 +40,7 @@ router.get('/:id', getTestById);
  * @apiName UpdateTest
  * @apiGroup Test
  *
- * @apiParam {json} responses List of responses to be saved
+ * @apiParam {Object} responses List of responses to be saved
  */
 router.patch('/:id/responses', updateTestResponses);
 
@@ -57,7 +57,7 @@ router.patch('/:id/start', startTest);
  * @api {patch} /firewall/tests/:id/submit Submit a Test
  * @apiDescription Submit a test
  * @apiHeader {String} authorization JWT Token.
- * @apiName StartTest
+ * @apiName SubmitTest
  * @apiGroup Test
  */
 router.post('/:id/submit', submitTest);
@@ -78,7 +78,7 @@ router.patch('/:id/video', updateVideo);
  * @apiName UpdateBrowsedUrls of a testTest
  * @apiGroup Test
  *
- * @apiParam {json} browsedUrls BrowsedUrls details {"urls":[]}
+ * @apiParam {Object} browsedUrls BrowsedUrls details {"urls":[]}
  */
 router.patch('/:id/history', updateBrowsedUrl);
 
