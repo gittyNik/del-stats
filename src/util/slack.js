@@ -9,12 +9,13 @@ const formatResponse = test => {
       return scoreTest(test);
     case 'think':
     case 'play':
-      return test.responses.map(r => `\`${r.answer?r.answer.answer:''}\``).join('\n');
+      return test.responses.map(r => `\`${r.answer?r.answer.answer:' '}\``).join('\n');
   }
   return '<hidden content>';  // reflect
 }
 
-const buildFirewallResult = (fullName, phone, tests) =>  `{  "type": "home",
+const buildFirewallResult = (fullName, phone, tests) =>  {
+  const block = JSON.parse(`{
   "blocks": [
     {
       "type": "section",
@@ -84,7 +85,10 @@ const buildFirewallResult = (fullName, phone, tests) =>  `{  "type": "home",
       ]
     }
   ]
-}`;
+}`);
+  console.log(block);
+  return block;
+}
 
 /*
 *  Send notification to slack on firewall application submission
