@@ -3,7 +3,7 @@ import { createMessageAdapter } from '@slack/interactive-messages';
 const { SLACK_SIGNING_SECRET } = process.env;
 const slackInteractions = createMessageAdapter(SLACK_SIGNING_SECRET);
 
-slackInteractions.action({ type: 'reject_firewall_applicant' }, (payload, respond) => {
+slackInteractions.action({ type: 'button' }, (payload, respond) => {
   // Logs the contents of the action to the console
   console.log('payload', payload);
 
