@@ -9,7 +9,7 @@ const formatResponse = test => {
       return scoreTest(test);
     case 'think':
     case 'play':
-      return test.responses.map(r => `\`${r.answer.answer}\``).join('\n');
+      return test.responses.map(r => `\`${r.answer?r.answer.answer:''}\``).join('\n');
   }
   return '<hidden content>';  // reflect
 }
