@@ -43,6 +43,8 @@ router.get('/:id', getTestById);
  * @apiParam {Object} responses List of responses to be saved
  */
 router.patch('/:id/responses', updateTestResponses);
+// backward compatibility
+router.patch('/:id', updateTestResponses);
 
 /**
  * @api {patch} /firewall/tests/:id/start Start a Test
