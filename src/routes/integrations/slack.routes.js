@@ -1,13 +1,9 @@
 import Express from 'express';
-import { interactionListener, actionListener } from '../../controllers/integrations/slack';
-import { createMessageAdapter } from '@slack/interactive-messages';
+import { eventListener, interactionListener } from '../../controllers/integrations/slack';
 
-const { SLACK_SIGNING_SECRET } = process.env;
-
-const slackInteractions = createMessageAdapter(SLACK_SIGNING_SECRET);
 const router = Express.Router();
 
-router.use('/interactive-endpoint', slackInteractions.requestListener());
-router.use('/action-endpoint', slackInteractions.requestListener());
+router.use('/action-endpoint', eventListener);
+router.use('/interactive-endpoint', interactionListener);
 
 export default router;

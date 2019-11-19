@@ -1,7 +1,7 @@
 import Express from 'express';
 import compression from 'compression';
 import apiRouter from './routes/api.routes';
-import integrationRouter from './routes/integration.routes';
+import integrationRouter from './routes/integrations';
 
 // Initialize the Express App
 const app = Express();
