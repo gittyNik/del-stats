@@ -1,4 +1,3 @@
-const { WATSON_USER, WATSON_PASS } = process.env;
 const NaturalLanguageUnderstandingV1 = require('watson-developer-cloud/natural-language-understanding/v1.js');
 require('dotenv').config({
   silent: true,
@@ -11,7 +10,7 @@ const nlu = new NaturalLanguageUnderstandingV1({
 
 
 const getWatsonData = (link) => {
-  const urlFormat = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+  const urlFormat = /[-a-zA-Z0-9@:%_+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_+.~#?&//=]*)?/gi;
   const urlRegex = new RegExp(urlFormat);
 
 
@@ -44,7 +43,7 @@ const getWatsonData = (link) => {
         resolve(res);
       });
     } else {
-      reject('Please enter a valid URL');
+      reject(new Error('Please enter a valid URL'));
     }
   });
 };

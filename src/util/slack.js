@@ -3,18 +3,19 @@ import scoreTest from './score';
 
 const { SLACK_WEBHOOK } = process.env;
 
-const formatResponse = test => {
-  switch(test.purpose) {
+const formatResponse = (test) => {
+  switch (test.purpose) {
     case 'know':
       return scoreTest(test);
     case 'think':
     case 'play':
-      return test.responses.map(r => `\`${r.answer?r.answer.answer:' '}\``).join('\n');
+      return test.responses.map(r => `\`${r.answer ? r.answer.answer : ' '}\``).join('\n');
+    default:
+      return '<hidden content>'; // reflect
   }
-  return '<hidden content>';  // reflect
-}
+};
 
-const buildFirewallResult = (fullName, phone, tests) =>  {
+const buildFirewallResult = (fullName, phone, tests) => {
   const block = JSON.parse(`{
   "blocks": [
     {
@@ -29,8 +30,8 @@ const buildFirewallResult = (fullName, phone, tests) =>  {
       "text": {
         "type": "mrkdwn",
         "text": "${tests.map(t => `${t.purpose}:    ${
-          formatResponse(t)
-        }`).join('\n\n')}"
+    formatResponse(t)
+  }`).join('\n\n')}"
       }
     },
     {
@@ -88,7 +89,7 @@ const buildFirewallResult = (fullName, phone, tests) =>  {
 }`);
   console.log(block);
   return block;
-}
+};
 
 /*
 *  Send notification to slack on firewall application submission
@@ -96,3 +97,5 @@ const buildFirewallResult = (fullName, phone, tests) =>  {
 export const slackFirewallApplication = (application, phone) => request.post(SLACK_WEBHOOK)
   .set('Content-type', 'application/json')
   .send(buildFirewallResult(phone, phone, application.test_series));
+
+export default SLACK_WEBHOOK;

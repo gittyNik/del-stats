@@ -140,7 +140,8 @@ router.get('/:resource_id/comments', getComments);
 router.post('/:resource_id/comments', addComment);
 
 /**
- * @api {delete} /content/resources/:resource_id/comments/:comment_id Delete Content resource comment
+ * @api {delete} /content/resources/:resource_id/comments/:comment_id
+ * Delete Content resource comment
  * @apiHeader {String} authorization JWT Token.
  * @apiName DeleteComment
  * @apiGroup Content Resource Comment
