@@ -1,5 +1,5 @@
 import Express from 'express';
-import { eventListener, interactionListener } from '../../controllers/integrations/slack';
+import { eventListener, interactionListener } from '../../../controllers/integrations/slack/team-app';
 
 const router = Express.Router();
 

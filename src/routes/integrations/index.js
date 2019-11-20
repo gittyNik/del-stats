@@ -1,5 +1,5 @@
 import Express from 'express';
-import slackRouter from './slack.routes';
+import slackRouter from './slack';
 import { send404 } from '../../controllers/api.controller';
 
 const router = Express.Router();

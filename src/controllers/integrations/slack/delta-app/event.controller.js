@@ -1,8 +1,6 @@
 import { createEventAdapter } from '@slack/events-api';
 
-const { SLACK_SIGNING_SECRET } = process.env;
-
-const slackEvents = createEventAdapter(SLACK_SIGNING_SECRET);
+const slackEvents = createEventAdapter(process.env.SLACK_DELTA_SECRET);
 // Attach listeners to events by Slack Event "type". See: https://api.slack.com/events/message.im
 slackEvents.on('message', (event, respond) => {
   console.log(event);
