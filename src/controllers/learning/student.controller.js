@@ -1,4 +1,4 @@
-import { Student, USER_ROLES } from '../../models/user';
+import { User, USER_ROLES } from '../../models/user';
 
 export const getCohortStudents = cohort => Student.find({
   currentCohort: cohort._id,

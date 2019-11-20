@@ -14,7 +14,7 @@ export const USER_ROLES = Object.freeze({
   SUPERADMIN: 'superadmin',
 });
 
-const User = db.define('users', {
+export const User = db.define('users', {
   name: Sequelize.STRING,
   email: Sequelize.STRING,
   phone: Sequelize.STRING,
@@ -52,5 +52,3 @@ export const createSuperAdmin = () => User.findOrCreate({
     id: uuid(),
   },
 });
-
-export default User;

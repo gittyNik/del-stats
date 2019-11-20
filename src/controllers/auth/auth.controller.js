@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import User from '../../models/user';
+import { User } from '../../models/user';
 
 const sendAuthFailure = (res) => {
   res.header('WWW-Authenticate', 'Bearer realm="Access to Delta API"');

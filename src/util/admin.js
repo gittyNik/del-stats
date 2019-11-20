@@ -13,4 +13,3 @@ db.authenticate()
     }
     console.log(`Token is : ${getSoalToken(user)}`);
   }).catch(err => console.error('Database failure: Try running db migrations', err));
-

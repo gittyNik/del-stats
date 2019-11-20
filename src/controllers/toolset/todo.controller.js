@@ -1,4 +1,3 @@
-import { Student, USER_ROLES } from '../../models/user';
 import Todo from '../../models/todo';
 
 export const getStudentToDos = (req, res) => {
@@ -39,9 +38,9 @@ export const create = (req, res) => {
 };
 
 export const update = (req, res) => {
-  const data = req.body;
+  const todo = req.body;
   // todo: check if the currentCohort is valid and then continue
-  Todo.findByIdAndUpdate(req.params.id, data)
+  Todo.findByIdAndUpdate(req.params.id, todo)
     .then(data => res.json({ data }))
     .catch((err) => {
       console.log(err);

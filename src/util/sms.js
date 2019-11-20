@@ -33,4 +33,3 @@ const filterSuccess = response => ((response.type === 'success') ? response : Pr
 export const sendOtp = phone => msg91Otp.send(phone, SENDER_ID).then(filterSuccess);
 export const retrySendOtp = phone => msg91Otp.retry(phone).then(filterSuccess);
 export const verifyOtp = (phone, otp) => msg91Otp.verify(phone, otp).then(filterSuccess);
-

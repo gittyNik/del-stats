@@ -22,7 +22,7 @@ const getGithubAccessToken = (code) => {
 };
 
 const fetchProfileFromGithub = ({ githubToken, expiry }) =>
-  // TODO: reject if expired
+// TODO: reject if expired
 
   // fetching profile details from github
   request.get(`https://api.github.com/user?${githubToken}`)
@@ -83,7 +83,8 @@ export const linkWithGithub = (req, res) => {
         return {
           profile, githubToken, expiry, user,
         };
-      } else if (user.email === null) {
+      }
+      if (user.email === null) {
         // If the user doesn't have email, use email from github
         return {
           profile, githubToken, expiry, user: { ...user, email: profile.emails[0] },

@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import mongoose from 'mongoose';
-import User from '../../models/user';
+import { User } from '../../models/user';
 
 'use strict';
 

@@ -11,19 +11,4 @@ const Ping = mongoose.model('Ping', new Schema({
   questionType: String,
 }));
 
-export const getIntentionPing = () => new Promise(async (resolve, reject) => {
-  const pingData = { type: 'Intention' };
-  let ping = await Ping.findOne(pingData).exec();
-  if (ping !== null) {
-    return resolve(ping);
-  }
-
-  ping = await new Ping(pingData).save();
-  if (ping !== null) {
-    return resolve(ping);
-  }
-
-  return reject();
-});
-
 export default Ping;

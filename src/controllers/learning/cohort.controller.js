@@ -1,6 +1,6 @@
+import Sequelize from 'sequelize';
 import Cohort from '../../models/cohort';
 import { getCohortStudents } from './student.controller';
-import Sequelize from 'sequelize';
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
