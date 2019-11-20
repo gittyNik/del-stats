@@ -92,8 +92,8 @@ const buildFirewallResult = (fullName, phone, tests) => {
 /*
 *  Send notification to slack on firewall application submission
 */
-export const slackFirewallApplication = (application, phone) => request.post(process.env.SLACK_FIREWALL_WEBHOOK)
+export const sendFirewallResult = (application, phone) => request.post(process.env.SLACK_FIREWALL_WEBHOOK)
   .set('Content-type', 'application/json')
   .send(buildFirewallResult(phone, phone, application.test_series));
 
-export default SLACK_WEBHOOK;
+export default SLACK_FIREWALL_WEBHOOK;
