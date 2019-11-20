@@ -19,7 +19,11 @@ export const allowLearnerWithId = learnerId => (req, res, next) => {
 };
 
 const allowRole = (role, errorMessage = ERRMSG) => (req, res, next) => {
-  if (req.jwtData.user && req.jwtData.user.role === role) { next(); } else { res.status(403).send(errorMessage); }
+  if (req.jwtData.user && req.jwtData.user.role === role) {
+    next();
+  } else {
+    res.status(403).send(errorMessage);
+  }
 };
 
 export const allowSuperAdminOnly = allowRole(

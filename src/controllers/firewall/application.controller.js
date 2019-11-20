@@ -11,14 +11,14 @@ import { sendFirewallResult } from '../integrations/slack/team-app/firewall.cont
 export const getAllApplications = (req, res) => {
   Application.findAll()
     .then(data => res.status(200).json(data))
-    .catch(err => res.sendStatus(500));
+    .catch(() => res.sendStatus(500));
 };
 
 export const getApplicationById = (req, res) => {
   const { id } = req.params;
   Application.findAll({ where: { id } })
     .then(data => res.status(200).json(data))
-    .catch(err => res.sendStatus(500));
+    .catch(() => res.sendStatus(500));
 };
 
 export const getApplicationsByUserId = (req, res) => {
@@ -30,7 +30,7 @@ export const getApplicationsByUserId = (req, res) => {
     .then((data) => {
       if (data.length === 0) { res.sendStatus(404); } else { res.send({ data }); }
     })
-    .catch(err => res.sendStatus(500));
+    .catch(() => res.sendStatus(500));
 };
 
 export const getLatestApplication = (req, res) => {
@@ -47,7 +47,7 @@ export const getLatestApplication = (req, res) => {
       }
       res.sendStatus(404);
     })
-    .catch(err => res.sendStatus(500));
+    .catch(() => res.sendStatus(500));
 };
 
 export const getLiveApplications = (req, res) => {
@@ -57,7 +57,7 @@ export const getLiveApplications = (req, res) => {
     },
   })
     .then(data => res.status(200).json(data))
-    .catch(err => res.sendStatus(500));
+    .catch(() => res.sendStatus(500));
 };
 
 export const addApplication = (req, res) => {
@@ -95,7 +95,8 @@ export const addApplication = (req, res) => {
     });
 };
 
-const populateTestResponses = application => Test.findAll({ where: { application_id: application.id }, raw: true }).then(test_series => ({ ...application, test_series }));
+const populateTestResponses = application => Test.findAll({ where: { application_id: application.id }, raw: true })
+  .then(test_series => ({ ...application, test_series }));
 
 export const updateApplication = (req, res) => {
   const { cohort_joining, status } = req.body;
@@ -106,13 +107,13 @@ export const updateApplication = (req, res) => {
       status,
     }, { where: { id } })
       .then(data => res.status(200).json(data))
-      .catch(err => res.sendStatus(500));
+      .catch(() => res.sendStatus(500));
   } else if (cohort_joining) {
     Application.update({
       cohort_joining,
     }, { where: { id } })
       .then(data => res.status(200).json(data))
-      .catch(err => res.sendStatus(500));
+      .catch(() => res.sendStatus(500));
   } else if (status) {
     Application.update({ status }, { where: { id }, returning: true, raw: true })
       .then(result => result[1][0])
@@ -141,7 +142,7 @@ export const deleteApplication = (req, res) => {
     status: 'archieved',
   }, { where: { id } })
     .then(data => res.status(200).json(data))
-    .catch(err => res.sendStatus(500));
+    .catch(() => res.sendStatus(500));
 };
 
 export const payment = (req, res) => {
@@ -152,5 +153,5 @@ export const payment = (req, res) => {
     payment_details: payment,
   }, { where: { id } })
     .then(data => res.status(200).json(data))
-    .catch(err => res.sendStatus(500));
+    .catch(() => res.sendStatus(500));
 };

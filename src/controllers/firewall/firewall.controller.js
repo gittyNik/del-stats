@@ -1,6 +1,5 @@
 import Sequelize from 'sequelize';
 import Application from '../../models/application';
-import Program from '../../models/program';
 import Cohort from '../../models/cohort';
 
 const getUpcomingCohort = () => {
@@ -30,7 +29,7 @@ export const getPublicStats = async (req, res) => {
         count: applications.length,
       });
     })
-    .catch(err => res.sendStatus(500));
+    .catch(() => res.sendStatus(500));
 };
 
 export default getPublicStats;

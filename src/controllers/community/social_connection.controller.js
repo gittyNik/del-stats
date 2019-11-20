@@ -1,4 +1,4 @@
-import { SocialConnection, PROVIDERS } from '../../models/social_connection';
+import { SocialConnection } from '../../models/social_connection';
 
 export const getAll = (req, res) => {
   SocialConnection.findAll()

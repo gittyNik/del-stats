@@ -60,7 +60,7 @@ export const addConfig = (req, res) => {
     created_at: Date.now(),
     updated_at: Date.now(),
   })
-    .then(param => res.sendStatus(201))
+    .then(() => res.sendStatus(201))
     .catch(err => res.status(500).send(err));
 };
 
