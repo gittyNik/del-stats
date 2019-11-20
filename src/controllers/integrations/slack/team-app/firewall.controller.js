@@ -1,7 +1,5 @@
 import request from 'superagent';
-import scoreTest from './score';
-
-const { SLACK_WEBHOOK } = process.env;
+import scoreTest from '../../../firewall/test_score.controller';
 
 const formatResponse = (test) => {
   switch (test.purpose) {
@@ -94,7 +92,7 @@ const buildFirewallResult = (fullName, phone, tests) => {
 /*
 *  Send notification to slack on firewall application submission
 */
-export const slackFirewallApplication = (application, phone) => request.post(SLACK_WEBHOOK)
+export const slackFirewallApplication = (application, phone) => request.post(process.env.SLACK_FIREWALL_WEBHOOK)
   .set('Content-type', 'application/json')
   .send(buildFirewallResult(phone, phone, application.test_series));
 

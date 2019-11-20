@@ -6,7 +6,7 @@ import Cohort from '../../models/cohort';
 import Test from '../../models/test';
 import { generateTestSeries, populateTestSeries } from './test.controller';
 import { sendSms } from '../../util/sms';
-import { slackFirewallApplication } from '../../util/slack';
+import { sendFirewallResult } from '../integrations/slack/team-app/firewall.controller';
 
 export const getAllApplications = (req, res) => {
   Application.findAll()
@@ -125,7 +125,7 @@ export const updateApplication = (req, res) => {
         sendSms(phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
           .catch(err => console.log(err)),
         populateTestResponses(application)
-          .then( application => slackFirewallApplication(application, phone))
+          .then( application => sendFirewallResult(application, phone))
           .catch(err => console.log(err)),
       ]).then(responses => application);
     })
