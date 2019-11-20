@@ -1,11 +1,8 @@
-import Express from 'express';
 import request from 'superagent';
 import uuid from 'uuid/v4';
 import { getSoalToken } from '../../util/token';
-import { User, getUserFromEmails } from '../../models/user';
+import { getUserFromEmails } from '../../models/user';
 import { SocialConnection, PROVIDERS } from '../../models/social_connection';
-
-const router = Express.Router();
 
 const getGithubAccessToken = (code) => {
   const params = {
@@ -21,7 +18,7 @@ const getGithubAccessToken = (code) => {
     }));
 };
 
-const fetchProfileFromGithub = ({ githubToken, expiry }) =>
+const fetchProfileFromGithub = ({ githubToken, expiry }) => (
 // TODO: reject if expired
 
   // fetching profile details from github
@@ -34,8 +31,8 @@ const fetchProfileFromGithub = ({ githubToken, expiry }) =>
           profile.emails = emailResponse.body.map(o => o.email);
           return { profile, githubToken, expiry };
         });
-    });
-
+    })
+);
 
 // fetch profile and add it to social_connections
 const addGithubProfile = ({
@@ -93,12 +90,12 @@ export const linkWithGithub = (req, res) => {
       return Promise.reject('INVALID_EMAIL');
     })
     .then(addGithubProfile)
-    .then(({ user, socialConnection }) => {
+    .then((userProfile) => { // {user, socialConnection}
     // TODO: Do any user updates here.
     // e.g. add avatar_url from github to user profile
       const {
         provider, username, email, profile,
-      } = socialConnection;
+      } = userProfile.socialConnection;
       res.send({
         data: {
           provider, username, email, profile,
@@ -126,7 +123,7 @@ export const signinWithGithub = (req, res) => {
 
   getGithubAccessToken(code)
     .then(fetchProfileFromGithub)
-    .then(({ profile, githubToken, expiry }) =>
+    .then(({ profile, githubToken, expiry }) => (
     // If no user's email is not found with github emails,
     // then authentication error should be sent as resopnse
       getUserFromEmails(profile.emails)
@@ -135,9 +132,10 @@ export const signinWithGithub = (req, res) => {
           return {
             profile, githubToken, expiry, user,
           };
-        }))
+        })
+    ))
     .then(addGithubProfile)
-    .then(({ user, socialConnection }) => {
+    .then(({ user }) => { // {user, socialConnection}
       res.send({
         user,
         soalToken: getSoalToken(user),

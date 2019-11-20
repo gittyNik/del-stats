@@ -5,13 +5,13 @@ import browser_visit_items from '../../models/browser_visit_items';
 export const getAllBrowserHistoryItems = (req, res) => {
   browser_history_items.findAll({})
     .then((data) => { res.json(data); })
-    .catch((err) => {});
+    .catch(() => { res.sendStatus(500); });
 };
 
 export const getAllBrowserVisitItems = (req, res) => {
   browser_visit_items.findAll({})
     .then((data) => { res.json(data); })
-    .catch((err) => {});
+    .catch(() => { res.sendStatus(500); });
 };
 
 export const getAllDataByUrlId = (req, res) => {
@@ -26,8 +26,7 @@ export const getAllDataByUrlId = (req, res) => {
           browser_url_id: data[0].browser_url_id,
         },
       });
-      const k = await promise;
-      promise.then((data1) => {
+      await promise.then((data1) => {
         const datavalue = JSON.parse(JSON.stringify(data[0]));
         datavalue.visit = data1;
         res.json(datavalue);
@@ -65,28 +64,30 @@ export const getAllDataByUserId = (req, res) => {
 
 export const insertHistory = (req, res) => {
   const { historyitem } = req.body;
-  for (var i = 0; i < historyitem.length; i++) {
-    (function (i, historyitem) {
+  for (let i_index = 0; i_index < historyitem.length; i_index++) {
+    (function addHitem(i, h_item) {
       browser_history_items.create({
-        browser_url_id: historyitem[i].id,
-        url: historyitem[i].url,
-        title: historyitem[i].title,
-        useragent: historyitem[i].userAgent,
-      }).catch((err) => {});
-    }(i, historyitem));
+        browser_url_id: h_item[i].id,
+        url: h_item[i].url,
+        title: h_item[i].title,
+        useragent: h_item[i].userAgent,
+      })
+        .catch(() => { res.sendStatus(500); });
+    }(i_index, historyitem));
   }
-  for (var i = 0; i < historyitem.length; i++) {
-    for (let j = 0; j < historyitem[i].visit.length; j++) {
-      (function (j, historyitem) {
+  for (let i = 0; i < historyitem.length; i++) {
+    for (let j_index = 0; j_index < historyitem[i].visit.length; j_index++) {
+      (function addHVitem(j, h_item) {
         browser_visit_items.create({
-          browser_url_id: historyitem[i].visit[j].id,
+          browser_url_id: h_item[i].visit[j].id,
           ip: ip.address(),
           user_id: req.body.getid,
-          visited_timestamp: historyitem[i].visit[j].visitTime,
-          visit_id: historyitem[i].visit[j].visitId,
-          transition: historyitem[i].visit[j].transition,
-        }).catch((err) => {});
-      }(j, historyitem));
+          visited_timestamp: h_item[i].visit[j].visitTime,
+          visit_id: h_item[i].visit[j].visitId,
+          transition: h_item[i].visit[j].transition,
+        })
+          .catch(() => { res.sendStatus(500); });
+      }(j_index, historyitem));
     }
   }
 };

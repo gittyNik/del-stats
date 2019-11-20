@@ -26,6 +26,8 @@ export const authenticateRequest = (req, res, next) => {
       });
     }
   });
+
+  return 0;
 };
 
 export default authenticateRequest;

@@ -19,7 +19,7 @@ export const create = (req, res) => {
   new Resource({
     type, ttl, tags, data,
   }).save()
-    .then(data => res.status(201).json({ data }))
+    .then(ping => res.status(201).json({ ping }))
     .catch(err => res.status(500).send(err));
 };
 
@@ -30,7 +30,7 @@ export const update = (req, res) => {
   Resource.findByIdAndUpdate(req.params.id, {
     type, ttl, tags, data,
   })
-    .then(data => res.json({ data }))
+    .then(ping => res.json({ ping }))
     .catch(err => res.status(500).send(err));
 };
 

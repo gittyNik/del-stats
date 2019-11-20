@@ -1,6 +1,5 @@
 import Sequelize from 'sequelize';
 import Cohort from '../../models/cohort';
-import { getCohortStudents } from './student.controller';
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
@@ -8,7 +7,7 @@ export const getCohorts = (req, res) => {
     .catch(err => res.status(500).send(err));
 };
 
-const getCohortLearners = cohort => Promise.resolve([]);
+const getCohortLearners = () => Promise.resolve([]);
 
 export const getCohortByName = (req, res) => {
   const { year, location, name } = req.params;
@@ -38,7 +37,7 @@ export const getCohort = (req, res) => {
     .then((cohort) => {
       res.json({ cohort });
     })
-    .catch(err => res.sendStatus(404));
+    .catch(() => res.sendStatus(404));
 };
 
 export const createCohort = (req, res) => {
@@ -64,6 +63,7 @@ export const updateCohort = (req, res) => {
 };
 
 export const deleteCohort = (req, res) => {
+  const { id } = req.params;
   Cohort.destroy({ where: { id } })
     .then(() => res.status(204))
     .catch(err => res.status(500).send(err));
@@ -108,5 +108,5 @@ export const getUpcomingCohorts = (req, res) => {
     },
   }).then((data) => {
     res.send({ data });
-  }).catch(err => res.sendStatus(404));
+  }).catch(() => res.sendStatus(404));
 };

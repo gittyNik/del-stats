@@ -84,7 +84,10 @@ export const updateTestResponses = (req, res) => {
   Test.findByPk(id)
     .then((test) => {
     // use response sent by client or the original from db
-      const finalResponses = test.responses.map(dbResponse => responses.find(r => r.question_id === dbResponse.question_id) || dbResponse);
+      const finalResponses = test.responses.map(
+        dbResponse => responses
+          .find(r => r.question_id === dbResponse.question_id) || dbResponse,
+      );
       return Test.update({
         responses: finalResponses,
         sub_time: new Date(),
@@ -127,14 +130,16 @@ const generateTest = (template, application, allQuestions) => {
     questions_fixed: [],  // An array of fixed questions
   }]
   */
-  let testQuestions = allQuestions.filter(q => template.questions_fixed && template.questions_fixed.includes(q.id));
+  let testQuestions = allQuestions.filter(
+    q => template.questions_fixed && template.questions_fixed.includes(q.id),
+  );
 
-  for (const domain in template.random) {
+  Object.keys(template.random).forEach(domain => {
     const randomQuestions = allQuestions.filter(q => q.domain === domain)
       .filter(q => !template.typesAllowed || template.typesAllowed.includes(q.type));
     testQuestions = _.shuffle(randomQuestions)
       .splice(0, template.random[domain]).concat(testQuestions);
-  }
+  });
 
   const questionDetails = testQuestions.map((q) => {
     delete q.answer;
@@ -161,15 +166,22 @@ const generateTest = (template, application, allQuestions) => {
 // questions[{qid,answer,isCorrect,review,reviewed_by}]
 export const generateTestSeries = (template, application) => {
   template = template.tests;
-  return TestQuestion.findAll({ raw: true }).then(allQuestions => Promise.all(template.map(testTemplate => generateTest(testTemplate, application, allQuestions)))).then(test_series => ({
-    application,
-    test_series,
-  }));
+  return TestQuestion.findAll({ raw: true })
+    .then(allQuestions => Promise.all(
+      template.map(testTemplate => generateTest(testTemplate, application, allQuestions)),
+    ))
+    .then(test_series => ({
+      application,
+      test_series,
+    }));
 };
 
-export const populateTestSeries = application => Test.findAll({ where: { application_id: application.id }, raw: true })
-  .then(populateQuestionDetails)
-  .then(test_series => ({ application, test_series }));
+export const populateTestSeries = application => {
+  let application_id = application.id;
+  return Test.findAll({ where: { application_id }, raw: true })
+    .then(populateQuestionDetails)
+    .then(test_series => ({ application, test_series }));
+};
 
 // pending
 export const updateVideo = (req, res) => {

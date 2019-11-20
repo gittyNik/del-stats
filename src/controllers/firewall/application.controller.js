@@ -45,7 +45,7 @@ export const getLatestApplication = (req, res) => {
           res.send({ data });
         });
       }
-      res.sendStatus(404);
+      return res.sendStatus(404);
     })
     .catch(() => res.sendStatus(500));
 };
@@ -95,8 +95,11 @@ export const addApplication = (req, res) => {
     });
 };
 
-const populateTestResponses = application => Test.findAll({ where: { application_id: application.id }, raw: true })
-  .then(test_series => ({ ...application, test_series }));
+const populateTestResponses = application => {
+  let application_id = application.id;
+  return Test.findAll({ where: { application_id }, raw: true })
+    .then(test_series => ({ ...application, test_series }));
+};
 
 export const updateApplication = (req, res) => {
   const { cohort_joining, status } = req.body;
@@ -123,9 +126,9 @@ export const updateApplication = (req, res) => {
           sendSms(phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
             .catch(err => console.log(err)),
           populateTestResponses(application)
-            .then(application => sendFirewallResult(application, phone))
+            .then(appli => sendFirewallResult(appli, phone))
             .catch(err => console.log(err)),
-        ]).then(responses => application);
+        ]).then(() => application);
       })
       .then(application => res.send(application))
       .catch((err) => {
@@ -138,6 +141,7 @@ export const updateApplication = (req, res) => {
 };
 
 export const deleteApplication = (req, res) => {
+  const { id } = req.params;
   Application.update({
     status: 'archieved',
   }, { where: { id } })
@@ -146,11 +150,11 @@ export const deleteApplication = (req, res) => {
 };
 
 export const payment = (req, res) => {
-  const { payment_details } = req.body;
+  let { payment_details } = req.body;
   const { id } = req.params;
-  const payment = JSON.parse(payment_details);
+  payment_details = JSON.parse(payment_details);
   Application.update({
-    payment_details: payment,
+    payment_details,
   }, { where: { id } })
     .then(data => res.status(200).json(data))
     .catch(() => res.sendStatus(500));

@@ -1,27 +1,28 @@
 import uuid from 'uuid/v4';
 import TestQuestion from '../../models/test_question';
 
-export const populateQuestionDetails = testSeries =>
+export const populateQuestionDetails = testSeries => (
   // Alternatively, the query can take an array and return only few questions
-  TestQuestion.findAll({ raw: true }).then((allQuestions) => {
-    allQuestions = allQuestions.map((q) => {
-      delete q.answer;
-      return q;
-    });
+  TestQuestion.findAll({ raw: true })
+    .then((allQuestions) => {
+      allQuestions = allQuestions.map((q) => {
+        delete q.answer;
+        return q;
+      });
 
-    testSeries.forEach((test) => {
-      const questionIds = test.responses.map(response => response.question_id);
-      test.questionDetails = allQuestions.filter(q => questionIds.includes(q.id));
-    });
+      testSeries.forEach((test) => {
+        const questionIds = test.responses.map(response => response.question_id);
+        test.questionDetails = allQuestions.filter(q => questionIds.includes(q.id));
+      });
 
-    return testSeries;
-  });
-
+      return testSeries;
+    })
+);
 
 export const getAllQuestions = (req, res) => {
   TestQuestion.findAll()
     .then(data => res.status(200).send(data))
-    .catch(err => res.sendStatus(500));
+    .catch(() => res.sendStatus(500));
 };
 
 // question, type{mcq/text/code}, domain{generic/tech/mindsets}
@@ -35,7 +36,7 @@ export const addQuestion = (req, res) => {
     domain,
   })
     .then(data => res.status(201).send(data))
-    .catch(err => res.sendStatus(500));
+    .catch(() => res.sendStatus(500));
 };
 
 export const deleteQuestion = (req, res) => {
@@ -44,8 +45,8 @@ export const deleteQuestion = (req, res) => {
     where: {
       id,
     },
-  }).then(data => res.sendStatus(200))
-    .catch(err => res.sendStatus(500));
+  }).then(() => res.sendStatus(200))
+    .catch(() => res.sendStatus(500));
 };
 
 export const updateQuestion = (req, res) => {
@@ -58,6 +59,6 @@ export const updateQuestion = (req, res) => {
     domain,
   }, { where: { id } })
     .then(data => res.status(200).send(data))
-    .catch(err => res.sendStatus(500));
+    .catch(() => res.sendStatus(500));
   // UPDATE post SET question: {} WHERE id: 2;
 };

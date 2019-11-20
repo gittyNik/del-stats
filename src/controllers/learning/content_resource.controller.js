@@ -24,11 +24,12 @@ export const getTop = (req, res) => {
   })
     .then(async (data1) => {
       const arr = [];
-      for (var i = 0; i < data1.length; i++) {
+      for (let i = 0; i < data1.length; ++i) {
         arr.push(data1[i].resource_id);
       }
       const result = [];
-      for (var i = 0; i < arr.length; i++) {
+      const promises = [];
+      for (let i = 0; i < arr.length; ++i) {
         const promise = Resource.findAll({
           attributes: ['url'],
           where: {
@@ -36,8 +37,9 @@ export const getTop = (req, res) => {
           },
         })
           .then((data) => { result.push(data); });
-        const k = await promise;
+        promises.push(promise);
       }
+      await Promise.all(promises);
       res.json(result);
     })
     .catch(err => res.status(500).send(err));
@@ -91,7 +93,7 @@ export const update = (req, res) => {
       id: req.params.resource_id,
     },
   })
-    .then((tepResource) => {
+    .then(() => {
       res.send('Resource updated');
     })
     .catch(err => res.status(500).send(err));
@@ -201,7 +203,7 @@ export const resolveReport = (req, res) => {
       },
     },
   )
-    .then((tepResourceReport) => {
+    .then(() => {
       res.send('Report updated');
     })
     .catch(err => res.status(500).send(err));
@@ -228,7 +230,7 @@ export const approve = (req, res) => {
       },
     },
   )
-    .then((tepResource) => {
+    .then(() => {
       res.send('Resource approved');
     })
     .catch(err => res.status(500).send(err));
