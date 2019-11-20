@@ -20,7 +20,7 @@ export const authenticateRequest = (req, res, next) => {
       User.findByPk(jwtData.userId, { raw: true }).then((user) => {
         req.jwtData = { user, ...jwtData };
         next();
-      }).catch(err => {
+      }).catch((err) => {
         console.error(err);
         sendAuthFailure(res);
       });

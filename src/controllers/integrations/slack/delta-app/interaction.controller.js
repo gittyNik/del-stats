@@ -8,7 +8,6 @@ slackInteractions.action({ type: 'button' }, (payload, respond) => {
 
   // Send an additional message to the whole channel
   respond({ text: 'Thanks for your review.' });
-
 });
 
 export default slackInteractions;

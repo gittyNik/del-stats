@@ -95,10 +95,7 @@ export const addApplication = (req, res) => {
     });
 };
 
-const populateTestResponses = application => {
-  return Test.findAll({ where: { application_id: application.id }, raw: true
-  }).then(test_series => ({ ...application, test_series }));
-}
+const populateTestResponses = application => Test.findAll({ where: { application_id: application.id }, raw: true }).then(test_series => ({ ...application, test_series }));
 
 export const updateApplication = (req, res) => {
   const { cohort_joining, status } = req.body;
@@ -118,22 +115,22 @@ export const updateApplication = (req, res) => {
       .catch(err => res.sendStatus(500));
   } else if (status) {
     Application.update({ status }, { where: { id }, returning: true, raw: true })
-    .then(result => result[1][0])
-    .then(application => {
-      let {phone} = req.jwtData.user;
-      return (status !== 'review_pending') ? application : Promise.all([
-        sendSms(phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
-          .catch(err => console.log(err)),
-        populateTestResponses(application)
-          .then( application => sendFirewallResult(application, phone))
-          .catch(err => console.log(err)),
-      ]).then(responses => application);
-    })
-    .then(application => res.send(application))
-    .catch((err) => {
-      console.log(err);
-      res.sendStatus(500);
-    });
+      .then(result => result[1][0])
+      .then((application) => {
+        const { phone } = req.jwtData.user;
+        return (status !== 'review_pending') ? application : Promise.all([
+          sendSms(phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
+            .catch(err => console.log(err)),
+          populateTestResponses(application)
+            .then(application => sendFirewallResult(application, phone))
+            .catch(err => console.log(err)),
+        ]).then(responses => application);
+      })
+      .then(application => res.send(application))
+      .catch((err) => {
+        console.log(err);
+        res.sendStatus(500);
+      });
   } else {
     res.send('please add some data to update');
   }
