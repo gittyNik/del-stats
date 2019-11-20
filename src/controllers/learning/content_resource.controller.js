@@ -118,7 +118,7 @@ export const getComments = (req, res) => {
 };
 
 export const addComment = (req, res) => {
-  const resource_id = req.params.resource_id;
+  const { resource_id } = req.params;
   const { comment } = req.body;
   return ResourceComment.create({
     resource_id, comment,
@@ -144,7 +144,7 @@ export const deleteComment = (req, res) => {
 export const upvote = (req, res) => {
   const id = uuid();
   const user_id = uuid();
-  const resource_id = req.params.resource_id;
+  const { resource_id } = req.params;
   const vote = 'upvote';
   return ResourceVote.create({
     id, user_id, resource_id, vote,
@@ -176,8 +176,8 @@ export const getReports = (req, res) => {
 
 export const addReport = (req, res) => {
   const id = uuid();
-  const resource_id = req.params.resource_id;
-  const report = req.body.report;
+  const { resource_id } = req.params;
+  const { report } = req.body;
   console.log(id, resource_id, report);
   return ResourceReport.create({
     id, resource_id, report,

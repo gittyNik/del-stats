@@ -41,7 +41,7 @@ export const update = (req, res) => {
       id: req.params.milestone_id,
     },
   })
-    .then((tepMilestone) => {
+    .then(() => {
       res.send('Milestone updated');
     })
     .catch(err => res.status(500).send(err));
@@ -108,7 +108,7 @@ export const updateTeam = (req, res) => {
       id: req.params.team_id,
     },
   })
-    .then((team) => {
+    .then(() => {
       res.send('Team updated');
     })
     .catch(err => res.status(500).send(err));

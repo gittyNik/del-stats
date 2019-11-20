@@ -1,5 +1,5 @@
-import { getOrCreateUser } from '../../models/user';
 import SendOtp from 'sendotp';
+import { getOrCreateUser } from '../../models/user';
 import { getSoalToken } from '../../util/token';
 
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, 'Use {{otp}} to login with DELTA. Please do not share it with anybody! {SOAL Team}');
@@ -10,7 +10,7 @@ export const sendOTP = (req, res) => {
   sendOtp.setOtpExpiry(5);
   sendOtp.send(phone, 'SOALIO', (error, data) => {
     console.log(data);
-    if (error == null && data.type == 'success') {
+    if (error === null && data.type === 'success') {
       res.send(data);
     } else { res.sendStatus(400); }
   });
@@ -44,9 +44,10 @@ export const verifyOTP = (req, res) => {
 
   sendOtp.verify(phone, otp, (error, data) => {
     console.log(data);
-    if (error == null && data.type == 'success') { // OTP verified
+    if (error === null && data.type === 'success') { // OTP verified
       signInUserByPhone(phone, res);
-    } else // if (data.type == 'error') // OTP verification failed
-    { res.sendStatus(401); }
+    } else { // if (data.type == 'error') // OTP verification failed
+      res.sendStatus(401);
+    }
   });
 };

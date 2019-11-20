@@ -1,6 +1,6 @@
+import ip from 'ip';
 import browser_history_items from '../../models/browser_history_items';
 import browser_visit_items from '../../models/browser_visit_items';
-import ip from 'ip';
 
 export const getAllBrowserHistoryItems = (req, res) => {
   browser_history_items.findAll({})
@@ -64,7 +64,7 @@ export const getAllDataByUserId = (req, res) => {
 };
 
 export const insertHistory = (req, res) => {
-  const historyitem = req.body.historyitem;
+  const { historyitem } = req.body;
   for (var i = 0; i < historyitem.length; i++) {
     (function (i, historyitem) {
       browser_history_items.create({
