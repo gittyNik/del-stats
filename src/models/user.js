@@ -14,7 +14,7 @@ export const USER_ROLES = Object.freeze({
   SUPERADMIN: 'superadmin',
 });
 
-export const User = db.define('users', {
+const User = db.define('users', {
   name: Sequelize.STRING,
   email: Sequelize.STRING,
   phone: Sequelize.STRING,
