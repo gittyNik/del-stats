@@ -84,10 +84,8 @@ export const updateTestResponses = (req, res) => {
   Test.findByPk(id)
     .then((test) => {
     // use response sent by client or the original from db
-      const finalResponses = test.responses.map(
-        dbResponse => responses
-          .find(r => r.question_id === dbResponse.question_id) || dbResponse,
-      );
+      const finalResponses = test.responses.map(dbResponse => responses
+        .find(r => r.question_id === dbResponse.question_id) || dbResponse);
       return Test.update({
         responses: finalResponses,
         sub_time: new Date(),
@@ -130,9 +128,9 @@ const generateTest = (template, application, allQuestions) => {
     questions_fixed: [],  // An array of fixed questions
   }]
   */
-  let testQuestions = allQuestions.filter(
-    q => template.questions_fixed && template.questions_fixed.includes(q.id),
-  );
+  let testQuestions = allQuestions.filter(q => (
+    template.questions_fixed && template.questions_fixed.includes(q.id)
+  ));
 
   Object.keys(template.random).forEach(domain => {
     const randomQuestions = allQuestions.filter(q => q.domain === domain)
@@ -167,9 +165,9 @@ const generateTest = (template, application, allQuestions) => {
 export const generateTestSeries = (template, application) => {
   template = template.tests;
   return TestQuestion.findAll({ raw: true })
-    .then(allQuestions => Promise.all(
-      template.map(testTemplate => generateTest(testTemplate, application, allQuestions)),
-    ))
+    .then(allQuestions => Promise.all(template.map(testTemplate => (
+      generateTest(testTemplate, application, allQuestions)
+    ))))
     .then(test_series => ({
       application,
       test_series,

@@ -1,7 +1,5 @@
 import Express from 'express';
-import {
-  getAll, getOne, create, update, deleteOne,
-} from '../../controllers/community/social_connection.controller';
+import { getAll, getOne, create, update, deleteOne } from '../../controllers/community/social_connection.controller';
 
 const router = Express.Router();
 

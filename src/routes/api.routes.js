@@ -13,9 +13,7 @@ import adminRouter from './admin.routes';
 import authenticate from '../controllers/auth/auth.controller';
 import { allowSuperAdminOnly } from '../controllers/auth/roles.controller';
 import { getProfile } from '../controllers/community/user.controller';
-import {
-  browserAccessControl, devOnly, send404, sendSampleResponse, getSwagger,
-} from '../controllers/api.controller';
+import { browserAccessControl, devOnly, send404, sendSampleResponse, getSwagger } from '../controllers/api.controller';
 
 const router = Express.Router();
 
