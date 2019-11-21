@@ -22,7 +22,7 @@ const buildFirewallResult = (fullName, phone, tests) => {
       "type": "section",
       "text": {
         "type": "mrkdwn",
-        "text": "Hello, *${fullName}* (${phone}) has finished firewall test. Here are the test results.\n\n "
+        "text": "Hello, *${fullName}* (${phone}) has finished firewall test. Here are the test results.\\n\\n "
       }
     },
     {
@@ -31,7 +31,7 @@ const buildFirewallResult = (fullName, phone, tests) => {
         "type": "mrkdwn",
         "text": "${tests.map(t => `${t.purpose}:    ${
     formatResponse(t)
-  }`).join('\n\n')}"
+  }`).join('\\n\\n')}"
       }
     },
     {
