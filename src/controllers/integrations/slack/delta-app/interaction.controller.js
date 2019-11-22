@@ -10,4 +10,4 @@ slackInteractions.action({ type: 'button' }, (payload, respond) => {
   respond({ text: 'Thanks for your review.' });
 });
 
-export default slackInteractions;
+export default slackInteractions.expressMiddleware();

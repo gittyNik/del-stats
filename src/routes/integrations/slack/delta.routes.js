@@ -1,9 +1,12 @@
 import Express from 'express';
-import { eventListener, interactionListener } from '../../../controllers/integrations/slack/delta-app';
+import interactionController from '../../../controllers/integrations/slack/delta-app/interaction.controller';
+import eventController from '../../../controllers/integrations/slack/delta-app/event.controller';
 
 const router = Express.Router();
 
-router.use('/action-endpoint', eventListener);
-router.use('/interactive-endpoint', interactionListener);
+router.use('/action-endpoint', eventController);
+router.use('/interactive-endpoint', interactionController);
+// router.use('/command-endpoint', commandController);
+// router.use('/options-endpoint', optionsController);
 
 export default router;
