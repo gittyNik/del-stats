@@ -29,7 +29,7 @@ slackInteractions.action({ type: 'button' }, (payload, respond) => {
     case 'reject_firewall_applicant':
       respond(firewallResponse({
         payload,
-        message: `*Rejected!* \nThe candidate does not meet the standards. Reviewe by @${username}`,
+        message: `*Rejected!* \nThe candidate does not meet the standards. Review by @${username}`,
       }));
       break;
     case 'review_firewall_applicant':

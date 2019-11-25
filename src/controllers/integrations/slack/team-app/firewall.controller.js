@@ -9,9 +9,9 @@ const formatResponse = (test) => {
       return scoreTest(test);
     case 'think':
     case 'play':
-      return test.responses.map(r => `\`${r.answer ? r.answer.answer : ' '}\``).join('\n');
+      return test.responses.map(r => `\`\`\`${r.answer ? r.answer.answer : ' '}\`\`\``).join('\n');
     default:
-      return '<hidden content>'; // reflect
+      return '_<hidden content>_'; // reflect
   }
 };
 
@@ -85,7 +85,6 @@ const buildFirewallResult = (fullName, phone, tests) => {
       },
     ],
   };
-  console.log(result);
   return result;
 };
 
