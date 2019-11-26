@@ -36,13 +36,9 @@ export const createUpcomingCohortsView = (applications) => {
 
     ],
   };
+
   const cohorts = new Set(applications.map(a => a['cohort.name']));
-
-
   cohorts.forEach(cohort_id => {
-    result.blocks.push({
-      type: 'divider',
-    });
     result.blocks.push({
       type: 'section',
       text: {
@@ -82,6 +78,9 @@ export const createUpcomingCohortsView = (applications) => {
           emoji: true,
         },
       ],
+    });
+    result.blocks.push({
+      type: 'divider',
     });
   });
 
