@@ -1,8 +1,12 @@
 import request from 'superagent';
+import { WebClient } from '@slack/web-api';
 import scoreTest from '../../../firewall/test_score.controller';
 import { createUpcomingCohortsView } from './firewall.view';
 
 const { SLACK_FIREWALL_WEBHOOK } = process.env;
+
+// Initialize
+const web = new WebClient(process.env.SLACK_TEAM_BOT_TOKEN);
 
 const formatResponse = (test) => {
   switch (test.purpose) {
@@ -99,7 +103,11 @@ export const sendFirewallResult = (application, phone) => request.post(SLACK_FIR
 export const showUpcomingCohorts = (user_id) => {
   const view = createUpcomingCohortsView([]);
 
-  console.log(view, user_id);
+  web.views.publish({
+    user_id,
+    view,
+  });
+
 };
 
 export default SLACK_FIREWALL_WEBHOOK;
