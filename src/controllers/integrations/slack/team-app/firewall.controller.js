@@ -1,5 +1,6 @@
 import request from 'superagent';
 import scoreTest from '../../../firewall/test_score.controller';
+import { createUpcomingCohortsView } from './firewall.view';
 
 const { SLACK_FIREWALL_WEBHOOK } = process.env;
 
@@ -94,5 +95,11 @@ const buildFirewallResult = (fullName, phone, tests) => {
 export const sendFirewallResult = (application, phone) => request.post(SLACK_FIREWALL_WEBHOOK)
   .set('Content-type', 'application/json')
   .send(buildFirewallResult(phone, phone, application.test_series));
+
+export const showUpcomingCohorts = (user_id) => {
+  const view = createUpcomingCohortsView([]);
+
+  console.log(view, user_id);
+};
 
 export default SLACK_FIREWALL_WEBHOOK;
