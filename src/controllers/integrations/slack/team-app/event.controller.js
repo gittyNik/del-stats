@@ -8,8 +8,7 @@ slackEvents.on('message', (event) => {
 });
 
 slackEvents.on('app_home_opened', (event) => {
-  console.log(event);
-  showUpcomingCohorts(event.user);
+  if (event.tab === 'home') { showUpcomingCohorts(event.user); }
 });
 
 slackEvents.on('error', (error) => {

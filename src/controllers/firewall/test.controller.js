@@ -1,6 +1,6 @@
 import uuid from 'uuid/v4';
 import _ from 'lodash';
-import Test from '../../models/test';
+import { Test } from '../../models/test';
 import TestQuestion from '../../models/test_question';
 import { populateQuestionDetails } from './test_question.controller';
 

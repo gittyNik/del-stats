@@ -1,9 +1,9 @@
 import uuid from 'uuid/v4';
 import Sequelize from 'sequelize';
-import Application from '../../models/application';
+import { Application } from '../../models/application';
 import Program from '../../models/program';
 import Cohort from '../../models/cohort';
-import Test from '../../models/test';
+import { Test } from '../../models/test';
 import { generateTestSeries, populateTestSeries } from './test.controller';
 import { sendSms } from '../../util/sms';
 import { sendFirewallResult } from '../integrations/slack/team-app/firewall.controller';
@@ -95,6 +95,7 @@ export const addApplication = (req, res) => {
     });
 };
 
+// This is redundant, use the instance method from Application model
 const populateTestResponses = application => {
   let application_id = application.id;
   return Test.findAll({ where: { application_id }, raw: true })

@@ -2,7 +2,7 @@ import Sequelize from 'sequelize';
 import Program from './program';
 import db from '../database';
 
-const Cohort = db.define('cohorts', {
+export const Cohort = db.define('cohorts', {
   id: {
     type: Sequelize.UUID,
     primaryKey: true,

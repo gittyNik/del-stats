@@ -1,9 +1,7 @@
-import User from './user';
-import Cohort from './cohort';
-import Ping from './ping';
-import Day from './day';
+import { User } from './user';
+import { Cohort } from './cohort';
 
 
 export default {
-  User, Cohort, Ping, Day,
+  User, Cohort,
 };

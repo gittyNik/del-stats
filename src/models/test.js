@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 
-const Test = db.define('tests', {
+export const Test = db.define('tests', {
   id: {
     type: Sequelize.UUID,
     primaryKey: true,
@@ -28,4 +28,5 @@ const Test = db.define('tests', {
     type: Sequelize.DATE,
   },
 });
+
 export default Test;

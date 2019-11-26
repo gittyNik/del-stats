@@ -1,112 +1,97 @@
 import scoreTest from '../../../firewall/test_score.controller';
 
-export const createUpcomingCohortsView = (applications) => ({
-  type: 'home',
-  blocks: [
+const footerBlock = {
+  type: 'context',
+  elements: [
     {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: '*Upcoming Cohorts*\n',
-      },
-    },
-    {
-      type: 'divider',
-    },
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: 'Centaurus 2019',
-      },
-      accessory: {
-        type: 'overflow',
-        options: [
-          {
-            text: {
-              type: 'plain_text',
-              text: 'Start Cohort',
-              emoji: true,
-            },
-            value: 'start_cohort',
-          },
-        ],
-      },
-    },
-    {
-      type: 'section',
-      fields: [
-        {
-          type: 'plain_text',
-          text: '1. Rajesh',
-          emoji: true,
-        },
-        {
-          type: 'plain_text',
-          text: '2. Saketh',
-          emoji: true,
-        },
-        {
-          type: 'plain_text',
-          text: '3. Vamshi',
-          emoji: true,
-        },
-      ],
-    },
-    {
-      type: 'divider',
-    },
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: 'Centaurus 2019',
-      },
-      accessory: {
-        type: 'overflow',
-        options: [
-          {
-            text: {
-              type: 'plain_text',
-              text: 'Start Cohort',
-              emoji: true,
-            },
-            value: 'start_cohort',
-          },
-        ],
-      },
-    },
-    {
-      type: 'section',
-      fields: [
-        {
-          type: 'plain_text',
-          text: '1. Rajesh',
-          emoji: true,
-        },
-        {
-          type: 'plain_text',
-          text: '2. Saketh',
-          emoji: true,
-        },
-        {
-          type: 'plain_text',
-          text: '3. Vamshi',
-          emoji: true,
-        },
-      ],
-    },
-    {
-      type: 'context',
-      elements: [
-        {
-          type: 'mrkdwn',
-          text: 'For more info, visit <https://firewall.soal.io>',
-        },
-      ],
+      type: 'mrkdwn',
+      text: '_For more info, visit <https://firewall.soal.io>_',
     },
   ],
-});
+};
+export const createUpcomingCohortsView = (applications) => {
+  const emptyNoteBlock = {
+    type: 'context',
+    elements: [
+      {
+        type: 'mrkdwn',
+        text: 'No data found',
+      },
+    ],
+  };
+
+  const result = {
+    type: 'home',
+    blocks: [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: '*Upcoming Cohorts*\n',
+        },
+      },
+      {
+        type: 'divider',
+      },
+
+    ],
+  };
+  const cohorts = new Set(applications.map(a => a.cohort_applied));
+
+
+  cohorts.forEach(cohort_id => {
+    result.blocks.push({
+      type: 'divider',
+    });
+    result.blocks.push({
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: cohort_id,
+      },
+      accessory: {
+        type: 'overflow',
+        options: [
+          {
+            text: {
+              type: 'plain_text',
+              text: 'Start Cohort',
+              emoji: true,
+            },
+            value: 'start_cohort',
+          },
+        ],
+      },
+    });
+    result.blocks.push({
+      type: 'section',
+      fields: [
+        {
+          type: 'plain_text',
+          text: '1. Rajesh',
+          emoji: true,
+        },
+        {
+          type: 'plain_text',
+          text: '2. Saketh',
+          emoji: true,
+        },
+        {
+          type: 'plain_text',
+          text: '3. Vamshi',
+          emoji: true,
+        },
+      ],
+    });
+  });
+
+  if (cohorts.length === 0) {
+    result.blocks.push(emptyNoteBlock);
+  }
+
+  result.blocks.push(footerBlock);
+  return result;
+};
 
 
 const formatResponse = (test) => {
