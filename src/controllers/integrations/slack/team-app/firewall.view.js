@@ -36,7 +36,7 @@ export const createUpcomingCohortsView = (applications) => {
 
     ],
   };
-  const cohorts = new Set(applications.map(a => a.cohort_applied));
+  const cohorts = new Set(applications.map(a => a['cohort.name']));
 
 
   cohorts.forEach(cohort_id => {

@@ -32,9 +32,11 @@ export const Application = db.define('applications', {
   },
 });
 
-Cohort.hasMany(Application, { foreignKey: 'cohort_applied' });
-Cohort.hasMany(Application, { foreignKey: 'cohort_joining' });
-User.hasMany(Application, { foreignKey: 'user_id' });
+// Cohort.hasMany(Application, { foreignKey: 'cohort_applied', sourceKey: 'id' });
+Application.belongsTo(Cohort, {foreignKey: 'cohort_applied'});
+Application.belongsTo(User);
+// Cohort.hasMany(Application, { foreignKey: 'cohort_joining' });
+// User.hasMany(Application, { foreignKey: 'user_id' });
 
 Application.prototype.populateTestResponses = () => Test
   .findAll({ where: { application_id: this.id }, raw: true })
@@ -48,6 +50,6 @@ export const getPendingApplications = () => Application.findAll({
 export const getPendingApplicationCohorts = () => Application.findAll({
   order: Sequelize.col('created_at'),
   where: { status: { [opIn]: ['review_pending', 'offered'] } },
-  include: [User, Cohort],
+  include: [Cohort, User],
   raw: true,
 });
