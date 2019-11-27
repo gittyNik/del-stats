@@ -61,4 +61,4 @@ slackInteractions.action({ action_id: 'cohort_settings' }, (payload) => {
     });
 });
 
-export default slackInteractions.requestListener();
+export default slackInteractions.expressMiddleware();

@@ -39,6 +39,7 @@ export const createUpcomingCohortsView = (applications) => {
     ],
   };
 
+  applications = applications.filter(a => a.status === 'joined');
   const cohorts = new Set(applications.map(a => a.cohort_applied));
   cohorts.forEach(cohort_id => {
     const cohortApplications = applications.filter(a => a.cohort_applied === cohort_id);
@@ -80,7 +81,7 @@ export const createUpcomingCohortsView = (applications) => {
     result.blocks.push(dividerBlock);
   });
 
-  if (cohorts.length === 0) {
+  if (cohorts.size === 0) {
     result.blocks.push(emptyNoteBlock);
   }
 
