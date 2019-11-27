@@ -149,9 +149,9 @@ export const composeHome = (applications, cohorts) => {
   const result = {
     type: 'home',
     blocks: [
+      ...buildLiveCohorts(cohorts),
       ...buildFirewallCandidates(applications),
       ...buildUpcomingCohorts(applications),
-      ...buildLiveCohorts(cohorts),
       footerBlock,
     ],
   };

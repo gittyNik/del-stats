@@ -93,10 +93,21 @@ export const getCohortLearnerDetails = (id) => Cohort.findByPk(id, { raw: true }
 
 // TODO: change this to cohort_joined later
 export const updateCohortLearners = (id) => Application.findAll({
-  where: { cohort_applied: id },
+  where: { cohort_applied: id, status: 'joined' },
 })
   .then(applications => {
     const learners = applications.map(a => a.user_id);
-    return Cohort.update({ learners }, { where: { id }, returning: true });
-  })
-  .then(rows => rows[1][0]);
+    return db.transaction(transaction => Promise.all([
+      Cohort.update({ learners }, { where: { id }, returning: true, transaction }).then(rows => rows[1][0]),
+      Application.update({ status: 'archieved' }, {
+        where: {
+          user_id: { [Sequelize.Op.in]: learners },
+        },
+        transaction,
+      }),
+    ]))
+      .then(([cohort]) => cohort)
+      .catch(err => {
+        console.log(err);
+      });
+  });
