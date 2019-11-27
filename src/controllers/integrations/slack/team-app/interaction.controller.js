@@ -53,13 +53,11 @@ slackInteractions.action({ type: 'button' }, (payload, respond) => {
   }
 });
 
-slackInteractions.action({ action_id: 'cohort_settings' }, (payload, respond) => {
+slackInteractions.action({ action_id: 'cohort_settings' }, (payload) => {
   const cohort_id = payload.actions[0].selected_option.value;
   updateCohortLearners(cohort_id)
     .then(cohort => {
-      respond({
-        text: `${cohort.name} cohort will be started`,
-      });
+      console.log(`${cohort.name} cohort will be started`);
     });
 });
 
