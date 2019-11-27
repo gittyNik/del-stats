@@ -1,5 +1,4 @@
-import Sequelize from 'sequelize';
-import { Cohort } from '../../models/cohort';
+import { Cohort, getFutureCohorts, getCohortLearnerDetails } from '../../models/cohort';
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
@@ -7,20 +6,11 @@ export const getCohorts = (req, res) => {
     .catch(err => res.status(500).send(err));
 };
 
-const getCohortLearners = () => Promise.resolve([]);
-
 export const getCohortByName = (req, res) => {
   const { year, location, name } = req.params;
 
-  Cohort.findAll({ where: { name, location }, raw: true })
+  getCohortLearnerDetails({ name, location, year })
     .then((cohorts) => {
-      const learnerGetters = cohorts.filter(c => c.start_date.getFullYear().toString() === year)
-        .map(cohort => getCohortLearners(cohort).then((learners) => {
-          cohort.learnerDetails = learners;
-          return cohort;
-        }));
-      return Promise.all(learnerGetters);
-    }).then((cohorts) => {
       res.json({ cohorts });
     }).catch((e) => {
       console.error(e);
@@ -69,44 +59,13 @@ export const deleteCohort = (req, res) => {
     .catch(err => res.status(500).send(err));
 };
 
-export const createSpotters = cohort => Promise.resolve(cohort);
-
 // currently returning cohorts starting today
-export const populateCurrentCohorts = () => {
-  const today = new Date();
-  const tonight = new Date();
 
-  today.setHours(0);
-  today.setMinutes(0);
-  today.setSeconds(0);
-
-  tonight.setHours(23);
-  tonight.setMinutes(59);
-  tonight.setSeconds(59);
-
-  return Cohort.findAll({
-    where: {
-      start_date: { $between: [today, tonight] },
-    },
-  });
-};
-
-export const resetSpotters = async (req, res) => {
-  res.sendStatus(500);
-};
 
 export const getUpcomingCohorts = (req, res) => {
-  const tonight = new Date();
-
-  tonight.setHours(23);
-  tonight.setMinutes(59);
-  tonight.setSeconds(59);
-
-  Cohort.findAll({
-    where: {
-      start_date: { [Sequelize.Op.gt]: tonight },
-    },
-  }).then((data) => {
-    res.send({ data });
-  }).catch(() => res.sendStatus(404));
+  getFutureCohorts()
+    .then((data) => {
+      res.send({ data });
+    })
+    .catch(() => res.sendStatus(404));
 };
