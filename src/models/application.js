@@ -33,7 +33,7 @@ export const Application = db.define('applications', {
 });
 
 // Cohort.hasMany(Application, { foreignKey: 'cohort_applied', sourceKey: 'id' });
-Application.belongsTo(Cohort, {foreignKey: 'cohort_applied'});
+Application.belongsTo(Cohort, { foreignKey: 'cohort_applied' });
 Application.belongsTo(User);
 // Cohort.hasMany(Application, { foreignKey: 'cohort_joining' });
 // User.hasMany(Application, { foreignKey: 'user_id' });

@@ -23,15 +23,7 @@ export const sendFirewallResult = (application, phone) => {
 export const showUpcomingCohorts = (user_id) => {
   getPendingApplicationCohorts()
     .then(applications => {
-      // console.log(applications[0]);
       const view = createUpcomingCohortsView(applications);
-      console.log(view.blocks[0]);
-      console.log(view.blocks[1]);
-      console.log(view.blocks[2]);
-      console.log(view.blocks[3]);
-      console.log(view.blocks[4]);
-      console.log(view.blocks[5]);
-
       return web.views.publish({
         view,
         user_id,

@@ -9,6 +9,11 @@ const footerBlock = {
     },
   ],
 };
+
+const dividerBlock = {
+  type: 'divider'
+}
+
 export const createUpcomingCohortsView = (applications) => {
   const emptyNoteBlock = {
     type: 'context',
@@ -30,20 +35,23 @@ export const createUpcomingCohortsView = (applications) => {
           text: '*Upcoming Cohorts*\n',
         },
       },
-      {
-        type: 'divider',
-      },
-
+      dividerBlock
     ],
   };
 
-  const cohorts = new Set(applications.map(a => a['cohort.name']));
+  const cohorts = new Set(applications.map(a => a.cohort_applied));
   cohorts.forEach(cohort_id => {
+    const cohortApplications = applications.filter(a => a.cohort_applied === cohort_id);
+    const cohort = {
+      name: cohortApplications[0]['cohort.name'],
+      location: cohortApplications[0]['cohort.location'],
+      start_date: cohortApplications[0]['cohort.start_date'],
+    };
     result.blocks.push({
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: cohort_id,
+        text: `${cohort.name} ${cohort.start_date.getFullYear()} (${cohort.location})`,
       },
       accessory: {
         type: 'overflow',
@@ -61,27 +69,13 @@ export const createUpcomingCohortsView = (applications) => {
     });
     result.blocks.push({
       type: 'section',
-      fields: [
-        {
-          type: 'plain_text',
-          text: '1. Rajesh',
-          emoji: true,
-        },
-        {
-          type: 'plain_text',
-          text: '2. Saketh',
-          emoji: true,
-        },
-        {
-          type: 'plain_text',
-          text: '3. Vamshi',
-          emoji: true,
-        },
-      ],
+      fields: cohortApplications.map((ca, i) => ({
+        type: 'plain_text',
+        text: `${i + 1}. ${ca['user.name']} <${ca['user.phone']}>${!ca['user.email']?':warning:':''}`,
+        emoji: true,
+      })),
     });
-    result.blocks.push({
-      type: 'divider',
-    });
+    result.blocks.push(dividerBlock);
   });
 
   if (cohorts.length === 0) {
