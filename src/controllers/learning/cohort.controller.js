@@ -1,4 +1,7 @@
-import { Cohort, getFutureCohorts, getCohortLearnerDetails } from '../../models/cohort';
+import {
+  Cohort, getFutureCohorts, getCohortLearnerDetails,
+  getCohortLearnerDetailsByName, updateCohortLearners,
+} from '../../models/cohort';
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
@@ -9,7 +12,7 @@ export const getCohorts = (req, res) => {
 export const getCohortByName = (req, res) => {
   const { year, location, name } = req.params;
 
-  getCohortLearnerDetails({ name, location, year })
+  getCohortLearnerDetailsByName({ name, location, year })
     .then((cohorts) => {
       res.json({ cohorts });
     }).catch((e) => {
@@ -19,11 +22,7 @@ export const getCohortByName = (req, res) => {
 };
 
 export const getCohort = (req, res) => {
-  Cohort.findByPk(req.params.id)
-    .then(cohort => getCohortLearners(cohort).then((learners) => {
-      cohort.learners = learners;
-      return cohort;
-    }))
+  getCohortLearnerDetails(req.params.id)
     .then((cohort) => {
       res.json({ cohort });
     })
@@ -59,13 +58,32 @@ export const deleteCohort = (req, res) => {
     .catch(err => res.status(500).send(err));
 };
 
-// currently returning cohorts starting today
-
-
 export const getUpcomingCohorts = (req, res) => {
   getFutureCohorts()
     .then((data) => {
       res.send({ data });
     })
     .catch(() => res.sendStatus(404));
+};
+
+export const beginCohort = (req, res) => {
+  const { id } = req.params;
+
+  updateCohortLearners(id)
+    .then(cohort => {
+      res.send(cohort);
+    })
+    .catch(err => {
+      console.log(err);
+      res.sendStatus(404);
+    });
+
+  // add cohort.learners
+  // update cohort_joining on firewall_application
+  // notify learning_ops_manager
+  // schedule beginMilestone
+};
+
+export const beginMilestone = () => {
+  // update cohort_milestone.learners from cohort
 };

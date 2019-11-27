@@ -43,6 +43,7 @@ export const createUpcomingCohortsView = (applications) => {
   cohorts.forEach(cohort_id => {
     const cohortApplications = applications.filter(a => a.cohort_applied === cohort_id);
     const cohort = {
+      id: cohortApplications[0]['cohort.id'],
       name: cohortApplications[0]['cohort.name'],
       location: cohortApplications[0]['cohort.location'],
       start_date: cohortApplications[0]['cohort.start_date'],
@@ -55,6 +56,7 @@ export const createUpcomingCohortsView = (applications) => {
       },
       accessory: {
         type: 'overflow',
+        action_id: 'cohort_settings',
         options: [
           {
             text: {
@@ -62,7 +64,7 @@ export const createUpcomingCohortsView = (applications) => {
               text: 'Start Cohort',
               emoji: true,
             },
-            value: 'start_cohort',
+            value: cohort.id,
           },
         ],
       },

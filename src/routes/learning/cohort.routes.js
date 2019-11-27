@@ -47,6 +47,14 @@ router.get('/:year/:location/:name', getCohortByName);
 router.post('/', createCohort);
 
 /**
+ * @api {patch} /cohorts/:id/begin Mark beginning of a cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName BeginCohort
+ * @apiGroup Cohort
+ */
+router.patch('/:id/begin', updateCohort);
+
+/**
  * @api {patch} /cohorts/:id Update a cohort
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateCohort

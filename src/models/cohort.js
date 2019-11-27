@@ -1,5 +1,7 @@
 import Sequelize from 'sequelize';
 import Program from './program';
+import { Application } from './application';
+import { User } from './user';
 import db from '../database';
 
 export const Cohort = db.define('cohorts', {
@@ -50,8 +52,19 @@ export const getFutureCohorts = () => {
   });
 };
 
+const populateCohortsWithLearners = (cohorts) => {
+  const learnerGetters = cohorts.map(cohort => User.findAll({
+    where: { id: { [Sequelize.Op.in]: cohort.learners } },
+  })
+    .then((learners) => {
+      cohort.learnerDetails = learners;
+      return cohort;
+    }));
+  return Promise.all(learnerGetters);
+};
+
 // TODO: Optimize this later
-export const getCohortLearnerDetails = ({ name, location, year }) => {
+export const getCohortLearnerDetailsByName = ({ name, location, year }) => {
   const yearStart = new Date(new Date(0).setFullYear(year));
   const yearEnd = new Date(new Date(0).setFullYear(year + 1) - 1);
 
@@ -63,14 +76,18 @@ export const getCohortLearnerDetails = ({ name, location, year }) => {
     },
     raw: true,
   })
-    .then((cohorts) => {
-      const learnerGetters = cohorts.map(cohort => User.findAll({
-        where: { id: { [Sequelize.Op.in]: cohort.learners } },
-      })
-        .then((learners) => {
-          cohort.learnerDetails = learners;
-          return cohort;
-        }));
-      return Promise.all(learnerGetters);
-    });
+    .then(populateCohortsWithLearners);
 };
+
+export const getCohortLearnerDetails = (id) => Cohort.findByPk(id, { raw: true })
+  .then(cohort => populateCohortsWithLearners([cohort])[0]);
+
+// TODO: change this to cohort_joined later
+export const updateCohortLearners = (id) => Application.findAll({
+  where: { cohort_applied: id },
+})
+  .then(applications => {
+    const learners = applications.map(a => a.user_id);
+    return Cohort.update({ learners }, { where: { id }, returning: true });
+  })
+  .then(rows => rows[1][0]);
