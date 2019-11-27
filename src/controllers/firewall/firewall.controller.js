@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import { Application } from '../../models/application';
-import Cohort from '../../models/cohort';
+import { Cohort } from '../../models/cohort';
 
 const getUpcomingCohort = () => {
   const tonight = new Date();

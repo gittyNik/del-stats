@@ -11,8 +11,8 @@ const footerBlock = {
 };
 
 const dividerBlock = {
-  type: 'divider'
-}
+  type: 'divider',
+};
 
 export const createUpcomingCohortsView = (applications) => {
   const emptyNoteBlock = {
@@ -35,7 +35,7 @@ export const createUpcomingCohortsView = (applications) => {
           text: '*Upcoming Cohorts*\n',
         },
       },
-      dividerBlock
+      dividerBlock,
     ],
   };
 
@@ -71,7 +71,7 @@ export const createUpcomingCohortsView = (applications) => {
       type: 'section',
       fields: cohortApplications.map((ca, i) => ({
         type: 'plain_text',
-        text: `${i + 1}. ${ca['user.name']} <${ca['user.phone']}>${!ca['user.email']?':warning:':''}`,
+        text: `${i + 1}. ${ca['user.name']} <${ca['user.phone']}>${!ca['user.email'] ? ':warning:' : ''}`,
         emoji: true,
       })),
     });

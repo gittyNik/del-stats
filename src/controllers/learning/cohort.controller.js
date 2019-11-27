@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import Cohort from '../../models/cohort';
+import { Cohort } from '../../models/cohort';
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
