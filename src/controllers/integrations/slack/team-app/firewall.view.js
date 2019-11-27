@@ -120,28 +120,26 @@ const buildLiveCohorts = (cohorts) => {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: '*Live Cohorts on Delta*\n',
+        text: '*Live Cohorts*\n',
       },
     },
     dividerBlock,
   ];
-  if (applications.length === 0) {
+  if (cohorts.length === 0) {
     blocks.push(emptyNoteBlock);
   } else {
     blocks.push({
       type: 'actions',
-      elements: [
-        {
-          type: 'button',
-          action_id: 'open_cohort_details',
-          text: {
-            type: 'plain_text',
-            text: `${cohort.name} ${cohort.start_date.getFullYear} (${cohort.location})`,
-            emoji: true,
-          },
-          value: cohort.id,
+      elements: cohorts.map(cohort => ({
+        type: 'button',
+        action_id: 'open_cohort_details',
+        text: {
+          type: 'plain_text',
+          text: `${cohort.name} ${cohort.start_date.getFullYear()} (${cohort.location})`,
+          emoji: true,
         },
-      ],
+        value: cohort.id,
+      })),
     });
   }
   return blocks;
