@@ -1,7 +1,7 @@
 import { WebClient } from '@slack/web-api';
 import { IncomingWebhook } from '@slack/webhook';
 import { getPendingApplicationCohorts } from '../../../../models/application';
-import { createUpcomingCohortsView, buildFirewallResult } from './firewall.view';
+import { composeHome, buildFirewallResult } from './firewall.view';
 
 const { SLACK_FIREWALL_WEBHOOK, SLACK_TEAM_BOT_TOKEN } = process.env;
 
@@ -23,7 +23,7 @@ export const sendFirewallResult = (application, phone) => {
 export const showUpcomingCohorts = (user_id) => {
   getPendingApplicationCohorts()
     .then(applications => {
-      const view = createUpcomingCohortsView(applications);
+      const view = composeHome(applications);
       return web.views.publish({
         view,
         user_id,

@@ -14,30 +14,56 @@ const dividerBlock = {
   type: 'divider',
 };
 
-export const createUpcomingCohortsView = (applications) => {
-  const emptyNoteBlock = {
-    type: 'context',
-    elements: [
-      {
-        type: 'mrkdwn',
-        text: 'No data found',
-      },
-    ],
-  };
+const emptyNoteBlock = {
+  type: 'context',
+  elements: [
+    {
+      type: 'mrkdwn',
+      text: 'No data found',
+    },
+  ],
+};
 
-  const result = {
-    type: 'home',
-    blocks: [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: '*Upcoming Cohorts*\n',
-        },
+const buildFirewallCandidates = (applications) => {
+  const blocks = [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: '*Firewall Candidates*\n',
       },
-      dividerBlock,
-    ],
-  };
+    },
+    dividerBlock,
+  ];
+  applications = applications.filter(a => a.status === 'offered' || a.status === 'review_pending');
+  if (applications.length === 0) {
+    blocks.push(emptyNoteBlock);
+  } else {
+    blocks.push({
+      type: 'section',
+      fields: applications.map((ca, i) => ({
+        type: 'plain_text',
+        text: `${i + 1}. ${ca['user.name']} <${ca['user.phone']}>${
+          ca.status === 'offered' ? ':moneybag:' : ':time:'
+        }`,
+        emoji: true,
+      })),
+    });
+  }
+  return blocks;
+};
+
+export const buildUpcomingCohorts = (applications) => {
+  const blocks = [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: '*Upcoming Cohorts*\n',
+      },
+    },
+    dividerBlock,
+  ];
 
   applications = applications.filter(a => a.status === 'joined');
   const cohorts = new Set(applications.map(a => a.cohort_applied));
@@ -49,7 +75,7 @@ export const createUpcomingCohortsView = (applications) => {
       location: cohortApplications[0]['cohort.location'],
       start_date: cohortApplications[0]['cohort.start_date'],
     };
-    result.blocks.push({
+    blocks.push({
       type: 'section',
       text: {
         type: 'mrkdwn',
@@ -70,7 +96,7 @@ export const createUpcomingCohortsView = (applications) => {
         ],
       },
     });
-    result.blocks.push({
+    blocks.push({
       type: 'section',
       fields: cohortApplications.map((ca, i) => ({
         type: 'plain_text',
@@ -78,17 +104,25 @@ export const createUpcomingCohortsView = (applications) => {
         emoji: true,
       })),
     });
-    result.blocks.push(dividerBlock);
+    blocks.push(dividerBlock);
   });
 
   if (cohorts.size === 0) {
-    result.blocks.push(emptyNoteBlock);
+    blocks.push(emptyNoteBlock);
   }
 
-  result.blocks.push(footerBlock);
-  return result;
+  blocks.push(footerBlock);
+  return blocks;
 };
 
+export const composeHome = (applications) => {
+  const result = {
+    type: 'home',
+    blocks: [...buildFirewallCandidates(applications), ...buildUpcomingCohorts(applications)],
+  };
+
+  return result;
+};
 
 const formatResponse = (test) => {
   switch (test.purpose) {
