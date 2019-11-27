@@ -53,7 +53,7 @@ const buildFirewallCandidates = (applications) => {
   return blocks;
 };
 
-export const buildUpcomingCohorts = (applications) => {
+const buildUpcomingCohorts = (applications) => {
   const blocks = [
     {
       type: 'section',
@@ -111,14 +111,51 @@ export const buildUpcomingCohorts = (applications) => {
     blocks.push(emptyNoteBlock);
   }
 
-  blocks.push(footerBlock);
   return blocks;
 };
 
-export const composeHome = (applications) => {
+const buildLiveCohorts = (cohorts) => {
+  const blocks = [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: '*Live Cohorts on Delta*\n',
+      },
+    },
+    dividerBlock,
+  ];
+  if (applications.length === 0) {
+    blocks.push(emptyNoteBlock);
+  } else {
+    blocks.push({
+      type: 'actions',
+      elements: [
+        {
+          type: 'button',
+          action_id: 'open_cohort_details',
+          text: {
+            type: 'plain_text',
+            text: `${cohort.name} ${cohort.start_date.getFullYear} (${cohort.location})`,
+            emoji: true,
+          },
+          value: cohort.id,
+        },
+      ],
+    });
+  }
+  return blocks;
+};
+
+export const composeHome = (applications, cohorts) => {
   const result = {
     type: 'home',
-    blocks: [...buildFirewallCandidates(applications), ...buildUpcomingCohorts(applications)],
+    blocks: [
+      ...buildFirewallCandidates(applications),
+      ...buildUpcomingCohorts(applications),
+      ...buildLiveCohorts(cohorts),
+      footerBlock,
+    ],
   };
 
   return result;

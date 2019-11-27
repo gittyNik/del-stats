@@ -38,6 +38,15 @@ export const getCohortsStartingToday = () => {
   });
 };
 
+export const getLiveCohorts = () => Cohort.findAll({
+  where: {
+    learners: Sequelize.literal('learners<>\'{}\''),
+  },
+  order: [['start_date', 'DESC']],
+  limit: 10,
+  raw: true,
+});
+
 export const getFutureCohorts = () => {
   const tonight = new Date();
 
