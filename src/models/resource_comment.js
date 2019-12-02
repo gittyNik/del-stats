@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 
-const ResourceComment = db.define('resource_comments', {
+export const ResourceComment = db.define('resource_comments', {
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,

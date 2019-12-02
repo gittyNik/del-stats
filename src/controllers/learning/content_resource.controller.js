@@ -1,9 +1,9 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
-import Resource from '../../models/resource';
-import ResourceComment from '../../models/resource_comment';
-import ResourceReport from '../../models/resource_report';
-import ResourceVote from '../../models/resource_vote';
+import { Resource } from '../../models/resource';
+import { ResourceComment } from '../../models/resource_comment';
+import { ResourceReport } from '../../models/resource_report';
+import { ResourceVote } from '../../models/resource_vote';
 
 export const getLatest = (req, res) => {
   Resource.findAll({

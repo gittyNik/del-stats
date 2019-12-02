@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 
-const BrowserHistoryItem = db.define('browser_history_items', {
+export const BrowserHistoryItem = db.define('browser_history_items', {
   browser_url_id: {
     type: Sequelize.INTEGER,
     allowNull: false,

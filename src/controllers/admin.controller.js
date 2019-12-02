@@ -2,7 +2,7 @@ import faker from 'faker';
 import uuid from 'uuid/v4';
 import { User } from '../models/user';
 import { getSoalToken } from '../util/token';
-import ConfigParam from '../models/config_param';
+import { ConfigParam } from '../models/config_param';
 
 const switchUserResponse = (userPromise, res) => {
   userPromise.then((user) => {

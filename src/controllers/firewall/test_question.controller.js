@@ -1,5 +1,5 @@
 import uuid from 'uuid/v4';
-import TestQuestion from '../../models/test_question';
+import { TestQuestion } from '../../models/test_question';
 
 export const populateQuestionDetails = testSeries => (
   // Alternatively, the query can take an array and return only few questions

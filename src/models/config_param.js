@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 
-const ConfigParam = db.define('config_params', {
+export const ConfigParam = db.define('config_params', {
   id: {
     type: Sequelize.UUID,
     primaryKey: true,

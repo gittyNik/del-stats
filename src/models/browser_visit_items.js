@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 
-const BrowserVisitItem = db.define('browser_visit_items', {
+export const BrowserVisitItem = db.define('browser_visit_items', {
   user_id: {
     type: Sequelize.UUID,
     allowNull: false,

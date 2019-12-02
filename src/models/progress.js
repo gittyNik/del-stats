@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 
-const Progress = db.define('progresses', {
+export const Progress = db.define('progresses', {
   team_id: {
     type: Sequelize.UUID,
     references: { model: 'teams', key: 'id' },

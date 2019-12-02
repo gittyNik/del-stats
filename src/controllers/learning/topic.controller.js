@@ -1,6 +1,6 @@
 import uuid from 'uuid/v4';
-import Topic from '../../models/topic';
-import Resource from '../../models/resource';
+import { Topic } from '../../models/topic';
+import { Resource } from '../../models/resource';
 
 export const create = (req, res) => {
   const { title, description, milestone_id } = req.body;

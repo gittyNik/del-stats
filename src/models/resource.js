@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 
-const Resource = db.define('resources', {
+export const Resource = db.define('resources', {
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
