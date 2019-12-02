@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 
-const Milestone = db.define('milestones', {
+export const Milestone = db.define('milestones', {
   id: {
     type: Sequelize.UUID,
     primaryKey: true,
@@ -11,6 +11,10 @@ const Milestone = db.define('milestones', {
     allowNull: false,
     type: Sequelize.STRING,
   },
+  prerequisite_milestones: Sequelize.ARRAY(Sequelize.UUID),
+  problem_statement: Sequelize.TEXT,
+  learning_competencies: Sequelize.ARRAY(Sequelize.STRING),
+  guidelines: Sequelize.TEXT,
 });
 
 export default Milestone;

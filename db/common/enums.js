@@ -4,8 +4,7 @@ export const TEST_QUESTION_DOMAIN = ['generic', 'tech', 'mindsets'];
 
 export const TEST_QUESTION_TYPE = ['mcq', 'text', 'code', 'rate', 'logo'];
 
-export const FIREWALL_APPLICATION_STATUS =
-['applied', 'review_pending', 'offered', 'rejected', 'joined', 'archieved'];
+export const FIREWALL_APPLICATION_STATUS = ['applied', 'review_pending', 'offered', 'rejected', 'joined', 'archieved'];
 
 export const EVENT_INVITATION_STATUS = ['invited', 'rsvp', 'attended'];
 

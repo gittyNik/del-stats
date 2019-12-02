@@ -8,6 +8,7 @@ const Program = db.define('programs', {
   },
   name: Sequelize.STRING,
   location: Sequelize.STRING,
+  milestones: Sequelize.ARRAY(Sequelize.UUID),
   duration: Sequelize.INTEGER, // in weeks
   test_series: Sequelize.JSON,
   milestone_review_rubric: Sequelize.JSON,
