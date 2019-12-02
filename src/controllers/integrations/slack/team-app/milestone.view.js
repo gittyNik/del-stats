@@ -1,4 +1,3 @@
-import scoreTest from '../../../firewall/test_score.controller';
 
 const footerBlock = {
   type: 'context',
@@ -25,6 +24,7 @@ const emptyNoteBlock = {
 };
 
 const buildMilestoneBlocks = (milestone) => {
+  if (!milestone) return [emptyNoteBlock];
   const blocks = [
     {
       type: 'section',
@@ -45,7 +45,7 @@ export const composeMilestoneModal = milestone => {
     type: 'modal',
     title: {
       type: 'plain_text',
-      text: `${milestone['cohort.name']} - Milestone`,
+      text: `${milestone ? milestone['cohort.name'] : 'Unavailable'} - Milestone`,
     },
     blocks: [
       ...buildMilestoneBlocks(milestone),
