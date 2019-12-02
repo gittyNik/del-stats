@@ -87,3 +87,5 @@ export const beginCohort = (req, res) => {
 export const beginMilestone = () => {
   // update cohort_milestone.learners from cohort
 };
+// create cohort_milestones
+// create teams for each milestone

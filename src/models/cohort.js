@@ -99,7 +99,8 @@ export const updateCohortLearners = (id) => Application.findAll({
   .then(applications => {
     const learners = applications.map(a => a.user_id);
     return db.transaction(transaction => Promise.all([
-      Cohort.update({ learners }, { where: { id }, returning: true, transaction }).then(rows => rows[1][0]),
+      Cohort.update({ learners }, { where: { id }, returning: true, transaction })
+        .then(rows => rows[1][0]),
       Application.update({ status: 'archieved' }, {
         where: {
           user_id: { [Sequelize.Op.in]: learners },

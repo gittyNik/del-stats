@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 
-const Program = db.define('programs', {
+export const Program = db.define('programs', {
   id: {
     type: Sequelize.STRING,
     primaryKey: true,
@@ -13,4 +13,7 @@ const Program = db.define('programs', {
   test_series: Sequelize.JSON,
   milestone_review_rubric: Sequelize.JSON,
 });
-export default Program;
+
+export const updateProgramMilestones = (id, milestones) => Program.update({ milestones }, {
+  where: { id },
+});

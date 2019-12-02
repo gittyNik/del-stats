@@ -2,6 +2,8 @@ import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import db from '../database';
 import { Cohort } from './cohort';
+import { Program } from './program';
+import { Milestone } from './milestone';
 
 export const CohortMilestone = db.define('cohort_milestones', {
   id: {
@@ -33,9 +35,7 @@ export const CohortMilestone = db.define('cohort_milestones', {
   },
 });
 
-const {
-  gt, lte, ne, in: opIn,
-} = Sequelize.Op;
+const { lte } = Sequelize.Op;
 
 CohortMilestone.belongsTo(Cohort);
 CohortMilestone.belongsTo(Milestone);
@@ -55,7 +55,7 @@ export const getCurrentCohortMilestones = () => {
 
 const WEEK_SECONDS = 7 * 86400000;
 
-const calculateReleaseTime = function* (cohort_start) {
+function* calculateReleaseTime(cohort_start) {
   const start = new Date(cohort_start);
   start.setHours(0, 0, 0, 0);
   // Calculate next Wednesday
@@ -68,7 +68,7 @@ const calculateReleaseTime = function* (cohort_start) {
     start.setTime(+start + WEEK_SECONDS);
     end.setTime(+end + WEEK_SECONDS);
   }
-};
+}
 
 export const createCohortMilestones = (cohort_id) => Cohort.findByPk(cohort_id, {
   include: [Program],
