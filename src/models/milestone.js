@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 import db from '../database';
+import { Topic } from './topic';
 
 export const Milestone = db.define('milestones', {
   id: {
@@ -17,4 +18,8 @@ export const Milestone = db.define('milestones', {
   guidelines: Sequelize.TEXT,
 });
 
-export default Milestone;
+Milestone.hasMany(Topic);
+
+export const getMilestoneDetails = milestone_id => Milestone.findByPk(milestone_id, {
+  include: [Topic],
+});

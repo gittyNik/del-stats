@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 
-const Topic = db.define('topics', {
+export const Topic = db.define('topics', {
   id: {
     allowNull: false,
     primaryKey: true,
