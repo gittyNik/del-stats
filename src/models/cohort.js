@@ -18,6 +18,7 @@ export const Cohort = db.define('cohorts', {
 });
 
 Program.hasMany(Cohort, { foreignKey: 'program_id' });
+Cohort.belongsTo(Program);
 
 export const getCohortsStartingToday = () => {
   const today = new Date();
