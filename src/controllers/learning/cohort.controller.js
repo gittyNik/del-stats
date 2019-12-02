@@ -2,6 +2,7 @@ import {
   Cohort, getFutureCohorts, getCohortLearnerDetails,
   getCohortLearnerDetailsByName, updateCohortLearners,
 } from '../../models/cohort';
+import { createCohortMilestones } from '../../models/cohort_milestone';
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
@@ -71,7 +72,7 @@ export const beginCohort = (req, res) => {
 
   updateCohortLearners(id)
     .then(cohort => createCohortMilestones(cohort.id)
-      .then(ms => cohort))
+      .then(() => cohort))
     .then(cohort => {
       res.send(cohort);
     })
