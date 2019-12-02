@@ -3,6 +3,7 @@ import { Program } from './program';
 import { Application } from './application';
 import { User } from './user';
 import db from '../database';
+import { createCohortMilestones } from './cohort_milestone';
 
 export const Cohort = db.define('cohorts', {
   id: {
@@ -99,7 +100,12 @@ export const updateCohortLearners = (id) => Application.findAll({
   .then(applications => {
     const learners = applications.map(a => a.user_id);
     return db.transaction(transaction => Promise.all([
-      Cohort.update({ learners }, { where: { id }, returning: true, transaction })
+      Cohort.update({ learners }, {
+        where: { id },
+        returning: true,
+        raw: true,
+        transaction,
+      })
         .then(rows => rows[1][0]),
       Application.update({ status: 'archieved' }, {
         where: {
@@ -108,8 +114,14 @@ export const updateCohortLearners = (id) => Application.findAll({
         transaction,
       }),
     ]))
-      .then(([cohort]) => cohort)
-      .catch(err => {
-        console.log(err);
-      });
+      .then(([cohort]) => cohort);
+  });
+
+export const beginCohortWithId = (cohort_id) => Promise.all([
+  updateCohortLearners(cohort_id),
+  createCohortMilestones(cohort_id),
+])
+  .then(([cohort, milestones]) => {
+    cohort.milestones = milestones;
+    return cohort;
   });
