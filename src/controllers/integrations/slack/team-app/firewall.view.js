@@ -30,12 +30,13 @@ const buildFirewallCandidates = (applications) => {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: '*Firewall Candidates*\n',
+        text: '*Recent Firewall Candidates*\n',
       },
     },
     dividerBlock,
   ];
-  applications = applications.filter(a => a.status === 'offered' || a.status === 'review_pending');
+  applications = applications.filter(a => a.status === 'offered' || a.status === 'review_pending')
+    .slice(-10);
   if (applications.length === 0) {
     blocks.push(emptyNoteBlock);
   } else {
@@ -132,7 +133,7 @@ const buildLiveCohorts = (cohorts) => {
       type: 'actions',
       elements: cohorts.map(cohort => ({
         type: 'button',
-        action_id: 'open_cohort_details',
+        action_id: `open_cohort_details.${cohort.id}`,
         text: {
           type: 'plain_text',
           text: `${cohort.name} ${cohort.start_date.getFullYear()} (${cohort.location})`,

@@ -26,6 +26,7 @@ export const showUpcomingCohorts = (user_id) => {
     .then(cohorts => getPendingApplicationCohorts()
       .then(applications => {
         const view = composeHome(applications, cohorts);
+        // console.log(JSON.stringify(view));
         return web.views.publish({
           view,
           user_id,

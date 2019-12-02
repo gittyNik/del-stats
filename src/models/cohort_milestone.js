@@ -35,7 +35,7 @@ export const CohortMilestone = db.define('cohort_milestones', {
   },
 });
 
-const { lte } = Sequelize.Op;
+const { lte, gt } = Sequelize.Op;
 
 CohortMilestone.belongsTo(Cohort);
 CohortMilestone.belongsTo(Milestone);
@@ -46,12 +46,27 @@ export const getCurrentCohortMilestones = () => {
     order: Sequelize.col('release_time'),
     where: {
       release_time: { [lte]: now },
-      review_time: null,
+      review_scheduled: { [gt]: now },
     },
     include: [Cohort, Milestone],
     raw: true,
   });
 };
+
+export const getCurrentMilestoneOfCohort = (cohort_id) => {
+  const now = Sequelize.literal('NOW()');
+  return CohortMilestone.findOne({
+    order: Sequelize.col('release_time'),
+    where: {
+      release_time: { [lte]: now },
+      review_scheduled: { [gt]: now },
+      cohort_id,
+    },
+    include: [Cohort, Milestone],
+    raw: true,
+  });
+};
+
 
 const WEEK_SECONDS = 7 * 86400000;
 

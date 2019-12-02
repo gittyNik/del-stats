@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import Program from './program';
+import { Program } from './program';
 import { Application } from './application';
 import { User } from './user';
 import db from '../database';

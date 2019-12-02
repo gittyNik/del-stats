@@ -70,6 +70,8 @@ export const beginCohort = (req, res) => {
   const { id } = req.params;
 
   updateCohortLearners(id)
+    .then(cohort => createCohortMilestones(cohort.id)
+      .then(ms => cohort))
     .then(cohort => {
       res.send(cohort);
     })
