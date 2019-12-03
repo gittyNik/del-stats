@@ -28,10 +28,12 @@ export const CohortMilestone = db.define('cohort_milestones', {
   created_at: {
     allowNull: false,
     type: Sequelize.DATE,
+    defaultValue: Sequelize.literal('NOW()'),
   },
   updated_at: {
     allowNull: false,
     type: Sequelize.DATE,
+    defaultValue: Sequelize.literal('NOW()'),
   },
 });
 
@@ -86,8 +88,10 @@ function* calculateReleaseTime(cohort_start) {
 
 export const createCohortMilestones = (cohort_id) => Cohort.findByPk(cohort_id, {
   include: [Program],
+  raw: true,
 })
   .then(cohort => {
+    console.log(cohort);
     const release = calculateReleaseTime(cohort.start_date);
     const cohort_milestones = cohort['program.milestones']
       .map(milestone_id => {

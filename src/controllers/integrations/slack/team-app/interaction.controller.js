@@ -1,5 +1,5 @@
 import { createMessageAdapter } from '@slack/interactive-messages';
-import { updateCohortLearners } from '../../../../models/cohort';
+import { beginCohortWithId } from '../../../../models/cohort';
 import { showMilestoneDetails } from './milestone.controller';
 
 const slackInteractions = createMessageAdapter(process.env.SLACK_TEAM_SECRET);
@@ -65,10 +65,10 @@ slackInteractions.action({ type: 'button' }, (payload, respond) => {
 
 slackInteractions.action({ action_id: 'cohort_settings' }, (payload) => {
   const cohort_id = payload.actions[0].selected_option.value;
-  updateCohortLearners(cohort_id)
+  beginCohortWithId(cohort_id)
     .then(cohort => {
       console.log(`${cohort.name} cohort will be started`);
-    });
+    }).catch(err => console.log(err));
 });
 
 export default slackInteractions.expressMiddleware();
