@@ -34,7 +34,7 @@ slackInteractions.action({ actionId: /^open_cohort_details\..*/ }, (payload) => 
 slackInteractions.action({ actionId: /^mark_topic_finished\..*/ }, (payload) => {
   const [topic_id, cohort_id] = payload.actions[0].value.split('.');
 
-  markTopicAsFinished(topic_id, cohort_id);
+  markTopicAsFinished(topic_id, cohort_id, payload.user.username);
 });
 
 slackInteractions.action({ type: 'button' }, (payload, respond) => {
