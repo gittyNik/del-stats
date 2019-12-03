@@ -45,7 +45,7 @@ export const markTopicAsFinished = (topic_id, cohort_id, username) => {
           },
         },
       ],
-      channel: 'dev-talk',
+      channel: 'clockwork',
     }))
     .catch(err => console.log(err));
 };
