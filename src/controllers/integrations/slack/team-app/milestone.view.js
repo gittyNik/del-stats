@@ -56,6 +56,7 @@ const buildTopicBlocks = (milestone) => {
 
 const buildMilestoneBlocks = (milestone) => {
   if (!milestone) return [emptyNoteBlock];
+  const t = milestone.review_scheduled;
   const blocks = [
     {
       type: 'section',
@@ -63,6 +64,13 @@ const buildMilestoneBlocks = (milestone) => {
         type: 'mrkdwn',
         text: `*${milestone['milestone.name']}*\n`,
       },
+    },
+    {
+      type: 'context',
+      elements: [{
+        type: 'mrkdwn',
+        text: `Review scheduled at ${t.getHours()}:${t.getHours()} on ${t.getDate()}/${1 + t.getMonth()}/${t.getFullYear()}`,
+      }],
     },
     dividerBlock,
     {
