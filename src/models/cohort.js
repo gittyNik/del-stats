@@ -3,7 +3,7 @@ import { Program } from './program';
 import { Application } from './application';
 import { User } from './user';
 import db from '../database';
-import { createCohortMilestones } from './cohort_milestone';
+import { createCohortMilestones, CohortMilestone } from './cohort_milestone';
 
 export const Cohort = db.define('cohorts', {
   id: {
@@ -20,6 +20,8 @@ export const Cohort = db.define('cohorts', {
 
 Program.hasMany(Cohort, { foreignKey: 'program_id' });
 Cohort.belongsTo(Program);
+Cohort.hasMany(CohortMilestone, { foreignKey: 'cohort_id' });
+CohortMilestone.belongsTo(Cohort);
 
 export const getCohortsStartingToday = () => {
   const today = new Date();
