@@ -8,11 +8,10 @@ const { SLACK_TEAM_BOT_TOKEN } = process.env;
 const web = new WebClient(SLACK_TEAM_BOT_TOKEN);
 
 export const showMilestoneDetails = (cohort_id, trigger_id) => {
-  getCurrentMilestoneOfCohort(cohort_id) // remove this
+  getCurrentMilestoneOfCohort(cohort_id)
     .then(milestone => {
       // console.log(milestone);
       const view = composeMilestoneModal(milestone);
-      console.log(JSON.stringify(view));
       return web.views.open({
         view,
         trigger_id,

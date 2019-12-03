@@ -4,6 +4,7 @@ import db from '../database';
 import { Cohort } from './cohort';
 import { Program } from './program';
 import { Milestone } from './milestone';
+import { Topic } from './topic';
 
 export const CohortMilestone = db.define('cohort_milestones', {
   id: {
@@ -65,9 +66,16 @@ export const getCurrentMilestoneOfCohort = (cohort_id) => {
     },
     include: [Cohort, Milestone],
     raw: true,
-  });
+  })
+    .then(milestone => {
+      const { milestone_id } = milestone;
+      return Topic.findAll({ where: { milestone_id }, raw: true })
+        .then(topics => {
+          milestone.topics = topics;
+          return milestone;
+        });
+    });
 };
-
 
 const WEEK_SECONDS = 7 * 86400000;
 
