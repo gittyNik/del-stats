@@ -46,7 +46,8 @@ export const markTopicAsFinished = (topic_id, cohort_id, username) => {
         },
       ],
       channel: 'clockwork',
-    }));
+    })
+      .catch(err => console.log(err)));
 
   startBreakout(topic_id, cohort_id, new Date())
     .then(sendMessageToSlack)
