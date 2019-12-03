@@ -23,14 +23,53 @@ const emptyNoteBlock = {
   ],
 };
 
-const buildMilestoneBlocks = (milestone) => {
+const buildTopicBlocks = (milestone) => {
   if (!milestone) return [emptyNoteBlock];
+  const topics = ['sdfdsfs', 'sfdsfds', 'sadfdsfds'];
   const blocks = [
     {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: '*Milestone*\n',
+        text: '*Topics for Milestone*',
+      },
+    },
+
+    ...topics.map(topic => ({
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `${topic}`,
+      },
+      accessory: {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Mark as finished',
+        },
+        value: `${topic}`,
+      },
+    })),
+  ];
+  return blocks;
+};
+
+const buildMilestoneBlocks = (milestone) => {
+  if (!milestone) return [emptyNoteBlock];
+  const topics = ['sdfdsfs', 'sfdsfds', 'sadfdsfds'];
+  const blocks = [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `*${milestone['milestone.name']}*\n`,
+      },
+    },
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `${milestone['milestone.problem_statement']}`,
       },
     },
     dividerBlock,
@@ -49,9 +88,9 @@ export const composeMilestoneModal = milestone => {
     },
     blocks: [
       ...buildMilestoneBlocks(milestone),
+      ...buildTopicBlocks(milestone),
       footerBlock,
     ],
   };
-
   return result;
 };
