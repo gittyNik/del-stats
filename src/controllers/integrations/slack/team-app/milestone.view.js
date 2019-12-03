@@ -36,11 +36,12 @@ const buildTopicBlocks = (milestone) => {
     dividerBlock,
     ...milestone.topics.map(topic => {
       const started = topic['cohort_breakouts.status'] === 'started';
+      // const time = `${topic['cohort_breakouts.time_scheduled']}`.split(' GMT')[0];
       const topicItem = {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `${topic.title} ${started ? ':heavy_check_mark:' : ''}`,
+          text: `${topic.title} ${started ? ':soal:' : ''}`,
         },
       };
       if (!started) {
