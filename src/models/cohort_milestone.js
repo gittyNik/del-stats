@@ -77,20 +77,23 @@ export const getCurrentMilestoneOfCohort = (cohort_id) => {
     });
 };
 
-const WEEK_SECONDS = 7 * 86400000;
+const DAY_MSEC = 86400000;
 
-function* calculateReleaseTime(cohort_start) {
+function* calculateReleaseTime(cohort_start, pending) {
   const start = new Date(cohort_start);
   start.setHours(0, 0, 0, 0);
-  // Calculate next Wednesday
-  start.setDate(cohort_start.getDate() + ((3 + 7 - cohort_start.getDay()) % 7));
-  // Calculate 6 hours before a week
-  const end = new Date(+start + WEEK_SECONDS - WEEK_SECONDS / 28);
+  // Calculate first Monday
+  start.setDate(cohort_start.getDate() + ((1 + 7 - cohort_start.getDay()) % 7));
+  // Calculate Tuesday 6 pm
+  const end = new Date(+start + DAY_MSEC * 1.75);
 
-  while (1) {
+  while (pending--) {
+    if (pending === 0) { // Calculate next friday
+      end.setDate(start.getDate() + ((5 + 7 - cohort_start.getDay()) % 7));
+    }
     yield { start, end };
-    start.setTime(+start + WEEK_SECONDS);
-    end.setTime(+end + WEEK_SECONDS);
+    start.setTime(+end + DAY_MSEC / 4);
+    end.setTime(+end + DAY_MSEC * 7);
   }
 }
 
@@ -99,23 +102,22 @@ export const createCohortMilestones = (cohort_id) => Cohort.findByPk(cohort_id, 
   raw: true,
 })
   .then(cohort => {
-    console.log(cohort);
-    const release = calculateReleaseTime(cohort.start_date);
-    const cohort_milestones = cohort['program.milestones']
-      .map(milestone_id => {
-        const {
-          start: release_time,
-          end: review_scheduled,
-        } = release.next().value;
+    const milestones = cohort['program.milestones'];
+    const release = calculateReleaseTime(cohort.start_date, milestones.length);
+    const cohort_milestones = milestones.map(milestone_id => {
+      const {
+        start: release_time,
+        end: review_scheduled,
+      } = release.next().value;
 
-        return {
-          id: uuid(),
-          release_time,
-          cohort_id,
-          milestone_id,
-          review_scheduled,
-        };
-      });
+      return {
+        id: uuid(),
+        release_time,
+        cohort_id,
+        milestone_id,
+        review_scheduled,
+      };
+    });
 
     return CohortMilestone.bulkCreate(cohort_milestones);
   });
