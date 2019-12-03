@@ -2,6 +2,7 @@ import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import db from '../database';
 import { Cohort } from './cohort';
+import { CohortBreakout } from './cohort_breakout';
 import { Program } from './program';
 import { Milestone } from './milestone';
 import { Topic } from './topic';
@@ -69,8 +70,17 @@ export const getCurrentMilestoneOfCohort = (cohort_id) => {
   })
     .then(milestone => {
       const { milestone_id } = milestone;
-      return Topic.findAll({ where: { milestone_id }, raw: true })
+      return Topic.findAll({
+        where: { milestone_id },
+        raw: true,
+        include: [{
+          model: CohortBreakout,
+          where: { cohort_id, id: Sequelize.literal('"topics"."id"=cohort_breakouts.topic_id') },
+          required: false,
+        }],
+      })
         .then(topics => {
+          console.log(topics);
           milestone.topics = topics;
           return milestone;
         });

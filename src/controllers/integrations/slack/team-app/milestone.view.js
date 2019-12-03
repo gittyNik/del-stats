@@ -34,22 +34,29 @@ const buildTopicBlocks = (milestone) => {
       },
     },
     dividerBlock,
-    ...milestone.topics.map(topic => ({
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `${topic.title}`,
-      },
-      accessory: {
-        type: 'button',
-        action_id: `mark_topic_finished.${topic.id}`,
+    ...milestone.topics.map(topic => {
+      const started = topic['cohort_breakouts.status'] === 'started';
+      const topicItem = {
+        type: 'section',
         text: {
-          type: 'plain_text',
-          text: 'Mark as finished',
+          type: 'mrkdwn',
+          text: `${topic.title} ${started ? ':heavy_check_mark:' : ''}`,
         },
-        value: `${topic.id}.${milestone.cohort_id}`,
-      },
-    })),
+      };
+      if (!started) {
+        topicItem.accessory = {
+          type: 'button',
+          action_id: `mark_topic_finished.${topic.id}`,
+          text: {
+            type: 'plain_text',
+            text: 'Mark as finished',
+            emoji: true,
+          },
+          value: `${topic.id}.${milestone.cohort_id}`,
+        };
+      }
+      return topicItem;
+    }),
   ];
   return blocks;
 };
