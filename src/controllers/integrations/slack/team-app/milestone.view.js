@@ -25,7 +25,6 @@ const emptyNoteBlock = {
 
 const buildTopicBlocks = (milestone) => {
   if (!milestone) return [];
-  const topics = ['sdfdsfs', 'sfdsfds', 'sadfdsfds'];
   const blocks = [
     {
       type: 'section',
@@ -48,7 +47,7 @@ const buildTopicBlocks = (milestone) => {
           type: 'plain_text',
           text: 'Mark as finished',
         },
-        value: `${topic.id}`,
+        value: `${topic.id}.${milestone.cohort_id}`,
       },
     })),
   ];
@@ -57,7 +56,6 @@ const buildTopicBlocks = (milestone) => {
 
 const buildMilestoneBlocks = (milestone) => {
   if (!milestone) return [emptyNoteBlock];
-  const topics = ['sdfdsfs', 'sfdsfds', 'sadfdsfds'];
   const blocks = [
     {
       type: 'section',

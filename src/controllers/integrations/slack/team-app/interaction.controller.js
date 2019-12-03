@@ -1,6 +1,6 @@
 import { createMessageAdapter } from '@slack/interactive-messages';
 import { beginCohortWithId } from '../../../../models/cohort';
-import { showMilestoneDetails } from './milestone.controller';
+import { showMilestoneDetails, markTopicAsFinished } from './milestone.controller';
 
 const slackInteractions = createMessageAdapter(process.env.SLACK_TEAM_SECRET);
 
@@ -24,13 +24,17 @@ const firewallResponse = ({ payload, message }) => {
   };
 };
 
-slackInteractions.action({ actionId: /^open_cohort_details\..*/ }, (payload, respond) => {
+slackInteractions.action({ actionId: /^open_cohort_details\..*/ }, (payload) => {
   const { trigger_id } = payload;
   const cohort_id = payload.actions[0].value;
-  // console.log(cohort_id);
-  showMilestoneDetails(cohort_id, trigger_id);
 
-  respond({ text: 'Success' });
+  showMilestoneDetails(cohort_id, trigger_id);
+});
+
+slackInteractions.action({ actionId: /^mark_topic_finished\..*/ }, (payload) => {
+  const [topic_id, cohort_id] = payload.actions[0].value.split('.');
+
+  markTopicAsFinished(topic_id, cohort_id);
 });
 
 slackInteractions.action({ type: 'button' }, (payload, respond) => {
