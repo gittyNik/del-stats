@@ -1,4 +1,5 @@
-import { PING_TYPE, PING_STATUS } from '../common/enums';
+export const PING_TYPE = ['immediate', 'trigger'];
+export const PING_STATUS = ['draft', 'sent', 'delivered'];
 
 const migration = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('pings', {

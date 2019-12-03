@@ -1,4 +1,4 @@
-import { FIREWALL_APPLICATION_STATUS } from '../common/enums';
+export const FIREWALL_APPLICATION_STATUS = ['applied', 'review_pending', 'offered', 'rejected', 'joined', 'archieved'];
 
 const migration = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('applications', {

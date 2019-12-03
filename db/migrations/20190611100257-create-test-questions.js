@@ -1,4 +1,5 @@
-import { TEST_QUESTION_TYPE, TEST_QUESTION_DOMAIN } from '../common/enums';
+export const TEST_QUESTION_TYPE = ['mcq', 'text', 'code', 'rate', 'logo'];
+export const TEST_QUESTION_DOMAIN = ['generic', 'tech', 'mindsets'];
 
 const migration = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('test_questions', {

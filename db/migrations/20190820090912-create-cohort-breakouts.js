@@ -1,4 +1,5 @@
-import { BREAKOUT_TYPE, EVENT_STATUS } from '../common/enums';
+export const BREAKOUT_TYPE = ['lecture', 'codealong', 'questionhour', 'activity', 'groupdiscussion'];
+export const EVENT_STATUS = ['scheduled', 'started', 'cancelled', 'aborted', 'running'];
 
 const migration = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('cohort_breakouts', {

@@ -1,4 +1,5 @@
-import { CHALLENGE_DIFFICULTY, CHALLENGE_SIZE } from '../common/enums';
+export const CHALLENGE_DIFFICULTY = ['easy', 'medium', 'difficult'];
+export const CHALLENGE_SIZE = ['tiny', 'small', 'large'];
 
 const migration = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('challenges', {

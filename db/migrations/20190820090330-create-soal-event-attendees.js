@@ -1,4 +1,4 @@
-import { EVENT_INVITATION_STATUS } from '../common/enums';
+export const EVENT_INVITATION_STATUS = ['invited', 'rsvp', 'attended'];
 
 const migration = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('soal_event_attendees', {

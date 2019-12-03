@@ -1,4 +1,5 @@
-import { JOB_TYPE, JOB_POSTING_EXCLUSIVITY } from '../common/enums';
+export const JOB_TYPE = ['internship', 'fulltime', 'intern2hire'];
+export const JOB_POSTING_EXCLUSIVITY = ['all', 'hired', 'non-hired'];
 
 const migration = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('job_postings', {
