@@ -1,6 +1,7 @@
 import { WebClient } from '@slack/web-api';
 import { getCurrentMilestoneOfCohort } from '../../../../models/cohort_milestone';
 import { Cohort } from '../../../../models/cohort';
+import { startBreakout } from '../../../../models/cohort_breakout';
 import { Topic } from '../../../../models/topic';
 import { composeMilestoneModal } from './milestone.view';
 
@@ -22,8 +23,7 @@ export const showMilestoneDetails = (cohort_id, trigger_id) => {
 };
 
 export const markTopicAsFinished = (topic_id, cohort_id, username) => {
-  console.log(username);
-  Promise.all([
+  const sendMessageToSlack = Promise.all([
     Topic.findByPk(topic_id),
     Cohort.findByPk(cohort_id),
   ])
@@ -46,6 +46,9 @@ export const markTopicAsFinished = (topic_id, cohort_id, username) => {
         },
       ],
       channel: 'clockwork',
-    }))
+    }));
+
+  startBreakout(topic_id, cohort_id, new Date())
+    .then(sendMessageToSlack)
     .catch(err => console.log(err));
 };
