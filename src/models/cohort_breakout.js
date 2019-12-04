@@ -1,7 +1,6 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import db from '../database';
-import { Cohort } from './cohort';
 import { Topic } from './topic';
 
 export const EVENT_STATUS = ['scheduled', 'started', 'cancelled', 'aborted', 'running'];
