@@ -69,13 +69,17 @@ export const getCurrentMilestoneOfCohort = (cohort_id) => {
     raw: true,
   })
     .then(milestone => {
+      if (!milestone) return milestone;
       const { milestone_id } = milestone;
       return Topic.findAll({
         where: { milestone_id },
         raw: true,
         include: [{
           model: CohortBreakout,
-          where: { cohort_id, id: Sequelize.literal('"topics"."id"=cohort_breakouts.topic_id') },
+          where: {
+            cohort_id,
+            id: Sequelize.literal('"topics"."id"=cohort_breakouts.topic_id'),
+          },
           required: false,
         }],
       })
