@@ -80,6 +80,7 @@ export const addApplication = (req, res) => {
         id: applicationId,
         user_id,
         cohort_applied,
+        cohort_joining: cohort_applied,
         status: 'applied',
         created_at: new Date(),
         updated_at: new Date(),
