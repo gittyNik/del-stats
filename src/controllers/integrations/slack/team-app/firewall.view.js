@@ -67,9 +67,9 @@ const buildUpcomingCohorts = (applications) => {
   ];
 
   applications = applications.filter(a => a.status === 'joined');
-  const cohorts = new Set(applications.map(a => a.cohort_applied));
+  const cohorts = new Set(applications.map(a => a.cohort_joining));
   cohorts.forEach(cohort_id => {
-    const cohortApplications = applications.filter(a => a.cohort_applied === cohort_id);
+    const cohortApplications = applications.filter(a => a.cohort_joining === cohort_id);
     const cohort = {
       id: cohortApplications[0]['cohort.id'],
       name: cohortApplications[0]['cohort.name'],

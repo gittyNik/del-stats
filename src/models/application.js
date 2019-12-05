@@ -33,6 +33,7 @@ export const Application = db.define('applications', {
 });
 
 Application.belongsTo(Cohort, { foreignKey: 'cohort_applied' });
+Application.belongsTo(Cohort, { foreignKey: 'cohort_joining' });
 Application.belongsTo(User);
 
 Application.prototype.populateTestResponses = () => Test

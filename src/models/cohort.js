@@ -100,7 +100,7 @@ export const getCohortLearnerDetails = (id) => Cohort.findByPk(id, { raw: true }
 
 // TODO: change this to cohort_joined later
 export const updateCohortLearners = (id) => Application.findAll({
-  where: { cohort_applied: id, status: 'joined' },
+  where: { cohort_joining: id, status: 'joined' },
 })
   .then(applications => {
     const learners = applications.map(a => a.user_id);
