@@ -41,7 +41,7 @@ export const getAllTopics = (req, res) => {
 export const getTopic = (req, res) => {
   Topic.findAll({
     where: {
-      id: req.params.id
+      id: req.params.id,
     },
   })
     .then((data) => { res.json(data); })
