@@ -91,9 +91,8 @@ export const getCurrentMilestoneOfCohort = (cohort_id) => {
     });
 };
 
-const DAY_MSEC = 86400000;
-
 function* calculateReleaseTime(cohort_start, pending) {
+  const DAY_MSEC = 86400000;
   const start = new Date(cohort_start);
   start.setHours(0, 0, 0, 0);
   // Calculate first Monday
@@ -119,17 +118,14 @@ export const createCohortMilestones = (cohort_id) => Cohort.findByPk(cohort_id, 
     const milestones = cohort['program.milestones'];
     const release = calculateReleaseTime(cohort.start_date, milestones.length);
     const cohort_milestones = milestones.map(milestone_id => {
-      const {
-        start: release_time,
-        end: review_scheduled,
-      } = release.next().value;
+      const { value } = release.next();
 
       return {
         id: uuid(),
-        release_time,
+        release_time: new Date(value.start),
         cohort_id,
         milestone_id,
-        review_scheduled,
+        review_scheduled: new Date(value.end),
       };
     });
 

@@ -77,7 +77,7 @@ const buildMilestoneBlocks = (milestone) => {
       type: 'context',
       elements: [{
         type: 'mrkdwn',
-        text: `Review scheduled at ${t.getHours()}:${t.getHours()} on ${t.getDate()}/${1 + t.getMonth()}/${t.getFullYear()}`,
+        text: `Review scheduled at ${t.getHours()}:${t.getMinutes() > 9 ? '' : '0'}${t.getMinutes()} on ${t.getDate()}/${1 + t.getMonth()}/${t.getFullYear()}`,
       }],
     },
     dividerBlock,
