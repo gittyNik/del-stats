@@ -53,10 +53,10 @@ router.post('/', create);
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateContentTopic
  * @apiGroup ContentTopic
- * 
+ *
  * @apiParam {String} title title of the topic
- * @apiParam {String} description description of the topic
- * @apiParam {String} program program of the topic
+ * @apiParam {String} description Description of the topic
+ * @apiParam {String} milestone_id UUID of the Milestone
  */
 router.patch('/:id', updateTopic);
 

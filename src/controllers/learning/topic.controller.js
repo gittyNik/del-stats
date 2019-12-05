@@ -63,7 +63,7 @@ export const updateTopic = (req, res) => {
   Topic.update({
     title: req.body.title,
     description: req.body.description,
-    program: req.body.program,
+    milestone_id: req.body.milestone_id,
   }, {
     where: {
       id: req.params.id,
