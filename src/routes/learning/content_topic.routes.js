@@ -1,6 +1,9 @@
 import Express from 'express';
-import { getAllResourcesByTopic, create } from '../../controllers/learning/topic.controller';
-import { apiNotReady } from '../../controllers/api.controller';
+import {
+  getAllResourcesByTopic, create, getAllTopics,
+  getTopic, deleteOne, updateTopic,
+} from '../../controllers/learning/topic.controller';
+// import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
 
@@ -11,7 +14,7 @@ const router = Express.Router();
  * @apiName GetContentTopics
  * @apiGroup ContentTopics
  */
-router.get('/', apiNotReady);
+router.get('/', getAllTopics);
 
 /**
  * @api {get} /learning/content/topics/:id Get a Content Topic
@@ -20,11 +23,11 @@ router.get('/', apiNotReady);
  * @apiName GetContentTopic
  * @apiGroup ContentTopic
  */
-router.get('/:id', apiNotReady);
+router.get('/:id', getTopic);
 
 /**
  * @api {get} /learning/content/topics/:id/resources Get Content Topic Resources
- * @apiDescription get Content Topic Resoureces
+ * @apiDescription get Content Topic Resources
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetContentTopicResources
  * @apiGroup ContentTopicResources
@@ -50,8 +53,12 @@ router.post('/', create);
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateContentTopic
  * @apiGroup ContentTopic
+ * 
+ * @apiParam {String} title title of the topic
+ * @apiParam {String} description description of the topic
+ * @apiParam {String} program program of the topic
  */
-router.patch('/:id', apiNotReady);
+router.patch('/:id', updateTopic);
 
 /**
  * @api {delete} /learning/content/topics/:id Delete Content Topic
@@ -60,6 +67,6 @@ router.patch('/:id', apiNotReady);
  * @apiName DeleteContentTopic
  * @apiGroup ContentTopic
  */
-router.delete('/:id', apiNotReady);
+router.delete('/:id', deleteOne);
 
 export default router;

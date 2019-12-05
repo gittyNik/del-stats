@@ -31,3 +31,46 @@ export const getAllResourcesByTopic = (req, res) => {
     })
     .catch(err => res.status(500).send(err));
 };
+
+export const getAllTopics = (req, res) => {
+  Topic.findAll({})
+    .then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
+
+export const getTopic = (req, res) => {
+  Topic.findAll({
+    where: {
+      id: req.params.id
+    },
+  })
+    .then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
+
+
+export const deleteOne = (req, res) => {
+  Topic.destroy({
+    where: {
+      id: req.params.id,
+    },
+  })
+    .then(() => { res.send('Deleted Topic'); })
+    .catch(err => res.status(500).send(err));
+};
+
+export const updateTopic = (req, res) => {
+  Topic.update({
+    title: req.body.title,
+    description: req.body.description,
+    program: req.body.program,
+  }, {
+    where: {
+      id: req.params.id,
+    },
+  })
+    .then(() => {
+      res.send('Topic Updated');
+    })
+    .catch(err => res.status(500).send(err));
+};
