@@ -12,6 +12,13 @@ export const Program = db.define('programs', {
   duration: Sequelize.INTEGER, // in weeks
   test_series: Sequelize.JSON,
   milestone_review_rubric: Sequelize.JSON,
+  created_at: {
+    type: Sequelize.DATE
+  },
+  updated_at: {
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.literal('NOW()'),
+  },
 });
 
 export const updateProgramMilestones = (id, milestones) => Program.update({ milestones }, {
