@@ -13,7 +13,7 @@ export const Team = db.define('teams', {
   },
   cohort_milestone_id: {
     type: Sequelize.UUID,
-    references: { model: 'cohort_milestone', key: 'id' },
+    references: { model: 'cohort_milestones', key: 'id' },
   },
   learners: Sequelize.ARRAY(Sequelize.UUID),
   github_repo_link: Sequelize.STRING,

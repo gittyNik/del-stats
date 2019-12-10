@@ -60,10 +60,12 @@ export const deleteOne = (req, res) => {
 };
 
 export const updateTopic = (req, res) => {
+  const { title, description, program, milestone_id } = req.body;
   Topic.update({
-    title: req.body.title,
-    description: req.body.description,
-    milestone_id: req.body.milestone_id,
+    title,
+    description,
+    program,
+    milestone_id,
   }, {
     where: {
       id: req.params.id,
