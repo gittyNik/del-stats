@@ -16,6 +16,9 @@
     "start-dev": "nodemon --watch src --exec \"apidoc -i src && babel-node --inspect\" src",
     "start-prod": "node api-build",
     "start": "if [ $NODE_ENV = 'production' ]; then npm run start-prod; else npm run start-dev; fi;",
+    "bg-dev": "nodemon --watch src --exec babel-node src/background.js",
+    "bg-prod": "node api-build/background.js",
+    "worker": "if [ $NODE_ENV = 'production' ]; then npm run bg-prod; else npm run bg-dev; fi;",
     "test": "jest src/**/*.spec.js"
   },
   "engines": {
@@ -42,6 +45,7 @@
     "@slack/web-api": "^5.6.0",
     "@slack/webhook": "^5.0.2",
     "apidoc-swagger": "github:schoolofacceleratedlearning/apidoc-swagger",
+    "bullmq": "^1.5.0",
     "compression": "^1.7.4",
     "core-js": "^3.6.2",
     "dotenv": "^8.2.0",

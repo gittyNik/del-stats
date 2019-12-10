@@ -3,3 +3,5 @@ node_modules
 doc
 api-build
 .DS_Store
+temp
+tmp
