@@ -12,28 +12,10 @@ export const Milestone = db.define('milestones', {
     allowNull: false,
     type: Sequelize.STRING,
   },
-  prerequisite_milestones: {
-    type: Sequelize.ARRAY(Sequelize.UUID),
-  },
-  program: {
-    type: Sequelize.STRING,
-  },
-  problem_statement: {
-    type: Sequelize.TEXT,
-  },
-  learning_competencies: {
-    type: Sequelize.ARRAY(Sequelize.STRING),
-  },
-  guidelines: {
-    type: Sequelize.TEXT,
-  },
-  created_at: {
-    type: Sequelize.DATE,
-  },
-  updated_at: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.literal('NOW()'),
-  },
+  prerequisite_milestones: Sequelize.ARRAY(Sequelize.UUID),
+  problem_statement: Sequelize.TEXT,
+  learning_competencies: Sequelize.ARRAY(Sequelize.STRING),
+  guidelines: Sequelize.TEXT,
 });
 
 Milestone.hasMany(Topic);
