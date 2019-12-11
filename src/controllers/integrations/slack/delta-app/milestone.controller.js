@@ -1,9 +1,8 @@
 import { WebClient } from '@slack/web-api';
-import { getCurrentMilestoneOfCohort } from '../../../../models/cohort_milestone';
 import { Cohort } from '../../../../models/cohort';
-import { startBreakout } from '../../../../models/cohort_breakout';
 import { Topic } from '../../../../models/topic';
-import { composeMilestoneModal } from './milestone.view';
+import { getCurrentMilestoneOfCohort } from '../../../../models/cohort_milestone';
+import { composeMilestoneModal, composeBreakoutMessage } from './milestone.view';
 
 const { SLACK_DELTA_BOT_TOKEN } = process.env;
 

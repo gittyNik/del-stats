@@ -112,7 +112,7 @@ export const composeMilestoneModal = milestone => {
 };
 
 export const composeBreakoutMessage = ({ topic, cohort, username }) => ({
-  text: `Breakout on ${topic.title} is done for ${cohort.name}`,
+  text: `Breakout on ${topic.title} is requested for ${cohort.name}`,
   blocks: [
     {
       type: 'context',
