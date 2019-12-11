@@ -13,7 +13,7 @@ export const Program = db.define('programs', {
   test_series: Sequelize.JSON,
   milestone_review_rubric: Sequelize.JSON,
   created_at: {
-    type: Sequelize.DATE
+    type: Sequelize.DATE,
   },
   updated_at: {
     type: Sequelize.DATE,

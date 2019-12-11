@@ -1,5 +1,8 @@
 import Express from 'express';
-import { apiNotReady } from '../../controllers/api.controller';
+import {
+  getAllMilestones, createMilestone, updateMilestone, deleteMilestone,
+} from '../../controllers/learning/milestone.controller';
+// import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
 
@@ -10,7 +13,7 @@ const router = Express.Router();
  * @apiName GetContentMilestones
  * @apiGroup ContentMilestones
  */
-router.get('/', apiNotReady);
+router.get('/', getAllMilestones);
 
 /**
  * @api {post} /learning/content/milestones/ Add Content Milestone
@@ -18,8 +21,14 @@ router.get('/', apiNotReady);
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddContentMilestone
  * @apiGroup ContentMilestone
+ *
+ * @apiParam {String} name Name of the milestone.
+ * @apiParam {Object} prerequisite_milestones Prerequisite Milestones for this milestone.
+ * @apiParam {String} problem_statement Problem statement for the milestone.
+ * @apiParam {Object} learning_competencies: Learning Competencies of the milestone.
+ * @apiParam {String} guidelines: Guidelines of the milestone.
  */
-router.post('/', apiNotReady);
+router.post('/', createMilestone);
 
 /**
  * @api {patch} /learning/content/milestones/:id  Update Content Milestone
@@ -27,8 +36,14 @@ router.post('/', apiNotReady);
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateContentMilestone
  * @apiGroup ContentMilestone
+ *
+ * @apiParam {String} name Name of the milestone.
+ * @apiParam {Object} prerequisite_milestones Array of Prerequisite Milestones id's.
+ * @apiParam {String} problem_statement Problem statement for the milestone.
+ * @apiParam {Object} learning_competencies Learning Competencies of the milestone.
+ * @apiParam {String} guidelines Guidelines of the milestone.
  */
-router.patch('/:id', apiNotReady);
+router.patch('/:id', updateMilestone);
 
 /**
  * @api {delete} /learning/content/milestones/:id Delete Content Milestone
@@ -37,6 +52,6 @@ router.patch('/:id', apiNotReady);
  * @apiName DeleteContentMilestone
  * @apiGroup ContentMilestone
  */
-router.delete('/:id', apiNotReady);
+router.delete('/:id', deleteMilestone);
 
 export default router;

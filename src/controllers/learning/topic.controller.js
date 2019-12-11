@@ -60,7 +60,9 @@ export const deleteOne = (req, res) => {
 };
 
 export const updateTopic = (req, res) => {
-  const { title, description, program, milestone_id } = req.body;
+  const {
+    title, description, program, milestone_id,
+  } = req.body;
   Topic.update({
     title,
     description,

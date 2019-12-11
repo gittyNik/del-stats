@@ -123,3 +123,60 @@ export const deleteTeam = (req, res) => {
     .then(() => { res.send('Deleted team'); })
     .catch(err => res.status(500).send(err));
 };
+
+export const getMilestoneTeams = (req, res) => {
+  Team.findAll({
+    where: {
+      cohort_milestone_id: req.params.milestone_id,
+    },
+  })
+    .then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
+
+export const createMilestone = (req, res) => {
+  const {
+    name, prerequisite_milestones,
+    learning_competencies, guidelines, problem_statement,
+  } = req.body;
+
+  Milestone.create({
+    id: uuid(),
+    name,
+    prerequisite_milestones,
+    problem_statement,
+    learning_competencies,
+    guidelines,
+  })
+    .then((data) => { res.json(data); })
+    .catch(err => console.log(err));
+};
+
+export const updateMilestone = (req, res) => {
+  const {
+    name, prerequisite_milestones,
+    learning_competencies, guidelines, problem_statement,
+  } = req.body;
+
+  Milestone.update({
+    name,
+    prerequisite_milestones,
+    problem_statement,
+    learning_competencies,
+    guidelines,
+  }, {
+    where: { id: req.params.id },
+  })
+    .then(() => { res.send('Milestone Updated'); })
+    .catch(err => console.log(err));
+};
+
+export const deleteMilestone = (req, res) => {
+  Milestone.destroy({
+    where: {
+      id: req.params.id,
+    },
+  })
+    .then(() => { res.send('Deleted milestone '); })
+    .catch(err => res.status(500).send(err));
+};
