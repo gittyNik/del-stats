@@ -75,7 +75,10 @@ export const getAllByMilestone = (req, res) => {
           res.json(data1);
         });
     })
-    .catch(err => res.status(500).send(err));
+    .catch(err => {
+      console.log(err);
+      res.status(500);
+    });
 };
 
 export const getTeam = (req, res) => {
@@ -85,7 +88,10 @@ export const getTeam = (req, res) => {
     },
   })
     .then((data) => { res.json(data); })
-    .catch(err => res.status(500).send(err));
+    .catch(err => {
+      console.log(err);
+      res.status(500);
+    });
 };
 
 export const createTeam = (req, res) => {
@@ -131,7 +137,10 @@ export const getMilestoneTeams = (req, res) => {
     },
   })
     .then((data) => { res.json(data); })
-    .catch(err => res.status(500).send(err));
+    .catch(err => {
+      console.log(err);
+      res.status(500);
+    });
 };
 
 export const createMilestone = (req, res) => {

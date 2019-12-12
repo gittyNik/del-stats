@@ -1,7 +1,7 @@
 import Express from 'express';
 import {
   create, update, deleteOne, getAllByMilestone as getMilestoneResources,
-  getAllMilestones, getMilestone, getTeam,
+  getAllMilestones, getMilestone, getTeam, getMilestoneTeams,
 } from '../../controllers/learning/milestone.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 
@@ -10,11 +10,14 @@ const router = Express.Router();
 
 /**
  * @api {get} /learning/milestones/:milestone_id/teams Get milestone teams
+ * @apiDescription Get teams in given cohort milestone.
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetMilestoneTeams
  * @apiGroup MilestoneTeam
+ *
+ * @apiParam {String} milestone_id Id of Cohort milestone.
  */
-router.get('/:milestone_id/teams', apiNotReady);
+router.get('/:milestone_id/teams', getMilestoneTeams);
 
 
 /**
@@ -22,8 +25,11 @@ router.get('/:milestone_id/teams', apiNotReady);
  * @apiHeader {String} authorization JWT Token.
  * @apiName Reset the milestone teams
  * @apiGroup MilestoneTeam
+ *
+ * @apiParam {String} milestone_id Id of Cohort milestone.
  */
 router.patch(':/milestone_id/teams', apiNotReady);
+
 /**
  * @api {get} /learning/milestones/:milestone_id/team Get team details
  * @apiHeader {String} authorization JWT Token.
