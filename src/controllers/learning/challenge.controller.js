@@ -29,7 +29,10 @@ export const createChallenge = (req, res) => {
       console.log(data);
       res.send('Challenge created.');
     })
-    .catch(err => console.error(err));
+    .catch(err => {
+      console.error(err);
+      res.status(500);
+    });
 };
 
 export const updateChallenge = (req, res) => {
