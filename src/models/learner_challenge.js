@@ -8,7 +8,7 @@ export const LearnerChallenge = db.define('learner_challenges', {
     type: Sequelize.UUID,
     primaryKey: true,
   },
-  challege_id: {
+  challenge_id: {
     type: Sequelize.UUID,
     references: { model: 'challenges', key: 'id' },
   },

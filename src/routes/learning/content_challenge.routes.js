@@ -1,5 +1,5 @@
 import Express from 'express';
-import { apiNotReady } from '../../controllers/api.controller';
+import { getChallenges, createChallenge, updateChallenge, deleteChallenge } from '../../controllers/learning/challenge.controller';
 
 const router = Express.Router();
 
@@ -10,7 +10,7 @@ const router = Express.Router();
  * @apiName GetContentChallenges
  * @apiGroup ContentChallenges
  */
-router.get('/', apiNotReady);
+router.get('/', getChallenges);
 
 /**
  * @api {post} /learning/content/challenges/ Add Content Challenge
@@ -18,8 +18,14 @@ router.get('/', apiNotReady);
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddContentChallenge
  * @apiGroup ContentChallenge
+ * 
+ * @apiParam {String} topic_id Id of the topic.
+ * @apiParam {String} description Description of the challenge.
+ * @apiParam {String} starter_repo Repository of the challenge.
+ * @apiParam {String="easy","medium","difficult"} difficulty Difficulty of the challenge.
+ * @apiParam {String="tiny","small","large"} size Size of the challenge.
  */
-router.post('/', apiNotReady);
+router.post('/', createChallenge);
 
 /**
  * @api {patch} /learning/content/challenges/:id  Update Content Challenge
@@ -27,8 +33,14 @@ router.post('/', apiNotReady);
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateContentChallenge
  * @apiGroup ContentChallenge
+ * 
+ * @apiParam {String} topic_id Id of the topic.
+ * @apiParam {String} description Description of the challenge.
+ * @apiParam {String} starter_repo Repository of the challenge.
+ * @apiParam {String="easy","medium","difficult"} difficulty Difficulty of the challenge.
+ * @apiParam {String="tiny","small","large"} size Size of the challenge.
  */
-router.patch('/:id', apiNotReady);
+router.patch('/:id', updateChallenge);
 
 /**
  * @api {delete} /learning/content/challenges/:id Delete Content Challenge
@@ -37,6 +49,6 @@ router.patch('/:id', apiNotReady);
  * @apiName DeleteContentChallenge
  * @apiGroup ContentChallenge
  */
-router.delete('/:id', apiNotReady);
+router.delete('/:id', deleteChallenge);
 
 export default router;

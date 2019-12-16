@@ -1,6 +1,5 @@
 import Express from 'express';
-import { getChallenges, createChallenge, updateChallenge, deleteChallenge } from '../../controllers/learning/challenge.controller';
-// import { apiNotReady } from '../../controllers/api.controller';
+import { getLearnerChallenges, createLearnerChallenge, updateLearnerChallenge, deleteLearnerChallenge } from '../../controllers/learning/challenge.controller';
 
 const router = Express.Router();
 
@@ -11,7 +10,7 @@ const router = Express.Router();
  * @apiName GetActivityChallenges
  * @apiGroup ActivityChallenges
  */
-router.get('/', getChallenges);
+router.get('/', getLearnerChallenges);
 
 /**
  * @api {post} /learning/activity/challenges/ Add Activity Challenge
@@ -20,13 +19,14 @@ router.get('/', getChallenges);
  * @apiName AddActivityChallenge
  * @apiGroup ActivityChallenge
  *
- * @apiParam {String} topic_id Id of the topic.
- * @apiParam {String} description Description of the challenge.
- * @apiParam {String} starter_repo Repository of the challenge.
- * @apiParam {String="easy","medium","difficult"} difficulty Difficulty of the challenge.
- * @apiParam {String="tiny","small","large"} size Size of the challenge.
+ * @apiParam {String} challenge_id Id of the Challenge.
+ * @apiParam {String} learner_id Id of the learner.
+ * @apiParam {String} repo Repository of the challenge.
+ * @apiParam {String} learner_feedback Feedback of the learner
+ * @apiParam {String} review Review
+ * @apiParam {String} reviewed_by Id of the reviewed user
  */
-router.post('/', createChallenge);
+router.post('/', createLearnerChallenge);
 
 /**
  * @api {patch} /learning/activity/challenges/:id  Update Activity Challenge
@@ -34,14 +34,15 @@ router.post('/', createChallenge);
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateActivityChallenge
  * @apiGroup ActivityChallenge
- *
- * @apiParam {String} topic_id Id of the topic.
- * @apiParam {String} description Description of the challenge.
- * @apiParam {String} starter_repo Repository of the challenge.
- * @apiParam {String="easy","medium","difficult"} difficulty Difficulty of the challenge.
- * @apiParam {String="tiny","small","large"} size Size of the challenge.
+ * 
+ * @apiParam {String} challenge_id Id of the Challenge.
+ * @apiParam {String} learner_id Id of the learner.
+ * @apiParam {String} repo Repository of the challenge.
+ * @apiParam {String} learner_feedback Feedback of the learner
+ * @apiParam {String} review Review
+ * @apiParam {String} reviewed_by Id of the reviewed user
  */
-router.patch('/:id', updateChallenge);
+router.patch('/:id', updateLearnerChallenge);
 
 /**
  * @api {delete} /learning/activity/challenges/:id Delete Activity Challenge
@@ -50,6 +51,6 @@ router.patch('/:id', updateChallenge);
  * @apiName DeleteActivityChallenge
  * @apiGroup ActivityChallenge
  */
-router.delete('/:id', deleteChallenge);
+router.delete('/:id', deleteLearnerChallenge);
 
 export default router;
