@@ -51,3 +51,12 @@ export const getPendingApplicationCohorts = () => Application.findAll({
   include: [Cohort, User],
   raw: true,
 });
+
+export const submitApplication = (id) => {
+  Application.update({ status: 'review_pending' }, {
+    where: { id },
+    returning: true,
+    raw: true,
+  })
+    .then(result => result[1][0]);
+};

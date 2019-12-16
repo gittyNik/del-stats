@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { Test, setSubmitTimeNow, getUnsubmittedTestsOfApplication } from '../../models/test';
 import { TestQuestion } from '../../models/test_question';
 import { populateQuestionDetails } from './test_question.controller';
+import { submitApplicationAndNotify } from './application.controller';
 
 export const getAllTests = (req, res) => {
   Test.findAll({ raw: true })
@@ -42,6 +43,7 @@ export const getTestById = (req, res) => {
 // then update the application status to review_pending
 export const submitTest = (req, res) => {
   const { id } = req.params;
+  const { phone } = req.jwtData;
 
   // if active test, then submit, otherwise ignore
   setSubmitTimeNow(id)
@@ -49,6 +51,12 @@ export const submitTest = (req, res) => {
       if (test) { // if test exists, submit is success
         // responds with the list of pending tests(id, purpose, duration)
         return getUnsubmittedTestsOfApplication(test.application_id)
+          .then(pending_tests => {
+            if (pending_tests.length === 0) {
+              return submitApplicationAndNotify(test.application_id, phone);
+            }
+            return pending_tests;
+          })
           .then(pending_tests => res.send({
             data: {
               test,

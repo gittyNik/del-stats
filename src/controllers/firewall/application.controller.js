@@ -1,6 +1,6 @@
 import uuid from 'uuid/v4';
 import Sequelize from 'sequelize';
-import { Application } from '../../models/application';
+import { Application, submitApplication } from '../../models/application';
 import { Program } from '../../models/program';
 import { Cohort } from '../../models/cohort';
 import { Test } from '../../models/test';
@@ -103,35 +103,40 @@ const populateTestResponses = application => {
     .then(test_series => ({ ...application, test_series }));
 };
 
+// h.o. function
+const notifyApplicationSubmitted = (phone) => (application) => Promise.all([
+  sendSms(phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
+    .catch(err => console.log(err)),
+  populateTestResponses(application)
+    .then(appli => sendFirewallResult(appli, phone))
+    .catch(err => console.log(err)),
+])
+  .then(() => application);
+
+export const submitApplicationAndNotify = (id, phone) => submitApplication(id)
+  .then(notifyApplicationSubmitted(phone));
+
 export const updateApplication = (req, res) => {
   const { cohort_joining, status } = req.body;
   const { id } = req.params;
+  const { phone } = req.jwtData;
+
   if (cohort_joining && status) {
-    Application.update({
-      cohort_joining,
-      status,
-    }, { where: { id } })
+    submitApplication(id)
+      .then(notifyApplicationSubmitted(phone))
       .then(data => res.status(200).json(data))
       .catch(() => res.sendStatus(500));
   } else if (cohort_joining) {
     Application.update({
       cohort_joining,
-    }, { where: { id } })
+    }, { where: { id }, returning: true })
       .then(data => res.status(200).json(data))
       .catch(() => res.sendStatus(500));
   } else if (status) {
-    Application.update({ status }, { where: { id }, returning: true, raw: true })
+    Application.update({
+      cohort_joining,
+    }, { where: { id } })
       .then(result => result[1][0])
-      .then((application) => {
-        const { phone } = req.jwtData.user;
-        return (status !== 'review_pending') ? application : Promise.all([
-          sendSms(phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
-            .catch(err => console.log(err)),
-          populateTestResponses(application)
-            .then(appli => sendFirewallResult(appli, phone))
-            .catch(err => console.log(err)),
-        ]).then(() => application);
-      })
       .then(application => res.send(application))
       .catch((err) => {
         console.log(err);
