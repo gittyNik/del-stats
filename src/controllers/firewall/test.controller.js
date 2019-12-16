@@ -1,6 +1,6 @@
 import uuid from 'uuid/v4';
 import _ from 'lodash';
-import { Test, setSubmitTimeNow, getTestsOfApplication } from '../../models/test';
+import { Test, setSubmitTimeNow, getUnsubmittedTestsOfApplication } from '../../models/test';
 import { TestQuestion } from '../../models/test_question';
 import { populateQuestionDetails } from './test_question.controller';
 
@@ -38,27 +38,29 @@ export const getTestById = (req, res) => {
     });
 };
 
-// TODO
-// if null, update sub_time to current timestamp
-// check the other tests which have not been attempted yet
-// responds with the list of tests(id, purpose, duration) with start_time = null
-// if no other tests found,
+// TODO: if no other tests found,
 // then update the application status to review_pending
-
-// if active test, then submit
-// if inactive test, ignore
-
 export const submitTest = (req, res) => {
   const { id } = req.params;
 
+  // if active test, then submit, otherwise ignore
   setSubmitTimeNow(id)
-    .then(test => getUnsubmittedTestsOfApplication(test.application_id))
-    .then(pending_tests => res.send({
-      data: {
-        test,
-        pending_tests,
-      },
-    }))
+    .then(test => {
+      if (test) { // if test exists, submit is success
+        // responds with the list of pending tests(id, purpose, duration)
+        return getUnsubmittedTestsOfApplication(test.application_id)
+          .then(pending_tests => res.send({
+            data: {
+              test,
+              pending_tests,
+            },
+          }));
+      }
+      res.status(409).send({
+        text: 'Error: Can not submit, the test is not running',
+      });
+      return test;
+    })
     .catch((err) => {
       console.log(err);
       res.sendStatus(500);
@@ -85,31 +87,35 @@ export const updateTestResponses = (req, res) => {
 
   Test.findByPk(id)
     .then((test) => {
-      if (test.sub_time) { // can't answer after submission
-        res.status(409).send({
+      // applicant can't answer after submission
+      if (test.sub_time) {
+        return res.status(409).send({
           text: 'Error: Test already submitted',
           data: test,
         });
-      } else if (test.start_time + test.duration > Date.now()) { // check for expiry
+      }
+
+      // check for expiry
+      if (test.start_time + test.duration > Date.now()) {
         return setSubmitTimeNow(id)
-          .then(test => {
+          .then(data => {
             res.status(410).send({
+              data,
               text: 'Error: Test expired, submitted now',
-              data: test,
             });
           });
-      } else {
-        // use response sent by client or the original from db
-        const finalResponses = test.responses.map(dbResponse => responses
-          .find(r => r.question_id === dbResponse.question_id) || dbResponse);
-        return Test.update({
-          responses: finalResponses,
-          updated_at: new Date(),
-        }, { where: { id } })
-          .then((data) => {
-            res.status(201).send(data);
-          });
       }
+
+      // use response sent by client or the original from db
+      const finalResponses = test.responses.map(dbResponse => responses
+        .find(r => r.question_id === dbResponse.question_id) || dbResponse);
+      return Test.update({
+        responses: finalResponses,
+        updated_at: new Date(),
+      }, { where: { id } })
+        .then((data) => {
+          res.status(201).send(data);
+        });
     })
     .catch((err) => {
       console.log(err);

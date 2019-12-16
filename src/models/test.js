@@ -36,11 +36,13 @@ export const getTestsOfSameApplication = (id) => db.query('select * from tests w
   model: Test,
 });
 
-export const getUnsubmittedTestsOfApplication = (application_id) => {
-
-};
+export const getUnsubmittedTestsOfApplication = (application_id) => Test.findAll({
+  attributes: ['id', 'duration', 'purpose', 'start_time'],
+  where: { application_id },
+});
 
 // Allow submit only if it wasn't submitted before and started already
+// returns undefined if submission was not possible
 export const setSubmitTimeNow = (id) => Test.update({
   sub_time: Sequelize.literal('now()'),
 }, {
@@ -54,7 +56,7 @@ export const setSubmitTimeNow = (id) => Test.update({
   returning: true,
   raw: true,
 })
-  .then(results => results[1][0] || Test.findByPk(id)); // returns the test data
+  .then(results => results[1][0]); // returns the test data
 
 
 export default Test;
