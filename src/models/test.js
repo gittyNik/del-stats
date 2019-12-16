@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 
+// TODO: enforce sub_time > start_time
 export const Test = db.define('tests', {
   id: {
     type: Sequelize.UUID,
@@ -30,11 +31,30 @@ export const Test = db.define('tests', {
 });
 
 // fetch all tests from the same application which are not submitted yet
-export const getTestsOfSameApplication = (id) => db.query('select * from tests where application_id in (select application_id from tests where id=:id)',
-  { replacements: { id }, model: Test });
+export const getTestsOfSameApplication = (id) => db.query('select * from tests where application_id in (select application_id from tests where id=:id) and sub_time is not null', {
+  replacements: { id },
+  model: Test,
+});
 
-export const resetSubmitTime = (id) => Test.update({ sub_time: new Date() }, { where: { id }, returning: true, raw: true })
-  .then(results => results[1][0]); // returns the test data
+export const getUnsubmittedTestsOfApplication = (application_id) => {
+
+};
+
+// Allow submit only if it wasn't submitted before and started already
+export const setSubmitTimeNow = (id) => Test.update({
+  sub_time: Sequelize.literal('now()'),
+}, {
+  where: {
+    id,
+    sub_time: null,
+    start_time: {
+      [Sequelize.Ops.ne]: null,
+    },
+  },
+  returning: true,
+  raw: true,
+})
+  .then(results => results[1][0] || Test.findByPk(id)); // returns the test data
 
 
 export default Test;

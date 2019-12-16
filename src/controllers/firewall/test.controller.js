@@ -1,6 +1,6 @@
 import uuid from 'uuid/v4';
 import _ from 'lodash';
-import { Test, resetSubmitTime } from '../../models/test';
+import { Test, setSubmitTimeNow, getTestsOfApplication } from '../../models/test';
 import { TestQuestion } from '../../models/test_question';
 import { populateQuestionDetails } from './test_question.controller';
 
@@ -50,19 +50,15 @@ export const getTestById = (req, res) => {
 
 export const submitTest = (req, res) => {
   const { id } = req.params;
-  // fetch all tests from the same application which are not submitted yet
-  getTestsOfSameApplication()
-    // .then(tests => tests.filter(test => test.sub_time)) // remove submitted tests
-    .then(tests => {
-      console.log(tests);
-    });
-  Test.findByPk(id).then(test => {
-    if (test.start_time === null) {
-      // send an error, the test was never started
-    }
-  });
-  resetSubmitTime(id)
-    .then(test => res.send(test))
+
+  setSubmitTimeNow(id)
+    .then(test => getUnsubmittedTestsOfApplication(test.application_id))
+    .then(pending_tests => res.send({
+      data: {
+        test,
+        pending_tests,
+      },
+    }))
     .catch((err) => {
       console.log(err);
       res.sendStatus(500);
@@ -95,7 +91,7 @@ export const updateTestResponses = (req, res) => {
           data: test,
         });
       } else if (test.start_time + test.duration > Date.now()) { // check for expiry
-        return resetSubmitTime(id)
+        return setSubmitTimeNow(id)
           .then(test => {
             res.status(410).send({
               text: 'Error: Test expired, submitted now',
