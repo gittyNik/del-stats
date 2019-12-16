@@ -29,4 +29,12 @@ export const Test = db.define('tests', {
   },
 });
 
+// fetch all tests from the same application which are not submitted yet
+export const getTestsOfSameApplication = (id) => db.query('select * from tests where application_id in (select application_id from tests where id=:id)',
+  { replacements: { id }, model: Test });
+
+export const resetSubmitTime = (id) => Test.update({ sub_time: new Date() }, { where: { id }, returning: true, raw: true })
+  .then(results => results[1][0]); // returns the test data
+
+
 export default Test;

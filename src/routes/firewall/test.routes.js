@@ -35,7 +35,8 @@ router.get('/:id', getTestById);
 
 /**
  * @api {patch} /firewall/tests/:id/responses Update Test responses
- * @apiDescription Update test responses
+ * @apiDescription Update test responses: ignores if already submitted
+ * submits the test if expired, otherwise, updates responses against the question_id's
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateTest
  * @apiGroup Test

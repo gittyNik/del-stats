@@ -1,6 +1,6 @@
 import uuid from 'uuid/v4';
 import _ from 'lodash';
-import { Test } from '../../models/test';
+import { Test, resetSubmitTime } from '../../models/test';
 import { TestQuestion } from '../../models/test_question';
 import { populateQuestionDetails } from './test_question.controller';
 
@@ -50,8 +50,18 @@ export const getTestById = (req, res) => {
 
 export const submitTest = (req, res) => {
   const { id } = req.params;
-  Test.update({ sub_time: new Date() }, { where: { id }, returning: true, raw: true })
-    .then(results => results[1][0]) // returns the test data
+  // fetch all tests from the same application which are not submitted yet
+  getTestsOfSameApplication()
+    // .then(tests => tests.filter(test => test.sub_time)) // remove submitted tests
+    .then(tests => {
+      console.log(tests);
+    });
+  Test.findByPk(id).then(test => {
+    if (test.start_time === null) {
+      // send an error, the test was never started
+    }
+  });
+  resetSubmitTime(id)
     .then(test => res.send(test))
     .catch((err) => {
       console.log(err);
@@ -73,26 +83,37 @@ export const startTest = (req, res) => {
     });
 };
 
-// update responses only if sub_time is null
-// and start_time + duration < now
-// else,
-//  submit the test updateTestResponses
 export const updateTestResponses = (req, res) => {
   const { responses } = req.body;
   const { id } = req.params;
 
   Test.findByPk(id)
     .then((test) => {
-    // use response sent by client or the original from db
-      const finalResponses = test.responses.map(dbResponse => responses
-        .find(r => r.question_id === dbResponse.question_id) || dbResponse);
-      return Test.update({
-        responses: finalResponses,
-        sub_time: new Date(),
-      }, { where: { id } });
-    })
-    .then((data) => {
-      res.status(201).send(data);
+      if (test.sub_time) { // can't answer after submission
+        res.status(409).send({
+          text: 'Error: Test already submitted',
+          data: test,
+        });
+      } else if (test.start_time + test.duration > Date.now()) { // check for expiry
+        return resetSubmitTime(id)
+          .then(test => {
+            res.status(410).send({
+              text: 'Error: Test expired, submitted now',
+              data: test,
+            });
+          });
+      } else {
+        // use response sent by client or the original from db
+        const finalResponses = test.responses.map(dbResponse => responses
+          .find(r => r.question_id === dbResponse.question_id) || dbResponse);
+        return Test.update({
+          responses: finalResponses,
+          updated_at: new Date(),
+        }, { where: { id } })
+          .then((data) => {
+            res.status(201).send(data);
+          });
+      }
     })
     .catch((err) => {
       console.log(err);
