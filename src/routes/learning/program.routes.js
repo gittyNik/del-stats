@@ -1,4 +1,5 @@
 import Express from 'express';
+import { getPrograms, getProgram, createProgram, updateProgram, deleteProgram} from '../../controllers/learning/program.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
@@ -9,7 +10,7 @@ const router = Express.Router();
  * @apiName GetPrograms
  * @apiGroup Program
  */
-router.get('/', apiNotReady);
+router.get('/', getPrograms);
 
 /**
  * @api {get} /programs/:id Get a Program by id
@@ -17,23 +18,37 @@ router.get('/', apiNotReady);
  * @apiName GetProgram
  * @apiGroup Program
  */
-router.get('/:id', apiNotReady);
+router.get('/:id', getProgram);
 
 /**
  * @api {post} /programs Create a Program
  * @apiHeader {String} authorization JWT Token.
  * @apiName CreateProgram
  * @apiGroup Program
+ * 
+ * @apiParam {String} name Name of the program
+ * @apiParam {String} location Location of the program
+ * @apiParam {String[]} milestones List of Milestone Id's
+ * @apiParam {Number} duration Duration interms of number of weeks
+ * @apiParam {Object} test_series Test Series
+ * @apiParam {Object} milestone_review_rubric Milestone Review by Rubric
  */
-router.post('/', apiNotReady);
+router.post('/', createProgram);
 
 /**
  * @api {patch} /programs/:id Update a Program
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateProgram
  * @apiGroup Program
+ * 
+ * @apiParam {String} name Name of the program
+ * @apiParam {String} location Location of the program
+ * @apiParam {String[]} milestones List of Milestone Id's
+ * @apiParam {Number} duration Duration interms of number of weeks
+ * @apiParam {Object} test_series Test Series
+ * @apiParam {Object} milestone_review_rubric Milestone Review by Rubric
  */
-router.patch('/:id', apiNotReady);
+router.patch('/:id', updateProgram);
 
 /**
  * @api {delete} /programs/:id Delete a Program
@@ -41,6 +56,6 @@ router.patch('/:id', apiNotReady);
  * @apiName DeleteProgram
  * @apiGroup Program
  */
-router.delete('/:id', apiNotReady);
+router.delete('/:id', deleteProgram);
 
 export default router;
