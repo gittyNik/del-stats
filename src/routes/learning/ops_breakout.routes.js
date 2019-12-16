@@ -1,5 +1,5 @@
 import Express from 'express';
-import { apiNotReady } from '../../controllers/api.controller';
+import { getLearnerBreakouts, getUpcomingBreakouts, createLearnerBreakout } from '../../controllers/learning/learner_breakout.controller';
 
 const router = Express.Router();
 
@@ -10,7 +10,7 @@ const router = Express.Router();
  * @apiName GetBreakouts
  * @apiGroup Breakouts
  */
-router.get('/', apiNotReady);
+router.get('/', getLearnerBreakouts);
 
 /**
  * @api {get} /learning/ops/breakouts/upcoming Get all upcoming Breakouts
@@ -19,7 +19,7 @@ router.get('/', apiNotReady);
  * @apiName GetBreakouts
  * @apiGroup Breakouts
  */
-router.get('/upcoming', apiNotReady);
+router.get('/upcoming', getUpcomingBreakouts);
 
 /**
  * @api {post} /learning/ops/breakouts Submit a Breakout
@@ -27,7 +27,12 @@ router.get('/upcoming', apiNotReady);
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddBreakout
  * @apiGroup Breakout
+ * 
+ * @apiParam {String} cohort_breakout_id Id of Cohort Breakout
+ * @apiParam {String} learner_id Id of learner
+ * @apiParam {String} learner_notes Learner notes
+ * @apiParam {String} learner_feedback Learner feedback on Breakout
  */
-router.post('/', apiNotReady);
+router.post('/', createLearnerBreakout);
 
 export default router;
