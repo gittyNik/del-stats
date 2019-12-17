@@ -97,20 +97,18 @@ export const updateTestResponses = (req, res) => {
     .then((test) => {
       // applicant can't answer after submission
       if (test.sub_time) {
-        return res.status(409).send({
-          text: 'Error: Test already submitted',
-          data: test,
-        });
+        const text = 'Error: Test already submitted';
+        console.error(text);
+        return res.status(409).send({ data: test, text });
       }
 
       // check for expiry
       if (test.start_time + test.duration > Date.now()) {
         return setSubmitTimeNow(id)
           .then(data => {
-            res.status(410).send({
-              data,
-              text: 'Error: Test expired, submitted now',
-            });
+            const text = 'Error: Test expired, submitted now';
+            console.error(text);
+            res.status(410).send({ data, text });
           });
       }
 
@@ -120,7 +118,11 @@ export const updateTestResponses = (req, res) => {
       return Test.update({
         responses: finalResponses,
         updated_at: new Date(),
-      }, { where: { id } })
+      }, {
+        where: { id },
+        returning: true,
+      })
+        .then(results => results[1][0])
         .then((data) => {
           res.status(201).send(data);
         });

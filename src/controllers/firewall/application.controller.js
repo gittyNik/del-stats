@@ -134,7 +134,7 @@ export const updateApplication = (req, res) => {
       .catch(() => res.sendStatus(500));
   } else if (status) {
     Application.update({
-      cohort_joining,
+      status,
     }, { where: { id } })
       .then(result => result[1][0])
       .then(application => res.send(application))

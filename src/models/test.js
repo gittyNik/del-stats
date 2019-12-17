@@ -50,7 +50,7 @@ export const setSubmitTimeNow = (id) => Test.update({
     id,
     sub_time: null,
     start_time: {
-      [Sequelize.Ops.ne]: null,
+      [Sequelize.Op.ne]: null,
     },
   },
   returning: true,

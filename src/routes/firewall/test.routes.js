@@ -61,7 +61,7 @@ router.patch('/:id/start', startTest);
  * @apiName SubmitTest
  * @apiGroup Test
  */
-router.post('/:id/submit', submitTest);
+router.patch('/:id/submit', submitTest);
 
 /**
  * @api {patch} /firewall/tests/:id/video Update RecordedScreen

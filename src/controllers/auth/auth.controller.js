@@ -17,13 +17,14 @@ export const authenticateRequest = (req, res, next) => {
       console.error(err);
       sendAuthFailure(res);
     } else {
-      User.findByPk(jwtData.userId, { raw: true }).then((user) => {
-        req.jwtData = { user, ...jwtData };
-        next();
-      }).catch((e) => {
-        console.error(e);
-        sendAuthFailure(res);
-      });
+      User.findByPk(jwtData.userId, { raw: true })
+        .then((user) => {
+          req.jwtData = { user, ...jwtData };
+          return next();
+        }).catch((e) => {
+          console.error(e);
+          sendAuthFailure(res);
+        });
     }
   });
 
