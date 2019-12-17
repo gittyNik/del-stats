@@ -1,5 +1,5 @@
 import Express from 'express';
-import { apiNotReady } from '../../controllers/api.controller';
+import {getAllPings, createPing, updatePing, deletePing} from '../../controllers/learning/ping.controller';
 
 const router = Express.Router();
 
@@ -10,7 +10,7 @@ const router = Express.Router();
  * @apiName GetNudgePings
  * @apiGroup NudgePings
  */
-router.get('/', apiNotReady);
+router.get('/', getAllPings);
 
 /**
  * @api {post} /learning/nudge/pings/ Add Nudge Ping
@@ -18,8 +18,16 @@ router.get('/', apiNotReady);
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddNudgePing
  * @apiGroup NudgePing
+ * 
+ * @apiParam {String} ping_template_id Id of the ping template
+ * @apiParam {String="immediate","trigger"} type Type of ping
+ * @apiParam {Object} trigger Trigger Object
+ * @apiParam {String} educator_id Id of the educator
+ * @apiParam {String[]} recipiens Array of recipients id
+ * @apiParam {String="draft","sent","delivered"} status Status of the ping
+ * @apiParam {Number} time_scheduled Scheduled time
  */
-router.post('/', apiNotReady);
+router.post('/', createPing);
 
 /**
  * @api {patch} /learning/nudge/pings/:id  Update Nudge Pings
@@ -27,8 +35,16 @@ router.post('/', apiNotReady);
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateNudgePing
  * @apiGroup NudgePing
+ * 
+ * @apiParam {String} ping_template_id Id of the ping template
+ * @apiParam {String="immediate","trigger"} type Type of ping
+ * @apiParam {Object} trigger Trigger Object
+ * @apiParam {String} educator_id Id of the educator
+ * @apiParam {String[]} recipiens Array of recipients id
+ * @apiParam {String="draft","sent","delivered"} status Status of the ping
+ * @apiParam {Number} time_scheduled Scheduled time
  */
-router.patch('/:id', apiNotReady);
+router.patch('/:id', updatePing);
 
 /**
  * @api {delete} /learning/nudge/pings/:id Delete Nudge Pings
@@ -37,6 +53,6 @@ router.patch('/:id', apiNotReady);
  * @apiName DeleteNudgePing
  * @apiGroup NudgePing
  */
-router.delete('/:id', apiNotReady);
+router.delete('/:id', deletePing);
 
 export default router;

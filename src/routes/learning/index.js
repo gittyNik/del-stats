@@ -11,8 +11,8 @@ const router = Express.Router();
 
 router.use('/activity', activity);
 router.use('/content', content);
-router.use('/nudge', allowAdminsOnly, nudge);
-router.use('/ops', allowAdminsOnly, ops);
+router.use('/nudge', nudge);
+router.use('/ops', ops);
 
 router.use('/cohorts', cohortRouter);
 router.use('/programs', programRouter);

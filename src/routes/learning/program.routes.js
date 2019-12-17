@@ -1,6 +1,5 @@
 import Express from 'express';
 import { getPrograms, getProgram, createProgram, updateProgram, deleteProgram} from '../../controllers/learning/program.controller';
-import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
 

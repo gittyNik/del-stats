@@ -1,41 +1,79 @@
-import Resource from '../../models/ping';
+import { Ping } from '../../models/ping';
+import { uuid } from 'uuid/v4';
 
-export const getAll = (req, res) => {
-  Resource.find().exec()
-    .then(data => res.json({ data }))
-    .catch(err => res.status(500).send(err));
+export const getAllPings = (req, res) => {
+  Ping.findAll({})
+    .then(data => res.json(data) )
+    .catch(err => {
+      console.error(err);
+      res.status(500);
+    });
 };
 
-export const getOne = (req, res) => {
-  Resource.findById(req.params.id).exec()
-    .then(data => res.json({ data }))
-    .catch(err => res.status(500).send(err));
-};
-
-export const create = (req, res) => {
-  const {
-    type, ttl, tags, data,
-  } = req.body;
-  new Resource({
-    type, ttl, tags, data,
-  }).save()
-    .then(ping => res.status(201).json({ ping }))
-    .catch(err => res.status(500).send(err));
-};
-
-export const update = (req, res) => {
-  const {
-    type, ttl, tags, data,
-  } = req.body;
-  Resource.findByIdAndUpdate(req.params.id, {
-    type, ttl, tags, data,
+export const createPing = (req, res) => {
+  const { 
+    ping_template_id,
+    type,
+    trigger,
+    educator_id,
+    recipiens,
+    status,
+    time_scheduled
+   } = req.body;
+  Ping.create({
+    id: uuid(),
+    ping_template_id,
+    type,
+    trigger,
+    educator_id,
+    recipiens,
+    status,
+    time_scheduled,
   })
-    .then(ping => res.json({ ping }))
-    .catch(err => res.status(500).send(err));
+    .then(() => res.send("Ping Created."))
+    .catch(err => {
+      console.error(err.stack);
+      res.status(500);
+    });
 };
 
-export const deleteOne = (req, res) => {
-  Resource.remove({ _id: req.params.id }).exec()
-    .then(() => res.sendStatus(204))
-    .catch(err => res.status(500).send(err));
+export const updatePing = (req, res) => {
+  const { id } = req.params;
+  const { 
+    ping_template_id,
+    type,
+    trigger,
+    educator_id,
+    recipiens,
+    status,
+    time_scheduled
+   } = req.body;
+  Ping.update({
+    ping_template_id,
+    type,
+    trigger,
+    educator_id,
+    recipiens,
+    status,
+    time_scheduled,
+  },{
+    where: { id } 
+  })
+    .then(() => res.send("Ping Updated."))
+    .catch(err => {
+      console.error(err.stack);
+      res.status(500);
+    });
+};
+
+export const deletePing = (req, res) => {
+  const { id } = req.params;
+  Ping.destroy({
+    where: { id, },
+  })
+    .then(() => res.send("Ping Deleted."))
+    .catch(err => {
+      console.error(err.stack);
+      res.status(500);
+    });
 };

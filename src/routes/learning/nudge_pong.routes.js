@@ -1,5 +1,5 @@
 import Express from 'express';
-import { apiNotReady } from '../../controllers/api.controller';
+import { getPongs, createPong, updatePong, deletePong } from '../../controllers/learning/pong.controller';
 
 const router = Express.Router();
 
@@ -10,7 +10,7 @@ const router = Express.Router();
  * @apiName GetNudgePongs
  * @apiGroup NudgePongs
  */
-router.get('/', apiNotReady);
+router.get('/', getPongs);
 
 /**
  * @api {post} /learning/nudge/pongs/ Add Nudge Pong
@@ -18,8 +18,12 @@ router.get('/', apiNotReady);
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddNudgePong
  * @apiGroup NudgePong
+ * 
+ * @apiParam {String} ping_id Id of the ping
+ * @apiParam {String} learner_id Id of the learner
+ * @apiParam {Object} response Response in a Pong 
  */
-router.post('/', apiNotReady);
+router.post('/', createPong);
 
 /**
  * @api {patch} /learning/nudge/pongs/:id  Update Nudge Pongs
@@ -27,8 +31,12 @@ router.post('/', apiNotReady);
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateNudgePong
  * @apiGroup NudgePong
+ *
+ * @apiParam {String} ping_id Id of the ping
+ * @apiParam {String} learner_id Id of the learner
+ * @apiParam {Object} response Response in a Pong
  */
-router.patch('/:id', apiNotReady);
+router.patch('/:id', updatePong);
 
 /**
  * @api {delete} /learning/nudge/pongs/:id Delete Nudge Pongs
@@ -37,6 +45,6 @@ router.patch('/:id', apiNotReady);
  * @apiName DeleteNudgePong
  * @apiGroup NudgePong
  */
-router.delete('/:id', apiNotReady);
+router.delete('/:id', deletePong);
 
 export default router;
