@@ -119,7 +119,7 @@ export const submitApplicationAndNotify = (id, phone) => submitApplication(id)
 export const updateApplication = (req, res) => {
   const { cohort_joining, status } = req.body;
   const { id } = req.params;
-  const { phone } = req.jwtData;
+  const { phone } = req.jwtData.user;
 
   if (cohort_joining && status) {
     submitApplication(id)
