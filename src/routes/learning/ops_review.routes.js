@@ -1,4 +1,5 @@
 import Express from 'express';
+import { getUpcomingReviews } from '../../controllers/learning/cohort_milestone.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
@@ -19,7 +20,7 @@ router.get('/', apiNotReady);
  * @apiName GetReviews
  * @apiGroup Reviews
  */
-router.get('/upcoming', apiNotReady);
+router.get('/upcoming', getUpcomingReviews);
 
 /**
  * @api {post} /learning/ops/reviews Submit a Review

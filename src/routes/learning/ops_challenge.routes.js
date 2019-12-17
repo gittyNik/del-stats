@@ -1,5 +1,5 @@
 import Express from 'express';
-import { apiNotReady } from '../../controllers/api.controller';
+import {getLearnerChallenges, createLearnerChallenge} from '../../controllers/learning/challenge.controller'
 
 const router = Express.Router();
 
@@ -10,7 +10,7 @@ const router = Express.Router();
  * @apiName GetChallenges
  * @apiGroup Challenges
  */
-router.get('/', apiNotReady);
+router.get('/', getLearnerChallenges);
 
 /**
  * @api {post} /learning/challenges Submit a Challenge
@@ -19,6 +19,6 @@ router.get('/', apiNotReady);
  * @apiName AddChallenge
  * @apiGroup Challenge
  */
-router.post('/', apiNotReady);
+router.post('/', createLearnerChallenge);
 
 export default router;

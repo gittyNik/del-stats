@@ -4,7 +4,7 @@ import db from '../database';
 export const LearnerBreakout = db.define('learner_breakouts', {
   id: {
     type: Sequelize.UUID,
-    primatyKey: true,
+    primaryKey: true,
   },
   cohort_breakout_id: {
     type: Sequelize.UUID,
