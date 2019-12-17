@@ -38,7 +38,10 @@ export const getTestsOfSameApplication = (id) => db.query('select * from tests w
 
 export const getUnsubmittedTestsOfApplication = (application_id) => Test.findAll({
   attributes: ['id', 'duration', 'purpose', 'start_time'],
-  where: { application_id },
+  where: {
+    application_id,
+    sub_time: null,
+  },
 });
 
 // Allow submit only if it wasn't submitted before and started already
