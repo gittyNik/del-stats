@@ -43,7 +43,7 @@ export const getTestById = (req, res) => {
 // then update the application status to review_pending
 export const submitTest = (req, res) => {
   const { id } = req.params;
-  const { phone } = req.jwtData;
+  const { phone } = req.jwtData.user;
 
   // if active test, then submit, otherwise ignore
   setSubmitTimeNow(id)
