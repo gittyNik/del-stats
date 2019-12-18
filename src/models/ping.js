@@ -23,6 +23,6 @@ export const Ping = db.define('pings', {
   recipiens: Sequelize.ARRAY(Sequelize.UUID),
   status: Sequelize.ENUM(...PING_STATUS),
   time_scheduled: Sequelize.DATE,
-})
+});
 
 export default Ping;

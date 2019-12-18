@@ -1,5 +1,7 @@
 import Express from 'express';
-import { getLearnerChallenges, createLearnerChallenge, updateLearnerChallenge, deleteLearnerChallenge } from '../../controllers/learning/challenge.controller';
+import {
+  getLearnerChallenges, createLearnerChallenge, updateLearnerChallenge, deleteLearnerChallenge,
+} from '../../controllers/learning/challenge.controller';
 
 const router = Express.Router();
 
@@ -34,7 +36,7 @@ router.post('/', createLearnerChallenge);
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateActivityChallenge
  * @apiGroup ActivityChallenge
- * 
+ *
  * @apiParam {String} challenge_id Id of the Challenge.
  * @apiParam {String} learner_id Id of the learner.
  * @apiParam {String} repo Repository of the challenge.

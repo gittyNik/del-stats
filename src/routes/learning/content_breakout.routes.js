@@ -1,5 +1,7 @@
 import Express from 'express';
-import { getBreakouts, createBreakout, updateBreakout, deleteBreakout } from '../../controllers/learning/breakout.controller';
+import {
+  getBreakouts, createBreakout, updateBreakout, deleteBreakout,
+} from '../../controllers/learning/breakout.controller';
 // import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
@@ -20,7 +22,8 @@ router.get('/', getBreakouts);
  * @apiName AddContentBreakout
  * @apiGroup ContentBreakout
  *
- * @apiParam {String="lecture","codealong","questionhour","activity","groupdiscussion"} type Type of Breakout
+ * @apiParam {String="lecture","codealong",
+ * "questionhour","activity","groupdiscussion"} type Type of Breakout
  * @apiParam {String} domain Domain of the Breakout
  * @apiParam {String} topic_id Id of the topic for Breakout
  * @apiParam {String} cohort_id Id of the Cohort
@@ -28,10 +31,11 @@ router.get('/', getBreakouts);
  * @apiParam {Number} duration Duration of the Breakout
  * @apiParam {String} location location of the Breakout
  * @apiParam {String} catalyst_id Id of the Catalyst
- * @apiParam {String="scheduled","started","cancelled","aborted","running"} status Status of Breakout
+ * @apiParam {String="scheduled","started","cancelled",
+ *  "aborted","running"} status Status of Breakout
  * @apiParam {String} catalyst_notes Catalyst Note
- * @apiParam {String} catalyst_feedback	Feedback by Catalyst
- * @apiParam {Number}	attendance_count Total attendence for the Breakout
+ * @apiParam {String} catalyst_feedback Feedback by Catalyst
+ * @apiParam {Number} attendance_count Total attendence for the Breakout
  */
 router.post('/', createBreakout);
 
@@ -42,7 +46,8 @@ router.post('/', createBreakout);
  * @apiName UpdateContentBreakout
  * @apiGroup ContentBreakout
  *
- * @apiParam {String="lecture","codealong","questionhour","activity","groupdiscussion"} type Type of Breakout
+ * @apiParam {String="lecture","codealong","questionhour",
+*  "activity","groupdiscussion"} type Type of Breakout
  * @apiParam {String} domain Domain of the Breakout
  * @apiParam {String} topic_id Id of the topic for Breakout
  * @apiParam {String} cohort_id Id of the Cohort
@@ -50,10 +55,11 @@ router.post('/', createBreakout);
  * @apiParam {Number} duration Duration of the Breakout
  * @apiParam {String} location location of the Breakout
  * @apiParam {String} catalyst_id Id of the Catalyst
- * @apiParam {String="scheduled","started","cancelled","aborted","running"} status Status of Breakout
+ * @apiParam {String="scheduled","started",
+ * "cancelled","aborted","running"} status Status of Breakout
  * @apiParam {String} catalyst_notes Catalyst Note
- * @apiParam {String} catalyst_feedback	Feedback by Catalyst
- * @apiParam {Number}	attendance_count Total attendence for the Breakout
+ * @apiParam {String} catalyst_feedback Feedback by Catalyst
+ * @apiParam {Number} attendance_count Total attendence for the Breakout
  */
 router.patch('/:id', updateBreakout);
 

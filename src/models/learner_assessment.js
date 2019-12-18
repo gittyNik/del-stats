@@ -2,7 +2,7 @@ import Sequelize from 'sequelize';
 import db from '../database';
 
 
-export const LearnerAssessment = db.define('assessments',{
+export const LearnerAssessment = db.define('assessments', {
   id: {
     type: Sequelize.UUID,
     primaryKey: true,

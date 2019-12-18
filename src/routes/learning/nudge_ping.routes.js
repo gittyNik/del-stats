@@ -1,5 +1,7 @@
 import Express from 'express';
-import {getAllPings, createPing, updatePing, deletePing} from '../../controllers/learning/ping.controller';
+import {
+  getAllPings, createPing, updatePing, deletePing,
+} from '../../controllers/learning/ping.controller';
 
 const router = Express.Router();
 
@@ -18,7 +20,7 @@ router.get('/', getAllPings);
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddNudgePing
  * @apiGroup NudgePing
- * 
+ *
  * @apiParam {String} ping_template_id Id of the ping template
  * @apiParam {String="immediate","trigger"} type Type of ping
  * @apiParam {Object} trigger Trigger Object
@@ -35,7 +37,7 @@ router.post('/', createPing);
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateNudgePing
  * @apiGroup NudgePing
- * 
+ *
  * @apiParam {String} ping_template_id Id of the ping template
  * @apiParam {String="immediate","trigger"} type Type of ping
  * @apiParam {Object} trigger Trigger Object

@@ -1,5 +1,7 @@
 import Express from 'express';
-import { getPrograms, getProgram, createProgram, updateProgram, deleteProgram} from '../../controllers/learning/program.controller';
+import {
+  getPrograms, getProgram, createProgram, updateProgram, deleteProgram,
+} from '../../controllers/learning/program.controller';
 
 const router = Express.Router();
 
@@ -24,7 +26,7 @@ router.get('/:id', getProgram);
  * @apiHeader {String} authorization JWT Token.
  * @apiName CreateProgram
  * @apiGroup Program
- * 
+ *
  * @apiParam {String} name Name of the program
  * @apiParam {String} location Location of the program
  * @apiParam {String[]} milestones List of Milestone Id's
@@ -39,7 +41,7 @@ router.post('/', createProgram);
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateProgram
  * @apiGroup Program
- * 
+ *
  * @apiParam {String} name Name of the program
  * @apiParam {String} location Location of the program
  * @apiParam {String[]} milestones List of Milestone Id's

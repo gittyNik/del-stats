@@ -12,9 +12,9 @@ export const Pong = db.define('pongs', {
   },
   learner_id: {
     type: Sequelize.UUID,
-    references: { model: 'users', key: 'id'},
+    references: { model: 'users', key: 'id' },
   },
   response: Sequelize.JSON,
-})
+});
 
 export default Pong;

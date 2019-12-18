@@ -3,7 +3,7 @@ import { JobApplication } from '../../models/job_application';
 
 export const getAllApplications = (req, res) => {
   JobApplication.findAll({})
-    .then(data => res.send({ text: { data }) })
+    .then(data => res.send({ text: { data } }))
     .catch(err => {
       console.error(err.stack);
       res.status(500);
@@ -14,7 +14,7 @@ export const getJobApplicationsByUser = (req, res) => {
   const { user_id } = req.params;
 
   JobApplication.findAll({ where: { user_id } })
-    .then(data => res.send({ text: { data }) })
+    .then(data => res.send({ text: { data } }))
     .catch(err => {
       console.error(err.stack);
       res.status(500);
@@ -26,7 +26,7 @@ export const getApplication = (req, res) => {
   JobApplication.findAll({}, {
     where: { id },
   })
-    .then(data => res.send({ text: { data }) })
+    .then(data => res.send({ text: { data } }))
     .catch(err => {
       console.error(err.stack);
       res.status(500);
@@ -70,7 +70,7 @@ export const updateApplication = (req, res) => {
   }, {
     where: { id },
   })
-    .then(() => res.send({ text: 'Job application Updated') })
+    .then(() => res.send({ text: 'Job application Updated' }))
     .catch(err => {
       console.error(err.stack);
       res.status(500);
@@ -78,10 +78,12 @@ export const updateApplication = (req, res) => {
 };
 
 export const deleteApplication = (req, res) => {
+  const { id } = req.params;
+
   JobApplication.destroy({
     where: { id },
   })
-    .then(() => res.send({ text: 'Job application deleted.') })
+    .then(() => res.send({ text: 'Job application deleted.' }))
     .catch(err => {
       console.error(err.stack);
       res.status(500);

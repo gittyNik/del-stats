@@ -1,5 +1,5 @@
 import Express from 'express';
-import {getLearnerChallenges, createLearnerChallenge} from '../../controllers/learning/challenge.controller'
+import { getLearnerChallenges, createLearnerChallenge } from '../../controllers/learning/challenge.controller';
 
 const router = Express.Router();
 

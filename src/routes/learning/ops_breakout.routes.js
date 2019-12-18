@@ -27,7 +27,7 @@ router.get('/upcoming', getUpcomingBreakouts);
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddBreakout
  * @apiGroup Breakout
- * 
+ *
  * @apiParam {String} cohort_breakout_id Id of Cohort Breakout
  * @apiParam {String} learner_id Id of learner
  * @apiParam {String} learner_notes Learner notes

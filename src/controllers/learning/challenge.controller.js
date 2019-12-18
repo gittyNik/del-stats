@@ -74,7 +74,7 @@ export const deleteChallenge = (req, res) => {
 
 export const getLearnerChallenges = (req, res) => {
   LearnerChallenge.findAll({})
-    .then( data => res.json(data) )
+    .then(data => res.json(data))
     .catch(err => {
       console.error(err);
       res.status(500);
@@ -82,8 +82,10 @@ export const getLearnerChallenges = (req, res) => {
 };
 
 export const createLearnerChallenge = (req, res) => {
-  const {challenge_id, learner_id, repo, learner_feedback, review, reviewed_by} = req.body;
-  
+  const {
+    challenge_id, learner_id, repo, learner_feedback, review, reviewed_by,
+  } = req.body;
+
   LearnerChallenge.create({
     id: uuid(),
     challenge_id,
@@ -91,9 +93,9 @@ export const createLearnerChallenge = (req, res) => {
     repo,
     learner_feedback,
     review,
-    reviewed_by
+    reviewed_by,
   })
-    .then(() => res.send(" Activity Challenge created"))
+    .then(() => res.send(' Activity Challenge created'))
     .catch((err) => {
       console.log(err);
       res.send(500);
@@ -102,18 +104,20 @@ export const createLearnerChallenge = (req, res) => {
 
 export const updateLearnerChallenge = (req, res) => {
   const { id } = req.params;
-  const { challenge_id, learner_id, repo, learner_feedback, review, reviewed_by } = req.body;
+  const {
+    challenge_id, learner_id, repo, learner_feedback, review, reviewed_by,
+  } = req.body;
   LearnerChallenge.update({
     challenge_id,
     learner_id,
     repo,
     learner_feedback,
     review,
-    reviewed_by
-  },{
+    reviewed_by,
+  }, {
     where: { id },
   })
-    .then(() => res.send('Activity Challenge Updated') )
+    .then(() => res.send('Activity Challenge Updated'))
     .catch(err => {
       console.error(err);
       res.status(500);

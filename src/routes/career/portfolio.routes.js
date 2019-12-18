@@ -1,9 +1,8 @@
 import Express from 'express';
 import {
   getAllPortfolios, createPortfolio,
-  updatePortfolio, deletePortfolio
+  updatePortfolio, deletePortfolio,
 } from '../../controllers/career/portfolio.controller';
-import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
 

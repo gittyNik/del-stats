@@ -1,5 +1,7 @@
 import Express from 'express';
-import { getAllPingTemplates, createPingTemplate, updatePingTemplate, deletePingTemplate } from '../../controllers/learning/ping_template.controller';
+import {
+  getAllPingTemplates, createPingTemplate, updatePingTemplate, deletePingTemplate,
+} from '../../controllers/learning/ping_template.controller';
 
 const router = Express.Router();
 
@@ -18,13 +20,13 @@ router.get('/', getAllPingTemplates);
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddNudgeTemplate
  * @apiGroup NudgeTemplate
- * 
+ *
  * @apiParam {String} text Text for the Ping Template
  * @apiParam {String} details Details for the Ping Template
  * @apiParam {String} author_id Id of the author of ping
  * @apiParam {String} response_format Response Format
  * @apiParam {String} domain Domain of the ping template
- * 
+ *
  */
 router.post('/', createPingTemplate);
 
@@ -34,7 +36,7 @@ router.post('/', createPingTemplate);
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateNudgeTemplate
  * @apiGroup NudgeTemplate
- * 
+ *
  * @apiParam {String} text Text for the Ping Template
  * @apiParam {String} details Details for the Ping Template
  * @apiParam {String} author_id Id of the author of ping

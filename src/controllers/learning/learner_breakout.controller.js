@@ -14,7 +14,7 @@ export const getLearnerBreakouts = (req, res) => {
 };
 
 export const getUpcomingBreakouts = (req, res) => {
-  CohortBreakout.findAll({ 
+  CohortBreakout.findAll({
     where: {
       status: 'scheduled',
     },
@@ -40,7 +40,7 @@ export const createLearnerBreakout = (req, res) => {
     learner_notes,
     learner_feedback,
   })
-    .then(() => res.send("Created Learner Breakout"))
+    .then(() => res.send('Created Learner Breakout'))
     .catch(err => {
       console.error(err.stack);
       res.status(500);

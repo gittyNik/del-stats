@@ -1,9 +1,9 @@
-import { PingTemplate } from '../../models/ping_template';
 import { uuid } from 'uuid/v4';
+import { PingTemplate } from '../../models/ping_template';
 
 export const getAllPingTemplates = (req, res) => {
   PingTemplate.findAll({})
-    .then(data => res.json(data) )
+    .then(data => res.json(data))
     .catch(err => {
       console.error(err);
       res.status(500);
@@ -18,7 +18,7 @@ export const createPingTemplate = (req, res) => {
     response_format,
     domain,
     tags,
-   } = req.body;
+  } = req.body;
   PingTemplate.create({
     id: uuid(),
     text,
@@ -26,9 +26,9 @@ export const createPingTemplate = (req, res) => {
     author_id,
     response_format,
     domain,
-    tags
+    tags,
   })
-    .then(() => res.send("PingTemplate Created."))
+    .then(() => res.send('PingTemplate Created.'))
     .catch(err => {
       console.error(err.stack);
       res.status(500);
@@ -43,8 +43,8 @@ export const updatePingTemplate = (req, res) => {
     author_id,
     response_format,
     domain,
-    tags, 
-   } = req.body;
+    tags,
+  } = req.body;
   PingTemplate.update({
     text,
     details,
@@ -52,10 +52,10 @@ export const updatePingTemplate = (req, res) => {
     response_format,
     domain,
     tags,
-  },{
-    where: { id } 
+  }, {
+    where: { id },
   })
-    .then(() => res.send("PingTemplate Updated."))
+    .then(() => res.send('PingTemplate Updated.'))
     .catch(err => {
       console.error(err.stack);
       res.status(500);
@@ -65,9 +65,9 @@ export const updatePingTemplate = (req, res) => {
 export const deletePingTemplate = (req, res) => {
   const { id } = req.params;
   PingTemplate.destroy({
-    where: { id, },
+    where: { id },
   })
-    .then(() => res.send("PingTemplate Deleted."))
+    .then(() => res.send('PingTemplate Deleted.'))
     .catch(err => {
       console.error(err.stack);
       res.status(500);

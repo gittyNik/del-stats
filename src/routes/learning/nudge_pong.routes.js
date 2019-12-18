@@ -1,5 +1,7 @@
 import Express from 'express';
-import { getPongs, createPong, updatePong, deletePong } from '../../controllers/learning/pong.controller';
+import {
+  getPongs, createPong, updatePong, deletePong,
+} from '../../controllers/learning/pong.controller';
 
 const router = Express.Router();
 
@@ -18,10 +20,10 @@ router.get('/', getPongs);
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddNudgePong
  * @apiGroup NudgePong
- * 
+ *
  * @apiParam {String} ping_id Id of the ping
  * @apiParam {String} learner_id Id of the learner
- * @apiParam {Object} response Response in a Pong 
+ * @apiParam {Object} response Response in a Pong
  */
 router.post('/', createPong);
 
