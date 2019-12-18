@@ -1,9 +1,20 @@
 import uuid from 'uuid/v4';
-import {JobApplication} from '../../models/job_application';
+import { JobApplication } from '../../models/job_application';
 
 export const getAllApplications = (req, res) => {
   JobApplication.findAll({})
-    .then(data => res.json(data))
+    .then(data => res.send({ text: { data }) })
+    .catch(err => {
+      console.error(err.stack);
+      res.status(500);
+    });
+};
+
+export const getJobApplicationsByUser = (req, res) => {
+  const { user_id } = req.params;
+
+  JobApplication.findAll({ where: { user_id } })
+    .then(data => res.send({ text: { data }) })
     .catch(err => {
       console.error(err.stack);
       res.status(500);
@@ -12,10 +23,10 @@ export const getAllApplications = (req, res) => {
 
 export const getApplication = (req, res) => {
   const { id } = req.params;
-  JobApplication.findAll({},{
-    where: { id }
+  JobApplication.findAll({}, {
+    where: { id },
   })
-    .then(data => res.json(data))
+    .then(data => res.send({ text: { data }) })
     .catch(err => {
       console.error(err.stack);
       res.status(500);
@@ -26,23 +37,15 @@ export const createApplication = (req, res) => {
   const {
     job_posting_id,
     applicant_id,
-    review,
-    status,
-    offer_details,
-    applicant_feedback,
-    counsellor_notes
   } = req.body;
   JobApplication.create({
     id: uuid(),
     job_posting_id,
     applicant_id,
-    review,
-    status,
-    offer_details,
-    applicant_feedback,
-    counsellor_notes
   })
-    .then(() => res.send("Job Application created"))
+    .then(() => res.send({
+      text: 'Job Application created',
+    }))
     .catch(err => {
       console.error(err.stack);
       res.status(500);
@@ -52,26 +55,22 @@ export const createApplication = (req, res) => {
 export const updateApplication = (req, res) => {
   const { id } = req.params;
   const {
-    job_posting_id,
-    applicant_id,
     review,
     status,
     offer_details,
     applicant_feedback,
-    counsellor_notes
+    counsellor_notes,
   } = req.body;
   JobApplication.update({
-    job_posting_id,
-    applicant_id,
     review,
     status,
     offer_details,
     applicant_feedback,
-    counsellor_notes
+    counsellor_notes,
   }, {
-    where: { id }
+    where: { id },
   })
-    .then(() => res.send("Job Application Updated"))
+    .then(() => res.send({ text: 'Job application Updated') })
     .catch(err => {
       console.error(err.stack);
       res.status(500);
@@ -80,9 +79,9 @@ export const updateApplication = (req, res) => {
 
 export const deleteApplication = (req, res) => {
   JobApplication.destroy({
-    where: { id }
+    where: { id },
   })
-    .then(() => res.send("Application deleted."))
+    .then(() => res.send({ text: 'Job application deleted.') })
     .catch(err => {
       console.error(err.stack);
       res.status(500);

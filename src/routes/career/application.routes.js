@@ -1,7 +1,7 @@
 import Express from 'express';
 import {
   getAllApplications, getApplication, createApplication,
-  updateApplication, deleteApplication,
+  updateApplication, deleteApplication, getJobApplicationsByUser,
 } from '../../controllers/career/job_application.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 
@@ -23,7 +23,7 @@ router.get('/', getAllApplications);
  * @apiName GetLiveApplications
  * @apiGroup JobApplication
  */
-router.get('/live', apiNotReady);
+router.get('/live', getJobApplicationsByUser);
 
 /**
  * @api {get} /career/applications/latest Get latest applications
@@ -41,7 +41,7 @@ router.get('/latest', apiNotReady);
  * @apiName GetApplicationsByUserId
  * @apiGroup JobApplication
  */
-router.get('/user/:id', apiNotReady);
+router.get('/user/:user_id', apiNotReady);
 
 /**
  * @api {get} /career/applications/:id Get an Application
