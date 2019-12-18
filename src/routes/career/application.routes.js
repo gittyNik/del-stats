@@ -1,7 +1,12 @@
 import Express from 'express';
+import {
+  getAllApplications, getApplication, createApplication,
+  updateApplication, deleteApplication,
+} from '../../controllers/career/job_application.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
+
 /**
  * @api {get} /career/applications Get all Applications
  * @apiDescription get all Applications
@@ -9,7 +14,7 @@ const router = Express.Router();
  * @apiName GetApplications
  * @apiGroup JobApplication
  */
-router.get('/', apiNotReady);
+router.get('/', getAllApplications);
 
 /**
  * @api {get} /career/applications/live Get live Applications
@@ -45,7 +50,7 @@ router.get('/user/:id', apiNotReady);
  * @apiName GetApplication
  * @apiGroup JobApplication
  */
-router.get('/:id', apiNotReady);
+router.get('/:id', getApplication);
 
 /**
  * @api {post} /career/applications/ Add Application
@@ -54,7 +59,7 @@ router.get('/:id', apiNotReady);
  * @apiName AddApplication
  * @apiGroup JobApplication
  */
-router.post('/', apiNotReady);
+router.post('/', createApplication);
 
 /**
  * @api {patch} /career/applications/:id  Update Application
@@ -63,7 +68,7 @@ router.post('/', apiNotReady);
  * @apiName UpdateApplication
  * @apiGroup JobApplication
  */
-router.patch('/:id', apiNotReady);
+router.patch('/:id', updateApplication);
 
 /**
  * @api {patch} /career/applications/:id/review Submit review of application
@@ -81,6 +86,6 @@ router.patch('/:id', apiNotReady);
  * @apiName DeleteApplication
  * @apiGroup JobApplication
  */
-router.delete('/:id', apiNotReady);
+router.delete('/:id', deleteApplication);
 
 export default router;

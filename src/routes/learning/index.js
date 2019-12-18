@@ -5,7 +5,6 @@ import nudge from './nudge.routes';
 import ops from './ops.routes';
 import cohortRouter from './cohort.routes';
 import programRouter from './program.routes';
-import { allowAdminsOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
 
