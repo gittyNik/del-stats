@@ -3,8 +3,12 @@ import {
   getAllQuestions, addQuestion, deleteQuestion,
   updateQuestion,
 } from '../../controllers/firewall/test_question.controller';
+import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
+
+router.use(allowSuperAdminOnly);
+
 /**
  * @api {get} /firewall/test_questions Get all Questions
  * @apiDescription Get all the questions from Firewall's question bank

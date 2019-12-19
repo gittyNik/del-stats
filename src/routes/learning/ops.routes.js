@@ -2,8 +2,12 @@ import Express from 'express';
 import breakoutRouter from './ops_breakout.routes';
 import reviewRouter from './ops_review.routes';
 import assessmentRouter from './ops_assessment.routes';
+import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
+
+// Disable until tested
+router.use(allowSuperAdminOnly);
 
 router.use('/breakouts', breakoutRouter);
 router.use('/reviews', reviewRouter);

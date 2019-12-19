@@ -1,7 +1,11 @@
 import Express from 'express';
 import { insertHistory, getAllDataByUserId, getAllDataByUrlId } from '../../controllers/firewall/browser_history.controller';
+import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
+
+// Disable until tested
+router.use(allowSuperAdminOnly);
 
 /**
  * @api {post} /browser_history Insert the browser history

@@ -89,6 +89,7 @@ export const startTest = (req, res) => {
     });
 };
 
+// TODO: check if current user has access to the test
 export const updateTestResponses = (req, res) => {
   const { responses } = req.body;
   const { id } = req.params;

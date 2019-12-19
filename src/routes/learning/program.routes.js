@@ -2,8 +2,11 @@ import Express from 'express';
 import {
   getPrograms, getProgram, createProgram, updateProgram, deleteProgram,
 } from '../../controllers/learning/program.controller';
+import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
+
+router.use(allowSuperAdminOnly);
 
 /**
  * @api {get} /programs Get all Programs

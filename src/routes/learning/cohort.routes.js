@@ -3,6 +3,7 @@ import {
   getCohortByName, getCohorts, getCohort, createCohort, updateCohort,
   getUpcomingCohorts, deleteCohort,
 } from '../../controllers/learning/cohort.controller';
+import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
 
@@ -37,6 +38,9 @@ router.get('/:id', getCohort);
  * @apiGroup Cohort
  */
 router.get('/:year/:location/:name', getCohortByName);
+
+// Restrict modifications for any applicant to the cohorts
+router.use(allowSuperAdminOnly);
 
 /**
  * @api {post} /cohorts Create a cohort
