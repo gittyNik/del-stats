@@ -21,6 +21,14 @@ export const Topic = db.define('topics', {
     type: Sequelize.UUID,
     references: { model: 'milestones', key: 'id' },
   },
+  optional: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: true,
+  },
+  visible: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: true,
+  },
 });
 
 export default Topic;
