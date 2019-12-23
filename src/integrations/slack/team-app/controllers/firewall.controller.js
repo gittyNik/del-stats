@@ -2,7 +2,7 @@ import { WebClient } from '@slack/web-api';
 import { IncomingWebhook } from '@slack/webhook';
 import { getPendingApplicationCohorts } from '../../../../models/application';
 import { getLiveCohorts } from '../../../../models/cohort';
-import { composeHome, buildFirewallResult } from './firewall.view';
+import { composeHome, buildFirewallResult } from '../views/firewall.view';
 
 const { SLACK_FIREWALL_WEBHOOK, SLACK_TEAM_BOT_TOKEN } = process.env;
 

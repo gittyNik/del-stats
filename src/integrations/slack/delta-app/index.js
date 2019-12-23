@@ -1,6 +1,8 @@
 import Express from 'express';
-import interactionController from '../../../controllers/integrations/slack/team-app/interaction.controller';
-import eventController from '../../../controllers/integrations/slack/team-app/event.controller';
+import interactionController from './interaction.controller';
+import eventController from './event.controller';
+// import commandController from './command.controller';
+// import optionsController from './options.controller';
 
 const router = Express.Router();
 

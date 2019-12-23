@@ -1,6 +1,6 @@
 import { createMessageAdapter } from '@slack/interactive-messages';
-import { beginCohortWithId } from '../../../../models/cohort';
-import { showMilestoneDetails, markTopicAsFinished } from './milestone.controller';
+import { beginCohortWithId } from '../../../models/cohort';
+import { showMilestoneDetails, markTopicAsFinished } from './controllers/milestone.controller';
 
 const slackInteractions = createMessageAdapter(process.env.SLACK_TEAM_SECRET);
 

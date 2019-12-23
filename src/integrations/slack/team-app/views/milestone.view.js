@@ -1,5 +1,5 @@
 
-const footerBlock = {
+export const footerBlock = {
   type: 'context',
   elements: [
     {

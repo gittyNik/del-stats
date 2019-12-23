@@ -1,4 +1,4 @@
-import scoreTest from '../../../firewall/test_score.controller';
+import scoreTest from '../../../../controllers/firewall/test_score.controller';
 
 const footerBlock = {
   type: 'context',

@@ -9,7 +9,7 @@ import { getFirewallResourceVisitsByUser } from '../../models/resource_visit';
 import { Test, getSubmissionTimesByApplication } from '../../models/test';
 import { generateTestSeries, populateTestSeries } from './test.controller';
 import { sendSms } from '../../util/sms';
-import { sendFirewallResult } from '../integrations/slack/team-app/firewall.controller';
+import { sendFirewallResult } from '../../integrations/slack/team-app/controllers/firewall.controller';
 
 export const getAllApplications = (req, res) => {
   Application.findAll({

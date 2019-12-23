@@ -3,7 +3,7 @@ import { getCurrentMilestoneOfCohort } from '../../../../models/cohort_milestone
 import { Cohort } from '../../../../models/cohort';
 import { startBreakout } from '../../../../models/cohort_breakout';
 import { Topic } from '../../../../models/topic';
-import { composeMilestoneModal } from './milestone.view';
+import { composeMilestoneModal } from '../views/milestone.view';
 
 const { SLACK_TEAM_BOT_TOKEN } = process.env;
 

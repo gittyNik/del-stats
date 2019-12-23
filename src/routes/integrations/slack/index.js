@@ -1,10 +1,10 @@
 import Express from 'express';
-import deltaRouter from './delta.routes';
-import teamRouter from './team.routes';
+import deltaApp from '../../../integrations/slack/delta-app';
+import teamApp from '../../../integrations/slack/team-app';
 
 const router = Express.Router();
 
-router.use('/delta', deltaRouter);
-router.use('/team', teamRouter);
+router.use('/delta', deltaApp);
+router.use('/team', teamApp);
 
 export default router;

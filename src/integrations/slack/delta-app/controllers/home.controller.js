@@ -1,5 +1,5 @@
 import { WebClient } from '@slack/web-api';
-import { composeHome } from './home.view';
+import { composeHome } from '../views/home.view';
 import { getLiveCohorts } from '../../../../models/cohort';
 
 const { SLACK_DELTA_BOT_TOKEN } = process.env;
@@ -16,3 +16,7 @@ export const publishHome = user_id => getLiveCohorts()
       user_id,
     });
   });
+
+export const publishWelcome = user_id => {
+  console.log('publishing welcome message', user_id);
+};

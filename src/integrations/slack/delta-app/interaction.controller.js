@@ -1,5 +1,5 @@
 import { createMessageAdapter } from '@slack/interactive-messages';
-import { showMilestoneDetails, requestTopicBreakout } from './milestone.controller';
+import { showMilestoneDetails, requestTopicBreakout } from './controllers/milestone.controller';
 
 const slackInteractions = createMessageAdapter(process.env.SLACK_DELTA_SECRET);
 
