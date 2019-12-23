@@ -19,8 +19,10 @@ router.get('/', getProfile);
  * @apiName UpdateUserProfile
  * @apiGroup Profile
  *
- * @apiParam {String} email
- * @apiParam {String} name
+ * @apiParam {String} email Email of user
+ * @apiParam {String} name Name of user
+ * @apiParam {String} location Current city of user
+ * @apiParam {Object} profile Profile details of user
  */
 router.patch('/', updateProfile);
 
