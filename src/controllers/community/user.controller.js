@@ -9,9 +9,9 @@ export const updateUser = apiNotReady;
 
 export const updateProfile = (req, res) => {
   const { id } = req.jwtData.user;
-  const { email, name } = req.body;
+  const { email, name, location } = req.body;
 
-  User.update({ email, name }, {
+  User.update({ email, name, location }, {
     where: { id },
     returning: true,
     raw: true,
