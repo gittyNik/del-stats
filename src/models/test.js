@@ -61,5 +61,23 @@ export const setSubmitTimeNow = (id) => Test.update({
 })
   .then(results => results[1][0]); // returns the test data
 
+export const getSubmissionTimes = () => db.query('select purpose, count(application_id), avg(extract(epoch from sub_time) - extract(epoch from start_time)) as avg_time, avg(duration) as max_time from tests where start_time is not null and sub_time is not null group by purpose;')
+  .then(result => result[0])
+  .then(durations => {
+    const total_avg_time = durations.reduce((acc, el) => (acc + el.avg_time), 0);
+    return { total_avg_time, durations };
+  });
 
-export default Test;
+export const getSubmissionTimesByApplication = (application_id) => db.query('select purpose, count(application_id), avg(extract(epoch from sub_time) - extract(epoch from start_time)) as avg_time, avg(duration) as max_time from tests where start_time is not null and sub_time is not null and application_id=? group by purpose;', {
+  replacements: [application_id],
+})
+  .then(result => result[0])
+  .then(durations => {
+    const total_avg_time = durations.reduce((acc, el) => (acc + el.avg_time), 0);
+    return { total_avg_time, durations };
+  })
+  .then(current => getSubmissionTimes()
+    .then(total => ({
+      current,
+      total,
+    })));

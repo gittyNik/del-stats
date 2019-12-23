@@ -3,7 +3,7 @@ import Sequelize from 'sequelize';
 import { Application, submitApplication } from '../../models/application';
 import { Program } from '../../models/program';
 import { Cohort } from '../../models/cohort';
-import { Test } from '../../models/test';
+import { Test, getSubmissionTimesByApplication } from '../../models/test';
 import { generateTestSeries, populateTestSeries } from './test.controller';
 import { sendSms } from '../../util/sms';
 import { sendFirewallResult } from '../integrations/slack/team-app/firewall.controller';
@@ -169,8 +169,8 @@ export const payment = (req, res) => {
 
 export const getApplicationStats = (req, res) => {
   const { id } = req.params;
-  Application.findByPk(id)
-    .then(populateTestSeries)
+
+  getSubmissionTimesByApplication(id)
     .then(data => {
       res.send({ data });
     })
