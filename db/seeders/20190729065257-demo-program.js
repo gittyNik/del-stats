@@ -1,10 +1,16 @@
 const faker = require('faker');
 const uuid = require('uuid/v4');
 
+const milestone1 = {
+  id: uuid(),
+  name: 'Upward Spiral',
+};
+
 const demoProgram = {
   id: 'demo',
   name: 'Demo',
   location: faker.address.city(),
+  milestones: [milestone1.id],
   duration: 2, // weeks
   test_series: {
     tests: [{
@@ -37,12 +43,6 @@ const demoProgram = {
   milestone_review_rubric: {},
 };
 
-const milestone1 = {
-  id: uuid(),
-  name: 'Upward Spiral',
-  program: 'demo',
-};
-
 const topicFactory = (title, milestoneId) => ({
   id: uuid(),
   title,
@@ -70,7 +70,8 @@ const seeder = {
   up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction((t) => {
     const addPrograms = queryInterface.bulkInsert(
       'programs', [demoProgram],
-      { transaction: t }, {
+      { transaction: t },
+      {
         test_series: { type: new Sequelize.JSON() },
         milestone_review_rubric: { type: new Sequelize.JSON() },
       },
@@ -88,7 +89,7 @@ const seeder = {
       [resource1, resource2, resource3], { transaction: t },
     );
 
-    return Promise.all([addPrograms, addMilestones, addTopics, addResources]);
+    return Promise.all([addMilestones, addPrograms, addTopics, addResources]);
   }),
 
   down: queryInterface => queryInterface.sequelize.transaction(t => Promise.all([
