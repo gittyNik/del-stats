@@ -14,8 +14,13 @@ const authenticate = (req, res, next) => {
 
   // check if there is a social connection with workspace username
   SocialConnection.findOne({ where: { username } })
-    .then(({ profile }) => {
-      req.authData = { profile };
+    .then(social_connection => {
+      if (social_connection === null) {
+        return Promise.reject(new Error('User not registered!'));
+      }
+      req.authData = {
+        profile: social_connection.profile,
+      };
       next();
     })
     .catch(err => {
@@ -26,14 +31,7 @@ const authenticate = (req, res, next) => {
 
 const registerSlack = (slack_user_id) => web.users.info({ user })
   // fetch the profile from slack server
-  .then(response => response.user.profile);
-  // validate the profile
-  .then(profile => {
-    if (email === null) {
-      return Promise.reject(new Error('Invalid email'));
-    }
-    return profile;
-  })
+  .then(response => response.user.profile)
   // find the user
   .then(profile => {
     const { email, phone } = profile;
@@ -50,7 +48,7 @@ const registerSlack = (slack_user_id) => web.users.info({ user })
   })
   // save the social connection
   .then(({ user, profile }) => SocialConnection.create({
-    provider: 'slack',
+    provider: `slack_${profile.team}`,
     profile,
     user_id: user.id,
     username: slack_user_id,
@@ -64,20 +62,13 @@ router.use((req, res) => {
     text, user_id, command, user_name,
   } = req.body;
 
-  authenticate(user_id)
-    .then(() => {
-      switch (command) {
-        case '/delta':
-          res.send(`Welcome to SOAL @${user_name}!`);
-          break;
-        default:
-          res.send('Unknown command!');
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      res.sendStatus(404);
-    });
+  switch (command) {
+    case '/delta':
+      res.send(`Welcome to SOAL @${user_name}!`);
+      break;
+    default:
+      res.send('Unknown command!');
+  }
 });
 
 export default router;
