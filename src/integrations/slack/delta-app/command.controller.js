@@ -1,4 +1,5 @@
 import Express from 'express';
+import uuid from 'uuid/v4';
 import web from './client';
 import { User } from '../../../models/user';
 import { SocialConnection } from '../../../models/social_connection';
@@ -48,6 +49,7 @@ const registerSlack = (slack_user_id) => web.users.info({ user: slack_user_id })
   })
   // save the social connection
   .then(({ user, profile }) => SocialConnection.create({
+    id: uuid(),
     provider: `slack_${profile.team}`,
     profile,
     user_id: user.id,
@@ -62,10 +64,9 @@ router.use((req, res, next) => {
   } = req.body;
   if (command === '/delta' && text === 'register') {
     registerSlack(user_id)
-      .then(social_connection => {
-        console.log(social_connection);
-        return next();
-      })
+      .then(social_connection =>
+        // console.log(social_connection);
+        next())
       .catch(err => {
         console.error(err);
         res.send(`Registration failed for @${user_name} !`);
