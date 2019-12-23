@@ -166,3 +166,16 @@ export const payment = (req, res) => {
     .then(data => res.status(200).json(data))
     .catch(() => res.sendStatus(500));
 };
+
+export const getApplicationStats = (req, res) => {
+  const { id } = req.params;
+  Application.findByPk(id)
+    .then(populateTestSeries)
+    .then(data => {
+      res.send({ data });
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+};

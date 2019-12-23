@@ -2,7 +2,7 @@ import Express from 'express';
 import {
   getAllApplications, getApplicationsByUserId, getApplicationById,
   getLiveApplications, addApplication, updateApplication, deleteApplication,
-  payment, getLatestApplication,
+  payment, getLatestApplication, getApplicationStats,
 } from '../../controllers/firewall/application.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 
@@ -51,6 +51,15 @@ router.get('/user/:id', getApplicationsByUserId);
  * @apiGroup Application
  */
 router.get('/:id', getApplicationById);
+
+/**
+ * @api {get} /firewall/applications/:id/stats Get application stats
+ * @apiDescription get statistics of an Application
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetApplicationStats
+ * @apiGroup Application
+ */
+router.get('/:id/stats', getApplicationStats);
 
 /**
  * @api {post} /firewall/applications/ Add Application
