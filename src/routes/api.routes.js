@@ -9,10 +9,10 @@ import toolsetRouter from './toolset';
 
 import authRouter from './auth';
 import adminRouter from './admin.routes';
+import profileRouter from './community/profile.routes';
 
 import authenticate from '../controllers/auth/auth.controller';
 import { allowSuperAdminOnly } from '../controllers/auth/roles.controller';
-import { getProfile } from '../controllers/community/user.controller';
 import {
   browserAccessControl, devOnly, send404, sendSampleResponse, getSwagger,
 } from '../controllers/api.controller';
@@ -36,14 +36,7 @@ router.use('/community', communityRouter);
 router.use('/learning', learningRouter);
 router.use('/toolset', toolsetRouter);
 router.use('/admin', adminRouter);
-/**
- * @api {get} /profile Get profile
- * @apiDescription Get the profile information of the currently loggedin user
- * @apiHeader {String} authorization JWT Token.
- * @apiName GetProfile
- * @apiGroup Profile
- */
-router.get('/profile', getProfile);
+router.use('/profile', profileRouter);
 
 /**
  * @api {get} / Get sample response
