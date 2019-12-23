@@ -55,6 +55,24 @@ const registerSlack = (slack_user_id) => web.users.info({ user })
     email: user.email,
   }));
 
+// User registration
+router.use((req, res, next) => {
+  const { text, user_id, command } = req.body;
+  if (command === 'delta' && text === 'register') {
+    registerSlack(user_id)
+      .then(social_connection => {
+        console.log(social_connection);
+        return next();
+      })
+      .catch(err => {
+        console.error(err);
+        res.sendStatus(404);
+      });
+  } else {
+    next();
+  }
+});
+
 router.use(authenticate);
 
 router.use((req, res) => {
