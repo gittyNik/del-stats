@@ -9,7 +9,7 @@ import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 const router = Express.Router();
 
 /**
- * @api {get} /content/resources/reports Get all Content resource reports
+ * @api {get} /learning/content/resources/reports Get all Content resource reports
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetAllReports
  * @apiGroup Content Resource Report
@@ -17,7 +17,7 @@ const router = Express.Router();
 router.get('/reports', getReports);
 
 /**
- * @api {post} /content/resources/:resource_id/reports Report Content resource
+ * @api {post} /learning/content/resources/:resource_id/reports Report Content resource
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddReport
  * @apiGroup Content Resource Report
@@ -27,7 +27,7 @@ router.get('/reports', getReports);
 router.post('/:resource_id/reports', addReport);
 
 /**
- * @api {patch} /content/resources/:resource_id/reports/:report_id/resolve Update resource report
+ * @api {patch} /learning/content/resources/:resource_id/reports/:report_id/resolve Update resource report
  * status.
  * @apiHeader {String} authorization JWT Token.
  * @apiName ResolveReport
@@ -36,7 +36,7 @@ router.post('/:resource_id/reports', addReport);
 router.patch('/:resource_id/reports/:report_id/resolve', allowSuperAdminOnly, resolveReport);
 
 /**
- * @api {get} /content/resources Get all Content resources
+ * @api {get} /learning/content/resources Get all Content resources
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetAll
  * @apiGroup Content Resource
@@ -44,7 +44,7 @@ router.patch('/:resource_id/reports/:report_id/resolve', allowSuperAdminOnly, re
 router.get('/', allowSuperAdminOnly, getAll);
 
 /**
- * @api {get} /content/resources/latest Get latest Content resources
+ * @api {get} /learning/content/resources/latest Get latest Content resources
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetLatest
  * @apiGroup Content Resource
@@ -52,7 +52,7 @@ router.get('/', allowSuperAdminOnly, getAll);
 router.get('/latest', getLatest);
 
 /**
- * @api {get} /content/resources/top Get the top Content resources
+ * @api {get} /learning/content/resources/top Get the top Content resources
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetTop
  * @apiGroup Content Resource
@@ -60,7 +60,7 @@ router.get('/latest', getLatest);
 router.get('/top', getTop);
 
 /**
- * @api {get} /content/resources/trending Get the trending Content resources
+ * @api {get} /learning/content/resources/trending Get the trending Content resources
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetTrending
  * @apiGroup Content Resource
@@ -68,7 +68,7 @@ router.get('/top', getTop);
 router.get('/trending', getTrending);
 
 /**
- * @api {get} /content/resources/firewall Get the resources for firewall
+ * @api {get} /learning/content/resources/firewall Get the resources for firewall
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetFirewallResources
  * @apiGroup Content Resource
@@ -76,7 +76,7 @@ router.get('/trending', getTrending);
 router.get('/firewall', getFirewall);
 
 /**
- * @api {get} /content/resources/pending Get Unmoderated Content resources
+ * @api {get} /learning/content/resources/pending Get Unmoderated Content resources
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetUnmoderated
  * @apiGroup Content Resource
@@ -84,7 +84,7 @@ router.get('/firewall', getFirewall);
 router.get('/pending', allowSuperAdminOnly, getUnmoderated);
 
 /**
- * @api {post} /content/resources Add new Content resources
+ * @api {post} /learning/content/resources Add new Content resources
  * @apiHeader {String} authorization JWT Token.
  * @apiName Create
  * @apiGroup Content Resource
@@ -97,7 +97,7 @@ router.get('/pending', allowSuperAdminOnly, getUnmoderated);
 router.post('/', create);
 
 /**
- * @api {get} /content/resources/:resource_id Get one Content resource
+ * @api {get} /learning/content/resources/:resource_id Get one Content resource
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetOne
  * @apiGroup Content Resource
@@ -105,7 +105,7 @@ router.post('/', create);
 router.get('/:resource_id', getOne);
 
 /**
- * @api {patch} /content/resources/:resource_id Update Content resource
+ * @api {patch} /learning/content/resources/:resource_id Update Content resource
  * @apiHeader {String} authorization JWT Token.
  * @apiName Update
  * @apiGroup Content Resource
@@ -115,7 +115,7 @@ router.get('/:resource_id', getOne);
 router.patch('/:resource_id', allowSuperAdminOnly, update);
 
 /**
- * @api {delete} /content/resources/:resource_id Delete Content resource
+ * @api {delete} /learning/content/resources/:resource_id Delete Content resource
  * @apiHeader {String} authorization JWT Token.
  * @apiName DeleteOne
  * @apiGroup Content Resource
@@ -123,7 +123,7 @@ router.patch('/:resource_id', allowSuperAdminOnly, update);
 router.delete('/:resource_id', allowSuperAdminOnly, deleteOne);
 
 /**
- * @api {patch} /content/resources/:resource_id/approve Update Content resource status
+ * @api {patch} /learning/content/resources/:resource_id/approve Update Content resource status
  * @apiHeader {String} authorization JWT Token.
  * @apiName Approve
  * @apiGroup Content Resource
@@ -131,7 +131,7 @@ router.delete('/:resource_id', allowSuperAdminOnly, deleteOne);
 router.patch('/:resource_id/approve', allowSuperAdminOnly, approve);
 
 /**
- * @api {get} /content/resources/:resource_id/comments Get Content resource comments
+ * @api {get} /learning/content/resources/:resource_id/comments Get Content resource comments
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetComments
  * @apiGroup Content Resource Comment
@@ -139,7 +139,7 @@ router.patch('/:resource_id/approve', allowSuperAdminOnly, approve);
 router.get('/:resource_id/comments', getComments);
 
 /**
- * @api {post} /content/resources/:resource_id/comments Add Content resource comments
+ * @api {post} /learning/content/resources/:resource_id/comments Add Content resource comments
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddComment
  * @apiGroup Content Resource Comment
@@ -149,7 +149,7 @@ router.get('/:resource_id/comments', getComments);
 router.post('/:resource_id/comments', addComment);
 
 /**
- * @api {delete} /content/resources/:resource_id/comments/:comment_id
+ * @api {delete} /learning/content/resources/:resource_id/comments/:comment_id
  * Delete Content resource comment
  * @apiHeader {String} authorization JWT Token.
  * @apiName DeleteComment
@@ -158,7 +158,7 @@ router.post('/:resource_id/comments', addComment);
 router.delete('/:resource_id/comments/:comment_id', deleteComment);
 
 /**
- * @api {post} /content/resources/:resource_id/vote Vote Content resource
+ * @api {post} /learning/content/resources/:resource_id/vote Vote Content resource
  * @apiHeader {String} authorization JWT Token.
  * @apiName Upvote
  * @apiGroup Content Resource Vote
@@ -166,7 +166,7 @@ router.delete('/:resource_id/comments/:comment_id', deleteComment);
 router.post('/:resource_id/vote', upvote);
 
 /**
- * @api {delete} /content/resources/:resource_id/vote Unvote Content resource
+ * @api {delete} /learning/content/resources/:resource_id/vote Unvote Content resource
  * @apiHeader {String} authorization JWT Token.
  * @apiName Unvote
  * @apiGroup Content Resource Vote
