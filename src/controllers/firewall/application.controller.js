@@ -3,6 +3,7 @@ import Sequelize from 'sequelize';
 import { Application, submitApplication } from '../../models/application';
 import { Program } from '../../models/program';
 import { Cohort } from '../../models/cohort';
+import { User } from '../../models/user';
 import { getFirewallResourceCount } from '../../models/resource';
 import { getFirewallResourceVisitsByUser } from '../../models/resource_visit';
 import { Test, getSubmissionTimesByApplication } from '../../models/test';
@@ -11,14 +12,19 @@ import { sendSms } from '../../util/sms';
 import { sendFirewallResult } from '../integrations/slack/team-app/firewall.controller';
 
 export const getAllApplications = (req, res) => {
-  Application.findAll()
+  Application.findAll({
+    include: [Cohort, User],
+  })
     .then(data => res.status(200).json(data))
     .catch(() => res.sendStatus(500));
 };
 
 export const getApplicationById = (req, res) => {
   const { id } = req.params;
-  Application.findAll({ where: { id } })
+  Application.findAll({
+    where: { id },
+    include: [Cohort, User],
+  })
     .then(data => res.status(200).json(data))
     .catch(() => res.sendStatus(500));
 };
@@ -57,6 +63,7 @@ export const getLiveApplications = (req, res) => {
     where: {
       status: ['applied', 'review_pending', 'offered'],
     },
+    include: [Cohort, User],
   })
     .then(data => res.status(200).json(data))
     .catch(() => res.sendStatus(500));
