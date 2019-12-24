@@ -3,6 +3,7 @@ import Sequelize from 'sequelize';
 import { Application, submitApplication } from '../../models/application';
 import { Program } from '../../models/program';
 import { Cohort } from '../../models/cohort';
+import { getFirewallResourceCount } from '../../models/resource';
 import { getFirewallResourceVisitsByUser } from '../../models/resource_visit';
 import { Test, getSubmissionTimesByApplication } from '../../models/test';
 import { generateTestSeries, populateTestSeries } from './test.controller';
@@ -172,11 +173,22 @@ export const getApplicationStats = (req, res) => {
   const { id } = req.params;
   const user_id = req.jwtData.user.id;
 
-  getSubmissionTimesByApplication(id)
-    .then(data => getFirewallResourceVisitsByUser(user_id)
-      .then(resource_visits => {
-        res.send({ ...data, resource_visits });
-      }))
+  Promise.all([
+    getSubmissionTimesByApplication(id),
+    getFirewallResourceVisitsByUser(user_id),
+    getFirewallResourceCount(),
+  ])
+    .then(([submission_times, currentVisits, resourcesCount]) => {
+      res.send({
+        data: {
+          submission_times,
+          resource_visits: {
+            current: currentVisits,
+            total: resourcesCount,
+          },
+        },
+      });
+    })
     .catch(err => {
       console.error(err);
       res.sendStatus(500);

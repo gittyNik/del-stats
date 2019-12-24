@@ -48,9 +48,10 @@ export const Resource = db.define('resources', {
   },
 });
 
+const { contains } = Sequelize.Op;
+
 export const getResourcesByTag = tag => {
   console.log(tag, tag, tag, '\n\n\n');
-  const { contains } = Sequelize.Op;
 
   return Resource.findAll({
     where: {
@@ -61,3 +62,14 @@ export const getResourcesByTag = tag => {
     raw: true,
   });
 };
+
+const getResourceCountByTag = tag => Resource.aggregate('id', 'count', {
+  where: {
+    tags: {
+      [contains]: [tag],
+    },
+  },
+  distinct: true,
+});
+
+export const getFirewallResourceCount = getResourceCountByTag.bind(null, 'firewall');
