@@ -81,3 +81,12 @@ export const getSubmissionTimesByApplication = (application_id) => db.query('sel
       current,
       total,
     })));
+
+Test.prototype.start = function () {
+  if (this.start_time === null) {
+    return this.update({
+      start_time: new Date(),
+    });
+  }
+  return this;
+};

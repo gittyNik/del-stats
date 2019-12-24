@@ -76,12 +76,11 @@ export const submitTest = (req, res) => {
 };
 
 // todo: submit other tests in the same application
-// todo: update only if not started yet
 export const startTest = (req, res) => {
   const { id } = req.params;
-  Test.update({ start_time: new Date() }, { where: { id }, returning: true, raw: true })
-    .then(results => results[1]) // returns the test_series data
-    .then(populateQuestionDetails)
+  Test.findByPk(id)
+    .then(test => test.start())
+    .then(test => populateQuestionDetails([test]))
     .then(testSeries => res.send(testSeries[0]))
     .catch((err) => {
       console.log(err);
