@@ -4,7 +4,7 @@ import { Resource, getResourcesByTag } from '../../models/resource';
 import { ResourceComment } from '../../models/resource_comment';
 import { ResourceReport } from '../../models/resource_report';
 import { ResourceVote } from '../../models/resource_vote';
-import { ResourceVisit } from '../../models/resource_visit';
+import { logResourceVisitByFirewallUser } from '../../models/resource_visit';
 
 export const getLatest = (req, res) => {
   Resource.findAll({
@@ -32,17 +32,13 @@ export const logResourceVisit = (req, res) => {
   const { resource_id } = req.params;
   const user_id = req.jwtData.user.id;
 
-  ResourceVisit.create({
-    id: uuid(),
-    user_id,
-    resource_id,
-    source: 'web',
-  }).then(visit => {
-    console.log(visit);
-    res.send({
-      text: 'Successfully logged',
-    });
-  })
+  logResourceVisitByFirewallUser(resource_id, user_id)
+    .then(visit => {
+      console.log(visit);
+      res.send({
+        text: 'Successfully logged',
+      });
+    })
     .catch(err => {
       console.log(err);
       res.sendStatus(500);

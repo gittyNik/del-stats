@@ -1,4 +1,5 @@
 import Sequelize from 'sequelize';
+import uuid from 'uuid/v4';
 import db from '../database';
 
 export const ResourceVisit = db.define('resource_visits', {
@@ -18,6 +19,16 @@ export const ResourceVisit = db.define('resource_visits', {
   details: Sequelize.JSON, // keywords, tags, prev_link etc
   created_at: Sequelize.DATE,
   updated_at: Sequelize.DATE,
+});
+
+export const logResourceVisitByFirewallUser = (resource_id, user_id) => ResourceVisit.create({
+  id: uuid(),
+  user_id,
+  resource_id,
+  source: 'web',
+  details: {
+    isFirewall: true,
+  },
 });
 
 export const getFirewallResourceVisitsByUser = user_id => {
