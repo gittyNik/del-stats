@@ -35,10 +35,10 @@ export const getUserFromEmails = emails => User.findOne({
 export const getOrCreateUser = phone => User.findOrCreate({
   where: {
     phone,
-    role: USER_ROLES.GUEST,
   },
   defaults: {
     id: uuid(),
+    role: USER_ROLES.GUEST,
   },
 });
 
