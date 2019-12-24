@@ -3,6 +3,7 @@ import Sequelize from 'sequelize';
 import { Application, submitApplication } from '../../models/application';
 import { Program } from '../../models/program';
 import { Cohort } from '../../models/cohort';
+import { getFirewallResourceVisitsByUser } from '../../models/resource_visit';
 import { Test, getSubmissionTimesByApplication } from '../../models/test';
 import { generateTestSeries, populateTestSeries } from './test.controller';
 import { sendSms } from '../../util/sms';
@@ -169,11 +170,13 @@ export const payment = (req, res) => {
 
 export const getApplicationStats = (req, res) => {
   const { id } = req.params;
+  const user_id = req.jwtData.user.id;
 
   getSubmissionTimesByApplication(id)
-    .then(data => {
-      res.send({ data });
-    })
+    .then(data => getFirewallResourceVisitsByUser(user_id)
+      .then(resource_visits => {
+        res.send({ ...data, resource_visits });
+      }))
     .catch(err => {
       console.error(err);
       res.sendStatus(500);
