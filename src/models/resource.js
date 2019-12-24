@@ -48,8 +48,16 @@ export const Resource = db.define('resources', {
   },
 });
 
-// todo: use tag to filter resources
-export const getResourcesByTag = tag => Resource.findAll({
-  where: { program: 'demo' },
-  raw: true,
-});
+export const getResourcesByTag = tag => {
+  console.log(tag, tag, tag, '\n\n\n');
+  const { contains } = Sequelize.Op;
+
+  return Resource.findAll({
+    where: {
+      tags: {
+        [contains]: [tag],
+      },
+    },
+    raw: true,
+  });
+};
