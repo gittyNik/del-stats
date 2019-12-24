@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 
-export const ResourceVisit = db.define('resource_comments', {
+export const ResourceVisit = db.define('resource_visits', {
   id: {
     type: Sequelize.UUID,
     primaryKey: true,

@@ -3,6 +3,7 @@ import {
   getLatest, getTop, getAll, getUnmoderated, getOne, create, update,
   deleteOne, getComments, addComment, deleteComment, upvote, unvote,
   getReports, addReport, resolveReport, approve, getTrending, getFirewall,
+  logResourceVisit,
 } from '../../controllers/learning/content_resource.controller';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
@@ -25,6 +26,13 @@ router.get('/reports', getReports);
  * @apiParam {String} report report of the resource
  */
 router.post('/:resource_id/reports', addReport);
+/**
+ * @api {post} /learning/content/resources/:resource_id/visits Log Content resource visit
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName LogResourceVisit
+ * @apiGroup Content Resource
+ */
+router.post('/:resource_id/visits', logResourceVisit);
 
 /**
  * @api {patch} /learning/content/resources/:resource_id/reports/:report_id/resolve Update resource report
