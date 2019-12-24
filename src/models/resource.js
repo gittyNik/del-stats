@@ -1,4 +1,5 @@
 import Sequelize from 'sequelize';
+import uuid from 'uuid/v4';
 import db from '../database';
 
 export const Resource = db.define('resources', {
@@ -73,3 +74,10 @@ const getResourceCountByTag = tag => Resource.aggregate('id', 'count', {
 });
 
 export const getFirewallResourceCount = getResourceCountByTag.bind(null, 'firewall');
+
+export const createFromSlackAttachment = attachment => Resource.create({
+  id: uuid(),
+  url: attachment.original_url,
+  type: 'article',
+  level: 'beginner',
+});
