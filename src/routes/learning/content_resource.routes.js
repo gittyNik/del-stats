@@ -4,6 +4,7 @@ import {
   deleteOne, getComments, addComment, deleteComment, upvote, unvote,
   getReports, addReport, resolveReport, approve, getTrending, getFirewall,
 } from '../../controllers/learning/content_resource.controller';
+import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
 
@@ -32,7 +33,7 @@ router.post('/:resource_id/reports', addReport);
  * @apiName ResolveReport
  * @apiGroup Content Resource Report
  */
-router.patch('/:resource_id/reports/:report_id/resolve', resolveReport);
+router.patch('/:resource_id/reports/:report_id/resolve', allowSuperAdminOnly, resolveReport);
 
 /**
  * @api {get} /content/resources Get all Content resources
@@ -40,7 +41,7 @@ router.patch('/:resource_id/reports/:report_id/resolve', resolveReport);
  * @apiName GetAll
  * @apiGroup Content Resource
  */
-router.get('/', getAll);
+router.get('/', allowSuperAdminOnly, getAll);
 
 /**
  * @api {get} /content/resources/latest Get latest Content resources
@@ -80,7 +81,7 @@ router.get('/firewall', getFirewall);
  * @apiName GetUnmoderated
  * @apiGroup Content Resource
  */
-router.get('/pending', getUnmoderated);
+router.get('/pending', allowSuperAdminOnly, getUnmoderated);
 
 /**
  * @api {post} /content/resources Add new Content resources
@@ -111,7 +112,7 @@ router.get('/:resource_id', getOne);
  *
  * @apiParam {String} url URL of the resource
  */
-router.patch('/:resource_id', update);
+router.patch('/:resource_id', allowSuperAdminOnly, update);
 
 /**
  * @api {delete} /content/resources/:resource_id Delete Content resource
@@ -119,7 +120,7 @@ router.patch('/:resource_id', update);
  * @apiName DeleteOne
  * @apiGroup Content Resource
  */
-router.delete('/:resource_id', deleteOne);
+router.delete('/:resource_id', allowSuperAdminOnly, deleteOne);
 
 /**
  * @api {patch} /content/resources/:resource_id/approve Update Content resource status
@@ -127,7 +128,7 @@ router.delete('/:resource_id', deleteOne);
  * @apiName Approve
  * @apiGroup Content Resource
  */
-router.patch('/:resource_id/approve', approve);
+router.patch('/:resource_id/approve', allowSuperAdminOnly, approve);
 
 /**
  * @api {get} /content/resources/:resource_id/comments Get Content resource comments

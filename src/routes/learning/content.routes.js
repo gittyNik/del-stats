@@ -8,13 +8,14 @@ import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
 
+router.use('/resources', resourceRouter);
+
 // Disable until tested
 router.use(allowSuperAdminOnly);
 
 router.use('/breakouts', breakoutRouter);
 router.use('/challenges', challengeRouter);
 router.use('/milestones', milestoneRouter);
-router.use('/resources', resourceRouter);
 router.use('/topics', topicRouter);
 
 export default router;

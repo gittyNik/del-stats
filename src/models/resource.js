@@ -48,6 +48,7 @@ export const Resource = db.define('resources', {
   },
 });
 
+// todo: use tag to filter resources
 export const getResourcesByTag = tag => Resource.findAll({
   where: { program: 'demo' },
   raw: true,
