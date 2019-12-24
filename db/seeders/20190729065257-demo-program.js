@@ -1,5 +1,5 @@
-const faker = require('faker');
-const uuid = require('uuid/v4');
+import uuid from 'uuid/v4';
+import faker from 'faker';
 
 const milestone1 = {
   id: uuid(),
@@ -7,10 +7,10 @@ const milestone1 = {
 };
 
 const demoProgram = {
-  id: 'demo',
+  id: uuid(),
   name: 'Demo',
   location: faker.address.city(),
-  milestones: [milestone1.id],
+  milestones: `{${milestone1.id}}`,
   duration: 2, // weeks
   test_series: {
     tests: [{
@@ -89,14 +89,16 @@ const seeder = {
       [resource1, resource2, resource3], { transaction: t },
     );
 
-    return Promise.all([addMilestones, addPrograms, addTopics, addResources]);
+    return Promise.all([addMilestones, addTopics, addResources])
+      .then(() => console.log('Seeded milestone, program , topic and resoures.'))
+      .catch(err => console.error(err));
   }),
 
   down: queryInterface => queryInterface.sequelize.transaction(t => Promise.all([
+    queryInterface.bulkDelete('milestones', null, { transaction: t }),
     queryInterface.bulkDelete('programs', null, { transaction: t }),
     queryInterface.bulkDelete('resources', null, { transaction: t }),
     queryInterface.bulkDelete('topics', null, { transaction: t }),
-    queryInterface.bulkDelete('milestones', null, { transaction: t }),
   ])),
 };
 
