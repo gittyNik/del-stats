@@ -2,7 +2,7 @@ import Express from 'express';
 import {
   getLatest, getTop, getAll, getUnmoderated, getOne, create, update,
   deleteOne, getComments, addComment, deleteComment, upvote, unvote,
-  getReports, addReport, resolveReport, approve, getTrending,
+  getReports, addReport, resolveReport, approve, getTrending, getFirewall,
 } from '../../controllers/learning/content_resource.controller';
 
 const router = Express.Router();
@@ -65,6 +65,14 @@ router.get('/top', getTop);
  * @apiGroup Content Resource
  */
 router.get('/trending', getTrending);
+
+/**
+ * @api {get} /content/resources/firewall Get the resources for firewall
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetFirewallResources
+ * @apiGroup Content Resource
+ */
+router.get('/firewall', getFirewall);
 
 /**
  * @api {get} /content/resources/pending Get Unmoderated Content resources

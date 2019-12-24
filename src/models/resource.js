@@ -48,4 +48,7 @@ export const Resource = db.define('resources', {
   },
 });
 
-export default Resource;
+export const getResourcesByTag = tag => Resource.findAll({
+  where: { program: 'demo' },
+  raw: true,
+});

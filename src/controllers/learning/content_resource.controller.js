@@ -15,6 +15,18 @@ export const getLatest = (req, res) => {
     .catch(err => res.status(500).send(err));
 };
 
+export const getFirewall = (req, res) => {
+  getResourcesByTag('firewall')
+    .then(data => {
+      console.log(data);
+      res.send({ data });
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+};
+
 export const getTop = (req, res) => {
   ResourceVote.findAll({
     attributes: ['resource_id', [Sequelize.fn('count', Sequelize.col('resource_id')), 'count']],
