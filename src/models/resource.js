@@ -11,7 +11,7 @@ export const Resource = db.define('resources', {
   topic_id: {
     type: Sequelize.UUID,
     allowNull: true,
-    references: { model: 'topics', key: 'id' },
+    references: { model: 'topics' },
   },
   url: {
     type: Sequelize.STRING,
@@ -19,10 +19,12 @@ export const Resource = db.define('resources', {
   },
   owner: {
     type: Sequelize.UUID,
+    references: { model: 'users' },
   },
   moderator: {
     type: Sequelize.UUID,
     allowNull: true,
+    references: { model: 'users' },
   },
   thumbnail: {
     type: Sequelize.BLOB,
@@ -31,14 +33,16 @@ export const Resource = db.define('resources', {
   type: {
     type: Sequelize.ENUM('article', 'repo', 'video', 'tweet'),
     allowNull: false,
+    defaultValue: 'article',
   },
   program: {
     type: Sequelize.STRING,
     allowNull: false,
-    defaultValue: 'tep',
+    defaultValue: 'demo',
+    references: { model: 'programs', key: 'id' },
   },
   add_time: {
-    type: Sequelize.DATE,
+    type: Sequelize.DATE, // after moderation
   },
   level: {
     type: Sequelize.ENUM('beginner', 'advanced'),
