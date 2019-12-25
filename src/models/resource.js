@@ -83,11 +83,12 @@ const getResourceCountByTag = tag => Resource.aggregate('id', 'count', {
 
 export const getFirewallResourceCount = getResourceCountByTag.bind(null, 'firewall');
 
-export const createFromSlackAttachment = attachment => Resource.create({
+export const createFromSlackAttachment = (attachment, owner) => Resource.create({
   id: uuid(),
   url: attachment.original_url,
   type: 'article',
   level: 'beginner',
+  owner,
   title: attachment.title,
   description: attachment.text,
   source: 'slack',

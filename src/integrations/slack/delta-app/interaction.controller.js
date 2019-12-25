@@ -30,7 +30,8 @@ const authenticate = next => (payload, respond) => {
       console.log(err);
       respond({
         text: 'You are not authorized. Try `/delta register` command',
-      }).catch(e => console.error(e));
+      })
+        .catch(e => console.error(e));
     });
 };
 
@@ -38,7 +39,7 @@ const saveLink = (payload, respond, authData) => {
   // Logs the contents of the action to the console
   const { attachments } = payload.message;
   if (attachments && attachments[0]) {
-    createFromSlackAttachment(attachments[0])
+    createFromSlackAttachment(attachments[0], authData.user_id)
       .then(resource => {
         const text = 'Thank you for your help! The link is queued for approval.';
         respond({ text }).catch(e => console.error(e));
@@ -52,6 +53,9 @@ const saveLink = (payload, respond, authData) => {
         }
         respond({ text }).catch(e => console.error(e));
       });
+  } else {
+    respond({ text: 'Link not found! This action is only applicable for links' })
+      .catch(e => console.error(e));
   }
 };
 
