@@ -27,7 +27,7 @@ const authenticate = (req, res, next) => {
     })
     .catch(err => {
       console.log(err);
-      res.sendStatus(403);
+      res.send('You are not authorized. Try `/delta register` command');
     });
 };
 
@@ -71,7 +71,9 @@ router.use((req, res, next) => {
       })
       .catch(err => {
         console.error(err);
-        res.send(`Registration failed for @${user_name} !`);
+        res.send(`Registration failed for @${user_name} ! `
+          + 'Please update your phone number. '
+          + 'Check with the administrator if the details are matching');
       });
   } else {
     next();
@@ -88,6 +90,7 @@ router.use((req, res) => {
       res.send(`Welcome to SOAL @${user_name}!`);
       break;
     case '/find':
+    case '/yoda':
       fetchResources(req, res);
       break;
     default:
