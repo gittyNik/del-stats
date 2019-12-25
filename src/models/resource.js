@@ -94,3 +94,15 @@ export const createFromSlackAttachment = (attachment, owner) => Resource.create(
   source: 'slack',
   details: { slack: attachment },
 });
+
+export const searchResources = text => {
+  console.log(`searching for: ${text}`);
+  // TODO: important: remove special chars from text
+  return db.query('SELECT * FROM resources;', {
+    model: Resource,
+  })
+    .then(resources => {
+      console.log(resources);
+      return resources;
+    });
+};

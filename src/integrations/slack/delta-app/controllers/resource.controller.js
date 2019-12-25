@@ -1,4 +1,4 @@
-import { createFromSlackAttachment } from '../../../../models/resource';
+import { createFromSlackAttachment, searchResources } from '../../../../models/resource';
 import web from '../client';
 
 export const notifyModerator = resource => {
@@ -38,5 +38,12 @@ export const saveLink = (payload, respond, authData) => {
 };
 
 export const fetchResources = (req, res) => {
+  const { text } = req.body;
 
+  searchResources(text)
+    .then(resources => {
+      res.send({
+        text: `Resource found: ${resources.length}`,
+      });
+    });
 };

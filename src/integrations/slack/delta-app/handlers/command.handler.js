@@ -3,6 +3,7 @@ import uuid from 'uuid/v4';
 import web from '../client';
 import { User } from '../../../../models/user';
 import { SocialConnection } from '../../../../models/social_connection';
+import { fetchResources } from '../controllers/resource.controller';
 
 const router = Express.Router();
 
@@ -85,6 +86,9 @@ router.use((req, res) => {
   switch (command) {
     case '/delta':
       res.send(`Welcome to SOAL @${user_name}!`);
+      break;
+    case '/find':
+      fetchResources(req, res);
       break;
     default:
       res.send('Unknown command!');
