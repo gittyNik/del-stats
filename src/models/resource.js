@@ -96,7 +96,6 @@ export const createFromSlackAttachment = (attachment, owner) => Resource.create(
 });
 
 export const searchResources = text => {
-  text = text.toLowerCase().replace(/[^a-zA-Z0-9]+/g, ' ');
   console.log(`searching for: ${text}`);
   // TODO: important: remove special chars from text
   return db.query("SELECT * FROM resources where lower(CONCAT(title, ' ', description)) like :match;", {

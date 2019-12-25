@@ -1,27 +1,4 @@
-
-const footerBlock = {
-  type: 'context',
-  elements: [
-    {
-      type: 'mrkdwn',
-      text: '_For more info, visit <https://delta.soal.io>_',
-    },
-  ],
-};
-
-const dividerBlock = {
-  type: 'divider',
-};
-
-const emptyNoteBlock = {
-  type: 'context',
-  elements: [
-    {
-      type: 'mrkdwn',
-      text: 'No data found',
-    },
-  ],
-};
+import { footerBlock, dividerBlock, emptyNoteBlock } from './common';
 
 const buildTopicBlocks = (milestone) => {
   if (!milestone) return [];
