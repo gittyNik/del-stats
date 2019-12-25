@@ -66,7 +66,7 @@ router.use((req, res, next) => {
     registerSlack(user_id)
       .then(social_connection => {
         console.log(social_connection);
-        next();
+        res.send(`Registration successful for @${user_name} !`);
       })
       .catch(err => {
         console.error(err);
