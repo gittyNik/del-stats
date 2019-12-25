@@ -1,14 +1,14 @@
 import Express from 'express';
-import interactionController from './interaction.controller';
-import eventController from './event.controller';
-import commandController from './command.controller';
-// import optionsController from './options.controller';
+import interaction from './handlers/interaction.handler';
+import event from './handlers/event.handler';
+import command from './handlers/command.handler';
+// import options from './options.controller';
 
 const router = Express.Router();
 
-router.use('/action-endpoint', eventController);
-router.use('/interactive-endpoint', interactionController);
-router.use('/command-endpoint', commandController);
-// router.use('/options-endpoint', optionsController);
+router.use('/action-endpoint', event);
+router.use('/interactive-endpoint', interaction);
+router.use('/command-endpoint', command);
+// router.use('/options-endpoint', options);
 
 export default router;

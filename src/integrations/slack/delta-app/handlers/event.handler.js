@@ -1,5 +1,5 @@
 import { createEventAdapter } from '@slack/events-api';
-import { publishHome } from './controllers/home.controller';
+import { publishHome } from '../controllers/home.controller';
 
 const slackEvents = createEventAdapter(process.env.SLACK_DELTA_SECRET);
 // Attach listeners to events by Slack Event "type". See: https://api.slack.com/events/message.im

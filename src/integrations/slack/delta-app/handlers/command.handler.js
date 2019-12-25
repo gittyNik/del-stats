@@ -1,8 +1,8 @@
 import Express from 'express';
 import uuid from 'uuid/v4';
-import web from './client';
-import { User } from '../../../models/user';
-import { SocialConnection } from '../../../models/social_connection';
+import web from '../client';
+import { User } from '../../../../models/user';
+import { SocialConnection } from '../../../../models/social_connection';
 
 const router = Express.Router();
 
