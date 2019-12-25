@@ -1,6 +1,7 @@
 import { createMessageAdapter } from '@slack/interactive-messages';
 import { showMilestoneDetails, requestTopicBreakout } from './controllers/milestone.controller';
 import { createFromSlackAttachment } from '../../../models/resource';
+import { authSlack } from '../../../models/social_connection';
 
 const slackInteractions = createMessageAdapter(process.env.SLACK_DELTA_SECRET);
 
@@ -17,8 +18,23 @@ slackInteractions.action({ actionId: /^request_topic_breakout\..*/ }, (payload) 
   requestTopicBreakout(topic_id, cohort_id, payload.user.username);
 });
 
+// Authenticate higher order function
+const authenticate = next => (payload, respond) => {
+  const { user, team } = payload.message;
+  authSlack(user, team)
+    .then(authData => {
+      console.log(authData.user_id);
+      next(payload, respond, authData);
+    })
+    .catch(err => {
+      console.log(err);
+      respond({
+        text: 'You are not authorized. Try `/delta register` command',
+      }).catch(e => console.error(e));
+    });
+};
 
-slackInteractions.action({ type: 'message_action', callback_id: 'save_link' }, (payload, respond) => {
+const saveLink = (payload, respond, authData) => {
   // Logs the contents of the action to the console
   const { attachments } = payload.message;
   if (attachments && attachments[0]) {
@@ -37,7 +53,13 @@ slackInteractions.action({ type: 'message_action', callback_id: 'save_link' }, (
         respond({ text }).catch(e => console.error(e));
       });
   }
-});
+};
+
+slackInteractions.action({
+  type: 'message_action',
+  callback_id: 'save_link',
+},
+authenticate(saveLink));
 
 // This needs to be at the bottom
 slackInteractions.action({ type: 'button' }, (payload, respond) => {

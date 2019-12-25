@@ -24,4 +24,17 @@ export const SocialConnection = db.define('social_connections', {
   updated_at: Sequelize.DATE,
 }, {});
 
-export default SocialConnection;
+export const authSlack = (username, team) =>
+  // check if there is a social connection with workspace username
+  SocialConnection.findOne({
+    where: {
+      provider: `slack_${team}`,
+      username,
+    },
+  })
+    .then(social_connection => {
+      if (social_connection === null) {
+        return Promise.reject('User not found!');
+      }
+      return social_connection;
+    });
