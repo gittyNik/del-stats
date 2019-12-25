@@ -35,8 +35,8 @@ router.post('/:resource_id/reports', addReport);
 router.post('/:resource_id/visits', logResourceVisit);
 
 /**
- * @api {patch} /learning/content/resources/:resource_id/reports/:report_id/resolve Update resource report
- * status.
+ * @api {patch} /learning/content/resources/:resource_id/reports/:report_id/resolve
+ *  Update resource report status.
  * @apiHeader {String} authorization JWT Token.
  * @apiName ResolveReport
  * @apiGroup Content Resource Report

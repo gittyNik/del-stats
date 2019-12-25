@@ -22,7 +22,7 @@ const authenticate = (req, res, next) => {
       req.authData = {
         profile: social_connection.profile,
       };
-      next();
+      return next();
     })
     .catch(err => {
       console.log(err);
@@ -64,9 +64,10 @@ router.use((req, res, next) => {
   } = req.body;
   if (command === '/delta' && text === 'register') {
     registerSlack(user_id)
-      .then(social_connection =>
-        // console.log(social_connection);
-        next())
+      .then(social_connection => {
+        console.log(social_connection);
+        next();
+      })
       .catch(err => {
         console.error(err);
         res.send(`Registration failed for @${user_name} !`);
@@ -79,9 +80,7 @@ router.use((req, res, next) => {
 router.use(authenticate);
 
 router.use((req, res) => {
-  const {
-    text, user_id, command, user_name,
-  } = req.body;
+  const { command, user_name } = req.body;
 
   switch (command) {
     case '/delta':
