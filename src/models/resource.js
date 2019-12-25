@@ -51,6 +51,10 @@ export const Resource = db.define('resources', {
   tags: {
     type: Sequelize.ARRAY(Sequelize.STRING),
   },
+  title: Sequelize.TEXT,
+  description: Sequelize.TEXT,
+  source: Sequelize.STRING, // slack/web
+  details: Sequelize.JSON,
 });
 
 const { contains } = Sequelize.Op;
@@ -84,4 +88,8 @@ export const createFromSlackAttachment = attachment => Resource.create({
   url: attachment.original_url,
   type: 'article',
   level: 'beginner',
+  title: attachment.title,
+  description: attachment.text,
+  source: 'slack',
+  details: { slack: attachment },
 });

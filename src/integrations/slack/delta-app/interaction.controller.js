@@ -24,8 +24,17 @@ slackInteractions.action({ type: 'message_action', callback_id: 'save_link' }, (
   if (attachments && attachments[0]) {
     createFromSlackAttachment(attachments[0])
       .then(resource => {
-        console.log(resource);
-        respond('success');
+        const text = 'Thank you for your help! The link is queued for approval.';
+        respond({ text }).catch(e => console.error(e));
+      })
+      .catch(err => {
+        let text;
+        if (err.name === 'SequelizeUniqueConstraintError') {
+          text = 'Thank you for your help! The given link already exists.';
+        } else {
+          text = 'Unable to save the link';
+        }
+        respond({ text }).catch(e => console.error(e));
       });
   }
 });
