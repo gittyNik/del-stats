@@ -1,13 +1,10 @@
 import { createFromSlackAttachment, searchResources } from '../../../../models/resource';
 import web from '../client';
-import { composeResourceResults } from '../views/resource.view';
+import { composeResourceResults, composeResourceNotification } from '../views/resource.view';
 
 export const notifyModerator = resource => {
-  console.log(resource);
-  return web.chat.postMessage({
-    text: 'Link added to delta',
-    channel: 'resources',
-  });
+  console.log('Notifying resource addition');
+  return web.chat.postMessage(composeResourceNotification(resource));
 };
 
 export const saveLink = (payload, respond, authData) => {
@@ -29,6 +26,7 @@ export const saveLink = (payload, respond, authData) => {
           text = 'Thank you for your help! The given link already exists.';
         } else {
           text = 'Unable to save the link';
+          console.error(err);
         }
         respond({ text }).catch(e => console.error(e));
       });

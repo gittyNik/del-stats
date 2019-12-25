@@ -85,7 +85,7 @@ export const getFirewallResourceCount = getResourceCountByTag.bind(null, 'firewa
 
 export const createFromSlackAttachment = (attachment, owner) => Resource.create({
   id: uuid(),
-  url: attachment.original_url,
+  url: attachment.original_url || attachment.app_unfurl_url,
   type: 'article',
   level: 'beginner',
   owner,

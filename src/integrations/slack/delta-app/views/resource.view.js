@@ -43,3 +43,19 @@ export const composeResourceResults = (resources, query) => {
     ],
   };
 };
+
+export const composeResourceNotification = (resource, channel = 'resources') => ({
+  text: 'A new resource is added to delta',
+  blocks: [
+    {
+      type: 'context',
+      elements: [{
+        type: 'mrkdwn',
+        text: 'Resource added to delta',
+      }],
+    },
+    ...buildResourceList([resource]),
+    footerBlock,
+  ],
+  channel,
+});
