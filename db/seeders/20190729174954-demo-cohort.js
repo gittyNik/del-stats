@@ -12,17 +12,9 @@ const createCohort = () => ({
 });
 
 const seeder = {
-  up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(t => {
-    return Promise.all([
-      queryInterface.bulkInsert('cohorts', [
-        createCohort(), createCohort(), createCohort(),
-      ], { transaction: t }, {
-        learners: { type: Sequelize.ARRAY(Sequelize.UUID) },
-      }),
-    ])
-      .then(() => console.log('Cohort seeded'))
-      .catch(err => console.error(err));
-  }),
+  up: (queryInterface, Sequelize) => queryInterface.bulkInsert('cohorts', [
+    createCohort(), createCohort(), createCohort(),
+  ], {}, { learners: { type: Sequelize.ARRAY(Sequelize.UUID) } }),
 
   down: queryInterface => queryInterface.bulkDelete('cohorts', null, {}),
 };
