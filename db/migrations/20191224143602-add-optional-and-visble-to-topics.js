@@ -1,23 +1,12 @@
-'use strict';
-
-module.exports = {
-  up: (queryInterface, Sequelize) => {
-    /*
-      Add altering commands here.
-      Return a promise to correctly handle asynchronicity.
-
-      Example:
-      return queryInterface.createTable('users', { id: Sequelize.INTEGER });
-    */
-  },
-
-  down: (queryInterface, Sequelize) => {
-    /*
-      Add reverting commands here.
-      Return a promise to correctly handle asynchronicity.
-
-      Example:
-      return queryInterface.dropTable('users');
-    */
-  }
+const migration = {
+  up: (iface, Sequelize) => iface.sequelize.transaction(transaction => Promise.all([
+    iface.addColumn('topics', 'optional', Sequelize.BOOLEAN, { transaction }),
+    iface.addColumn('topics', 'visible', Sequelize.BOOLEAN, { transaction }),
+  ])),
+  down: (iface, Sequelize) => iface.sequelize.transaction(transaction => Promise.all([
+    iface.removeColumn('topics', 'optional', Sequelize.BOOLEAN, { transaction }),
+    iface.removeColumn('topics', 'visible', Sequelize.BOOLEAN, { transaction }),
+  ])),
 };
+
+export default migration;
