@@ -1,17 +1,10 @@
 import uuid from 'uuid/v4';
 import faker from 'faker';
-import { Program } from '../../src/models/program';
-
-const getProgramId = () => {
-  Program.findAll({})
-    .then(data => data[0].id)
-    .catch(err => console.log(err));
-};
 
 const createCohort = () => ({
   id: uuid(),
   name: faker.lorem.word(),
-  program_id: getProgramId(),
+  program_id: 'demo',
   location: faker.address.city(),
   start_date: faker.date.future(0.5),
   learners: [],
@@ -19,9 +12,17 @@ const createCohort = () => ({
 });
 
 const seeder = {
-  up: (queryInterface, Sequelize) => queryInterface.bulkInsert('cohorts', [
-    createCohort(), createCohort(), createCohort(),
-  ], {}, { learners: { type: Sequelize.ARRAY(Sequelize.UUID) } }),
+  up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(t => {
+    return Promise.all([
+      queryInterface.bulkInsert('cohorts', [
+        createCohort(), createCohort(), createCohort(),
+      ], { transaction: t }, {
+        learners: { type: Sequelize.ARRAY(Sequelize.UUID) },
+      }),
+    ])
+      .then(() => console.log('Cohort seeded'))
+      .catch(err => console.error(err));
+  }),
 
   down: queryInterface => queryInterface.bulkDelete('cohorts', null, {}),
 };

@@ -7,7 +7,7 @@ const milestone1 = {
 };
 
 const demoProgram = {
-  id: uuid(),
+  id: 'demo',
   name: 'Demo',
   location: faker.address.city(),
   milestones: `{${milestone1.id}}`,
@@ -96,9 +96,9 @@ const seeder = {
 
   down: queryInterface => queryInterface.sequelize.transaction(t => Promise.all([
     queryInterface.bulkDelete('programs', null, { transaction: t }),
+    queryInterface.bulkDelete('resources', null, { transaction: t }),
     queryInterface.bulkDelete('topics', null, { transaction: t }),
     queryInterface.bulkDelete('milestones', null, { transaction: t }),
-    queryInterface.bulkDelete('resources', null, { transaction: t }),
   ])
     .then(() => console.log('milestones, programs, resources, topics reverted.'))
     .catch(err => console.error(err))),
