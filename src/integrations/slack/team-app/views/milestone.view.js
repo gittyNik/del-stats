@@ -23,18 +23,20 @@ const emptyNoteBlock = {
   ],
 };
 
-const buildTopicBlocks = (milestone) => {
-  if (!milestone) return [];
+const buildTopicBlocks = (milestone, isProgram = false) => {
+  const topics = isProgram ? milestone.programTopics : milestone.topics;
+  console.log(isProgram, milestone.programTopics);
+  if (!milestone || !topics) return [];
   const blocks = [
     {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: '*Topics for Milestone*',
+        text: `*Topics for ${isProgram ? 'any milestone' : 'current milestone'}*`,
       },
     },
     dividerBlock,
-    ...milestone.topics.map(topic => {
+    ...topics.map(topic => {
       const started = topic['cohort_breakouts.status'] === 'started';
       // const time = `${topic['cohort_breakouts.time_scheduled']}`.split(' GMT')[0];
       const topicItem = {
@@ -104,6 +106,7 @@ export const composeMilestoneModal = milestone => {
     blocks: [
       ...buildMilestoneBlocks(milestone),
       ...buildTopicBlocks(milestone),
+      ...buildTopicBlocks(milestone, true),
       dividerBlock,
       footerBlock,
     ],

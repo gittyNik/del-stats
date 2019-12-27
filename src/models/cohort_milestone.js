@@ -56,6 +56,20 @@ export const getCurrentCohortMilestones = () => {
   });
 };
 
+// milestone_id=null represents the topics belonging to the program
+const findTopicsForCohortAndMilestone = (cohort_id, milestone_id = null) => Topic.findAll({
+  where: { milestone_id },
+  raw: true,
+  include: [{
+    model: CohortBreakout,
+    where: {
+      cohort_id,
+      topic_id: Sequelize.literal('"topics"."id"=cohort_breakouts.topic_id'),
+    },
+    required: false,
+  }],
+});
+
 export const getCurrentMilestoneOfCohort = (cohort_id) => {
   const now = Sequelize.literal('NOW()');
   return CohortMilestone.findOne({
@@ -71,21 +85,14 @@ export const getCurrentMilestoneOfCohort = (cohort_id) => {
     .then(milestone => {
       if (!milestone) return milestone;
       const { milestone_id } = milestone;
-      return Topic.findAll({
-        where: { milestone_id },
-        raw: true,
-        include: [{
-          model: CohortBreakout,
-          where: {
-            cohort_id,
-            id: Sequelize.literal('"topics"."id"=cohort_breakouts.topic_id'),
-          },
-          required: false,
-        }],
-      })
-        .then(topics => {
-          console.log(topics);
+      return Promise.all([
+        findTopicsForCohortAndMilestone(cohort_id, milestone_id),
+        findTopicsForCohortAndMilestone(cohort_id),
+      ])
+        .then(([topics, programTopics]) => {
+          console.log(`Milestone topics: ${topics.length}, Program topics: ${programTopics.length}`);
           milestone.topics = topics;
+          milestone.programTopics = programTopics;
           return milestone;
         });
     });
