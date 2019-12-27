@@ -1,6 +1,6 @@
 import { createMessageAdapter } from '@slack/interactive-messages';
 import { beginCohortWithId } from '../../../models/cohort';
-import { showMilestoneDetails, markTopicAsFinished } from './controllers/milestone.controller';
+import { showMilestoneDetails, markTopicAsFinished, markMilestoneAsReviewed } from './controllers/milestone.controller';
 
 const slackInteractions = createMessageAdapter(process.env.SLACK_TEAM_SECRET);
 
@@ -36,6 +36,8 @@ slackInteractions.action({ actionId: /^mark_topic_finished\..*/ }, (payload) => 
 
   markTopicAsFinished(topic_id, cohort_id, payload.user.username);
 });
+
+slackInteractions.action({ actionId: /^mark_milestone_reviewed\..*/ }, markMilestoneAsReviewed);
 
 slackInteractions.action({ type: 'button' }, (payload, respond) => {
   const { user: { username } } = payload; // username, blocks

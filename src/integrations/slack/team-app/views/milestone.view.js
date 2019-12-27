@@ -74,6 +74,16 @@ const buildMilestoneBlocks = (milestone) => {
         type: 'mrkdwn',
         text: `*${milestone['milestone.name']}*\n`,
       },
+      accessory: {
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Mark as review done',
+          emoji: true,
+        },
+        action_id: `mark_milestone_reviewed.${milestone.id}`,
+        value: `${milestone.id}`,
+      },
     },
     {
       type: 'context',

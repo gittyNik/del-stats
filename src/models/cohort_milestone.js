@@ -138,3 +138,13 @@ export const createCohortMilestones = (cohort_id) => Cohort.findByPk(cohort_id, 
 
     return CohortMilestone.bulkCreate(cohort_milestones);
   });
+
+// TODO: update reviewer_id after authentication is done
+export const markMilestoneAsReviewed = id => CohortMilestone.update({
+  review_time: Sequelize.literal('now()'),
+}, {
+  where: { id },
+  returning: true,
+  raw: true,
+})
+  .then(results => results[1][0]);

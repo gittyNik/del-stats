@@ -22,6 +22,20 @@ export const showMilestoneDetails = (cohort_id, trigger_id) => {
     }).catch(err => console.log(err));
 };
 
+export const markMilestoneAsReviewed = (payload, respond) => {
+  const cohort_milestone_id = payload.actions[0].value;
+
+  markMilestoneAsReviewed(cohort_milestone_id)
+    .then(milestone => {
+      console.log('milestone review saved!', milestone.id);
+      respond({ text: 'Milestone review saved' });
+    })
+    .catch(err => {
+      console.log(err);
+      respond({ text: 'Failed to save review' });
+    });
+};
+
 export const markTopicAsFinished = (topic_id, cohort_id, username) => {
   const sendMessageToSlack = Promise.all([
     Topic.findByPk(topic_id),
