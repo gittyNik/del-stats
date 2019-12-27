@@ -123,3 +123,25 @@ export const composeMilestoneModal = milestone => {
   };
   return result;
 };
+
+
+export const milestoneReviewMessage = (milestone, cohort, username) => ({
+  text: `Milestone review for ${milestone.name} is done for ${cohort.name}`,
+  blocks: [
+    {
+      type: 'context',
+      elements: [{
+        type: 'mrkdwn',
+        text: `${cohort.name}-${cohort.start_date.getFullYear()} @${cohort.location}`,
+      }],
+    },
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `Milestone review for *${milestone.name}* is done (marked by @${username})`,
+      },
+    },
+  ],
+  channel: 'clockwork',
+});

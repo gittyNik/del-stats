@@ -3,7 +3,7 @@ import { getCurrentMilestoneOfCohort, markMilestoneReview } from '../../../../mo
 import { Cohort } from '../../../../models/cohort';
 import { startBreakout } from '../../../../models/cohort_breakout';
 import { Topic } from '../../../../models/topic';
-import { composeMilestoneModal } from '../views/milestone.view';
+import { composeMilestoneModal, milestoneReviewMessage } from '../views/milestone.view';
 
 const { SLACK_TEAM_BOT_TOKEN } = process.env;
 
@@ -26,13 +26,21 @@ export const markMilestoneAsReviewed = (payload, respond) => {
   const cohort_milestone_id = payload.actions[0].value;
 
   markMilestoneReview(cohort_milestone_id)
-    .then(milestone => {
+    .then(({ milestone_id, cohort_id }) => {
       console.log('milestone review saved!', milestone.id);
       // respond({ text: 'Milestone review saved' });
-    })
-    .catch(err => {
-      console.log(err);
-      // respond({ text: 'Failed to save review' });
+      return Promise.all([
+        Topic.findByPk(topic_id),
+        Cohort.findByPk(cohort_id),
+      ])
+        .then(([topic, cohort]) => {
+          const view = milestoneReviewMessage(milestone, cohort, username = 'user');
+          web.chat.postMessage(view);
+        })
+        .catch(err => {
+          console.log(err);
+          // respond({ text: 'Failed to save review' });
+        });
     });
 };
 
