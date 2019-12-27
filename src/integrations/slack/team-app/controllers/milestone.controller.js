@@ -1,5 +1,5 @@
 import { WebClient } from '@slack/web-api';
-import { getCurrentMilestoneOfCohort } from '../../../../models/cohort_milestone';
+import { getCurrentMilestoneOfCohort, markMilestoneReview } from '../../../../models/cohort_milestone';
 import { Cohort } from '../../../../models/cohort';
 import { startBreakout } from '../../../../models/cohort_breakout';
 import { Topic } from '../../../../models/topic';
@@ -25,14 +25,14 @@ export const showMilestoneDetails = (cohort_id, trigger_id) => {
 export const markMilestoneAsReviewed = (payload, respond) => {
   const cohort_milestone_id = payload.actions[0].value;
 
-  markMilestoneAsReviewed(cohort_milestone_id)
+  markMilestoneReview(cohort_milestone_id)
     .then(milestone => {
       console.log('milestone review saved!', milestone.id);
-      respond({ text: 'Milestone review saved' });
+      // respond({ text: 'Milestone review saved' });
     })
     .catch(err => {
       console.log(err);
-      respond({ text: 'Failed to save review' });
+      // respond({ text: 'Failed to save review' });
     });
 };
 

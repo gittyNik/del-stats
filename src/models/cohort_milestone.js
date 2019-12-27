@@ -140,11 +140,11 @@ export const createCohortMilestones = (cohort_id) => Cohort.findByPk(cohort_id, 
   });
 
 // TODO: update reviewer_id after authentication is done
-export const markMilestoneAsReviewed = id => CohortMilestone.update({
+export const markMilestoneReview = id => CohortMilestone.update({
   review_time: Sequelize.literal('now()'),
 }, {
-  where: { id },
+  where: { id, review_time: null },
   returning: true,
   raw: true,
 })
-  .then(results => results[1][0]);
+  .then(results => (results[1][0] ? results[1][0] : Promise.reject('Review could not be saved')));
