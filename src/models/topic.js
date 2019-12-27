@@ -19,7 +19,7 @@ export const Topic = db.define('topics', {
   },
   milestone_id: {
     type: Sequelize.UUID,
-    references: { model: 'milestones', key: 'id' },
+    references: { model: 'milestones' },
   },
   optional: {
     type: Sequelize.BOOLEAN,
@@ -29,6 +29,7 @@ export const Topic = db.define('topics', {
     type: Sequelize.BOOLEAN,
     defaultValue: true,
   },
+  domain: Sequelize.ENUM('generic', 'tech', 'mindset', 'dsa'),
 });
 
 export default Topic;
