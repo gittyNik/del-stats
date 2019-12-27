@@ -1,6 +1,7 @@
 import { WebClient } from '@slack/web-api';
 import { getCurrentMilestoneOfCohort, markMilestoneReview } from '../../../../models/cohort_milestone';
 import { Cohort } from '../../../../models/cohort';
+import { Milestone } from '../../../../models/milestone';
 import { startBreakout } from '../../../../models/cohort_breakout';
 import { Topic } from '../../../../models/topic';
 import { composeMilestoneModal, milestoneReviewMessage } from '../views/milestone.view';
@@ -26,15 +27,15 @@ export const markMilestoneAsReviewed = (payload, respond) => {
   const cohort_milestone_id = payload.actions[0].value;
 
   markMilestoneReview(cohort_milestone_id)
-    .then(({ milestone_id, cohort_id }) => {
-      console.log('milestone review saved!', milestone.id);
+    .then(({ milestoneId, cohortId }) => {
+      console.log('milestone review saved!', milestoneId);
       // respond({ text: 'Milestone review saved' });
       return Promise.all([
-        Topic.findByPk(topic_id),
-        Cohort.findByPk(cohort_id),
+        Milestone.findByPk(milestoneId),
+        Cohort.findByPk(cohortId),
       ])
-        .then(([topic, cohort]) => {
-          const view = milestoneReviewMessage(milestone, cohort, username = 'user');
+        .then(([milestone, cohort]) => {
+          const view = milestoneReviewMessage(milestone, cohort, 'user');
           web.chat.postMessage(view);
         })
         .catch(err => {
