@@ -80,6 +80,7 @@ export const startTest = (req, res) => {
   const { id } = req.params;
   Test.findByPk(id)
     .then(test => test.start())
+    .then(test => test.get({ plain: true }))
     .then(test => populateQuestionDetails([test]))
     .then(testSeries => res.send(testSeries[0]))
     .catch((err) => {
