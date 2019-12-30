@@ -144,7 +144,7 @@ export const updateApplication = (req, res) => {
   } else if (status) {
     Application.update({
       status,
-    }, { where: { id } })
+    }, { where: { id }, returning: true })
       .then(result => result[1][0])
       .then(application => res.send(application))
       .catch((err) => {
