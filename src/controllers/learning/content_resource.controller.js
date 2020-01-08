@@ -16,6 +16,23 @@ export const getLatest = (req, res) => {
     .catch(err => res.status(500).send(err));
 };
 
+export const getFirewall = (req, res) => {
+  const firewall_sections = ['know', 'think', 'play', 'reflect'];
+
+  Promise.all(firewall_sections.map(section => getResourcesByTag(`firewall_${section}`)))
+    .then(([know, think, play, reflect]) => ({
+      know, think, play, reflect,
+    }))
+    .then(data => {
+      console.log(data);
+      res.send({ data });
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+};
+
 export const getTaggedResources = (req, res) => {
   const { tag } = req.params;
   getResourcesByTag(tag)
@@ -27,11 +44,6 @@ export const getTaggedResources = (req, res) => {
       console.error(err);
       res.sendStatus(500);
     });
-};
-
-export const getFirewall = (req, res) => {
-  req.params.tag = 'firewall';
-  getTaggedResources(req, res);
 };
 
 export const logResourceVisit = (req, res) => {
