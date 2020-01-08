@@ -3,7 +3,7 @@ import {
   getLatest, getTop, getAll, getUnmoderated, getOne, create, update,
   deleteOne, getComments, addComment, deleteComment, upvote, unvote,
   getReports, addReport, resolveReport, approve, getTrending, getFirewall,
-  logResourceVisit,
+  logResourceVisit, getTaggedResources,
 } from '../../controllers/learning/content_resource.controller';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
@@ -50,6 +50,14 @@ router.patch('/:resource_id/reports/:report_id/resolve', allowSuperAdminOnly, re
  * @apiGroup Content Resource
  */
 router.get('/', allowSuperAdminOnly, getAll);
+
+/**
+ * @api {get} /learning/content/resources/tag/:tag Get tagged resources
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetTaggedResource
+ * @apiGroup Content Resource
+ */
+router.get('/tag/:tag', getTaggedResources);
 
 /**
  * @api {get} /learning/content/resources/latest Get latest Content resources

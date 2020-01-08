@@ -16,8 +16,9 @@ export const getLatest = (req, res) => {
     .catch(err => res.status(500).send(err));
 };
 
-export const getFirewall = (req, res) => {
-  getResourcesByTag('firewall')
+export const getTaggedResources = (req, res) => {
+  const { tag } = req.params;
+  getResourcesByTag(tag)
     .then(data => {
       console.log(data);
       res.send({ data });
@@ -26,6 +27,11 @@ export const getFirewall = (req, res) => {
       console.error(err);
       res.sendStatus(500);
     });
+};
+
+export const getFirewall = (req, res) => {
+  req.params.tag = 'firewall';
+  getTaggedResources(req, res);
 };
 
 export const logResourceVisit = (req, res) => {
