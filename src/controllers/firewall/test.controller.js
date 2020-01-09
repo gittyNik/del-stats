@@ -32,7 +32,13 @@ export const getTestById = (req, res) => {
   const { id } = req.params;
   Test.findAll({ where: { id }, raw: true })
     .then(populateQuestionDetails)
-    .then(data => res.status(200).json(data))
+    .then(tests => {
+      if (tests.length > 0) {
+        res.send({
+          data: tests[0],
+        });
+      } else res.sendStatus(404);
+    })
     .catch((err) => {
       console.log(err);
       res.sendStatus(500);
