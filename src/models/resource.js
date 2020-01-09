@@ -57,31 +57,30 @@ export const Resource = db.define('resources', {
   details: Sequelize.JSON,
 });
 
-const { contains } = Sequelize.Op;
+const { contains, overlap } = Sequelize.Op;
 
-export const getResourcesByTag = tag => {
-  console.log(tag, tag, tag, '\n\n\n');
-
-  return Resource.findAll({
-    where: {
-      tags: {
-        [contains]: [tag],
-      },
-    },
-    raw: true,
-  });
-};
-
-const getResourceCountByTag = tag => Resource.aggregate('id', 'count', {
+export const getResourcesByTag = tag => Resource.findAll({
   where: {
     tags: {
       [contains]: [tag],
     },
   },
-  distinct: true,
+  raw: true,
 });
 
-export const getFirewallResourceCount = getResourceCountByTag.bind(null, 'firewall');
+const getResourceCountByTags = tags => Resource.aggregate('id', 'count', {
+  where: {
+    tags: {
+      [overlap]: tags,
+    },
+  },
+  distinct: true,
+})
+  .then(count => +count);
+
+// todo: find a way to remove hardcoding of firewall tags
+const firewallTags = ['firewall_know', 'firewall_think', 'firewall_play', 'firewall_reflect'];
+export const getFirewallResourceCount = getResourceCountByTags.bind(null, firewallTags);
 
 export const createFromSlackAttachment = (attachment, owner) => Resource.create({
   id: uuid(),
