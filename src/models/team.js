@@ -1,7 +1,8 @@
 import Sequelize from 'sequelize';
 import db from '../database';
+import { CohortMilestone } from './cohort_milestone';
 
-export const Team = db.define('teams', {
+export const Team = db.define('milestone_learner_teams', {
   id: {
     allowNull: false,
     primaryKey: true,
@@ -28,4 +29,19 @@ export const Team = db.define('teams', {
 
 });
 
-export default Team;
+const splitTeams = users => {
+  const teams = [];
+  const shuffled = _.shuffle(users);
+
+  while (shuffled.length > 4) {
+    teams.push(shuffled.splice(-3));
+  }
+
+  if (shuffled.length > 0) teams.push(shuffled);
+
+  return teams;
+};
+
+export const generateMilestoneTeams = cohort_milestone_id => CohortMilestone.findByPk(cohort_milestone_id)
+  .then(cohort_milestone => cohort_milestone.getUsers())
+  .then(splitTeams);

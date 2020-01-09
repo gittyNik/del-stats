@@ -148,3 +148,8 @@ export const markMilestoneReview = id => CohortMilestone.update({
   raw: true,
 })
   .then(results => (results[1][0] ? results[1][0] : Promise.reject('Review could not be saved')));
+
+CohortMilestone.prototype.getUsers = function getCurrentUsers() {
+  return Cohort.findByPk(this.cohort_id)
+    .then(cohort => cohort.learners);
+};
