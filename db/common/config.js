@@ -30,6 +30,7 @@ const settings = {
     database: process.env.TEST_DB_NAME || 'delta_test',
     host: process.env.TEST_DB_HOST || '127.0.0.1',
     port: process.env.TEST_DB_PORT || 5432,
+    logging: false,
     ...common
   },
   production: {
