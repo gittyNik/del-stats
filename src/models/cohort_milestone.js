@@ -41,7 +41,8 @@ export const CohortMilestone = db.define('cohort_milestones', {
 
 const { lte, gt } = Sequelize.Op;
 
-CohortMilestone.belongsTo(Milestone);
+CohortMilestone.belongsTo(Cohort, { foreignKey: 'cohort_id' });
+CohortMilestone.belongsTo(Milestone, { foreignKey: 'milestone_id' });
 
 export const getCurrentCohortMilestones = () => {
   const now = Sequelize.literal('NOW()');

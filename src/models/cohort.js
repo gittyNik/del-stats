@@ -14,15 +14,21 @@ export const Cohort = db.define('cohorts', {
   name: Sequelize.STRING,
   location: Sequelize.STRING,
   learners: Sequelize.ARRAY(Sequelize.UUID),
-  program_id: Sequelize.STRING,
+  program_id: {
+    type: Sequelize.STRING,
+    references: { model: 'programs', key: 'id' },
+  },
   start_date: Sequelize.DATE,
-  learning_ops_manager: Sequelize.UUID,
+  learning_ops_manager: {
+    type: Sequelize.UUID,
+    references: { model: 'users', key: 'id' },
+  },
 });
 
 Program.hasMany(Cohort, { foreignKey: 'program_id' });
-Cohort.belongsTo(Program);
-Cohort.hasMany(CohortMilestone, { foreignKey: 'cohort_id' });
-CohortMilestone.belongsTo(Cohort);
+Cohort.belongsTo(Program, { foreignKey: 'program_id' });
+// Cohort.hasMany(CohortMilestone, { sourceKey: 'cohort_id' });
+// CohortMilestone.belongsTo(Cohort, { foreignKey: 'cohort_id' });
 Cohort.hasMany(CohortBreakout, { foreignKey: 'cohort_id' });
 CohortBreakout.belongsTo(Cohort);
 

@@ -14,9 +14,16 @@ export const Application = db.define('applications', {
   user_id: {
     type: Sequelize.UUID,
     allowNull: false,
+    references: { model: 'users' },
   },
-  cohort_applied: Sequelize.UUID,
-  cohort_joining: Sequelize.UUID,
+  cohort_applied: {
+    type: Sequelize.UUID,
+    references: { model: 'cohorts' },
+  },
+  cohort_joining: {
+    type: Sequelize.UUID,
+    references: { model: 'cohorts' },
+  },
   status: Sequelize.ENUM(
     'applied', 'review_pending', 'offered',
     'rejected', 'joined', 'archieved',
@@ -31,7 +38,6 @@ export const Application = db.define('applications', {
     type: Sequelize.DATE,
   },
 });
-
 Application.belongsTo(Cohort, { foreignKey: 'cohort_applied' });
 Application.belongsTo(Cohort, { foreignKey: 'cohort_joining' });
 Application.belongsTo(User);

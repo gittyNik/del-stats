@@ -1,4 +1,5 @@
 import Sequelize from 'sequelize';
+import _ from 'lodash';
 import db from '../database';
 import { CohortMilestone } from './cohort_milestone';
 
