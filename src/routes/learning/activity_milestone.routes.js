@@ -9,7 +9,7 @@ import { apiNotReady } from '../../controllers/api.controller';
 const router = Express.Router();
 
 /**
- * @api {get} /learning/milestones/:milestone_id/teams Get milestone teams
+ * @api {get} /learning/activity/milestones/:milestone_id/teams Get milestone teams
  * @apiDescription Get teams in given cohort milestone.
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetMilestoneTeams
@@ -21,17 +21,15 @@ router.get('/:milestone_id/teams', getMilestoneTeams);
 
 
 /**
- * @api {patch} /learning/milestones/:milestone_id/teams Reset Milestone Teams
+ * @api {patch} /learning/activity/milestones/:milestone_id/teams Reset Milestone Teams
  * @apiHeader {String} authorization JWT Token.
  * @apiName Reset the milestone teams
  * @apiGroup MilestoneTeam
- *
- * @apiParam {String} milestone_id Id of Cohort milestone.
  */
-router.patch(':/milestone_id/teams', resetMilestoneTeams);
+router.patch('/:milestone_id/teams', resetMilestoneTeams);
 
 /**
- * @api {get} /learning/milestones/:milestone_id/team Get team details
+ * @api {get} /learning/activity/milestones/:milestone_id/team Get team details
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetMilestoneTeam
  * @apiGroup MilestoneTeam
@@ -39,7 +37,7 @@ router.patch(':/milestone_id/teams', resetMilestoneTeams);
 router.get('/:milestone_id/teams/:id', getTeam);
 
 /**
- * @api {get} /learning/milestones/:milestone_id Get milestone by Id
+ * @api {get} /learning/activity/milestones/:milestone_id Get milestone by Id
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetMilestoneById
  * @apiGroup TEP Milestone
@@ -47,7 +45,7 @@ router.get('/:milestone_id/teams/:id', getTeam);
 router.get('/', getAllMilestones);
 
 /**
- * @api {get} /learning/milestones/:milestone_id Get milestone by Id
+ * @api {get} /learning/activity/milestones/:milestone_id Get milestone by Id
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetMilestoneById
  * @apiGroup TEP Milestone
@@ -55,7 +53,7 @@ router.get('/', getAllMilestones);
 router.get('/:milestone_id', getMilestone);
 
 /**
- * @api {get} /learning/milestones/:milestone_id/resources Get TEP resources of a milestone
+ * @api {get} /learning/activity/milestones/:milestone_id/resources Get TEP resources of a milestone
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetMilestoneResources
  * @apiGroup TEP Milestone
@@ -63,7 +61,7 @@ router.get('/:milestone_id', getMilestone);
 router.get('/:milestone_id/resources', getMilestoneResources);
 
 /**
- * @api {post} learning/milestones Add a TEP Milestone
+ * @api {post} learning/activity/milestones Add a TEP Milestone
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddNewMilestone
  * @apiGroup TEP Milestone
@@ -73,7 +71,7 @@ router.get('/:milestone_id/resources', getMilestoneResources);
 router.post('/', create);
 
 /**
- * @api {patch} /learning/milestones/:milestone_id Update TEP milestone
+ * @api {patch} /learning/activity/milestones/:milestone_id Update TEP milestone
  * @apiHeader {String} authorization JWT Token.
  * @apiName Update
  * @apiGroup TEP Milestone
@@ -83,7 +81,7 @@ router.post('/', create);
 router.patch('/:milestone_id', update);
 
 /**
- * @api {delete} /learning/milestones/:milestone_id Delete TEP milestone
+ * @api {delete} /learning/activity/milestones/:milestone_id Delete TEP milestone
  * @apiHeader {String} authorization JWT Token.
  * @apiName DeleteOne
  * @apiGroup TEP Milestone
