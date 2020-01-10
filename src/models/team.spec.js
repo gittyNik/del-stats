@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import { splitTeams, createMilestoneTeams, Team } from './team';
+import { splitTeams, createMilestoneTeams, deleteMilestoneTeams, Team } from './team';
 import { getCurrentCohortMilestones } from './cohort_milestone';
 import database from '../database';
 
@@ -21,12 +21,7 @@ beforeAll(() => {
 
 // Connection should be closed everytime models are used
 afterAll(() => {
-  return Team.destroy({where: {
-    cohort_milestone_id: cohortMilestone.id,
-    id: {
-      [Sequelize.Op.notIn]: originalTeams
-    }
-  }})
+  return deleteMilestoneTeams(cohortMilestone.id, originalTeams)
     .then(() => database.close());
 });
 

@@ -50,6 +50,13 @@ export const splitTeams = users => {
   return teams;
 };
 
+export const deleteMilestoneTeams = (cohort_milestone_id, keepTeams = []) => Team.destroy({
+  where: { cohort_milestone_id },
+  id: {
+    [Sequelize.Op.notIn]: keepTeams,
+  },
+});
+
 export const createMilestoneTeams = cohort_milestone_id => CohortMilestone.findByPk(cohort_milestone_id)
   .then(m => m.getUsers())
   .then(splitTeams)

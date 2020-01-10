@@ -1,6 +1,6 @@
 import uuid from 'uuid/v4';
 import { Topic } from '../../models/topic';
-import { Team } from '../../models/team';
+import { deleteMilestoneTeams, createMilestoneTeams, Team } from '../../models/team';
 import { Resource } from '../../models/resource';
 import { Milestone } from '../../models/milestone';
 
@@ -139,7 +139,20 @@ export const getMilestoneTeams = (req, res) => {
     .then((data) => { res.json(data); })
     .catch(err => {
       console.log(err);
-      res.status(500);
+      res.sendStatus(500);
+    });
+};
+
+export const resetMilestoneTeams = (req, res) => {
+  const { milestone_id } = req.params;
+  deleteMilestoneTeams(milestone_id)
+    .then(() => createMilestoneTeams(milestone_id))
+    .then(data => {
+      res.send({ data });
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
     });
 };
 

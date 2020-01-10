@@ -1,7 +1,7 @@
 import Express from 'express';
 import {
   create, update, deleteOne, getAllByMilestone as getMilestoneResources,
-  getAllMilestones, getMilestone, getTeam, getMilestoneTeams,
+  getAllMilestones, getMilestone, getTeam, getMilestoneTeams, resetMilestoneTeams,
 } from '../../controllers/learning/milestone.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 
@@ -28,7 +28,7 @@ router.get('/:milestone_id/teams', getMilestoneTeams);
  *
  * @apiParam {String} milestone_id Id of Cohort milestone.
  */
-router.patch(':/milestone_id/teams', apiNotReady);
+router.patch(':/milestone_id/teams', resetMilestoneTeams);
 
 /**
  * @api {get} /learning/milestones/:milestone_id/team Get team details
