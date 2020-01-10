@@ -31,6 +31,8 @@ Cohort.belongsTo(Program, { foreignKey: 'program_id' });
 // CohortMilestone.belongsTo(Cohort, { foreignKey: 'cohort_id' });
 Cohort.hasMany(CohortBreakout, { foreignKey: 'cohort_id' });
 CohortBreakout.belongsTo(Cohort);
+Application.belongsTo(Cohort, { foreignKey: 'cohort_applied' });
+Application.belongsTo(Cohort, { foreignKey: 'cohort_joining' });
 
 export const getCohortsStartingToday = () => {
   const today = new Date();

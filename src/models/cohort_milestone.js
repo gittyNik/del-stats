@@ -53,7 +53,6 @@ export const getCurrentCohortMilestones = () => {
       review_scheduled: { [gt]: now },
     },
     include: [Cohort, Milestone],
-    raw: true,
   });
 };
 

@@ -1,4 +1,4 @@
-import { generateMilestoneTeams } from './team';
+import { splitTeams } from './team';
 import { getCurrentCohortMilestones } from './cohort_milestone';
 import database from '../database';
 
@@ -10,7 +10,8 @@ it('should create teams for a milestone', () => {
   return getCurrentCohortMilestones()
     .then(milestones => {
       if(milestones[0]){
-        return generateMilestoneTeams(milestones[0].id)
+        return milestones[0].getUsers()
+          .then(splitTeams)
           .then(teams => {
             expect(Array.isArray(teams)).toBeTruthy();
             if(teams.length > 0) {

@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 import _ from 'lodash';
+import faker from 'faker';
 import db from '../database';
 import { CohortMilestone } from './cohort_milestone';
 
@@ -30,7 +31,7 @@ export const Team = db.define('milestone_learner_teams', {
 
 });
 
-const splitTeams = users => {
+export const splitTeams = users => {
   const teams = [];
   const shuffled = _.shuffle(users);
 
@@ -43,6 +44,12 @@ const splitTeams = users => {
   return teams;
 };
 
-export const generateMilestoneTeams = cohort_milestone_id => CohortMilestone.findByPk(cohort_milestone_id)
-  .then(cohort_milestone => cohort_milestone.getUsers())
-  .then(splitTeams);
+export const createMilestoneTeams = cohort_milestone_id => CohortMilestone.findByPk(cohort_milestone_id)
+  .then(cohort_milestone.getUsers())
+  .then(splitTeams)
+  .then(teams => Team.bulkCreate(teams.map(learners => ({
+    id: uuid(),
+    name: faker.commerce.productName(),
+    cohort_milestone_id,
+    learners,
+  }))));
