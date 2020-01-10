@@ -26,5 +26,3 @@ export const LearnerChallenge = db.define('learner_challenges', {
 });
 
 export default LearnerChallenge;
-
-LearnerChallenge.belongsTo(Challenge);

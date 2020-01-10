@@ -38,7 +38,6 @@ export const Application = db.define('applications', {
     type: Sequelize.DATE,
   },
 });
-Application.belongsTo(User, { foreignKey: 'user_id' });
 
 Application.prototype.populateTestResponses = () => Test
   .findAll({ where: { application_id: this.id }, raw: true })

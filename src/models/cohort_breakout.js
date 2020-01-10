@@ -47,9 +47,6 @@ export const CohortBreakout = db.define('cohort_breakouts', {
   },
 });
 
-CohortBreakout.belongsTo(Topic);
-Topic.hasMany(CohortBreakout, { foreignKey: 'topic_id' });
-
 export const scheduleBreakoutLecture = (topic_id, cohort_id, time_scheduled) => {
   console.log(time_scheduled);
   return CohortBreakout.create({

@@ -1,7 +1,11 @@
 import Sequelize from 'sequelize';
-import { splitTeams, createMilestoneTeams, deleteMilestoneTeams, Team } from './team';
+import models from './index';
+import { splitTeams, createMilestoneTeams, deleteMilestoneTeams } from './team';
 import { getCurrentCohortMilestones } from './cohort_milestone';
 import database from '../database';
+
+// console.log(models);
+const { Team } = models;
 
 let cohortMilestone, originalTeams = [];
 beforeAll(() => {

@@ -18,8 +18,6 @@ export const Milestone = db.define('milestones', {
   guidelines: Sequelize.TEXT,
 });
 
-Milestone.hasMany(Topic);
-
 export const getMilestoneDetails = milestone_id => Milestone.findByPk(milestone_id, {
   include: [Topic],
 });

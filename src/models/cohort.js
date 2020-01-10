@@ -25,15 +25,6 @@ export const Cohort = db.define('cohorts', {
   },
 });
 
-Program.hasMany(Cohort, { foreignKey: 'program_id' });
-Cohort.belongsTo(Program, { foreignKey: 'program_id' });
-// Cohort.hasMany(CohortMilestone, { sourceKey: 'cohort_id' });
-// CohortMilestone.belongsTo(Cohort, { foreignKey: 'cohort_id' });
-Cohort.hasMany(CohortBreakout, { foreignKey: 'cohort_id' });
-CohortBreakout.belongsTo(Cohort);
-Application.belongsTo(Cohort, { foreignKey: 'cohort_applied' });
-Application.belongsTo(Cohort, { foreignKey: 'cohort_joining' });
-
 export const getCohortsStartingToday = () => {
   const today = new Date();
   const tonight = new Date();
