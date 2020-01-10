@@ -1,4 +1,5 @@
 import Sequelize from 'sequelize';
+import uuid from 'uuid/v4';
 import _ from 'lodash';
 import faker from 'faker';
 import db from '../database';
@@ -22,13 +23,18 @@ export const Team = db.define('milestone_learner_teams', {
   github_repo_link: Sequelize.STRING,
   product_demo_link: Sequelize.STRING,
   review: Sequelize.TEXT,
-  review_by: {
+  reviewed_by: {
     type: Sequelize.UUID,
     references: { model: 'users', key: 'id' },
   },
-  created_at: Sequelize.DATE,
-  updated_at: Sequelize.DATE,
-
+  created_at: {
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.literal('now()'),
+  },
+  updated_at: {
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.literal('now()'),
+  },
 });
 
 export const splitTeams = users => {
@@ -45,11 +51,11 @@ export const splitTeams = users => {
 };
 
 export const createMilestoneTeams = cohort_milestone_id => CohortMilestone.findByPk(cohort_milestone_id)
-  .then(cohort_milestone.getUsers())
+  .then(m => m.getUsers())
   .then(splitTeams)
   .then(teams => Team.bulkCreate(teams.map(learners => ({
     id: uuid(),
-    name: faker.commerce.productName(),
+    // name: faker.commerce.productName(),
     cohort_milestone_id,
     learners,
   }))));
