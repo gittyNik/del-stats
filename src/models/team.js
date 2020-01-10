@@ -55,7 +55,7 @@ export const createMilestoneTeams = cohort_milestone_id => CohortMilestone.findB
   .then(splitTeams)
   .then(teams => Team.bulkCreate(teams.map(learners => ({
     id: uuid(),
-    // name: faker.commerce.productName(),
+    name: faker.commerce.productName(),
     cohort_milestone_id,
     learners,
   }))));
