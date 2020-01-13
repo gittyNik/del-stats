@@ -20,11 +20,12 @@ export const sendFirewallResult = (application, phone) => {
 
 export const sendFirewallDailyStats = () => getStatsForDay()
   .then(stats => {
-    console.log(stats);
-    return web.chat.postMessage({
-      text: 'something something',
-      channel: 'secretchannel',
-    });
+    const msg = {
+      text: `Firewall statistics: ${JSON.stringify(stats)}`,
+      channel: 'learner-interviews',
+    };
+    console.log(msg);
+    return web.chat.postMessage(msg);
   });
 
 /*
