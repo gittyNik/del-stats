@@ -1,9 +1,13 @@
 import uuid from 'uuid/v4';
 import _ from 'lodash';
-import { Test, setSubmitTimeNow, getUnsubmittedTestsOfApplication } from '../../models/test';
-import { TestQuestion } from '../../models/test_question';
+import models from '../../models';
+import { setSubmitTimeNow, getUnsubmittedTestsOfApplication } from '../../models/test';
 import { populateQuestionDetails } from './test_question.controller';
 import { submitApplicationAndNotify } from './application.controller';
+
+const {
+  Application, Cohort, Program, Test, TestQuestion,
+} = models;
 
 export const getAllTests = (req, res) => {
   Test.findAll({ raw: true })
@@ -27,6 +31,23 @@ export const getTestByApplicationId = (req, res) => {
       res.sendStatus(500);
     });
 };
+
+export const populateRubric = test => Application.findByPk(test.application_id, {
+  include: [{
+    model: Cohort,
+    foreignKey: 'cohort_applied',
+    include: [Program],
+  }],
+  raw: true,
+}).then(application => {
+  const [template] = application['cohort.program.test_series'].tests
+    .filter(t => t.purpose === test.purpose);
+  if (template) {
+    test.rubric = template.rubric;
+  }
+  return test;
+});
+const populateRubrics = tests => tests.map(populateRubric);
 
 export const getTestById = (req, res) => {
   const { id } = req.params;
