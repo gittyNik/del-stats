@@ -17,6 +17,7 @@ export const Test = db.define('tests', {
     type: Sequelize.ARRAY(Sequelize.JSON),
     allowNull: false,
   },
+  scores: Sequelize.ARRAY(Sequelize.INTEGER), // [syntax_score,logic_score,workflow_score]
   start_time: Sequelize.DATE,
   sub_time: Sequelize.DATE,
   browser_history: Sequelize.ARRAY(Sequelize.UUID),

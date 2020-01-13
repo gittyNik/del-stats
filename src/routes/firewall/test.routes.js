@@ -1,7 +1,7 @@
 import Express from 'express';
 import {
   getAllTests, getTestById, startTest, submitTest, updateTestResponses,
-  getTestByApplicationId, updateVideo, updateBrowsedUrl,
+  getTestByApplicationId, updateVideo, updateBrowsedUrl, updateTestScores,
 } from '../../controllers/firewall/test.controller';
 
 const router = Express.Router();
@@ -46,6 +46,17 @@ router.get('/:id', getTestById);
 router.patch('/:id/responses', updateTestResponses);
 // backward compatibility, TODO: remove this in later releases
 router.patch('/:id', updateTestResponses);
+
+/**
+ * @api {patch} /firewall/tests/:id/scores Update Test scores
+ * @apiDescription Update test scores
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UpdateTestScores
+ * @apiGroup Test
+ *
+ * @apiParam {Object} scores List of scores to be saved
+ */
+router.patch('/:id/scores', updateTestScores);
 
 /**
  * @api {patch} /firewall/tests/:id/start Start a Test

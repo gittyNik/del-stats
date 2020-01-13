@@ -95,7 +95,27 @@ export const startTest = (req, res) => {
     });
 };
 
-// TODO: check if current user has access to the test
+export const updateTestScores = (req, res) => {
+  const { scores } = req.body;
+  const { id } = req.params;
+
+  Test.update({
+    scores,
+    updated_at: new Date(),
+  }, {
+    where: { id },
+    returning: true,
+  })
+    .then(results => results[1][0])
+    .then((data) => {
+      res.send({ data });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+};
+
 export const updateTestResponses = (req, res) => {
   const { responses } = req.body;
   const { id } = req.params;

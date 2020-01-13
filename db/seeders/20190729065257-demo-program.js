@@ -19,6 +19,7 @@ const demoProgram = {
       random: { generic: 5 }, // Domains & counts of the random questions
       questions_fixed: [], // An array of fixed questions
       typesAllowed: ['mcq', 'rate'],
+      // rubric: [{measure: 'syntax', optionls:[], weight, text, quote: {text, author}}]
     },
     {
       duration: 15 * 60 * 1000,
