@@ -1,19 +1,5 @@
-import Sequelize from 'sequelize';
 import { Application } from '../../models/application';
-import { Cohort } from '../../models/cohort';
-
-const getUpcomingCohort = () => {
-  const tonight = new Date();
-  tonight.setHours(23);
-  tonight.setMinutes(59);
-  tonight.setSeconds(59);
-
-  return Cohort.findOne({
-    where: {
-      start_date: { [Sequelize.Op.gt]: tonight },
-    },
-  });
-};
+import { getUpcomingCohort } from '../../models/cohort';
 
 export const getPublicStats = async (req, res) => {
   const cohort = await getUpcomingCohort();

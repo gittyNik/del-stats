@@ -2,7 +2,7 @@ import Sequelize from 'sequelize';
 import db from '../database';
 import { Test } from './test';
 import { User } from './user';
-import { Cohort } from './cohort';
+import { Cohort, getUpcomingCohort } from './cohort';
 
 const { in: opIn } = Sequelize.Op;
 
@@ -63,3 +63,40 @@ export const submitApplication = (id) => Application.update({
   raw: true,
 })
   .then(result => result[1][0]);
+
+export const getStatsForDay = date => {
+  const today = date || new Date();
+  today.setHours(0);
+  today.setMinutes(0);
+  today.setSeconds(0);
+
+  const calcCount = applications => {
+    const count = {
+      total: applications.length,
+    };
+    applications.forEach(a => {
+      count[a.status] = count[a.status] || 0;
+      count[a.status]++;
+    });
+    return count;
+  };
+
+  return Promise.all([
+    getUpcomingCohort()
+      .then(cohort => (cohort ? Application.findAll({
+        where: { cohort_joining: cohort.id },
+      }) : [])),
+    Application.findAll({
+      where: {
+        created_at: {
+          [Sequelize.Op.between]: [
+            new Date(today - 24 * 3600 * 1000),
+            new Date(today - 1),
+          ],
+        },
+      },
+    }),
+  ])
+    .then(lists => lists.map(calcCount))
+    .then(([cohort, yesterday]) => ({ cohort, yesterday }));
+};

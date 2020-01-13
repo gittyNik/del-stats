@@ -1,6 +1,6 @@
 import { WebClient } from '@slack/web-api';
 import { IncomingWebhook } from '@slack/webhook';
-import { getPendingApplicationCohorts } from '../../../../models/application';
+import { getPendingApplicationCohorts, getStatsForDay } from '../../../../models/application';
 import { getLiveCohorts } from '../../../../models/cohort';
 import { composeHome, buildFirewallResult } from '../views/firewall.view';
 
@@ -18,13 +18,14 @@ export const sendFirewallResult = (application, phone) => {
   webhook.send(view);
 };
 
-export const sendFirewallDailyStats = () => {
-  console.log('sending');
-  return web.chat.postMessage({
-    text: 'something something',
-    channel: 'secretchannel',
+export const sendFirewallDailyStats = () => getStatsForDay()
+  .then(stats => {
+    console.log(stats);
+    return web.chat.postMessage({
+      text: 'something something',
+      channel: 'secretchannel',
+    });
   });
-};
 
 /*
 *  Update view on App Home

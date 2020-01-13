@@ -129,3 +129,16 @@ export const beginCohortWithId = (cohort_id) => Promise.all([
     cohort.milestones = milestones;
     return cohort;
   });
+
+export const getUpcomingCohort = date => {
+  const tonight = date || new Date();
+  tonight.setHours(23);
+  tonight.setMinutes(59);
+  tonight.setSeconds(59);
+
+  return Cohort.findOne({
+    where: {
+      start_date: { [Sequelize.Op.gt]: tonight },
+    },
+  });
+};
