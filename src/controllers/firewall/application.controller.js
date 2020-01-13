@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import uuid from 'uuid/v4';
 import request from 'request';
 import Sequelize from 'sequelize';
@@ -185,8 +186,9 @@ export const deleteApplication = (req, res) => {
 };
 
 export const payment = (req, res) => {
-  let { payment_details } = req.body;
+  const { payment_details } = req.body;
   const { id } = req.params;
+  const { INSTAMOJO_API_KEY, INSTAMOJO_AUTH_TOKEN, INSTAMOJO_URL } = process.env;
   payment_details = JSON.parse(payment_details);
   // Application.update({
   //   payment_details,
@@ -198,22 +200,22 @@ export const payment = (req, res) => {
   // todo: give values dynamically
   const payload = {
     purpose: id, // passing application id as the Unique identifier.
-    amount: '2500',
+    amount: payment_details.amount,
     phone: '9999999999',
     buyer_name: 'John Doe',
     redirect_url: 'http://www.example.com/redirect/',
     send_email: true,
-    webhook: 'http://www.example.com/webhook/',
+    webhook: 'http://www.example.com/webhook/', // todo
     send_sms: true,
     email: 'foo@example.com',
     allow_repeated_payments: false,
   };
   const options = {
     method: 'POST',
-    uri: 'https://www.test.instamojo.com/api/1.1/payment-requests/',
+    uri: `${INSTAMOJO_URL}/payment-requests/`,
     headers: {
-      'X-Api-Key': 'test_60681865136c572f35279cf35f5',
-      'X-Auth-Token': 'test_4d759483b1f378b1759e71ce86a'
+      'X-Api-Key': INSTAMOJO_API_KEY,
+      'X-Auth-Token': INSTAMOJO_AUTH_TOKEN,
     },
     form: payload,
   };
