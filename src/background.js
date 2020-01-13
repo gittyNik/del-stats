@@ -3,8 +3,9 @@ import 'regenerator-runtime/runtime';
 import { Worker } from 'bullmq';
 import { initQueue } from './controllers/queue.controller';
 
+const queueName = 'delta';
+
 const deltaHandler = job => {
-  console.log(job);
   if (job.name === 'breakouts') {
     console.log('sending breakouts schedule for the day');
   }
@@ -14,9 +15,12 @@ const deltaHandler = job => {
   }
 };
 
-const worker = new Worker('delta', deltaHandler);
+const worker = new Worker(queueName, deltaHandler);
 
-initQueue();
+worker.on('drained', (job) => {
+  // Queue is drained, no more jobs left
+  // console.log('All jobs drained :)');
+});
 
 worker.on('completed', (job) => {
   console.log(`${job.id} has completed!`);
@@ -26,5 +30,4 @@ worker.on('failed', (job, err) => {
   console.log(`${job.id} has failed with ${err.message}`);
 });
 
-
-initQueue();
+initQueue(queueName);
