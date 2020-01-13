@@ -4,6 +4,7 @@ import models from '../../models';
 import { setSubmitTimeNow, getUnsubmittedTestsOfApplication } from '../../models/test';
 import { populateQuestionDetails } from './test_question.controller';
 import { submitApplicationAndNotify } from './application.controller';
+import scoreTest from './test_score.controller';
 
 const {
   Application, Cohort, Program, Test, TestQuestion,
@@ -23,7 +24,13 @@ export const getTestByApplicationId = (req, res) => {
   const { id } = req.params;
   Test.findAll({ where: { application_id: id }, raw: true })
     .then(populateQuestionDetails)
+    .then(populateRubrics)
     .then((testSeries) => {
+      testSeries.forEach(test => {
+        if (test.purpose === 'know') {
+          test.mindset = scoreTest(test);
+        }
+      });
       res.status(200).json(testSeries);
     })
     .catch((err) => {
