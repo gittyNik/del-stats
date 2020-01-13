@@ -1,6 +1,9 @@
 import { Queue, QueueScheduler, Worker } from 'bullmq';
+import Redis from 'ioredis';
 
-const queue = new Queue('delta');
+const connection = new Redis(process.env.REDIS_URL);
+const queue = new Queue('delta', { connection });
+
 let scheduler = null;
 const everyMorning = { cron: '0 7 * * *' };
 const everySecond = { cron: '* * * ? * *' };
@@ -18,7 +21,7 @@ export const initQueue = () => {
 initQueue();
 
 export const createWorker = handler => {
-  const worker = new Worker('delta', handler);
+  const worker = new Worker('delta', handler, { connection });
 
   worker.on('completed', (job) => {
     console.log(`${job.id} has completed!`);
@@ -30,7 +33,7 @@ export const createWorker = handler => {
 
   // initialize scheduler after a worker is created
   if (!scheduler) {
-    scheduler = new QueueScheduler('delta');
+    scheduler = new QueueScheduler('delta', { connection });
   }
 
   return worker;

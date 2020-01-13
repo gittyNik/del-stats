@@ -1,5 +1,6 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
+import 'dotenv/config';
 import { createWorker } from './controllers/queue.controller';
 import { sendFirewallDailyStats } from './integrations/slack/team-app/controllers/firewall.controller';
 
