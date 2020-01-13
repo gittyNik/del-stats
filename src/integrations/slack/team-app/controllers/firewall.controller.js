@@ -19,7 +19,8 @@ export const sendFirewallResult = (application, phone) => {
 };
 
 export const sendFirewallDailyStats = () => {
-  web.chat.postMessage({
+  console.log('sending');
+  return web.chat.postMessage({
     text: 'something something',
     channel: 'secretchannel',
   });

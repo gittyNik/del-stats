@@ -32,6 +32,7 @@ import { TestQuestion } from './test_question';
 // import { Todo } from './todo';
 import { Topic } from './topic';
 import { User } from './user';
+import connection from '../database';
 
 // TODO: describe all associations here
 
@@ -91,4 +92,5 @@ export default {
   // Todo,
   Topic,
   User,
+  connection,
 };
