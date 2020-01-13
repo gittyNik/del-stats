@@ -224,8 +224,7 @@ export const payment = (req, res) => {
             // redirects to instamojo payment gateway.
             res.redirect(body.payment_request.longurl);
           })
-          .catch();
-        res.redirect(body.longurl);
+          .catch(() => res.sendStatus(500));
       }
       else if (response.statusCode === 400) {
         res.Status(400).json(body.message);
