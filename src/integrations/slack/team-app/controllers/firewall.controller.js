@@ -18,6 +18,13 @@ export const sendFirewallResult = (application, phone) => {
   webhook.send(view);
 };
 
+export const sendFirewallDailyStats = () => {
+  web.chat.postMessage({
+    text: 'something something',
+    channel: 'secretchannel',
+  });
+};
+
 /*
 *  Update view on App Home
 */
