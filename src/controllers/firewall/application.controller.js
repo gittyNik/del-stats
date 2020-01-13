@@ -186,28 +186,21 @@ export const deleteApplication = (req, res) => {
 };
 
 export const payment = (req, res) => {
-  const { payment_details } = req.body;
+  let { payment_details } = req.body;
   const { id } = req.params;
   const { INSTAMOJO_API_KEY, INSTAMOJO_AUTH_TOKEN, INSTAMOJO_URL } = process.env;
   payment_details = JSON.parse(payment_details);
-  // Application.update({
-  //   payment_details,
-  // }, { where: { id } })
-  //   .then(data => res.status(200).json(data))
-  //   .catch(() => res.sendStatus(500));
-  // next();
 
-  // todo: give values dynamically
   const payload = {
     purpose: id, // passing application id as the Unique identifier.
     amount: payment_details.amount,
-    phone: '9999999999',
-    buyer_name: 'John Doe',
-    redirect_url: 'http://www.example.com/redirect/',
+    phone: payment_details.phone,
+    buyer_name: payment_details.name,
+    email: payment_details.email,
+    redirect_url: 'http://www.example.com/redirect/', // todo
     send_email: true,
-    webhook: 'http://www.example.com/webhook/', // todo
+    webhook: 'https://delta-api.herokuapp.com/integrations/instamojo/webhook',
     send_sms: true,
-    email: 'foo@example.com',
     allow_repeated_payments: false,
   };
   const options = {
@@ -222,11 +215,25 @@ export const payment = (req, res) => {
   const callback = (error, response, body) => {
     if (!error && response.statusCode === 201) {
       // todo send the status, paymentID, etc to database in payment details
-      console.log(body);
+      if (body.success) {
+        Application.update({
+          payment_details: body.payment_request,
+        }, { where: { id } })
+          .then((data) => {
+            console.log(data);
+            // redirects to instamojo payment gateway.
+            res.redirect(body.payment_request.longurl);
+          })
+          .catch();
+        res.redirect(body.longurl);
+      }
+      else if (response.statusCode === 400) {
+        res.Status(400).json(body.message);
+      }
+      res.sendStatus(401);
     } else {
       console.log('error:', error);
-      console.log(response.statusCode);
-      console.log(response);
+      res.sendStatus(500);
     }
   };
   request(options, callback);
