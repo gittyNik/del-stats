@@ -1,7 +1,7 @@
 import { Application } from './application';
 import { Assessment } from './assessment';
-import { BrowsreHistoryItem } from './browser_history_items';
-import { BrowsreVisitItem } from './browser_visit_items';
+import { BrowserHistoryItem } from './browser_history_items';
+import { BrowserVisitItem } from './browser_visit_items';
 import { Challenge } from './challenge';
 import { CohortAssessment } from './cohort_assessment';
 import { CohortBreakout } from './cohort_breakout';
@@ -13,7 +13,7 @@ import { LearnerAssessment } from './learner_assessment';
 import { LearnerBreakout } from './learner_breakout';
 import { LearnerChallenge } from './learner_challenge';
 import { Milestone } from './milestone';
-import { Note } from './note';
+// import { Note } from './note';
 import { Ping } from './ping';
 import { PingTemplate } from './ping_template';
 import { Pong } from './pong';
@@ -29,7 +29,7 @@ import { SocialConnection } from './social_connection';
 import { Team } from './team';
 import { Test } from './test';
 import { TestQuestion } from './test_question';
-import { Todo } from './todo';
+// import { Todo } from './todo';
 import { Topic } from './topic';
 import { User } from './user';
 
@@ -59,8 +59,8 @@ Milestone.hasMany(Topic);
 export default {
   Application,
   Assessment,
-  BrowsreHistoryItem,
-  BrowsreVisitItem,
+  BrowserHistoryItem,
+  BrowserVisitItem,
   Challenge,
   CohortAssessment,
   CohortBreakout,
@@ -72,7 +72,7 @@ export default {
   LearnerBreakout,
   LearnerChallenge,
   Milestone,
-  Note,
+  // Note,
   Ping,
   PingTemplate,
   Pong,
@@ -88,7 +88,7 @@ export default {
   Team,
   Test,
   TestQuestion,
-  Todo,
+  // Todo,
   Topic,
   User,
 };
