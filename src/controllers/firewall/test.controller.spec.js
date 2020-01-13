@@ -9,7 +9,10 @@ const { Test } = models;
 afterAll(() => database.close());
 
 it('should fetch rubric for a test', () => {
-  return Test.findOne({raw: true})
+  return Test.findOne({
+      where:{ purpose: 'think'},
+      raw: true
+  })
     .then(populateRubric)
     .then(test => {
       expect(test).toBeTruthy();

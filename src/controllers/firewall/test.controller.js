@@ -47,12 +47,13 @@ export const populateRubric = test => Application.findByPk(test.application_id, 
   }
   return test;
 });
-const populateRubrics = tests => tests.map(populateRubric);
+const populateRubrics = tests => Promise.all(tests.map(populateRubric));
 
 export const getTestById = (req, res) => {
   const { id } = req.params;
   Test.findAll({ where: { id }, raw: true })
     .then(populateQuestionDetails)
+    .then(populateRubrics)
     .then(tests => {
       if (tests.length > 0) {
         res.send({
