@@ -1,5 +1,9 @@
 import uuid from 'uuid/v4';
+<<<<<<< HEAD
 import request from 'superagent';
+=======
+import request from 'request';
+>>>>>>>  create a raw payment request
 import Sequelize from 'sequelize';
 import { Application, submitApplication } from '../../models/application';
 import { Program } from '../../models/program';
@@ -183,6 +187,7 @@ export const deleteApplication = (req, res) => {
 export const payment = (req, res) => {
   let { paymentDetails } = req.body;
   const { id } = req.params;
+<<<<<<< HEAD
   const {
     INSTAMOJO_API_KEY, INSTAMOJO_AUTH_TOKEN,
     INSTAMOJO_URL, INSTAMOJO_WEBHOOK, WEBSERVER_REDIRECT_URL,
@@ -244,6 +249,49 @@ export const payment = (req, res) => {
         });
       }
     });
+=======
+  payment_details = JSON.parse(payment_details);
+  // Application.update({
+  //   payment_details,
+  // }, { where: { id } })
+  //   .then(data => res.status(200).json(data))
+  //   .catch(() => res.sendStatus(500));
+  // next();
+
+  // todo: give values dynamically
+  const payload = {
+    purpose: id, // passing application id as the Unique identifier.
+    amount: '2500',
+    phone: '9999999999',
+    buyer_name: 'John Doe',
+    redirect_url: 'http://www.example.com/redirect/',
+    send_email: true,
+    webhook: 'http://www.example.com/webhook/',
+    send_sms: true,
+    email: 'foo@example.com',
+    allow_repeated_payments: false,
+  };
+  const options = {
+    method: 'POST',
+    uri: 'https://www.test.instamojo.com/api/1.1/payment-requests/',
+    headers: {
+      'X-Api-Key': 'test_60681865136c572f35279cf35f5',
+      'X-Auth-Token': 'test_4d759483b1f378b1759e71ce86a'
+    },
+    form: payload,
+  };
+  const callback = (error, response, body) => {
+    if (!error && response.statusCode === 201) {
+      // todo send the status, paymentID, etc to database in payment details
+      console.log(body);
+    } else {
+      console.log('error:', error);
+      console.log(response.statusCode);
+      console.log(response);
+    }
+  };
+  request(options, callback);
+>>>>>>>  create a raw payment request
 };
 
 export const getApplicationStats = (req, res) => {
