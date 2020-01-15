@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import uuid from 'uuid/v4';
-import request from 'request';
+import request from 'superagent';
 import Sequelize from 'sequelize';
 import { Application, submitApplication } from '../../models/application';
 import { Program } from '../../models/program';
@@ -186,57 +186,46 @@ export const deleteApplication = (req, res) => {
 };
 
 export const payment = (req, res) => {
-  let { payment_details } = req.body;
+  let { paymentDetails } = req.body;
   const { id } = req.params;
-  const { INSTAMOJO_API_KEY, INSTAMOJO_AUTH_TOKEN, INSTAMOJO_URL } = process.env;
-  // payment_details = JSON.parse(payment_details);
+  const {
+    INSTAMOJO_API_KEY, INSTAMOJO_AUTH_TOKEN,
+    INSTAMOJO_URL, INSTAMOJO_WEBHOOK,
+  } = process.env;
+
   const payload = {
     purpose: id, // passing application id as the Unique identifier.
-    amount: 2500,
-    phone: 9123456789,
-    buyer_name: 'doe',
-    email: 'doejones@gmail.com',
+    amount: paymentDetails.amount,
+    phone: paymentDetails.phone,
+    buyer_name: paymentDetails.name,
+    email: paymentDetails.email,
     redirect_url: 'http://www.example.com/redirect/', // todo
     send_email: true,
-    webhook: 'https://delta-api.herokuapp.com/integrations/instamojo/webhook',
+    webhook: INSTAMOJO_WEBHOOK,
     send_sms: true,
     allow_repeated_payments: false,
   };
-  const options = {
-    method: 'POST',
-    uri: `${INSTAMOJO_URL}/payment-requests/`,
-    headers: {
-      'X-Api-Key': INSTAMOJO_API_KEY,
-      'X-Auth-Token': INSTAMOJO_AUTH_TOKEN,
-    },
-    form: payload,
-  };
-  const callback = (error, response, body) => {
-    if (!error && response.statusCode === 201) {
-      let body_obj = JSON.parse(body);
-      console.log(body_obj);
-      // todo send the status, paymentID, etc to database in payment details
-      if (body_obj.success) {
-        Application.update({
-          payment_details: body_obj.payment_request,
-        }, { where: { id } })
-          .then(() => {
-            // redirects to instamojo payment gateway.
-            console.log(body_obj.payment_request.longurl);
-            res.redirect(body_obj.payment_request.longurl);
-          })
-          .catch((err) => console.log(err));
-      } else if (response.statusCode === 400) {
-        res.Status(400).json(body.message);
+  request
+    .post(`${INSTAMOJO_URL}/payment-requests/`)
+    .send(payload)
+    .set('X-Api-Key', INSTAMOJO_API_KEY)
+    .set('X-Auth-Token', INSTAMOJO_AUTH_TOKEN)
+    .then((response) => {
+      // console.log('Status:', response.status);
+
+      // need to redirect to this url.
+      res.status(200).send(response.body.payment_request.longurl);
+    })
+    .catch(err => {
+      if (err.status === 400) {
+        console.error('Bad Request: amount field must not be empty');
+        res.sendStatus(500);
+      } else if (err.status === 401) {
+        console.error('Invalid Auth token');
+        res.sendStatus(500);
       }
-    } else {
-      console.log('error:', error);
-      console.log('status:', response.statusCode);
-      console.log('response:', response.body);
-      res.sendStatus(500);
-    }
-  };
-  request(options, callback);
+      console.error(err);
+    });
 };
 
 export const getApplicationStats = (req, res) => {
