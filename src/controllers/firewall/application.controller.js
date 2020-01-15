@@ -189,14 +189,13 @@ export const payment = (req, res) => {
   let { payment_details } = req.body;
   const { id } = req.params;
   const { INSTAMOJO_API_KEY, INSTAMOJO_AUTH_TOKEN, INSTAMOJO_URL } = process.env;
-  payment_details = JSON.parse(payment_details);
-
+  // payment_details = JSON.parse(payment_details);
   const payload = {
     purpose: id, // passing application id as the Unique identifier.
-    amount: payment_details.amount,
-    phone: payment_details.phone,
-    buyer_name: payment_details.name,
-    email: payment_details.email,
+    amount: 2500,
+    phone: 9123456789,
+    buyer_name: 'doe',
+    email: 'doejones@gmail.com',
     redirect_url: 'http://www.example.com/redirect/', // todo
     send_email: true,
     webhook: 'https://delta-api.herokuapp.com/integrations/instamojo/webhook',
@@ -214,24 +213,26 @@ export const payment = (req, res) => {
   };
   const callback = (error, response, body) => {
     if (!error && response.statusCode === 201) {
+      let body_obj = JSON.parse(body);
+      console.log(body_obj);
       // todo send the status, paymentID, etc to database in payment details
-      if (body.success) {
+      if (body_obj.success) {
         Application.update({
-          payment_details: body.payment_request,
+          payment_details: body_obj.payment_request,
         }, { where: { id } })
-          .then((data) => {
-            console.log(data);
+          .then(() => {
             // redirects to instamojo payment gateway.
-            res.redirect(body.payment_request.longurl);
+            console.log(body_obj.payment_request.longurl);
+            res.redirect(body_obj.payment_request.longurl);
           })
-          .catch(() => res.sendStatus(500));
-      }
-      else if (response.statusCode === 400) {
+          .catch((err) => console.log(err));
+      } else if (response.statusCode === 400) {
         res.Status(400).json(body.message);
       }
-      res.sendStatus(401);
     } else {
       console.log('error:', error);
+      console.log('status:', response.statusCode);
+      console.log('response:', response.body);
       res.sendStatus(500);
     }
   };
