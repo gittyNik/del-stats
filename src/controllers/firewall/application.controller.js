@@ -10,6 +10,7 @@ import { Test, getSubmissionTimesByApplication } from '../../models/test';
 import { generateTestSeries, populateTestSeries } from './test.controller';
 import { sendSms, TEMPLATE_FIREWALL_REJECTED, TEMPLATE_FIREWALL_OFFERED } from '../../util/sms';
 import { sendFirewallResult } from '../../integrations/slack/team-app/controllers/firewall.controller';
+import { scheduleFirewallRetry } from '../queue.controller';
 
 export const getAllApplications = (req, res) => {
   Application.findAll({
@@ -125,9 +126,14 @@ const notifyApplicationSubmitted = (phone) => (application) => Promise.all([
 export const submitApplicationAndNotify = (id, phone) => submitApplication(id)
   .then(notifyApplicationSubmitted(phone));
 
+// TODO: send all sms using worker. Reduce the delay on web services
 const notifyApplicationReview = (phone, status) => (application) => {
   if(status === 'rejected')
-    return sendSms(phone, TEMPLATE_FIREWALL_REJECTED).then(()=>application);
+    return sendSms(phone, TEMPLATE_FIREWALL_REJECTED)
+      .then(()=> {
+        return scheduleFirewallRetry(phone, 'applicant');
+      })
+      .then(()=>application);
   if(status === 'offered')
     return Cohort.findByPk(application.cohort_joining)
       .then(cohort =>sendSms(phone, TEMPLATE_FIREWALL_OFFERED(cohort, '')))

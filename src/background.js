@@ -15,6 +15,14 @@ const deltaHandler = job => {
       console.log('sending firewall stats from previous day');
     });
   }
+
+  if (job.name === 'firewall_retry') {
+    console.log('sending firewall retry message');
+    sendSms(job.data.phone, TEMPLATE_FIREWALL_RETRY(job.data.name))
+      .then(() => {
+        console.log('sent retry sms to the user');
+      });
+  }
 };
 
 createWorker(deltaHandler);

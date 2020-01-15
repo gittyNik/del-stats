@@ -12,6 +12,11 @@ export const scheduleFirewallStats = () => queue.add('slack_firewall_stats', {},
   repeat: everyMorning,
 });
 
+// schedule after a week
+export const scheduleFirewallRetry = (phone, name) => queue.add('firewall_retry', { phone, name }, {
+  delay: 7 * 24 * 3600 * 1000,
+});
+
 export const initQueue = () => {
   queue.removeRepeatable('slack_firewall_stats', everyMorning);
   queue.removeRepeatable('slack_firewall_stats', everySecond);
