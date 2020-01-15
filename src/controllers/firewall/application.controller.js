@@ -8,7 +8,7 @@ import { getFirewallResourceCount } from '../../models/resource';
 import { getFirewallResourceVisitsByUser } from '../../models/resource_visit';
 import { Test, getSubmissionTimesByApplication } from '../../models/test';
 import { generateTestSeries, populateTestSeries } from './test.controller';
-import { sendSms } from '../../util/sms';
+import { sendSms, TEMPLATE_FIREWALL_REJECTED, TEMPLATE_FIREWALL_OFFERED } from '../../util/sms';
 import { sendFirewallResult } from '../../integrations/slack/team-app/controllers/firewall.controller';
 
 export const getAllApplications = (req, res) => {
@@ -125,27 +125,39 @@ const notifyApplicationSubmitted = (phone) => (application) => Promise.all([
 export const submitApplicationAndNotify = (id, phone) => submitApplication(id)
   .then(notifyApplicationSubmitted(phone));
 
+const notifyApplicationReview = (phone, status) => (application) => {
+  if(status === 'rejected')
+    return sendSms(phone, TEMPLATE_FIREWALL_REJECTED).then(()=>application);
+  if(status === 'offered')
+    return Cohort.findByPk(application.cohort_joining)
+      .then(cohort =>sendSms(phone, TEMPLATE_FIREWALL_OFFERED(cohort, '')))
+      .then(()=>application)
+  return application;
+};
+
 export const updateApplication = (req, res) => {
   const { cohort_joining, status } = req.body;
   const { id } = req.params;
   const { phone } = req.jwtData.user;
 
-  if (cohort_joining && status) {
+  if (cohort_joining && status === 'review_pending') {
     submitApplication(id)
       .then(notifyApplicationSubmitted(phone))
       .then(data => res.status(200).json(data))
       .catch(() => res.sendStatus(500));
-  } else if (cohort_joining) {
+  } else if (cohort_joining && !status) {
     Application.update({
       cohort_joining,
     }, { where: { id }, returning: true })
-      .then(data => res.status(200).json(data))
+      .then(result => result[1][0])
+      .then(data => res.send({data})
       .catch(() => res.sendStatus(500));
   } else if (status) {
     Application.update({
       status,
     }, { where: { id }, returning: true })
       .then(result => result[1][0])
+      .then(notifyApplicationReview(phone, status))
       .then(application => res.send(application))
       .catch((err) => {
         console.log(err);
