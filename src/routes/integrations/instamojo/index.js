@@ -3,6 +3,6 @@ import instamojo_webhook from '../../../integrations/instamojo/instamojo.control
 
 const router = Express.Router();
 
-router.use('/webhook', instamojo_webhook);
+router.post('/webhook', instamojo_webhook);
 
 export default router;
