@@ -212,9 +212,15 @@ export const payment = (req, res) => {
     .set('X-Auth-Token', INSTAMOJO_AUTH_TOKEN)
     .then((response) => {
       // console.log('Status:', response.status);
-
-      // need to redirect to this url.
-      res.status(200).send(response.body.payment_request.longurl);
+      Application.update({
+        payment_details: response.body.payment_request,
+      }, { where: { id } })
+        .then(() => {
+          res.status(200).send(response.body.payment_request.longurl);
+        })
+        // need to redirect to this url.
+        // .then(data => res.status(200).send(data.payment_details.longurl);
+        .catch(() => res.sendStatus(500));
     })
     .catch(err => {
       if (err.status === 400) {
