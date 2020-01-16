@@ -64,7 +64,6 @@
     "nodemailer": "^4.6.4",
     "pg": "^7.17.0",
     "regenerator-runtime": "^0.13.3",
-    "request": "^2.88.0",
     "sendotp": "github:msg91/sendotp-node#096de78",
     "sequelize": "^5.21.3",
     "sequelize-cli": "^5.5.1",
