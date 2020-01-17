@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import uuid from 'uuid/v4';
 import request from 'superagent';
 import Sequelize from 'sequelize';
