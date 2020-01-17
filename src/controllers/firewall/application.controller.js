@@ -199,7 +199,7 @@ export const payment = (req, res) => {
     phone: paymentDetails.phone,
     buyer_name: paymentDetails.name,
     email: paymentDetails.email,
-    redirect_url: WEBSERVER_REDIRECT_URL, // todo
+    redirect_url: WEBSERVER_REDIRECT_URL, // redirecting url after payment
     send_email: INSTAMOJO_SEND_EMAIL,
     webhook: INSTAMOJO_WEBHOOK,
     send_sms: INSTAMOJO_SEND_SMS,
@@ -212,14 +212,23 @@ export const payment = (req, res) => {
     .set('X-Auth-Token', INSTAMOJO_AUTH_TOKEN)
     .then((response) => {
       // console.log('Status:', response.status);
+      let pd = {
+        source: 'instamojo webhook',
+        payment_request: response.body.payment_request,
+        response_data: [],
+      };
+
       Application.update({
-        payment_details: response.body.payment_request,
-      }, { where: { id } })
-        .then(() => {
-          res.status(200).send(response.body.payment_request.longurl);
+        payment_details: pd,
+      }, { where: { id }, returning: true, plain: true })
+        .then((result) => {
+          // console.log(result[1].dataValues);
+          res.status(200).send({
+            text: 'Redirecting to the payment link and payment_details',
+            data: result[1].dataValues.payment_details,
+            longurl: result[1].dataValues.payment_details.payment_request.longurl,
+          });
         })
-        // need to redirect to this url.
-        // .then(data => res.status(200).send(data.payment_details.longurl);
         .catch(() => res.sendStatus(500));
     })
     .catch(err => {
