@@ -209,8 +209,8 @@ export const payment = (req, res) => {
   request
     .post(`${INSTAMOJO_URL}/payment-requests/`)
     .send(payload)
-    // .set('X-Api-Key', INSTAMOJO_API_KEY)
-    // .set('X-Auth-Token', INSTAMOJO_AUTH_TOKEN)
+    .set('X-Api-Key', INSTAMOJO_API_KEY)
+    .set('X-Auth-Token', INSTAMOJO_AUTH_TOKEN)
     .then((response) => {
       // console.log('Status:', response.status);
       let pd = {
