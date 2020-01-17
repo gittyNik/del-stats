@@ -191,11 +191,12 @@ export const payment = (req, res) => {
     INSTAMOJO_API_KEY, INSTAMOJO_AUTH_TOKEN,
     INSTAMOJO_URL, INSTAMOJO_WEBHOOK, WEBSERVER_REDIRECT_URL,
     INSTAMOJO_SEND_SMS, INSTAMOJO_SEND_EMAIL, INSTAMOJO_ALLOW_RE,
+    INSTAMOJO_AMOUNT,
   } = process.env;
 
   const payload = {
     purpose: id, // passing application id as the Unique identifier.
-    amount: paymentDetails.amount,
+    amount: INSTAMOJO_AMOUNT,
     phone: paymentDetails.phone,
     buyer_name: paymentDetails.name,
     email: paymentDetails.email,
@@ -208,8 +209,8 @@ export const payment = (req, res) => {
   request
     .post(`${INSTAMOJO_URL}/payment-requests/`)
     .send(payload)
-    .set('X-Api-Key', INSTAMOJO_API_KEY)
-    .set('X-Auth-Token', INSTAMOJO_AUTH_TOKEN)
+    // .set('X-Api-Key', INSTAMOJO_API_KEY)
+    // .set('X-Auth-Token', INSTAMOJO_AUTH_TOKEN)
     .then((response) => {
       // console.log('Status:', response.status);
       let pd = {
@@ -232,14 +233,21 @@ export const payment = (req, res) => {
         .catch(() => res.sendStatus(500));
     })
     .catch(err => {
+      const { statusCode, text } = err.response;
       if (err.status === 400) {
-        console.error('Bad Request: amount field must not be empty');
-        res.sendStatus(500);
+        console.error(statusCode, 'Bad Request');
+        console.error(text);
+        res.status(statusCode).send({
+          text: `${statusCode} : Bad Request`,
+          data: JSON.parse(text),
+        });
       } else if (err.status === 401) {
         console.error('Invalid Auth token');
-        res.sendStatus(500);
+        res.status(statusCode).send({
+          text: `${statusCode} : Unauthorization`,
+          data: JSON.parse(text),
+        });
       }
-      console.error(err);
     });
 };
 
