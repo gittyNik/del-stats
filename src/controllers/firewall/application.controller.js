@@ -189,7 +189,8 @@ export const payment = (req, res) => {
   const { id } = req.params;
   const {
     INSTAMOJO_API_KEY, INSTAMOJO_AUTH_TOKEN,
-    INSTAMOJO_URL, INSTAMOJO_WEBHOOK,
+    INSTAMOJO_URL, INSTAMOJO_WEBHOOK, WEBSERVER_REDIRECT_URL,
+    INSTAMOJO_SEND_SMS, INSTAMOJO_SEND_EMAIL, INSTAMOJO_ALLOW_RE,
   } = process.env;
 
   const payload = {
@@ -198,11 +199,11 @@ export const payment = (req, res) => {
     phone: paymentDetails.phone,
     buyer_name: paymentDetails.name,
     email: paymentDetails.email,
-    redirect_url: 'http://www.example.com/redirect/', // todo
-    send_email: true,
+    redirect_url: WEBSERVER_REDIRECT_URL, // todo
+    send_email: INSTAMOJO_SEND_EMAIL,
     webhook: INSTAMOJO_WEBHOOK,
-    send_sms: true,
-    allow_repeated_payments: false,
+    send_sms: INSTAMOJO_SEND_SMS,
+    allow_repeated_payments: INSTAMOJO_ALLOW_RE,
   };
   request
     .post(`${INSTAMOJO_URL}/payment-requests/`)
