@@ -127,7 +127,7 @@ export const submitApplicationAndNotify = (id, phone) => submitApplication(id)
   .then(notifyApplicationSubmitted(phone));
 
 // TODO: send all sms using worker. Reduce the delay on web services
-const notifyApplicationReview = (phone, status) => (application) => {
+export const notifyApplicationReview = (phone, status) => (application) => {
   if(status === 'rejected')
     return sendSms(phone, TEMPLATE_FIREWALL_REJECTED)
       .then(()=> {
@@ -156,7 +156,7 @@ export const updateApplication = (req, res) => {
       cohort_joining,
     }, { where: { id }, returning: true })
       .then(result => result[1][0])
-      .then(data => res.send({data})
+      .then(data => res.send({data}))
       .catch(() => res.sendStatus(500));
   } else if (status) {
     Application.update({
