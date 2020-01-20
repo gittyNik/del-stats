@@ -227,7 +227,6 @@ export const payment = (req, res) => {
           res.status(200).send({
             text: 'Redirecting to the payment link and payment_details',
             data: result[1].dataValues.payment_details,
-            longurl: result[1].dataValues.payment_details.payment_request.longurl,
           });
         })
         .catch(() => res.sendStatus(500));
