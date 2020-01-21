@@ -23,7 +23,7 @@ export const TEMPLATE_FIREWALL_RETRY = name => `Hey ${String.prototype.substring
 
 export const sendSms = (phone, message) => new Promise((resolve, reject) => {
   msg91.send(phone, message, (err, data) => {
-    if (err === null && data.type === 'success') {
+    if (err === null && data) {
       resolve(data);
     } else {
       reject(err);
