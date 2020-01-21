@@ -95,7 +95,7 @@ export const getCohortLearnerDetailsByName = ({ name, location, year }) => {
 };
 
 export const getCohortLearnerDetails = (id) => Cohort.findByPk(id, { raw: true })
-  .then(cohort => populateCohortsWithLearners([cohort])[0]);
+  .then(cohort => populateCohortsWithLearners([cohort]));
 
 // TODO: change this to cohort_joined later
 export const updateCohortLearners = (id) => Application.findAll({
