@@ -155,6 +155,7 @@ export const updateApplication = (req, res) => {
   } else if (cohort_joining && !status) {
     Application.update({
       cohort_joining,
+      updated_at: new Date(),
     }, { where: { id }, returning: true })
       .then(result => result[1][0])
       .then(data => res.send({data}))
@@ -162,6 +163,7 @@ export const updateApplication = (req, res) => {
   } else if (status) {
     Application.update({
       status,
+      updated_at: new Date(),
     }, { where: { id }, returning: true })
       .then(result => result[1][0])
       .then(notifyApplicationReview(phone, status))
