@@ -9,7 +9,7 @@ import { getFirewallResourceCount } from '../../models/resource';
 import { getFirewallResourceVisitsByUser } from '../../models/resource_visit';
 import { Test, getSubmissionTimesByApplication } from '../../models/test';
 import { generateTestSeries, populateTestSeries } from './test.controller';
-import { sendSms, TEMPLATE_FIREWALL_REJECTED, TEMPLATE_FIREWALL_OFFERED } from '../../util/sms';
+import { sendSms, TEMPLATE_FIREWALL_REVIEWED } from '../../util/sms';
 import { sendFirewallResult } from '../../integrations/slack/team-app/controllers/firewall.controller';
 import { scheduleFirewallRetry } from '../queue.controller';
 
@@ -129,15 +129,9 @@ export const submitApplicationAndNotify = (id, phone) => submitApplication(id)
 
 // TODO: send all sms using worker. Reduce the delay on web services
 export const notifyApplicationReview = (phone, status) => (application) => {
-  if(status === 'rejected')
-    return sendSms(phone, TEMPLATE_FIREWALL_REJECTED)
-      .then(()=> {
-        return scheduleFirewallRetry(phone, 'applicant');
-      })
-      .then(()=>application);
-  if(status === 'offered')
-    return Cohort.findByPk(application.cohort_joining)
-      .then(cohort =>sendSms(phone, TEMPLATE_FIREWALL_OFFERED(cohort, '')))
+  if(status === 'offered' || status === 'rejected')
+    return User.findByPk(application.user_id)
+      .then(user =>sendSms(phone, TEMPLATE_FIREWALL_REVIEWED(user.name)))
       .then(()=>application)
   return application;
 };
