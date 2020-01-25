@@ -1,32 +1,32 @@
 import { Application } from '../../models/application';
+import db from '../../database';
 
 export const instamojo_webhook = (req, res) => {
-  const { purpose } = req.body;
+  const { payment_request_id } = req.body;
 
-  Application.findAll({
-    where: { id: purpose }, returning: true, plain: true,
-  })
-    .then(result => {
-      // console.log(result.dataValues.payment_details);
-      let old_payment_details = result.dataValues.payment_details;
-      let res_data = old_payment_details.response_data;
-      // console.log('old response_data:', res_data);
-      res_data.push(req.body);
-      // console.log('new response_data: ', res_data);
-      old_payment_details.response_data = res_data;
+  db.query(`SELECT * FROM applications WHERE payment_details->'payment_request'->>'id'='${payment_request_id}'`, { model: Application })
+    .then(applicants => {
+      // console.log('dataValue:', applicants[0].dataValues);
+      let applicant_id = applicants[0].dataValues.id;
+      let old_payment_details = applicants[0].dataValues.payment_details;
+      let { response_data } = old_payment_details;
+      response_data.push(req.body);
+      old_payment_details.response_data = response_data;
       let payment_details = old_payment_details;
 
+      // updating the payment_details JSON object with the data from webhook
       Application.update({
         payment_details,
-      }, { where: { id: purpose }, returning: true, plain: true })
-        .then(result2 => {
-          // console.log(result2[1].dataValues);
-          // console.log(result2[1].dataValues.payment_details.response_data);
-          res.status(200).send({
-            text: 'response data from webhook',
-            // An array of all the webhook responses.
-            data: result2[1].dataValues.payment_details.response_data,
-          });
+      }, { where: { id: applicant_id }, returning: true, plain: true })
+        .then(result => {
+          // console.log('result: ', result[1].dataValues);
+          let res_data = result[1].dataValues.payment_details.response_data;
+          let { status } = res_data[res_data.length - 1];
+          if (status === 'Credit') {
+            // need to send sms to applicant regarding status.
+            console.log(`Amount Credited by Applicant id: ${applicant_id}`);
+          }
+          res.sendStatus(200);
         })
         .catch(err => {
           console.error(err);

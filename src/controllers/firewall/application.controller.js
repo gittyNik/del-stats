@@ -191,7 +191,7 @@ export const payment = (req, res) => {
   } = process.env;
 
   const payload = {
-    purpose: id, // passing application id as the Unique identifier.
+    purpose: paymentDetails.purpose,
     amount: INSTAMOJO_AMOUNT,
     phone: paymentDetails.phone,
     buyer_name: paymentDetails.name,
