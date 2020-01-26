@@ -1,6 +1,7 @@
 import SendOtp from 'sendotp';
 import { getOrCreateUser } from '../../models/user';
 import { getSoalToken } from '../../util/token';
+import { createOrUpdateContact } from '../../integrations/hubspot/controllers/contacts.controller';
 
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, 'Use {{otp}} to login with DELTA. Please do not share it with anybody! {SOAL Team}');
 
@@ -27,8 +28,15 @@ export const retryOTP = (req, res) => {
 };
 
 // todo: clean up
-const signInUserByPhone = (phone, res) => {
-  getOrCreateUser(phone).then(([user]) => {
+const signInUser = (user, res) => {
+  const { fullName, phone, email } = user;
+  user = {
+    name: fullName,
+    phone,
+    email
+  }
+  getOrCreateUser(user).then(([user]) => {
+    createOrUpdateContact(user);
     res.send({
       user,
       soalToken: getSoalToken(user),
@@ -39,13 +47,14 @@ const signInUserByPhone = (phone, res) => {
   });
 };
 
-export const verifyOTP = (req, res) => {
-  const { phone, otp } = req.query;
 
-  sendOtp.verify(phone, otp, (error, data) => {
+export const verifyOTP = (req, res) => {
+  const { user, otp } = req.query;
+
+  sendOtp.verify(user.phone, otp, (error, data) => {
     console.log(data);
     if (error === null && data.type === 'success') { // OTP verified
-      signInUserByPhone(phone, res);
+      signInUser(user, res);
     } else { // if (data.type == 'error') // OTP verification failed
       res.sendStatus(401);
     }

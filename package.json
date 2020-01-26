@@ -53,6 +53,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.0",
     "faker": "^4.1.0",
+    "hubspot": "^2.3.7",
     "ip": "^1.1.5",
     "jest": "^24.9.0",
     "jsonwebtoken": "^8.2.1",

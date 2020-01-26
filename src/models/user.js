@@ -32,11 +32,12 @@ export const getUserFromEmails = emails => User.findOne({
   },
 }, { raw: true });
 
-export const getOrCreateUser = phone => User.findOrCreate({
+export const getOrCreateUser = user => User.findOrCreate({
   where: {
-    phone,
+    phone: user.phone,
   },
   defaults: {
+    ...user,
     id: uuid(),
     role: USER_ROLES.GUEST,
   },
