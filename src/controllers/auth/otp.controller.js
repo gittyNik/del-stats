@@ -1,5 +1,5 @@
 import SendOtp from 'sendotp';
-import { getOrCreateUser } from '../../models/user';
+import { getOrCreateUser, getUserFromPhone, createUser } from '../../models/user';
 import { getSoalToken } from '../../util/token';
 import { createOrUpdateContact } from '../../integrations/hubspot/controllers/contacts.controller';
 
@@ -28,15 +28,8 @@ export const retryOTP = (req, res) => {
 };
 
 // todo: clean up
-const signInUser = (user, res) => {
-  const { fullName, phone, email } = user;
-  user = {
-    name: fullName,
-    phone,
-    email
-  }
-  getOrCreateUser(user).then(([user]) => {
-    createOrUpdateContact(user);
+const signInUser = (phone, res) => {
+  getUserFromPhone(phone).then(user => {
     res.send({
       user,
       soalToken: getSoalToken(user),
@@ -47,14 +40,44 @@ const signInUser = (user, res) => {
   });
 };
 
+const register = (user, res) => {
+  const { fullName: name, phone, email } = user;
+  getUserFromPhone(phone).then(data => {
+    if(data) {
+      return res.sendStatus(409);
+    }
+    // create hubspot contact
+    createOrUpdateContact(user).then(result => {
+      //create user if already not exists
+      createUser({ name, phone, email }).then(user => {
+        return res.send({
+          user,
+          soalToken: getSoalToken(user)
+        })
+      })
+
+    }).catch(err => {
+      console.log(err);
+      res.sendStatus(500);
+  });
+  }).catch(err => {
+    console.error(err);
+    res.sendStatus(500);
+  })
+
+}
 
 export const verifyOTP = (req, res) => {
-  const { user, otp } = req.query;
+  const { user, otp, action } = req.query;
 
   sendOtp.verify(user.phone, otp, (error, data) => {
     console.log(data);
     if (error === null && data.type === 'success') { // OTP verified
-      signInUser(user, res);
+      if(action === "register") {
+        register(user, res);
+      } else if(action === "signin") {
+        signInUser(user.phone, res);
+      }
     } else { // if (data.type == 'error') // OTP verification failed
       res.sendStatus(401);
     }

@@ -12,6 +12,7 @@ import { generateTestSeries, populateTestSeries } from './test.controller';
 import { sendSms, TEMPLATE_FIREWALL_REVIEWED } from '../../util/sms';
 import { sendFirewallResult } from '../../integrations/slack/team-app/controllers/firewall.controller';
 import { scheduleFirewallRetry } from '../queue.controller';
+import { createDeal } from '../../integrations/hubspot/controllers/deals.controller';
 
 export const getAllApplications = (req, res) => {
   Application.findAll({
@@ -74,37 +75,42 @@ export const getLiveApplications = (req, res) => {
 export const addApplication = (req, res) => {
   const user_id = req.jwtData.user.id;
   const { cohort_applied } = req.body;
-
-  Cohort.findByPk(cohort_applied).then((cohort) => {
-    if (cohort === null) {
-      return Promise.reject('cohort not found');
-    }
-    return Program.findOne({ where: { id: cohort.program_id } });
-  })
-    .then((program) => { // existence of cohort verified
-      if (program === null) {
-        return Promise.reject('program not found');
+  createDeal(req.jwtData.user).then(result => {
+    Cohort.findByPk(cohort_applied).then((cohort) => {
+      if (cohort === null) {
+        return Promise.reject('cohort not found');
       }
-      const testSeriesTemplate = program.test_series;
-      const applicationId = uuid();
-      return Application.create({
-        id: applicationId,
-        user_id,
-        cohort_applied,
-        cohort_joining: cohort_applied,
-        status: 'applied',
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
-        .then(application => generateTestSeries(testSeriesTemplate, application))
-        .then((application) => {
-          res.status(201).json(application);
-        });
+      return Program.findOne({ where: { id: cohort.program_id } });
     })
-    .catch((err) => {
-      console.error(err);
-      res.sendStatus(500);
-    });
+      .then((program) => { // existence of cohort verified
+        if (program === null) {
+          return Promise.reject('program not found');
+        }
+        const testSeriesTemplate = program.test_series;
+        const applicationId = uuid();
+        return Application.create({
+          id: applicationId,
+          user_id,
+          cohort_applied,
+          cohort_joining: cohort_applied,
+          status: 'applied',
+          created_at: new Date(),
+          updated_at: new Date(),
+        })
+          .then(application => generateTestSeries(testSeriesTemplate, application))
+          .then((application) => {
+            res.status(201).json(application);
+          });
+      })
+      .catch((err) => {
+        console.error(err);
+        res.sendStatus(500);
+      });
+
+  }).catch(err => {
+    console.error(err);
+    res.sendStatus(500);
+  })
 };
 
 // This is redundant, use the instance method from Application model
