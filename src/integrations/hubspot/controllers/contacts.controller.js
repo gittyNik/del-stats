@@ -17,12 +17,17 @@ export const createOrUpdateContact = user => {
 export const updateContact = user => {
   const { location, profile, email } = user;
   const { birthDate, gender, occupationBeforeSOAL, knowAboutSOALFrom } = profile;
-  // TO-DO: update other properties
+
+  // const date = new Date(birthDate);
+
+  // TO-DO: update date property with correct format
   const updateObj = {
     properties: [
-      { property: "date_of_birth", value: birthDate },
+      // { property: "date_of_birth", value: dateUTC },
       { property: "gender", value: gender },
       { property: "city", value: location },
+      { property: "how_did_you_get_to_know_about_soal_", value: knowAboutSOALFrom },
+      { property: "occupational_status", value: occupationBeforeSOAL }
     ]
   }
   return hubspot.contacts.updateByEmail(email, updateObj);

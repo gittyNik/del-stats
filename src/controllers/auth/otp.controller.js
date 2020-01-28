@@ -2,6 +2,7 @@ import SendOtp from 'sendotp';
 import { getOrCreateUser, getUserFromPhone, createUser } from '../../models/user';
 import { getSoalToken } from '../../util/token';
 import { createOrUpdateContact } from '../../integrations/hubspot/controllers/contacts.controller';
+import { createDeal } from '../../integrations/hubspot/controllers/deals.controller';
 
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, 'Use {{otp}} to login with DELTA. Please do not share it with anybody! {SOAL Team}');
 
@@ -48,14 +49,17 @@ const register = (user, res) => {
     }
     // create hubspot contact
     createOrUpdateContact(user).then(result => {
-      //create user if already not exists
-      createUser({ name, phone, email }).then(user => {
+      return createDeal({ name, phone, email })
+    }).then(deal => {
+      const profile = {
+        hubspotDealId: deal.dealId
+      }
+      createUser({ name, phone, email, profile }).then(user => {
         return res.send({
           user,
           soalToken: getSoalToken(user)
         })
       })
-
     }).catch(err => {
       console.log(err);
       res.sendStatus(500);

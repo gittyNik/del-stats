@@ -12,7 +12,7 @@ import { generateTestSeries, populateTestSeries } from './test.controller';
 import { sendSms, TEMPLATE_FIREWALL_REVIEWED } from '../../util/sms';
 import { sendFirewallResult } from '../../integrations/slack/team-app/controllers/firewall.controller';
 import { scheduleFirewallRetry } from '../queue.controller';
-import { createDeal } from '../../integrations/hubspot/controllers/deals.controller';
+import { updateDealApplicationStatus } from '../../integrations/hubspot/controllers/deals.controller';
 
 export const getAllApplications = (req, res) => {
   Application.findAll({
@@ -75,7 +75,7 @@ export const getLiveApplications = (req, res) => {
 export const addApplication = (req, res) => {
   const user_id = req.jwtData.user.id;
   const { cohort_applied } = req.body;
-  createDeal(req.jwtData.user).then(result => {
+  updateDealApplicationStatus(req.jwtData.user.profile.hubspotDealId, "review_pending").then(result => {
     Cohort.findByPk(cohort_applied).then((cohort) => {
       if (cohort === null) {
         return Promise.reject('cohort not found');
@@ -145,7 +145,7 @@ export const notifyApplicationReview = (phone, status) => (application) => {
 export const updateApplication = (req, res) => {
   const { cohort_joining, status } = req.body;
   const { id } = req.params;
-  const { phone } = req.jwtData.user;
+  const { phone, profile } = req.jwtData.user;
 
   if (cohort_joining && status === 'review_pending') {
     submitApplication(id)
@@ -161,10 +161,12 @@ export const updateApplication = (req, res) => {
       .then(data => res.send({data}))
       .catch(() => res.sendStatus(500));
   } else if (status) {
-    Application.update({
-      status,
-      updated_at: new Date(),
-    }, { where: { id }, returning: true })
+    updateDealApplicationStatus(profile.hubspotDealId, status).then(result => {
+      return Application.update({
+        status,
+        updated_at: new Date(),
+      }, { where: { id }, returning: true })
+    })
       .then(result => result[1][0])
       .then(notifyApplicationReview(phone, status))
       .then(application => res.send(application))
