@@ -168,7 +168,7 @@ export const updateApplication = (req, res) => {
       }, { where: { id }, returning: true })
     })
       .then(result => result[1][0])
-      .then(notifyApplicationReview(phone, status))
+      .then(notifyApplicationReview(req.body.phone, status))
       .then(application => res.send(application))
       .catch((err) => {
         console.log(err);
