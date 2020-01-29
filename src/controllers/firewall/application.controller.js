@@ -75,7 +75,7 @@ export const getLiveApplications = (req, res) => {
 export const addApplication = (req, res) => {
   const user_id = req.jwtData.user.id;
   const { cohort_applied } = req.body;
-  updateDealApplicationStatus(req.jwtData.user.profile.hubspotDealId, "review_pending").then(result => {
+  updateDealApplicationStatus(req.jwtData.user.profile.hubspotDealId, "applied").then(result => {
     Cohort.findByPk(cohort_applied).then((cohort) => {
       if (cohort === null) {
         return Promise.reject('cohort not found');
@@ -143,9 +143,8 @@ export const notifyApplicationReview = (phone, status) => (application) => {
 };
 
 export const updateApplication = (req, res) => {
-  const { cohort_joining, status } = req.body;
+  const { cohort_joining, status, phone, profile } = req.body;
   const { id } = req.params;
-  const { phone, profile } = req.jwtData.user;
 
   if (cohort_joining && status === 'review_pending') {
     submitApplication(id)

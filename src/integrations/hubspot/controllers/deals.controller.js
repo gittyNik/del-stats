@@ -18,7 +18,7 @@ export const createDeal = user => {
 export const updateDealApplicationStatus = (dealId, status) => {
 	let hubspotStatus;
 	if(status === "applied") {
-		hubspotStatus = "Applicant";
+		hubspotStatus = "Test In Progress";
 	} else if(status === "review_pending") {
     hubspotStatus = "Review Pending";
   } else if(status === "offered") {
