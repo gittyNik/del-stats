@@ -67,6 +67,7 @@ export const getLiveApplications = (req, res) => {
       status: ['applied', 'review_pending', 'offered'],
     },
     include: [Cohort, User],
+    order: [[Sequelize.col('created_at'), Sequelize.literal('DESC')]]
   })
     .then(data => res.status(200).json(data))
     .catch(() => res.sendStatus(500));
