@@ -1,6 +1,7 @@
 import { apiNotReady } from '../api.controller';
 import { User } from '../../models/user';
-import { updateContact } from '../../integrations/hubspot/controllers/contacts.controller';
+import { createOrUpdateContact } from '../../integrations/hubspot/controllers/contacts.controller';
+import { createDeal } from '../../integrations/hubspot/controllers/deals.controller';
 
 export const getProfile = (req, res) => {
   res.json({ user: req.jwtData.user });
@@ -9,11 +10,28 @@ export const getProfile = (req, res) => {
 export const updateUser = apiNotReady;
 
 export const updateProfile = (req, res) => {
-  const { id } = req.jwtData.user;
+  const { id, phone } = req.jwtData.user;
   const {
-    email, name, location, profile,
+    email, firstName, lastName, fullName: name, location, profile,
   } = req.body;
-  updateContact(req.body).then(result => {
+  const { gender, knowAboutSOALFrom, occupationBeforeSOAL, birthDate } = profile;
+  createOrUpdateContact({
+    email, 
+    firstName, 
+    lastName, 
+    location,
+    gender,
+    knowAboutSOALFrom,
+    occupationBeforeSOAL,
+    birthDate
+  }).then(() => {
+    return createDeal({
+      name,
+      email,
+      phone
+    })
+  }).then(deal => { 
+    profile.hubspotDealId = deal.dealId;
     User.update({
       email, name, location, profile,
     }, {

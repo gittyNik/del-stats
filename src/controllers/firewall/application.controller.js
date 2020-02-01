@@ -74,9 +74,9 @@ export const getLiveApplications = (req, res) => {
 };
 
 export const addApplication = (req, res) => {
-  const user_id = req.jwtData.user.id;
+  const { id:user_id, profile } = req.jwtData.user;
   const { cohort_applied } = req.body;
-  updateDealApplicationStatus(req.jwtData.user.profile.hubspotDealId, "applied").then(result => {
+  updateDealApplicationStatus(profile.hubspotDealId, 'applied').then(() => {
     Cohort.findByPk(cohort_applied).then((cohort) => {
       if (cohort === null) {
         return Promise.reject('cohort not found');

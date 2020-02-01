@@ -6,9 +6,7 @@ import { createDeal } from '../../integrations/hubspot/controllers/deals.control
 
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, 'Use {{otp}} to login with DELTA. Please do not share it with anybody! {SOAL Team}');
 
-export const sendOTP = (req, res) => {
-  const { phone } = req.body;
-
+export const requestOTP = (phone, res) => {
   sendOtp.setOtpExpiry(5);
   sendOtp.send(phone, 'SOALIO', (error, data) => {
     console.log(data);
@@ -16,6 +14,34 @@ export const sendOTP = (req, res) => {
       res.send(data);
     } else { res.sendStatus(400); }
   });
+};
+
+export const sendOTP = (req, res) => {
+  const { user, action } = req.body;
+  const { phone, email, firstName, lastName } = user;
+    getUserFromPhone(phone).then(data => {
+      if(action === 'register') {
+        if(data) {
+          return res.sendStatus(409);
+        } else if(data === null) {
+          // create hubspot contact
+          createOrUpdateContact({ 
+            phone, email, firstName, lastName, otpVerified: false 
+          }).then(() => {
+            requestOTP(phone, res)
+          }).catch(err => {
+            console.error(err);
+            res.sendStatus(500);
+          })
+        }
+      } else if(action === 'signin') {
+        if(data === null) {
+          return res.sendStatus(404);
+        } else {
+          requestOTP(phone, res)
+        }
+      }
+    })
 };
 
 export const retryOTP = (req, res) => {
@@ -41,46 +67,34 @@ const signInUser = (phone, res) => {
   });
 };
 
-const register = (user, res) => {
-  const { fullName: name, phone, email } = user;
-  getUserFromPhone(phone).then(data => {
-    if(data) {
-      return res.sendStatus(409);
-    }
+const register = (data, res) => {
+  const { fullName: name, phone, email, otpVerified } = data;
     // create hubspot contact
-    createOrUpdateContact(user).then(result => {
-      return createDeal({ name, phone, email })
-    }).then(deal => {
-      const profile = {
-        hubspotDealId: deal.dealId
-      }
-      createUser({ name, phone, email, profile }).then(user => {
-        return res.send({
-          user,
-          soalToken: getSoalToken(user)
-        })
+  createOrUpdateContact({ email, otpVerified }).then(() => {
+    createUser({ name, phone, email }).then(user => {
+      return res.send({
+        user,
+        soalToken: getSoalToken(user)
       })
-    }).catch(err => {
-      console.log(err);
-      res.sendStatus(500);
-  });
+    })
   }).catch(err => {
-    console.error(err);
+    console.log(err);
     res.sendStatus(500);
-  })
+  });
 
 }
 
 export const verifyOTP = (req, res) => {
   const { user, otp, action } = req.query;
+  const { phone, email, fullName } = user;
 
-  sendOtp.verify(user.phone, otp, (error, data) => {
+  sendOtp.verify(phone, otp, (error, data) => {
     console.log(data);
     if (error === null && data.type === 'success') { // OTP verified
       if(action === "register") {
-        register(user, res);
+        register({ email, phone, fullName, otpVerified: true }, res);
       } else if(action === "signin") {
-        signInUser(user.phone, res);
+        signInUser(phone, res);
       }
     } else { // if (data.type == 'error') // OTP verification failed
       res.sendStatus(401);

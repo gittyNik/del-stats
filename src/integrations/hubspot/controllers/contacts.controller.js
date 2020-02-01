@@ -1,34 +1,49 @@
 import hubspot from "./auth.controller";
 
-export const createOrUpdateContact = user => {
-  const { email, firstName, lastName, phone} = user;
-  const createObj = {
-    properties: [
-      { property: "firstname", value: firstName },
-      { property: "lastname", value: lastName },
-      { property: "email", value: email },
-      { property: "phone", value: phone },
-    ]
-  };
-  return hubspot.contacts
-    .createOrUpdate(email, createObj);
-};
-
-export const updateContact = user => {
-  const { location, profile, email } = user;
-  const { birthDate, gender, occupationBeforeSOAL, knowAboutSOALFrom } = profile;
-
-  // const date = new Date(birthDate);
-
-  // TO-DO: update date property with correct format
-  const updateObj = {
-    properties: [
-      // { property: "date_of_birth", value: dateUTC },
-      { property: "gender", value: gender },
-      { property: "city", value: location },
-      { property: "how_did_you_get_to_know_about_soal_", value: knowAboutSOALFrom },
-      { property: "occupational_status", value: occupationBeforeSOAL }
-    ]
+const getPropertyName = name => {
+  switch(name) {
+    case "firstName":
+      return "firstname";
+    case "lastName":
+      return "lastname";
+    case "email":
+      return "email";
+    case "phone":
+      return "phone";
+    case "location":
+      return "city";
+    case "gender":
+      return "gender";
+    case "knowAboutSOALFrom":
+      return "how_did_you_get_to_know_about_soal_";
+    case "occupationBeforeSOAL":
+      return "occupational_status";
+    case "otpVerified":
+      return "otp_verified";
+    case "birthDate":
+      return "date_of_birth";
+    default:
+      return null;
   }
-  return hubspot.contacts.updateByEmail(email, updateObj);
 }
+
+const createProperties = data => {
+  let properties = [];
+  for(let key in data) {
+    if(data[key]) {
+      properties.push({
+        property: getPropertyName(key),
+        value: data[key]
+      })
+    }
+  }
+  return {
+    properties
+  }
+}
+
+export const createOrUpdateContact = data => {
+  const { email } = data;
+  return hubspot.contacts
+    .createOrUpdate(email, createProperties(data));
+};
