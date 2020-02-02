@@ -12,11 +12,12 @@ export const updateUser = apiNotReady;
 export const updateProfile = (req, res) => {
   const { id, phone } = req.jwtData.user;
   const {
-    email, firstName, lastName, fullName: name, location, profile,
+    email, firstName, lastName, name, location, profile,
   } = req.body;
   const { gender, knowAboutSOALFrom, occupationBeforeSOAL, birthDate } = profile;
   createOrUpdateContact({
     email, 
+    phone,
     firstName, 
     lastName, 
     location,
