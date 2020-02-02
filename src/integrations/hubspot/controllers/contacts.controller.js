@@ -31,10 +31,13 @@ const createProperties = data => {
   let properties = [];
   for(let key in data) {
     if(data[key] !== undefined) {
-      properties.push({
-        property: getPropertyName(key),
-        value: data[key]
-      })
+      // TODO: format date and add it to the property
+      if(key !== "birthDate") {
+        properties.push({
+          property: getPropertyName(key),
+          value: data[key]
+        })
+      }
     }
   }
   return {
