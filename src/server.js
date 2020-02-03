@@ -6,13 +6,14 @@ import integrationRouter from './routes/integrations';
 // Initialize the Express App
 const app = Express();
 
+// Use it before because slack/events-api has an issue with the body-parser
+// External API integrations
+app.use('/integrations', integrationRouter);
+
 // Apply body Parser
 app.use(compression());
 app.use(Express.json({ limit: '20mb' }));
 app.use(Express.urlencoded({ limit: '20mb', extended: false }));
-
-// External API integrations
-app.use('/integrations', integrationRouter);
 
 app.use('/api', apiRouter);
 // app.use(Express.static(path.resolve(__dirname, '../public/')));
