@@ -64,7 +64,7 @@ export const getLatestApplication = (req, res) => {
 export const getLiveApplications = (req, res) => {
   Application.findAll({
     where: {
-      status: ['applied', 'review_pending', 'offered'],
+      status: ['applied', 'review_pending', 'offered', 'rejected'],
     },
     include: [Cohort, User],
     order: [[Sequelize.col('created_at'), Sequelize.literal('DESC')]]
