@@ -18,7 +18,7 @@ export const requestOTP = (phone, res) => {
 
 export const sendOTP = (req, res) => {
   const { user, action } = req.body;
-  const { phone, email, firstName, lastName } = user;
+  const { phone, email, firstName, lastName, utm_1, utm_2 } = user;
     getUserFromPhone(phone).then(data => {
       if(action === 'register') {
         if(data) {
@@ -26,7 +26,7 @@ export const sendOTP = (req, res) => {
         } else if(data === null) {
           // create hubspot contact
           createOrUpdateContact({ 
-            phone, email, firstName, lastName, otpVerified: 'No'
+            phone, email, firstName, lastName, otpVerified: 'No', utm_1, utm_2 
           }).then(() => {
             requestOTP(phone, res)
           }).catch(err => {
