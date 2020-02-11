@@ -32,5 +32,9 @@ export const updateDealApplicationStatus = (dealId, status) => {
 			{name: "applicant_status", value: hubspotStatus},
 		],
 	};
-	return hubspot.deals.updateById(dealId, updateObj)
+	return hubspot.deals.updateById(dealId, updateObj);
+}
+
+export const associateDealWithContact = (dealId, contactId) => {
+	return hubspot.deals.associate(dealId, "CONTACT", contactId);
 }
