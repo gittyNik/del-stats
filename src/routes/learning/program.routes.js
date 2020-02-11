@@ -6,8 +6,6 @@ import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
 
-router.use(allowSuperAdminOnly);
-
 /**
  * @api {get} /programs Get all Programs
  * @apiHeader {String} authorization JWT Token.
@@ -37,6 +35,9 @@ router.get('/:id', getProgram);
  * @apiParam {Object} test_series Test Series
  * @apiParam {Object} milestone_review_rubric Milestone Review by Rubric
  */
+
+router.use(allowSuperAdminOnly);
+
 router.post('/', createProgram);
 
 /**
