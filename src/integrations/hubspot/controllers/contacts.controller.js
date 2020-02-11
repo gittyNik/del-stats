@@ -26,6 +26,12 @@ const getPropertyName = name => {
       return "which_cohort";
     case "program":
       return "which_program";
+    case "utm_source":
+      return "campaign_source";
+    case "utm_medium":
+      return "campaign_source_data_1";
+    case "utm_campaign":
+      return "campaign_source_data_2";
     default:
       return null;
   }
