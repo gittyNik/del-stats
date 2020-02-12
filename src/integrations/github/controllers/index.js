@@ -1,8 +1,9 @@
-import { createTeam, getTeamIdByName } from "./teams.controller.js";
+import { createTeam, getTeamIdByName, isEducator } from "./teams.controller.js";
 import { sendInvitesToNewMembers } from "./orgs.controller.js";
 
 export {
 	createTeam,
 	getTeamIdByName,
-	sendInvitesToNewMembers
+	sendInvitesToNewMembers,
+	isEducator
 };

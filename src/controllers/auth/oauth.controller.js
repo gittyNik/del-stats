@@ -7,7 +7,8 @@ import { getCohortFromLearnerId } from "../../models/cohort";
 import {
   createTeam,
   getTeamIdByName,
-  sendInvitesToNewMembers
+  sendInvitesToNewMembers,
+  isEducator
 } from "../../integrations/github/controllers";
 
 const getGithubAccessToken = code => {
@@ -67,6 +68,7 @@ const addGithubProfile = ({ profile, githubToken, expiry, user }) => {
         created_at: new Date()
       };
 
+
       if (socialConnection) {
         return socialConnection.update(updateValues);
       }
@@ -85,25 +87,40 @@ const wrapParentTeamId = ({ cohort }) =>
     cohort
   }));
 
-const addTeamToExponentSoftware = userProfile => {
-  return getCohortFromLearnerId(userProfile.user.id)
-    .then(wrapParentTeamId)
-    .then(({ parent_team_id, cohort }) =>
-      createTeam(
-        cohort.name,
-        cohort.program_id,
-        cohort.location === "T-hub, IIIT Hyderabad"
-          ? "Hyderabad"
-          : cohort.location,
-        cohort.start_date,
-        parent_team_id
+const addTeamToExponentSoftware = async userProfile => {
+  const isEdu = await isEducator(userProfile.socialConnection.username);
+  if (isEdu) {
+    return { userProfile, teamName: "Educators" };
+  } else {
+    return getCohortFromLearnerId(userProfile.user.id)
+      .then(wrapParentTeamId)
+      .then(({ parent_team_id, cohort }) =>
+        createTeam(
+          cohort.name,
+          cohort.program_id,
+          cohort.location === "T-hub, IIIT Hyderabad"
+            ? "Hyderabad"
+            : cohort.location,
+          cohort.start_date,
+          parent_team_id
+        )
       )
-    )
-    .then(() => userProfile);
+      .then(teamName => ({ userProfile, teamName }));
+  }
 };
 
-const sendOrgInvites = userProfile =>
-  sendInvitesToNewMembers().then(() => userProfile);
+const sendOrgInvites = async ({ userProfile, teamName }) => {
+  const isEdu = await isEducator(userProfile.socialConnection.username);
+  if (isEdu) {
+    return userProfile;
+  } else {
+    return sendInvitesToNewMembers(
+      userProfile.socialConnection.email,
+      userProfile.socialConnection.username,
+      teamName
+    ).then(() => userProfile);
+  }
+};
 
 // An otp authenticated route to link github
 export const linkWithGithub = (req, res) => {
@@ -192,7 +209,7 @@ export const signinWithGithub = (req, res) => {
     )
     .then(addGithubProfile)
     .then(addTeamToExponentSoftware)
-    // .then(sendOrgInvites)
+    .then(sendOrgInvites)
     .then(({ user }) => {
       // {user, socialConnection}
       res.send({

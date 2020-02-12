@@ -19,25 +19,23 @@ export const createTeam = (
 	start_date,
 	parent_team_id = null
 ) => {
-	const teamName = `${name}_${toSentenceCase(program_id)}_${location}_${new Date(
-		start_date
-	).getFullYear()}`;
-	return teamPresentOrNot(teamName).then(present =>
-		present ? {} : createGitHubTeam(teamName, parent_team_id)
-	);
+	const teamName = `${name}_${toSentenceCase(
+		program_id
+	)}_${location}_${new Date(start_date).getFullYear()}`;
+	return teamPresentOrNot(teamName)
+		.then(present =>
+			present ? {} : createGitHubTeam(teamName, parent_team_id)
+		)
+		.then(() => teamName);
 };
 
 const toSentenceCase = str =>
 	`${str.charAt(0).toUpperCase()}${str.substring(1).toLowerCase()}`;
 
-export const addMemberToTeam = (
-	cohort_name,
-	githubUsername,
-	role = "member"
-) => {
+export const addMemberToTeam = (name, githubUsername, role = "member") => {
 	octokit.teams.addOrUpdateMembershipInOrg({
 		org,
-		team_slug: cohort_name,
+		team_slug: name,
 		username: githubUsername,
 		role
 	});
@@ -49,6 +47,14 @@ const getAllTeams = () =>
 			org
 		})
 		.then(teams => teams.data);
+
+const getAllTeamMembers = team =>
+	octokit.teams
+		.listMembersInOrg({
+			org,
+			team_slug: team
+		})
+		.then(members => members.data);
 
 const teamPresentOrNot = async name =>
 	await getAllTeams()
@@ -73,22 +79,30 @@ export const getTeamIdByName = name =>
 		.then(data => data.id);
 
 // const test = async () => {
-// 	let pre = await createGitHubTeam("Delphinus_tep_Hyderabad_2020", 3314015);
+// 	let pre = await getAllTeamMembers("Delphinus_Tep_Hyderabad_2020");
 // 	console.log(pre);
 // };
 // test();
 
-const isTeamMember = login => {};
+const isTeamMember = async (team, login) =>
+	getAllTeamMembers(team)
+		.then(members => _.filter(members, member => member.login === login))
+		.then(member => (member.length > 0 ? true : false));
 
-const getMaintainersArrray = async maintainers => {
-	let idList = [];
-	for (var i = 0; i < maintainers.length; i++) {
-		await getGithubIdfromUsername(maintainers[i]).then(id =>
-			idList.push(id)
-		);
-	}
-	return idList;
-};
+export const isEducator = async (login, team = "Educators") =>
+	getAllTeamMembers(team)
+		.then(members => _.filter(members, member => member.login === login))
+		.then(member => (member.length > 0 ? true : false));
+
+// const getMaintainersArrray = async maintainers => {
+// 	let idList = [];
+// 	for (var i = 0; i < maintainers.length; i++) {
+// 		await getGithubIdfromUsername(maintainers[i]).then(id =>
+// 			idList.push(id)
+// 		);
+// 	}
+// 	return idList;
+// };
 
 // octokit.teams
 // 	.getByName({
