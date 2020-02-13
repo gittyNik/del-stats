@@ -45,11 +45,18 @@ export const Resource = db.define('resources', {
     type: Sequelize.DATE, // after moderation
   },
   level: {
-    type: Sequelize.ENUM('beginner', 'advanced'),
+    type: Sequelize.ENUM('beginner', 'intermediate', 'advanced'),
     allowNull: false,
   },
   tags: {
     type: Sequelize.ARRAY(Sequelize.STRING),
+  },
+  tagged: {
+    type: Sequelize.ARRAY({
+      type: Sequelize.UUID,
+      allowNull: true,
+      references: { model: 'topics' }
+    })
   },
   title: Sequelize.TEXT,
   description: Sequelize.TEXT,
