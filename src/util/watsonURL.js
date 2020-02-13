@@ -48,6 +48,6 @@ const getWatsonData = (link) => {
   });
 };
 
-// getWatsonData("google.com").then(d => console.log(d)).catch(e => console.log(e))
+//getWatsonData("https://stackoverflow.com/questions/43099808/bash-sequelize-command-not-found").then(d => console.log(d)).catch(e => console.log(e))
 
-export default getWatsonData;
+//export default getWatsonData;
