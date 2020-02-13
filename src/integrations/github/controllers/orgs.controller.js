@@ -4,43 +4,12 @@ import {
 	addMemberToTeam,
 	getTeamIdByName
 } from "./teams.controller.js";
+import { getNumberOfPages } from "./pagination.controller.js";
 import _ from "lodash";
-import queryString from "query-string";
 
 const org = process.env.SOAL_LEARNER_ORG;
 
-const relInLinks = link => {
-	var linkRegex = /\<([^>]+)/g;
-	var relRegex = /rel="([^"]+)/g;
-	var linkArray = [];
-	var relArray = [];
-	var finalResult = {};
-	var temp;
-	while ((temp = linkRegex.exec(link)) != null) {
-		linkArray.push(temp[1]);
-	}
-	while ((temp = relRegex.exec(link)) != null) {
-		relArray.push(temp[1]);
-	}
 
-	finalResult = relArray.reduce((object, value, index) => {
-		object[value] = linkArray[index];
-		return object;
-	}, {});
-	return queryString.parse(
-		finalResult["last"].substring(finalResult["last"].indexOf("?"))
-	).page;
-};
-
-const getNumberOfPages = (role = "all", per_page = 100, page = 1) =>
-	octokit.orgs
-		.listMembers({
-			org,
-			role,
-			per_page,
-			page
-		})
-		.then(data => ({ pages: relInLinks(data.headers.link) }));
 
 const getOrgMembersPageWise = (role = "all", per_page = 100, page = 1) =>
 	octokit.orgs
@@ -53,7 +22,7 @@ const getOrgMembersPageWise = (role = "all", per_page = 100, page = 1) =>
 		.then(data => data.data);
 
 const getOrgMembers = async () =>
-	await getNumberOfPages().then(async ({ pages }) => {
+	await getNumberOfPages("orgs").then(async ({ pages }) => {
 		let members = [];
 		for (let i = 1; i <= pages; i++) {
 			let mems = await getOrgMembersPageWise("all", 100, i);
