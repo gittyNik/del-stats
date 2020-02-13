@@ -22,6 +22,16 @@ const getPropertyName = name => {
       return "otp_verified";
     case "birthDate":
       return "date_of_birth";
+    case "whichCohort":
+      return "which_cohort";
+    case "program":
+      return "which_program";
+    case "utm_source":
+      return "campaign_source";
+    case "utm_medium":
+      return "campaign_source_data_1";
+    case "utm_campaign":
+      return "campaign_source_data_2";
     default:
       return null;
   }
@@ -50,3 +60,16 @@ export const createOrUpdateContact = data => {
   return hubspot.contacts
     .createOrUpdate(email, createProperties(data));
 };
+
+export const getContact = (req, res) => {
+  const { email } = req.query;
+  hubspot.contacts.getByEmail(email).then(contact => {
+    res.send({
+      text: "Hubspot contact details",
+      data: contact
+    });
+  }).catch(err => {
+    console.log(err);
+    res.sendStatus(500)
+  })
+}
