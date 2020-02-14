@@ -1,7 +1,5 @@
-import { octokit } from "./git.auth.controller.js";
+import { octokit, org } from "./git.auth.controller.js";
 import queryString from "query-string";
-
-const org = process.env.SOAL_LEARNER_ORG;
 
 const relInLinks = link => {
 	var linkRegex = /\<([^>]+)/g;

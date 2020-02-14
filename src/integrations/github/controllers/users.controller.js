@@ -1,13 +1,11 @@
-import { octokit } from "./git.auth.controller.js";
+import { octokit, org } from "./git.auth.controller.js";
 import request from "superagent";
 
-const org = process.env.SOAL_LEARNER_ORG;
-
-const getGithubIdfromUsername = username =>
+export const getGithubIdfromUsername = username =>
 	request
 		.get(`https://api.github.com/users/${username}`)
+		.set("accept", "application/vnd.github.baptiste-preview+json")
+		.set("authorization", `token ${process.env.GITHUB_ACCESS_TOKEN}`)
 		.then(data => data.body)
 		.then(data => `${data.id}`);
 
-
-export { getGithubIdfromUsername };

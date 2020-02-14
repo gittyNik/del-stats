@@ -1,16 +1,8 @@
-// const { Octokit } = require("@octokit/rest");
-// const request = require("superagent");
-// const _ = require("lodash");
-// const octokit = new Octokit({
-// 	auth: "a88e2f1f88c9bc058050a339aeed22ab690a70fb"
-// });
-import { octokit } from "./git.auth.controller.js";
+import { octokit, org } from "./git.auth.controller.js";
 import { getGithubIdfromUsername } from "./users.controller.js";
 import { isMember } from "./orgs.controller.js";
 import { getNumberOfPages } from "./pagination.controller.js";
 import _ from "lodash";
-
-const org = process.env.SOAL_LEARNER_ORG;
 
 // Create cohort github team if not present
 // Links parent team if parent_team_id is present
@@ -126,51 +118,3 @@ const getAllTeamMembersPageWise = (team, per_page = 100, page = 1) =>
 const toSentenceCase = str =>
 	`${str.charAt(0).toUpperCase()}${str.substring(1).toLowerCase()}`;
 
-// const test = async () => {
-// 	let pre = await isMember("Niskarsh");
-// 	console.log(pre);
-// };
-// test();
-// const getMaintainersArrray = async maintainers => {
-// 	let idList = [];
-// 	for (var i = 0; i < maintainers.length; i++) {
-// 		await getGithubIdfromUsername(maintainers[i]).then(id =>
-// 			idList.push(id)
-// 		);
-// 	}
-// 	return idList;
-// };
-
-// octokit.teams
-// 	.getByName({
-// 		org: "exponentsoftware",
-// 		team_slug: "Learner"
-// 	})
-// .then(d => console.log(`data`, d))
-// .catch(d => console.log(`error`, d));
-
-// test().then(id => console.log(id));
-
-// getMaintainersArrray(["niskarsh"]).then(idList => {
-// octokit.teams
-// 	.create({
-// 		org: "exponentsoftware",
-// 		name: "nameissomethingTest",
-// 		maintainers: [...idList]
-// 	})
-// 	.then(d => console.log(`data`, d))
-// 	.catch(d => console.log(`error`, d));
-// });
-
-// octokit.teams
-// 	.create({
-// 		org: "exponentsoftware",
-// 		name: "nameissomethingTest",
-// 		maintainers: ["Niskarsh"]
-// 	})
-// 	.then(d => console.log(`data`, d))
-// 	.catch(d => console.log(`error`, d));
-// getTeamIdByName("Learners").then(id => console.log(id));
-
-// octokit.users.getAuthenticated().then(d => console.log(`data`, d))
-// 	.catch(d => console.log(`error`, d));

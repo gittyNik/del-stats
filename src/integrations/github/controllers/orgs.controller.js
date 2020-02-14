@@ -1,4 +1,4 @@
-import { octokit } from "./git.auth.controller.js";
+import { octokit, org } from "./git.auth.controller.js";
 import {
 	isTeamMember,
 	addMemberToTeam,
@@ -6,10 +6,6 @@ import {
 } from "./teams.controller.js";
 import { getNumberOfPages } from "./pagination.controller.js";
 import _ from "lodash";
-
-const org = process.env.SOAL_LEARNER_ORG;
-
-
 
 const getOrgMembersPageWise = (role = "all", per_page = 100, page = 1) =>
 	octokit.orgs
