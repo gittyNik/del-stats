@@ -10,3 +10,11 @@ export const getRecentCommitByUser = (username, repository_name) =>
 	})
 	.then(commits => commits.data)
 	.then(commits => commits.length>0? commits[0]: {});
+
+export const getRecentCommitInRepository = repository_name =>
+	octokit.repos.listCommits({
+		owner: org,
+		repo: repository_name,
+	})
+	.then(commits => commits.data)
+	.then(commits => commits.length>0? commits[0]: {});

@@ -4,9 +4,11 @@ import {
 	getAllRepos,
 	createGithubRepositoryFromTemplate
 } from "./repository.controller.js";
-import { getRecentCommitByUser } from "./commits.controller.js";
-import {getTeamsbyCohortMilestoneId} from "../../../models/team";
-
+import {
+	getRecentCommitByUser,
+	getRecentCommitInRepository
+} from "./commits.controller.js";
+import { getTeamsbyCohortMilestoneId } from "../../../models/team";
 
 // Returns latest commit object of given user {{username}} in repository {{repo_name}}
 const getRecentCommit = async (req, res) => {
@@ -16,9 +18,39 @@ const getRecentCommit = async (req, res) => {
 		.catch(err => res.status(500).send(err));
 };
 
-const getRecentCommitInCohort = async cohort_milestone_id => {
-	let teams = await getTeamsbyCohortMilestoneId
-}
+// Returns latest commit in entire cohort for that milestone
+const getRecentCommitInCohort = async (req, res) => {
+	try {
+		const { cohort_milestone_id } = req.params;
+		let commits = [];
+		let teams = await getTeamsbyCohortMilestoneId(cohort_milestone_id);
+		teams.map(team => team.github_repo_link);
+		for (let i = 0; i < teams.length; i++) {
+			let commit = await getRecentCommitInRepository(team[i]);
+			if (!commit.hasOwnProperty("sha")) {
+				continue;
+			}
+			commits.push(commit);
+		}
+		if (commits.length === 0) {
+			res.send({ data: {} });
+		} else if (commits.length === 1) {
+			res.send({ data: commits[0] });
+		} else {
+			let latestCommit = commits[0];
+			for (let i = 1; i < commits.length; i++) {
+				let latestDate = new Date(latestCommit.committer.date);
+				let iDate = new Date(commit[i].committer.date);
+				if (idate > latestDate) {
+					latestCommit = commit[i];
+				}
+			}
+			res.send({ data: latestCommit });
+		}
+	} catch (err) {
+		res.status(500).send(err);
+	}
+};
 
 export {
 	createTeam,
