@@ -1,3 +1,5 @@
+import request from "superagent";
+import { octokit, org } from "./git.auth.controller.js";
 import { createTeam, getTeamIdByName, isEducator } from "./teams.controller.js";
 import { sendInvitesToNewMembers } from "./orgs.controller.js";
 import {
@@ -92,6 +94,29 @@ const getTotalTeamAndUserCommits = async (req, res) => {
 	}
 };
 
+const getTotalUserCommitsPastWeek = async (req, res) => {
+	const { milestone_repo_name } = req.params;
+	const user_id = req.jwtData.user.id;
+	request
+		.get(
+			`https://api.github.com/repos/${org}/${milestone_repo_name}/stats/contributors`
+		)
+		.set("accept", "application/vnd.github.baptiste-preview+json")
+		.set("authorization", `token ${process.env.GITHUB_ACCESS_TOKEN}`)
+		.then(data => JSON.parse(data.text))
+		.then(async data => {
+			let socialConnection = await getGithubConnecionByUserId(user_id);
+			let commits = 0;
+			data.map(dt => {
+				if (dt.author.login === socialConnection.username) {
+					commits = dt.weeks[0].c;
+				}
+			});
+			res.send({ data: commits });
+		})
+		.catch(err => res.status(500).send(err));
+};
+
 export {
 	createTeam,
 	getTeamIdByName,
@@ -104,5 +129,7 @@ export {
 	createChallenge,
 	addCollaboratorToRepository,
 	repositoryPresentOrNot,
-	isRepositoryCollaborator
+	isRepositoryCollaborator,
+	getTotalUserCommitsPastWeek,
+	getTotalTeamAndUserCommits
 };

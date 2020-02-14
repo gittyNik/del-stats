@@ -1,6 +1,7 @@
 import Express from 'express';
-import challengesRouter from './challenges.router.js';
-import statsRouter from './stats.router.js';
+import challengesRouter from './challenges.routes.js';
+import statsRouter from './stats.routes.js';
+import commitRouter from './commits.routes.js';
 
 const router = Express.Router();
 
