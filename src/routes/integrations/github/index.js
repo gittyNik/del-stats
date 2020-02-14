@@ -1,9 +1,9 @@
 import Express from 'express';
-import { getRecentCommit } from '../../../integrations/github/controllers';
+import commitRouter from './commits.router.js';
 
 const router = Express.Router();
 
 // Returns latest commit object of given user {{username}} in repository {{repo_name}}
-router.get('/latestUserCommitOnRepository/:username/:repo_name', getRecentCommit);
+router.use('/commits', commitRouter);
 
 export default router;

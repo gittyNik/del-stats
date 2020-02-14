@@ -5,6 +5,7 @@ import {
 	createGithubRepositoryFromTemplate
 } from "./repository.controller.js";
 import { getRecentCommitByUser } from "./commits.controller.js";
+import {getTeamsbyCohortMilestoneId} from "../../../models/team";
 
 
 // Returns latest commit object of given user {{username}} in repository {{repo_name}}
@@ -15,6 +16,10 @@ const getRecentCommit = async (req, res) => {
 		.catch(err => res.status(500).send(err));
 };
 
+const getRecentCommitInCohort = async cohort_milestone_id => {
+	let teams = await getTeamsbyCohortMilestoneId
+}
+
 export {
 	createTeam,
 	getTeamIdByName,
@@ -22,5 +27,6 @@ export {
 	isEducator,
 	getAllRepos,
 	createGithubRepositoryFromTemplate,
-	getRecentCommit
+	getRecentCommit,
+	getRecentCommitInCohort
 };
