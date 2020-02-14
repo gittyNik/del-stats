@@ -1,5 +1,5 @@
 import Express from 'express';
-import { getRecentCommit } from '../../../integrations/github/controllers';
+import { getRecentCommit, getRecentCommitInCohort } from '../../../integrations/github/controllers';
 
 const router = Express.Router();
 
