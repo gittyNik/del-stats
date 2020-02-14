@@ -27,7 +27,20 @@ const relInLinks = link => {
 };
 
 export const getNumberOfPages = (of, team = null) => {
-	if (of === "teams") {
+	if (of === "repoCollaborators") {
+		return octokit.repos
+			.listCollaborators({
+				owner: org,
+				repo: team,
+				per_page: 100,
+				page: 1
+			})
+			.then(data => ({
+				pages: data.headers.hasOwnProperty("link")
+					? relInLinks(data.headers.link)
+					: 1
+			}));
+	} else if (of === "teams") {
 		return octokit.teams
 			.list({
 				org,
