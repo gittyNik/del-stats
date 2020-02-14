@@ -5,13 +5,16 @@ import {
 	createGithubRepositoryFromTemplate,
 	addCollaboratorToRepository,
 	repositoryPresentOrNot,
-	isRepositoryCollaborator
+	isRepositoryCollaborator,
+	getAllAuthoredCommits,
+	getAllCommits
 } from "./repository.controller.js";
 import {
 	getRecentCommitByUser,
 	getRecentCommitInRepository
 } from "./commits.controller.js";
 import { getTeamsbyCohortMilestoneId } from "../../../models/team";
+import { getGithubConnecionByUserId } from "../../../models/social_connection";
 import { learnerChallengesFindOrCreate } from "../../../models/learner_challenge";
 
 // Returns latest commit object of given user {{username}} in repository {{repo_name}}
@@ -63,6 +66,27 @@ const createChallenge = async (req, res) => {
 		learnerChallengesFindOrCreate(challenge_id, user_id)
 			.then(data => res.send({ data }))
 			.catch(err => res.status(500).send(err));
+	} catch (err) {
+		res.status(500).send(err);
+	}
+};
+
+const getTotalTeamAndUserCommits = async (req, res) => {
+	try {
+		const { milestone_repo_name } = req.params;
+		const user_id = req.jwtData.user.id;
+		let socialConnection = await getGithubConnecionByUserId(user_id);
+		let teamCommits = await getAllCommits(milestone_repo_name);
+		let userCommits = await getAllAuthoredCommits(
+			milestone_repo_name,
+			socialConnection.username
+		);
+		res.send({
+			data: {
+				userCommits: userCommits.length,
+				teamCommits: teamCommits.length
+			}
+		});
 	} catch (err) {
 		res.status(500).send(err);
 	}

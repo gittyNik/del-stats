@@ -38,6 +38,33 @@ export const getNumberOfPages = (of, team = null) => {
 					? relInLinks(data.headers.link)
 					: 1
 			}));
+	} else if (of === "authoredCommits") {
+		octokit.repos
+			.listCommits({
+				owner: org,
+				repo: team.repository_name,
+				author: team.author,
+				per_page: 100,
+				page: 1
+			})
+			.then(data => ({
+				pages: data.headers.hasOwnProperty("link")
+					? relInLinks(data.headers.link)
+					: 1
+			}));
+	} else if (of === "allCommits") {
+		octokit.repos
+			.listCommits({
+				owner: org,
+				repo: team,
+				per_page: 100,
+				page: 1
+			})
+			.then(data => ({
+				pages: data.headers.hasOwnProperty("link")
+					? relInLinks(data.headers.link)
+					: 1
+			}));
 	} else if (of === "teams") {
 		return octokit.teams
 			.list({

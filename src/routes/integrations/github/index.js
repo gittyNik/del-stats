@@ -1,5 +1,6 @@
 import Express from 'express';
 import challengesRouter from './challenges.router.js';
+import statsRouter from './stats.router.js';
 
 const router = Express.Router();
 
@@ -8,4 +9,5 @@ router.use('/commits', commitRouter);
 
 router.use('/challenges', challengesRouter);
 
+router.use('/stats', statsRouter);
 export default router;
