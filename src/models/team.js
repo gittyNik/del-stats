@@ -74,6 +74,6 @@ export const createMilestoneTeams = cohort_milestone_id =>
     );
 
 export const getTeamsbyCohortMilestoneId = cohort_milestone_id =>
-  Team.find({
+  Team.findAll({
     where: { cohort_milestone_id }
   });

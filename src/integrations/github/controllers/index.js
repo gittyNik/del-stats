@@ -2,13 +2,17 @@ import { createTeam, getTeamIdByName, isEducator } from "./teams.controller.js";
 import { sendInvitesToNewMembers } from "./orgs.controller.js";
 import {
 	getAllRepos,
-	createGithubRepositoryFromTemplate
+	createGithubRepositoryFromTemplate,
+	addCollaboratorToRepository,
+	repositoryPresentOrNot,
+	isRepositoryCollaborator
 } from "./repository.controller.js";
 import {
 	getRecentCommitByUser,
 	getRecentCommitInRepository
 } from "./commits.controller.js";
 import { getTeamsbyCohortMilestoneId } from "../../../models/team";
+import { learnerChallengesFindOrCreate } from "../../../models/learner_challenge";
 
 // Returns latest commit object of given user {{username}} in repository {{repo_name}}
 const getRecentCommit = async (req, res) => {
@@ -52,6 +56,18 @@ const getRecentCommitInCohort = async (req, res) => {
 	}
 };
 
+const createChallenge = async (req, res) => {
+	try {
+		const { challenge_id } = req.body;
+		const user_id = req.jwtData.user.id;
+		learnerChallengesFindOrCreate(challenge_id, user_id)
+			.then(data => res.send({ data }))
+			.catch(err => res.status(500).send(err));
+	} catch (err) {
+		res.status(500).send(err);
+	}
+};
+
 export {
 	createTeam,
 	getTeamIdByName,
@@ -60,5 +76,9 @@ export {
 	getAllRepos,
 	createGithubRepositoryFromTemplate,
 	getRecentCommit,
-	getRecentCommitInCohort
+	getRecentCommitInCohort,
+	createChallenge,
+	addCollaboratorToRepository,
+	repositoryPresentOrNot,
+	isRepositoryCollaborator
 };
