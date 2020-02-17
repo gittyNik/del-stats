@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const jwt_payload = {
   iss: process.env.ZOOM_API_KEY,
-  exp: ((new Date()).getTime() + 5000)
+  exp: ((new Date()).getTime() + 5000),
 };
 const token = jwt.sign(jwt_payload, process.env.ZOOM_API_SECRET);
 
@@ -11,6 +11,7 @@ const token = jwt.sign(jwt_payload, process.env.ZOOM_API_SECRET);
 export const createMeeting = (req, res) => {
   const { ZOOM_BASE_URL } = process.env;
 
+  // Recurrent meeting having 'soal' as password
   const meeting_object = {
     topic: 'Milestone Breakout',
     type: 3,
@@ -34,7 +35,7 @@ export const createMeeting = (req, res) => {
     },
   };
   request
-    .post(`${ZOOM_BASE_URL}users/ro-ppuJKTM6bE1xwVHN4hw/meetings`)
+    .post(`${ZOOM_BASE_URL}users/ro-ppuJKTM6bE1xwVHN4hw/meetings`) // need to assign delta user to zoom user
     .send(meeting_object)
     .set('Authorization', `Bearer ${token}`)
     .set('User-Agent', 'Zoom-api-Jwt-Request')
@@ -80,6 +81,53 @@ export const userInfo = (req, res) => {
     })
     .catch(err => {
       console.log(err);
+      res.sendStatus(500);
+    });
+};
+
+export const listMeetings = (req, res) => {
+  const { zoom_user_id, type } = req.params;
+  const { ZOOM_BASE_URL } = process.env;
+
+  request
+    .get(`${ZOOM_BASE_URL}users/${zoom_user_id}/meetings`)
+    .set('Authorization', `Bearer ${token}`)
+    .set('User-Agent', 'Zoom-api-Jwt-Request')
+    .set('content-type', 'application/json')
+    .query({
+      page_size: 15,
+      page_number: 1,
+      type,
+    })
+    .then(data => {
+      res.json({
+        text: 'List of all meeting that are scheduled for a user',
+        data: data.body,
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+};
+
+export const meetingDetails = (req, res) => {
+  const { meetingId } = req.params;
+  const { ZOOM_BASE_URL } = process.env;
+
+  request
+    .get(`${ZOOM_BASE_URL}meetings/${meetingId}`)
+    .set('Authorization', `Bearer ${token}`)
+    .set('User-Agent', 'Zoom-api-Jwt-Request')
+    .set('content-type', 'application/json')
+    .then(data => {
+      res.json({
+        text: 'Details of a meeting',
+        data: data.body,
+      });
+    })
+    .catch(err => {
+      console.error(err);
       res.sendStatus(500);
     });
 };
