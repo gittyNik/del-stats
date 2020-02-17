@@ -115,6 +115,6 @@ const getAllTeamMembersPageWise = (team, per_page = 100, page = 1) =>
 		})
 		.then(members => members.data);
 
-const toSentenceCase = str =>
+export const toSentenceCase = str =>
 	`${str.charAt(0).toUpperCase()}${str.substring(1).toLowerCase()}`;
 

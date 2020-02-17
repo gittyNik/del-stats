@@ -47,7 +47,7 @@
     "@slack/web-api": "^5.6.0",
     "@slack/webhook": "^5.0.2",
     "apidoc-swagger": "github:schoolofacceleratedlearning/apidoc-swagger",
-    "bullmq": "^1.5.0",
+    "bullmq": "^1.6.7",
     "compression": "^1.7.4",
     "core-js": "^3.6.2",
     "dotenv": "^8.2.0",

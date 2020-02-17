@@ -43,6 +43,13 @@ export const CohortMilestone = db.define('cohort_milestones', {
 
 const { lte, gt } = Sequelize.Op;
 
+export const getDataForMilestoneName = id => CohortMilestone.findOne({
+  where: {
+    id
+  },
+  include: [Cohort, Milestone]
+})
+
 export const getCurrentCohortMilestones = () => {
   const now = Sequelize.literal('NOW()');
   return CohortMilestone.findAll({

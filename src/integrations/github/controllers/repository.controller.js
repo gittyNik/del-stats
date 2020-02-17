@@ -59,7 +59,7 @@ const getAllRepositoryCollaborators = async repo =>
 // 		username
 // 	});
 
-const createGithubRepository = repo =>
+export const createGithubRepository = repo =>
 	octokit.repos.createInOrg({
 		org,
 		name
