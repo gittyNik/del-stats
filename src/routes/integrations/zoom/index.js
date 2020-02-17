@@ -1,9 +1,10 @@
 import Express from 'express';
-import meetingsApi from '../../../integrations/zoom/meetings.controller';
+import { createMeeting, userInfo } from '../../../integrations/zoom/meetings.controller';
 
 const router = Express.Router();
 
 router.use(Express.urlencoded({ limit: '20mb', extended: false }));
-router.post('/meeting', meetingsApi);
+router.get('/meeting', createMeeting);
+router.get('/users', userInfo);
 
 export default router;
