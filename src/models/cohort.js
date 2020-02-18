@@ -165,7 +165,7 @@ export const getUpcomingCohort = date => {
 
 //Replace by findByPK
 export const getCohortFromId = id =>
-  Cohort.findOne({ where: { id } }).then(cohort => ({ cohort }));
+  Cohort.findOne({ where: { id } }).then(cohort => cohort );
 
 export const getCohortFromLearnerId = user_id =>
   Application.findOne({
