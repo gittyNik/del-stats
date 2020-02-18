@@ -29,11 +29,11 @@ module.exports = {
       source: Sequelize.STRING, // slack/web
       details: Sequelize.JSON,
       parent_tags: {
-        type: Sequelize.ARRAY(Sequelize.INTEGER),
+        type: Sequelize.ARRAY(Sequelize.UUID),
         allowNull: true
       },
       child_tags: {
-        type: Sequelize.ARRAY(Sequelize.INTEGER),
+        type: Sequelize.ARRAY(Sequelize.UUID),
         allowNull: true
       }
     });
