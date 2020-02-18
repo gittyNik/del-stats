@@ -1,7 +1,7 @@
 import request from "superagent";
 import uuid from "uuid/v4";
 import { getSoalToken } from "../../util/token";
-import { getUserFromEmails } from "../../models/user";
+import { getUserFromEmails, USER_ROLES } from "../../models/user";
 import { SocialConnection, PROVIDERS } from "../../models/social_connection";
 import { getCohortFromLearnerId } from "../../models/cohort";
 import {
@@ -67,7 +67,6 @@ const addGithubProfile = ({ profile, githubToken, expiry, user }) => {
         username: profile.login,
         created_at: new Date()
       };
-
 
       if (socialConnection) {
         return socialConnection.update(updateValues);
@@ -196,7 +195,7 @@ export const signinWithGithub = (req, res) => {
       // If no user's email is not found with github emails,
       // then authentication error should be sent as resopnse
       getUserFromEmails(profile.emails).then(user => {
-        if (user === null) {
+        if (user === null || user.role === USER_ROLES.GUEST) {
           return Promise.reject("NO_EMAIL");
         }
         return {
