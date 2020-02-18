@@ -1,7 +1,7 @@
 import Sequelize from "sequelize";
 import { Program } from "./program";
 import { Application } from "./application";
-import { User } from "./user";
+import { User, USER_ROLES } from "./user";
 import db from "../database";
 import { createCohortMilestones, CohortMilestone } from "./cohort_milestone";
 import { CohortBreakout } from "./cohort_breakout";
@@ -123,6 +123,15 @@ export const updateCohortLearners = id =>
             {
               where: {
                 user_id: { [Sequelize.Op.in]: learners }
+              },
+              transaction
+            }
+          ),
+          User.update(
+            { role: USER_ROLES.LEARNER}, 
+            { 
+              where: {
+                id: { [Sequelize.Op.in]: learners }
               },
               transaction
             }
