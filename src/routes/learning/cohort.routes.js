@@ -1,7 +1,7 @@
 import Express from 'express';
 import {
   getCohortByName, getCohorts, getCohort, createCohort, updateCohort,
-  getUpcomingCohorts, deleteCohort,
+  getUpcomingCohorts, deleteCohort, beginCohort
 } from '../../controllers/learning/cohort.controller';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
@@ -56,7 +56,7 @@ router.post('/', createCohort);
  * @apiName BeginCohort
  * @apiGroup Cohort
  */
-router.patch('/:id/begin', updateCohort);
+router.patch('/:id/begin', beginCohort);
 
 /**
  * @api {patch} /cohorts/:id Update a cohort
