@@ -30,8 +30,8 @@ export const createSandbox = (req, res) => {
     .then(response => {
       console.log(response.text);
       res.json({
-        text: 'Id of newly created codesandbox, used to redirect ex: https://codesanbox.io/s/<id>',
-        data: response.text.sandbox_id,
+        text: 'Id of newly created codesandbox, used to redirect ex: https://codesanbox.io/embed/<id>',
+        data: response.text,
       });
     })
     .catch(err => {
@@ -40,6 +40,25 @@ export const createSandbox = (req, res) => {
     });
 };
 
-export const createTemplate = (req, res) => {
+// template [object] payload to send to codesandbox.
+// embed_options[object] sends query parameters as object.
+export const createTemplate = (template, embed_options) => {
   // todo: creating template sanboxes.
+  request
+    .post(`${CODE_ENDPOINT}sandboxes/define?json=1`)
+    .query(embed_options)
+    .send(template)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .then(response => {
+      console.log(response.text);
+      return {
+        text: 'Id of newly created codesandbox, used to redirect ex: https://codesanbox.io/embed/<id>',
+        data: response.text,
+      };
+    })
+    .catch(err => {
+      console.error(err);
+      return err;
+    });
 };
