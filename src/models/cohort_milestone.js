@@ -7,6 +7,7 @@ import { Program } from './program';
 import { Milestone } from './milestone';
 import { Topic } from './topic';
 import { Team, createMilestoneTeams} from './team';
+import { User } from './user';
 
 export const CohortMilestone = db.define('cohort_milestones', {
   id: {
@@ -154,17 +155,30 @@ CohortMilestone.prototype.getUsers = function getCurrentUsers() {
     .then(cohort => cohort.learners);
 };
 
+const populateTeamsWithLearners = teams => {
+  const learnerGetters = teams.map(team =>
+    User.findAll({
+      where: { id: { [Sequelize.Op.in]: team.learners } }
+    }).then(learners => {
+      team.learners = learners;
+      return team;
+    })
+  );
+  return Promise.all(learnerGetters);
+};
+
 export const getMilestoneTeams = milestone_id => Team.findAll({
   where: {
     cohort_milestone_id: milestone_id,
   },
+  raw: true,
 });
 
 export const getOrCreateMilestoneTeams = milestone_id => {
   return getMilestoneTeams(milestone_id).then(teams => {
-    if(teams.length !== 0) {
+    if (teams.length !== 0) {
       return teams;
     }
     return createMilestoneTeams(milestone_id)
-  })
+  }).then(populateTeamsWithLearners)
 }
