@@ -7,7 +7,7 @@ const jwt_payload = {
 };
 const token = jwt.sign(jwt_payload, process.env.ZOOM_API_SECRET);
 
-// creating meeting for a user.
+// creating a recurring meeting for a user.
 export const createMeeting = (req, res) => {
   const { ZOOM_BASE_URL } = process.env;
 
@@ -41,7 +41,7 @@ export const createMeeting = (req, res) => {
     .set('User-Agent', 'Zoom-api-Jwt-Request')
     .set('content-type', 'application/json')
     .then(data => {
-      console.log(data);
+      // console.log(data);
       res.json({
         text: 'Response data from creating meeting, contains start_url and join_url',
         data: data.body, // todo: send only necessary resources.
