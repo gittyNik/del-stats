@@ -130,6 +130,21 @@ export const deleteTeam = (req, res) => {
     .catch(err => res.status(500).send(err));
 };
 
+export const generateMilestoneTeams = (req, res) => {
+  const { milestone_id } = req.params;
+  createMilestoneTeams(milestone_id)
+    .then(data => {
+      res.send({
+        text: "Milestone Team",
+        data
+      })
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+}
+
 export const getMilestoneTeams = (req, res) => {
   Team.findAll({
     where: {
