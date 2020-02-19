@@ -1,7 +1,6 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import db from '../database';
-import { Resource } from './resource';
 
 export const Tags = db.define('tags', {
   id: {
@@ -48,8 +47,13 @@ export const Tags = db.define('tags', {
   }
 });
 
+
+export const getTagIdbyName = tag_name  => Tags.findOne({
+  where: {
+      tag_name: tag_name
+  },
+  raw: true,
+});
+
 const { contains, overlap } = Sequelize.Op;
 
-export const getResourcesByTag = tag_id => Tags.findByPk(tag_id, {
-    include: [Resource],
-  });
