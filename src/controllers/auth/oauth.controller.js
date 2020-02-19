@@ -1,9 +1,5 @@
 import request from "superagent";
 import uuid from "uuid/v4";
-import { getSoalToken } from "../../util/token";
-import { getUserFromEmails, USER_ROLES } from "../../models/user";
-import { SocialConnection, PROVIDERS } from "../../models/social_connection";
-import { getCohortFromLearnerId } from "../../models/cohort";
 import {
   createTeam,
   getTeamIdByName,
@@ -80,7 +76,7 @@ const addGithubProfile = ({ profile, githubToken, expiry, user }) => {
     .then(socialConnection => ({ user, socialConnection }));
 };
 
-const wrapParentTeamId = ({ cohort }) =>
+const wrapParentTeamId = cohort =>
   getTeamIdByName("Learners").then(parent_team_id => ({
     parent_team_id,
     cohort
