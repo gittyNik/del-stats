@@ -55,4 +55,11 @@ export const getTagIdbyName = tag_name  => Tags.findOne({
   raw: true,
 });
 
+export const getTagIdbyNames = tag_names  => Tags.findAll({
+  where: {
+    tag_name: tag_names
+  },
+  raw: true,
+});
+
 const { contains, overlap } = Sequelize.Op;

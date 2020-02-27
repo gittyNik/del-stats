@@ -91,6 +91,24 @@ export const getResourcesByTag = tag =>
       res.sendStatus(500);
 });
 
+export const getResourcesByTags = tags =>
+  getTagIdbyNames(tags)
+    .then(data => {
+      const tag_id = data.id;
+      return Resource.findAll({
+        where: {
+          tagged: {
+            [contains]: [tag_id],
+          },
+        },
+        raw: true,
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+});
+
 const getResourceCountByTags = tags => Resource.aggregate('id', 'count', {
   where: {
     tags: {

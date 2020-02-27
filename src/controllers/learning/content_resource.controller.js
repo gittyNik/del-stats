@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
-import { Resource, getResourcesByTag, getResourceByUrl, createResource, autoTagUrls } from '../../models/resource';
+import { Resource, getResourcesByTag, getResourceByUrl, createResource, autoTagUrls, searchResources } from '../../models/resource';
 import { ResourceComment } from '../../models/resource_comment';
 import { ResourceReport } from '../../models/resource_report';
 import { ResourceVote } from '../../models/resource_vote';
@@ -37,6 +37,19 @@ export const getFirewall = (req, res) => {
 export const getTaggedResources = (req, res) => {
   const { tag } = req.params;
   getResourcesByTag(tag)
+    .then(data => {
+      res.send({ data });
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+};
+
+export const searchTaggedResources = (req, res) => {
+  const { text } = req.query;
+  console.log(text);
+  searchResources(text.toLowerCase())
     .then(data => {
       res.send({ data });
     })
