@@ -133,13 +133,13 @@ export const create = (req, res) => {
   getResourceByUrl(url)
     .then(data => {
       console.log(data);
-      if (Array.isArray(data) && data.length) {
+      if (data) {
         res.send({ data });
       } else {
         autoTagUrls(url)
         .then(response_data => {
             const level = 'beginner';
-            const owner = '42da6a7f-601a-4a18-bf64-696763711128';
+            const owner = req.jwtData.user.id;
             const type = 'article'; //TODO : Add other types to enum
             const source = 'web';
             const { data } = response_data.body;

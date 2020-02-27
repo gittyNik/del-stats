@@ -34,8 +34,8 @@ export const Resource = db.define('resources', {
     references: { model: 'users' },
   },
   thumbnail: {
-    type: Sequelize.BLOB,
-    unique: true,
+    type: Sequelize.STRING,
+    allowNull: true,
   },
   type: {
     type: Sequelize.ENUM('article', 'repo', 'video', 'tweet'),
