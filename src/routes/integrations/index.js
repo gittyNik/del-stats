@@ -2,6 +2,7 @@ import Express from 'express';
 import slackRouter from './slack';
 import instamojoRouter from './instamojo';
 import hubspotRouter from './hubspot';
+import githubRouter from './github';
 import zoomRouter from './zoom';
 import codeSandboxRouter from './code_sandbox';
 import { send404, browserAccessControl } from '../../controllers/api.controller';
@@ -14,6 +15,8 @@ router.use(browserAccessControl);
 router.use('/slack', slackRouter);
 router.use('/instamojo', instamojoRouter);
 router.use('/hubspot', hubspotRouter);
+
+router.use('/github', githubRouter);
 router.use('/zoom', zoomRouter);
 router.use('/code', codeSandboxRouter);
 router.use('*', send404);

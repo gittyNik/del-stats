@@ -1,6 +1,7 @@
 import {
   Cohort, getFutureCohorts, getCohortLearnerDetails,
   getCohortLearnerDetailsByName, beginCohortWithId,
+  getCohortFromLearnerId
 } from '../../models/cohort';
 
 export const getCohorts = (req, res) => {
@@ -89,3 +90,21 @@ export const beginMilestone = () => {
 };
 // create cohort_milestones
 // create teams for each milestone
+
+export const getCohortByLearnerId = (req, res) => {
+  const {
+    id
+  } = req.params;
+
+  getCohortFromLearnerId(id)
+    .then(cohort => {
+      res.send({
+        text: "Cohort Details",
+        data: cohort
+      })
+    })
+    .catch(err => {
+      console.log(err);
+      res.sendStatus(404);
+    })
+}

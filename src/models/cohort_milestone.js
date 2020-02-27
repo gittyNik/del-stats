@@ -6,6 +6,8 @@ import { CohortBreakout } from './cohort_breakout';
 import { Program } from './program';
 import { Milestone } from './milestone';
 import { Topic } from './topic';
+import { Team, createMilestoneTeams} from './team';
+import { User } from './user';
 
 export const CohortMilestone = db.define('cohort_milestones', {
   id: {
@@ -81,15 +83,17 @@ export const getCurrentMilestoneOfCohort = (cohort_id) => {
   })
     .then(milestone => {
       if (!milestone) return milestone;
-      const { milestone_id } = milestone;
+      const { milestone_id, id } = milestone;
       return Promise.all([
         findTopicsForCohortAndMilestone(cohort_id, milestone_id),
         findTopicsForCohortAndMilestone(cohort_id),
+        getOrCreateMilestoneTeams(id)
       ])
-        .then(([topics, programTopics]) => {
+        .then(([topics, programTopics, teams]) => {
           console.log(`Milestone topics: ${topics.length}, Program topics: ${programTopics.length}`);
           milestone.topics = topics;
           milestone.programTopics = programTopics;
+          milestone.teams = teams;
           return milestone;
         });
     });
@@ -150,3 +154,31 @@ CohortMilestone.prototype.getUsers = function getCurrentUsers() {
   return Cohort.findByPk(this.cohort_id)
     .then(cohort => cohort.learners);
 };
+
+const populateTeamsWithLearners = teams => {
+  const learnerGetters = teams.map(team =>
+    User.findAll({
+      where: { id: { [Sequelize.Op.in]: team.learners } }
+    }).then(learners => {
+      team.learners = learners;
+      return team;
+    })
+  );
+  return Promise.all(learnerGetters);
+};
+
+export const getMilestoneTeams = milestone_id => Team.findAll({
+  where: {
+    cohort_milestone_id: milestone_id,
+  },
+  raw: true,
+});
+
+export const getOrCreateMilestoneTeams = milestone_id => {
+  return getMilestoneTeams(milestone_id).then(teams => {
+    if (teams.length !== 0) {
+      return teams;
+    }
+    return createMilestoneTeams(milestone_id)
+  }).then(populateTeamsWithLearners)
+}

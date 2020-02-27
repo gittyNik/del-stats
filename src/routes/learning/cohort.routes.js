@@ -1,7 +1,7 @@
 import Express from 'express';
 import {
   getCohortByName, getCohorts, getCohort, createCohort, updateCohort,
-  getUpcomingCohorts, deleteCohort,
+  getUpcomingCohorts, deleteCohort, beginCohort, getCohortByLearnerId
 } from '../../controllers/learning/cohort.controller';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
@@ -39,6 +39,14 @@ router.get('/:id', getCohort);
  */
 router.get('/:year/:location/:name', getCohortByName);
 
+/**
+ * @api {get} /cohorts/user/:id Get a cohort by user id
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetCohotByUserId
+ * @apiGroup Cohort
+ */
+router.get('/user/:id', getCohortByLearnerId);
+
 // Restrict modifications for any applicant to the cohorts
 router.use(allowSuperAdminOnly);
 
@@ -56,7 +64,7 @@ router.post('/', createCohort);
  * @apiName BeginCohort
  * @apiGroup Cohort
  */
-router.patch('/:id/begin', updateCohort);
+router.patch('/:id/begin', beginCohort);
 
 /**
  * @api {patch} /cohorts/:id Update a cohort

@@ -6,7 +6,7 @@ import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 const router = Express.Router();
 
 // Disable until tested
-router.use(allowSuperAdminOnly);
+// router.use(allowSuperAdminOnly);
 
 router.use('/challenges', challengeRouter);
 router.use('/milestones', milestoneRouter);

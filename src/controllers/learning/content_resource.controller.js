@@ -1,10 +1,11 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
-import { Resource, getResourcesByTag } from '../../models/resource';
+import { Resource, getResourcesByTag, getResourceByUrl, createResource, autoTagUrls } from '../../models/resource';
 import { ResourceComment } from '../../models/resource_comment';
 import { ResourceReport } from '../../models/resource_report';
 import { ResourceVote } from '../../models/resource_vote';
 import { logResourceVisitByFirewallUser } from '../../models/resource_visit';
+
 
 export const getLatest = (req, res) => {
   Resource.findAll({
@@ -37,7 +38,6 @@ export const getTaggedResources = (req, res) => {
   const { tag } = req.params;
   getResourcesByTag(tag)
     .then(data => {
-      console.log(data);
       res.send({ data });
     })
     .catch(err => {
@@ -112,27 +112,57 @@ export const getOne = (req, res) => {
     .catch(err => res.status(500).send(err));
 };
 
+export const getResourceUrl = (req, res) => {
+  const { url } = req.body;
+  getResourceByUrl(url)
+    .then(data => {
+      console.log(data);
+      res.send({ data });
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+};
+
+
 export const create = (req, res) => {
   const {
-    topic_id, url, type, level,
+    url, // todo: Auto assign tpoic id based on tags returned
   } = req.body;
-  Resource.create({
-    id: uuid(),
-    owner: uuid(), // todo: Add the user's id here after auth is set
-    moderator: uuid(),
-    program: 'tep',
-    add_time: Date.now(),
-    topic_id,
-    url,
-    type,
-    level,
-  })
-    .then((tepResource) => {
-      res.send({
-        data: tepResource,
-      });
+  getResourceByUrl(url)
+    .then(data => {
+      console.log(data);
+      if (Array.isArray(data) && data.length) {
+        res.send({ data });
+      } else {
+        autoTagUrls(url)
+        .then(response_data => {
+            const level = 'beginner';
+            const owner = '42da6a7f-601a-4a18-bf64-696763711128';
+            const type = 'article'; //TODO : Add other types to enum
+            const source = 'web';
+            const { data } = response_data.body;
+            const { predicted_tag_ids, description, title, thumbnail_url } = data;
+            createResource(url, level, owner, predicted_tag_ids, title, description, source, type, data, thumbnail_url).then(resource_added => {
+              res.send({ resource_added });
+            })
+            .catch(err => {
+              console.error(err);
+              res.sendStatus(500);
+            });
+        })
+        .catch(err => {
+          console.error(err);
+          res.sendStatus(500);
+        });
+      }
+      
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
 };
 
 export const update = (req, res) => {

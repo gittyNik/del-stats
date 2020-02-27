@@ -3,7 +3,7 @@ import {
   getLatest, getTop, getAll, getUnmoderated, getOne, create, update,
   deleteOne, getComments, addComment, deleteComment, upvote, unvote,
   getReports, addReport, resolveReport, approve, getTrending, getFirewall,
-  logResourceVisit, getTaggedResources,
+  logResourceVisit, getTaggedResources, getResourceUrl
 } from '../../controllers/learning/content_resource.controller';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
@@ -98,6 +98,14 @@ router.get('/firewall', getFirewall);
  * @apiGroup Content Resource
  */
 router.get('/pending', allowSuperAdminOnly, getUnmoderated);
+
+/**
+ * @api {post} /learning/content/resources/url/:url Get resources by url
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetResourceUrl
+ * @apiGroup Content Resource
+ */
+router.post('/url', getResourceUrl);
 
 /**
  * @api {post} /learning/content/resources Add new Content resources
