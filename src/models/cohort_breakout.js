@@ -35,6 +35,7 @@ export const CohortBreakout = db.define('cohort_breakouts', {
   catalyst_notes: Sequelize.TEXT,
   catalyst_feedback: Sequelize.TEXT,
   attendance_count: Sequelize.INTEGER,
+  details: Sequelize.JSON, // { meetingId url, codesandbox }
   created_at: {
     allowNull: false,
     type: Sequelize.DATE,
