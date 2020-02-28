@@ -8,11 +8,13 @@ import {
 	addCollaboratorToRepository,
 	repositoryPresentOrNot,
 	isRepositoryCollaborator,
-	getAllAuthoredCommits,
-	getAllCommits,
-	createGithubRepository
+	createGithubRepository,
+	createRepositoryifnotPresentFromTemplate,
+	provideAccessToRepoIfNot
 } from "./repository.controller.js";
 import {
+	getAllAuthoredCommits,
+	getAllCommits,
 	getRecentCommitByUser,
 	getRecentCommitInRepository
 } from "./commits.controller.js";
@@ -65,9 +67,9 @@ const getRecentCommitInCohort = async (req, res) => {
 
 const createChallenge = async (req, res) => {
 	try {
-		const { challenge_id } = req.body;
+		const { id } = req.params;
 		const user_id = req.jwtData.user.id;
-		learnerChallengesFindOrCreate(challenge_id, user_id)
+		learnerChallengesFindOrCreate(id, user_id)
 			.then(data => res.send({ data }))
 			.catch(err => res.status(500).send(err));
 	} catch (err) {
@@ -114,7 +116,7 @@ const getTotalUserCommitsPastWeek = async (req, res) => {
 					commits = dt.weeks[0].c;
 				}
 			});
-			res.send({ data: commits });
+			res.send({ data: {numberOfCommits: commits} });
 		})
 		.catch(err => res.status(500).send(err));
 };
@@ -135,5 +137,7 @@ export {
 	getTotalUserCommitsPastWeek,
 	getTotalTeamAndUserCommits,
 	toSentenceCase,
-	createGithubRepository
+	createGithubRepository,
+	createRepositoryifnotPresentFromTemplate,
+	provideAccessToRepoIfNot
 };

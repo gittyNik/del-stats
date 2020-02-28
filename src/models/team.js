@@ -67,7 +67,7 @@ export const deleteMilestoneTeams = (cohort_milestone_id, keepTeams = []) =>
   });
 
 export const splitFrontEndAndBackEnd = async cohort_milestone_id => async m => {
-  await m.map(async ms => await getProfile(ms));
+  m = await m.map(async ms => await getProfile(ms));
   if (m[0].profile.hasOwnProperty("stack")) {
     let frontendUsers = [];
     let backendUsers = [];
@@ -91,7 +91,7 @@ export const splitFrontEndAndBackEnd = async cohort_milestone_id => async m => {
     )}_${toSentenceCase(data.cohort.location)}_${new Date(
       data.cohort.start_date
     ).getFullYear()}`;
-    await teams.map(async (team, key) => {
+    teams = await teams.map(async (team, key) => {
       let msName = `${baseMilestoneName}_${key}`;
       let isRepo = await repositoryPresentOrNot(msName);
       if (!isRepo) {
@@ -107,7 +107,7 @@ export const splitFrontEndAndBackEnd = async cohort_milestone_id => async m => {
     });
     return teams;
   } else {
-    m.map(ms => ms.id);
+    m = m.map(ms => ms.id);
     let data = await getDataForMilestoneName(cohort_milestone_id);
     let baseMilestoneName = `MS_${toSentenceCase(
       data.milestone.name
@@ -117,7 +117,7 @@ export const splitFrontEndAndBackEnd = async cohort_milestone_id => async m => {
       data.cohort.start_date
     ).getFullYear()}`;
     let teams = splitTeams(m);
-    await teams.map(async (team, key) => {
+    teams = await teams.map(async (team, key) => {
       let msName = `${baseMilestoneName}_${key}`;
       let isRepo = await repositoryPresentOrNot(msName);
       if (!isRepo) {

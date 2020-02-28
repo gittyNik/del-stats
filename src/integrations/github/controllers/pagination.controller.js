@@ -39,7 +39,7 @@ export const getNumberOfPages = (of, team = null) => {
 					: 1
 			}));
 	} else if (of === "authoredCommits") {
-		octokit.repos
+		return octokit.repos
 			.listCommits({
 				owner: org,
 				repo: team.repository_name,
@@ -53,7 +53,7 @@ export const getNumberOfPages = (of, team = null) => {
 					: 1
 			}));
 	} else if (of === "allCommits") {
-		octokit.repos
+		return octokit.repos
 			.listCommits({
 				owner: org,
 				repo: team,

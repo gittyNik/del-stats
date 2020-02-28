@@ -7,7 +7,9 @@ import {
   createGithubRepositoryFromTemplate,
   addCollaboratorToRepository,
   repositoryPresentOrNot,
-  isRepositoryCollaborator
+  isRepositoryCollaborator,
+  createRepositoryifnotPresentFromTemplate,
+  provideAccessToRepoIfNot
 } from "../integrations/github/controllers";
 export const LearnerChallenge = db.define("learner_challenges", {
   id: {
@@ -44,36 +46,21 @@ export const learnerChallengesFindOrCreate = async (
         learner_id
       }
     });
+    let socialConnection = await getGithubConnecionByUserId(learner_id);
+    let chllenge = await getChallengeByChallengeId(challenge_id);
+    const repo_name = `${socialConnection.username}_${chllenge.starter_repo}`;
+
     if (challenge === null) {
       //No challenge for this learner yet
-      let socialConnection = await getGithubConnecionByUserId(learner_id);
-      let chllenge = await getChallengeByChallengeId(challenge_id);
-      const repo_name = `${socialConnection.username}_${chllenge.starter_repo}`;
 
       // Create repository for Challenge
-
-      let isPresent = await repositoryPresentOrNot(repo_name);
-
-      if (!isPresent) {
-        let repo = await createGithubRepositoryFromTemplate(
-          chllenge.starter_repo,
-          repo_name
-        );
-      }
-
-      // Provide Access to learner
-
-      let isCollaborator = await isRepositoryCollaborator(
-        socialConnection.username,
+      await createRepositoryifnotPresentFromTemplate(
+        chllenge.starter_repo,
         repo_name
       );
 
-      if (!isCollaborator) {
-        let collab = await addCollaboratorToRepository(
-          socialConnection.username,
-          repo_name
-        );
-      }
+      // Provide Access to learner
+      await provideAccessToRepoIfNot(socialConnection.username, repo_name);
 
       // Add in learner_challenge table
 
@@ -84,7 +71,27 @@ export const learnerChallengesFindOrCreate = async (
         repo: repo_name
       });
     } else {
-      return challenge;
+      // Create repository for Challenge
+      await createRepositoryifnotPresentFromTemplate(
+        chllenge.starter_repo,
+        repo_name
+      );
+
+      // Provide Access to learner
+      await provideAccessToRepoIfNot(socialConnection.username, repo_name);
+
+      return LearnerChallenge.update(
+        {
+          repo: repo_name
+        },
+        {
+          where: {
+            challenge_id,
+            learner_id
+          },
+          returning: true
+        }
+      ).then(result => ({repo: repo_name}));
     }
   } catch (err) {
     return err;

@@ -7,8 +7,8 @@ const router = Express.Router();
 
 // router.get('/user/commits', getTotalUserCommits);
 
-router.get('/user/commits/week/:milestone_repo_name', getTotalUserCommitsPastWeek);
+router.get('/commits/user/week/:milestone_repo_name', getTotalUserCommitsPastWeek);
 
-router.get('/team/user/commits/:milestone_repo_name', getTotalTeamAndUserCommits);
+router.get('/commits/team/user/:milestone_repo_name', getTotalTeamAndUserCommits);
 
 export default router;

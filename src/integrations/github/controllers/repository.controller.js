@@ -106,3 +106,33 @@ export const addCollaboratorToRepository = async (collaborater, repo) =>
 		repo,
 		username: collaborater
 	});
+
+export const createRepositoryifnotPresentFromTemplate = async (
+	template_repo_name,
+	repo
+) => {
+	// Create repository for Challenge
+
+	let isPresent = await repositoryPresentOrNot(repo);
+
+	if (!isPresent) {
+		return createGithubRepositoryFromTemplate(template_repo_name, repo);
+	} else {
+		return {};
+	}
+};
+
+export const provideAccessToRepoIfNot = async (collaborater, repo_name) => {
+	// Provide Access to learner
+
+	let isCollaborator = await isRepositoryCollaborator(
+		collaborater,
+		repo_name
+	);
+
+	if (!isCollaborator) {
+		return addCollaboratorToRepository(collaborater, repo_name);
+	} else {
+		return {};
+	}
+};

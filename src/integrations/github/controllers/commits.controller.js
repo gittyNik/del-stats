@@ -1,5 +1,5 @@
 import { octokit, org } from "./git.auth.controller.js";
-
+import { getNumberOfPages } from "./pagination.controller.js";
 // Receives github username, repository name from front-end
 
 export const getRecentCommitByUser = (username, repository_name) =>
