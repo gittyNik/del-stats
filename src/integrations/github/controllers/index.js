@@ -34,9 +34,9 @@ const getRecentCommitInCohort = async (req, res) => {
 		const { cohort_milestone_id } = req.params;
 		let commits = [];
 		let teams = await getTeamsbyCohortMilestoneId(cohort_milestone_id);
-		teams.map(team => team.github_repo_link);
+		teams = teams.map(team => team.github_repo_link);
 		for (let i = 0; i < teams.length; i++) {
-			let commit = await getRecentCommitInRepository(team[i]);
+			let commit = await getRecentCommitInRepository(teams[i]);
 			if (!commit.hasOwnProperty("sha")) {
 				continue;
 			}
@@ -48,11 +48,12 @@ const getRecentCommitInCohort = async (req, res) => {
 			res.send({ data: commits[0] });
 		} else {
 			let latestCommit = commits[0];
+			let latestDate = new Date(latestCommit.commit.committer.date);
 			for (let i = 1; i < commits.length; i++) {
-				let latestDate = new Date(latestCommit.committer.date);
-				let iDate = new Date(commit[i].committer.date);
-				if (idate > latestDate) {
-					latestCommit = commit[i];
+				let iDate = new Date(commits[i].commit.committer.date);
+				if (iDate > latestDate) {
+					latestCommit = commits[i];
+					latestDate = iDate;
 				}
 			}
 			res.send({ data: latestCommit });
