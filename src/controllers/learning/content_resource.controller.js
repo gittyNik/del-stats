@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
-import { Resource, getResourcesByTag, getResourceByUrl, createResource, autoTagUrls, searchResources } from '../../models/resource';
+import { Resource, getResourcesByTag, getResourceByUrl, createResource, autoTagUrls, searchResources, getResourceByTopic } from '../../models/resource';
 import { ResourceComment } from '../../models/resource_comment';
 import { ResourceReport } from '../../models/resource_report';
 import { ResourceVote } from '../../models/resource_vote';
@@ -138,6 +138,18 @@ export const getResourceUrl = (req, res) => {
     });
 };
 
+export const getTopicResource = (req, res) => {
+  const { topic_id } = req.params;
+  getResourceByTopic(topic_id)
+    .then(data => {
+      console.log(data);
+      res.send({ data });
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+};
 
 export const create = (req, res) => {
   const {

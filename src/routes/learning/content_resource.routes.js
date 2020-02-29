@@ -70,6 +70,16 @@ router.get('/tag/:tag', getTaggedResources);
 router.get('/search', searchTaggedResources);
 
 /**
+ * @api {get} /learning/content/resources/topic Get resources by topic id
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetTopicResource
+ * @apiGroup Content Resource Comment
+ *
+ * @apiParam {String} get all resources by topic id
+ */
+router.get('/topic', getTopicResource);
+
+/**
  * @api {get} /learning/content/resources/latest Get latest Content resources
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetLatest

@@ -126,6 +126,13 @@ export const getResourceByUrl = url => Resource.findOne({
   raw: true,
 });
 
+export const getResourceByTopic = topic_id => Resource.findAll({
+  where: {
+    topic_id: topic_id
+  },
+  raw: true,
+})
+
 // todo: find a way to remove hardcoding of firewall tags
 const firewallTags = ['firewall_know', 'firewall_think', 'firewall_play', 'firewall_reflect'];
 export const getFirewallResourceCount = getResourceCountByTags.bind(null, firewallTags);
