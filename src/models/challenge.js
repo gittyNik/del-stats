@@ -25,3 +25,13 @@ export const getChallengeByChallengeId = id =>
       id
     }
   });
+
+export const getChallengesByTopicId = topic_id =>
+  Challenge.findAll(
+    {
+      where: {
+        topic_id
+      }
+    },
+    { raw: true }
+  );
