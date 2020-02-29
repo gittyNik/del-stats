@@ -66,9 +66,39 @@ export const deleteMilestoneTeams = (cohort_milestone_id, keepTeams = []) =>
     }
   });
 
-export const splitFrontEndAndBackEnd = async cohort_milestone_id => async m => {
-  m = await m.map(async ms => await getProfile(ms));
-  if (m[0].profile.hasOwnProperty("stack")) {
+const toGithubFormat = str => {
+  let finalStr = "";
+  var cnt = 0;
+  while (str.length > 0) {
+    var ind = str.indexOf(" ");
+    if (cnt == 0) {
+      finalStr = str.substring(0, ind);
+      str = str.substring(ind + 1);
+      cnt++;
+    } else {
+      if (ind == -1) {
+        finalStr = finalStr + "-" + str;
+        str = "";
+      } else {
+        finalStr = finalStr + "-" + str.substring(0, ind);
+        str = str.substring(ind + 1);
+      }
+    }
+  }
+  return finalStr;
+};
+
+export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
+  let m = [];
+  for (let i = 0; i < mL.length; i++) {
+    let as = await getProfile(mL[i]);
+    m.push(as);
+  }
+  if (
+    m[0].profile !== null &&
+    m[0].profile.hasOwnProperty("stack") &&
+    m[0].profile.hasOwnProperty("stack") !== null
+  ) {
     let frontendUsers = [];
     let backendUsers = [];
     m.map(ms => {
@@ -88,23 +118,47 @@ export const splitFrontEndAndBackEnd = async cohort_milestone_id => async m => {
       data.milestone.name
     )}_${toSentenceCase(data.cohort.name)}_${toSentenceCase(
       data.cohort.program_id
-    )}_${toSentenceCase(data.cohort.location)}_${new Date(
-      data.cohort.start_date
-    ).getFullYear()}`;
-    teams = await teams.map(async (team, key) => {
-      let msName = `${baseMilestoneName}_${key}`;
-      let isRepo = await repositoryPresentOrNot(msName);
-      if (!isRepo) {
-        let repo = await createGithubRepository(msName);
-        await team.map(async (user, key) => {
-          let u = await getGithubConnecionByUserId(user);
-          u = u.username;
-          let col = await addCollaboratorToRepository(u, repo);
-          // return {id: user, username: u.username}
-        });
+    )}_${toSentenceCase(
+      data.cohort.location === "T-hub, IIIT Hyderabad"
+        ? "Hyderabad"
+        : data.cohort.location
+    )}_${new Date(data.cohort.start_date).getFullYear()}`;
+
+    for (let i = 0; i < teams.length; i++) {
+      let msName = `${baseMilestoneName}_${i + 1}`;
+      msName = toGithubFormat(msName);
+      let repo = await createGithubRepository(msName);
+      var team = teams[i];
+      for (let j = 0; j < team.length; j++) {
+        msName = repo.data.name;
+        let u = await getGithubConnecionByUserId(team[j]);
+        if (!u) {
+          continue;
+        }
+        u = u.username;
+        let col = await addCollaboratorToRepository(u, repo.data.name);
+        // return {id: user, username: u.username}
       }
-      return {team, repo: msName};
-    });
+
+      // Section for checking
+
+      // let isRepo = await repositoryPresentOrNot(msName);
+      // if (!isRepo) {
+      //   let repo = await createGithubRepository(msName);
+      //   var team = teams[i];
+      //   for (let j = 0; j < team.length; j++) {
+      //     msName = repo.data.name;
+      //     let u = await getGithubConnecionByUserId(team[j]);
+      //     if (!u) {
+      //       continue;
+      //     }
+      //     u = u.username;
+      //     let col = await addCollaboratorToRepository(u, repo.data.name);
+      //     // return {id: user, username: u.username}
+      //   }
+      // }
+      teams[i] = { team, repo: msName };
+    }
     return teams;
   } else {
     m = m.map(ms => ms.id);
@@ -113,45 +167,87 @@ export const splitFrontEndAndBackEnd = async cohort_milestone_id => async m => {
       data.milestone.name
     )}_${toSentenceCase(data.cohort.name)}_${toSentenceCase(
       data.cohort.program_id
-    )}_${toSentenceCase(data.cohort.location)}_${new Date(
-      data.cohort.start_date
-    ).getFullYear()}`;
+    )}_${toSentenceCase(
+      data.cohort.location === "T-hub, IIIT Hyderabad"
+        ? "Hyderabad"
+        : data.cohort.location
+    )}_${new Date(data.cohort.start_date).getFullYear()}`;
     let teams = splitTeams(m);
-    teams = await teams.map(async (team, key) => {
-      let msName = `${baseMilestoneName}_${key}`;
-      let isRepo = await repositoryPresentOrNot(msName);
-      if (!isRepo) {
-        let repo = await createGithubRepository(msName);
-        await team.map(async (user, key) => {
-          let u = await getGithubConnecionByUserId(user);
-          u = u.username;
-          let col = await addCollaboratorToRepository(u, repo);
-          // return {id: user, username: u.username}
-        });
+    for (let i = 0; i < teams.length; i++) {
+      let msName = `${baseMilestoneName}_${i + 1}`;
+      msName = toGithubFormat(msName);
+      let repo = await createGithubRepository(msName);
+      var team = teams[i];
+      for (let j = 0; j < team.length; j++) {
+        msName = repo.data.name;
+        let u = await getGithubConnecionByUserId(team[j]);
+        if (!u) {
+          continue;
+        }
+        u = u.username;
+        let col = await addCollaboratorToRepository(u, repo.data.name);
+        // return {id: user, username: u.username}
       }
-      return {team, repo: msName};
-    });
+
+      // Commented to reduce Github api pinging
+
+      // let isRepo = await repositoryPresentOrNot(msName);
+      // if (!isRepo) {
+      //   let repo = await createGithubRepository(msName);
+      //   var team = teams[i];
+      //   for (let j = 0; j < team.length; j++) {
+      //     msName = repo.data.name;
+      //     let u = await getGithubConnecionByUserId(team[j]);
+      //     if (!u) {
+      //       continue;
+      //     }
+      //     u = u.username;
+      //     let col = await addCollaboratorToRepository(u, repo.data.name);
+      //     // return {id: user, username: u.username}
+      //   }
+      // }
+      teams[i] = { team, repo: msName };
+    }
     return teams;
   }
 };
 
 export const createMilestoneTeams = cohort_milestone_id =>
-  CohortMilestone.findByPk(cohort_milestone_id)
-    .then(m => m.getUsers())
-    .then(splitFrontEndAndBackEnd(cohort_milestone_id))
-    .then(teams =>
-      Team.bulkCreate(
-        teams.map(({team, repo}) => ({
-          id: uuid(),
-          name: faker.commerce.productName(),
-          cohort_milestone_id,
-          learners: team,
-          github_repo_link: repo
-        }))
-      )
-    );
+  findTeamsByCohortMilestoneId(cohort_milestone_id).then(teams => {
+    if (teams.length !== 0) {
+      return teams;
+    } else {
+      return CohortMilestone.findByPk(cohort_milestone_id)
+        .then(m => m.getUsers())
+        .then(splitFrontEndAndBackEnd(cohort_milestone_id))
+        .then(teams =>
+          Team.bulkCreate(
+            teams.map(({ team, repo }) => ({
+              id: uuid(),
+              name: faker.commerce.productName(),
+              cohort_milestone_id,
+              learners: team,
+              github_repo_link: repo
+            }))
+          )
+        );
+    }
+  });
 
 export const getTeamsbyCohortMilestoneId = cohort_milestone_id =>
-  Team.findAll({
-    where: { cohort_milestone_id }
-  }, { raw: true });
+  Team.findAll(
+    {
+      where: { cohort_milestone_id }
+    },
+    { raw: true }
+  );
+
+const findTeamsByCohortMilestoneId = cohort_milestone_id =>
+  Team.findAll(
+    {
+      where: {
+        cohort_milestone_id
+      }
+    },
+    { raw: true }
+  );

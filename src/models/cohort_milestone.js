@@ -94,7 +94,7 @@ export const getCurrentMilestoneOfCohort = (cohort_id) => {
       return Promise.all([
         findTopicsForCohortAndMilestone(cohort_id, milestone_id),
         findTopicsForCohortAndMilestone(cohort_id),
-        getOrCreateMilestoneTeams(id)
+        createMilestoneTeams(id)
       ])
         .then(([topics, programTopics, teams]) => {
           console.log(`Milestone topics: ${topics.length}, Program topics: ${programTopics.length}`);

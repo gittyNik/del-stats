@@ -1,6 +1,11 @@
 import request from "superagent";
 import { octokit, org } from "./git.auth.controller.js";
-import { createTeam, getTeamIdByName, isEducator, toSentenceCase } from "./teams.controller.js";
+import {
+	createTeam,
+	getTeamIdByName,
+	isEducator,
+	toSentenceCase
+} from "./teams.controller.js";
 import { sendInvitesToNewMembers } from "./orgs.controller.js";
 import {
 	getAllRepos,
@@ -18,7 +23,10 @@ import {
 	getRecentCommitByUser,
 	getRecentCommitInRepository
 } from "./commits.controller.js";
-import { getTeamsbyCohortMilestoneId } from "../../../models/team";
+import {
+	getTeamsbyCohortMilestoneId,
+	createMilestoneTeams
+} from "../../../models/team";
 import { getGithubConnecionByUserId } from "../../../models/social_connection";
 import { learnerChallengesFindOrCreate } from "../../../models/learner_challenge";
 
@@ -116,9 +124,16 @@ const getTotalUserCommitsPastWeek = async (req, res) => {
 					commits = dt.weeks[0].c;
 				}
 			});
-			res.send({ data: {numberOfCommits: commits} });
+			res.send({ data: { numberOfCommits: commits } });
 		})
 		.catch(err => res.status(500).send(err));
+};
+
+const createMilestoneTeamsbyCohortMilestoneId = async (req, res) => {
+	const { cohort_milestone_id } = req.params;
+	createMilestoneTeams(cohort_milestone_id)
+		.then(data => res.send({ data }))
+		.catch(err => {console.log(err);res.status(500).send(err);});
 };
 
 export {
@@ -139,5 +154,6 @@ export {
 	toSentenceCase,
 	createGithubRepository,
 	createRepositoryifnotPresentFromTemplate,
-	provideAccessToRepoIfNot
+	provideAccessToRepoIfNot,
+	createMilestoneTeamsbyCohortMilestoneId
 };
