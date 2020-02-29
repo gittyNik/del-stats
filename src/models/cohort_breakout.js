@@ -1,7 +1,6 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import db from '../database';
-import { Topic } from './topic';
 
 export const EVENT_STATUS = ['scheduled', 'started', 'cancelled', 'aborted', 'running'];
 export const BREAKOUT_TYPE = ['lecture', 'codealong', 'questionhour', 'activity', 'groupdiscussion'];
@@ -64,4 +63,25 @@ export const startBreakout = (topic_id, cohort_id, time_scheduled) => CohortBrea
   cohort_id,
   time_scheduled,
   status: 'started',
+});
+
+export const createNewBreakout = (
+  type, domain, topic_id, cohort_id, time_scheduled, duration,
+  location, catalyst_id, status, catalyst_notes,
+  catalyst_feedback, attendance_count, details,
+) => CohortBreakout.create({
+  id: uuid(),
+  type,
+  domain,
+  topic_id,
+  cohort_id,
+  status,
+  time_scheduled,
+  duration,
+  location,
+  catalyst_id,
+  catalyst_notes,
+  attendance_count,
+  catalyst_feedback,
+  details,
 });

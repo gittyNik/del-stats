@@ -49,3 +49,5 @@ export const getGithubConnecionByUserId = user_id =>
       provider: PROVIDERS.GITHUB
     }
   });
+
+  // zoom <-> user details

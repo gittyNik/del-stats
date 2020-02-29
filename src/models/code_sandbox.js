@@ -17,18 +17,39 @@ export const CodeSandbox = db.define('code_sandboxes', {
 
 // template [object] payload to send to codesandbox.
 // embed_options[object] sends query parameters as object.
-export const createTemplate = (template, embed_options) => {
-  request
+export const createSandbox = (payload) => {
+  const defaultTemplate = {
+    files: {
+      'package.json': {
+        content: {
+          dependencies: {
+          },
+        },
+      },
+      'index.js': {
+        content: ' ',
+      },
+    },
+  };
+  const embed_options = {
+    code_mirror: 1,
+    theme: 'dark',
+    view: 'editor',
+    runonclick: 1,
+    eslint: 1,
+  };
+  payload = payload || defaultTemplate;
+  return request
     .post(`${CODE_ENDPOINT}sandboxes/define?json=1`)
-    .query(embed_options)
-    .send(template)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
+    .send(payload)
+    .query(embed_options)
     .then(response => {
-      console.log(response.text);
+      console.log(response);
       return {
         text: 'Sanbox successfully created. redirect to ex: https://codesanbox.io/embed/<id>',
-        data: response.text,
+        data: response.body,
       };
     })
     .catch(err => {

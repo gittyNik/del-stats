@@ -4,15 +4,10 @@ import uuid from 'uuid/v4';
 import jwt from 'jsonwebtoken';
 import db from '../database';
 
-const jwt_payload = {
-  iss: process.env.ZOOM_API_KEY,
-  exp: ((new Date()).getTime() + 5000),
-};
-export const zoom_token = jwt.sign(jwt_payload, process.env.ZOOM_API_SECRET);
-
 
 export const VideoMeeting = db.define('video_meetings', {
   id: {
+    type: Sequelize.UUID,
     primaryKey: true,
   },
   video_id: Sequelize.STRING,
@@ -32,6 +27,13 @@ export const VideoMeeting = db.define('video_meetings', {
   },
 });
 
+
+const jwt_payload = {
+  iss: process.env.ZOOM_API_KEY,
+  exp: ((new Date()).getTime() + 5000),
+};
+export const zoom_token = jwt.sign(jwt_payload, process.env.ZOOM_API_SECRET);
+
 const MEETING_SETTINGS = {
   host_video: 'true',
   participant_video: 'true',
@@ -48,7 +50,7 @@ const MEETING_SETTINGS = {
   waiting_room: 'true',
 };
 
-export const createScheduledMeeting = (topic, agenda, start_time, duration, type) => {
+export const createScheduledMeeting = (topic, start_time, duration, type, agenda) => {
   const { ZOOM_BASE_URL, ZOOM_USER } = process.env;
   const meeting_object = {
     topic,
@@ -61,7 +63,7 @@ export const createScheduledMeeting = (topic, agenda, start_time, duration, type
     settings: MEETING_SETTINGS,
   };
 
-  request
+  return (request
     .post(`${ZOOM_BASE_URL}users/${ZOOM_USER}/meetings`) // todo: need to assign delta user to zoom user
     .send(meeting_object)
     .set('Authorization', `Bearer ${zoom_token}`)
@@ -86,5 +88,6 @@ export const createScheduledMeeting = (topic, agenda, start_time, duration, type
       return {
         text: 'Failed to create meeting',
       };
-    });
+    })
+  );
 };
