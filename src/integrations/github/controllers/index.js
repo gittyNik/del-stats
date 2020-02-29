@@ -28,7 +28,10 @@ import {
 	createMilestoneTeams
 } from "../../../models/team";
 import { getGithubConnecionByUserId } from "../../../models/social_connection";
-import { learnerChallengesFindOrCreate } from "../../../models/learner_challenge";
+import {
+	learnerChallengesFindOrCreate,
+	getChallengesByUserId
+} from "../../../models/learner_challenge";
 
 // Returns latest commit object of given user {{username}} in repository {{repo_name}}
 const getRecentCommit = async (req, res) => {
@@ -133,7 +136,16 @@ const createMilestoneTeamsbyCohortMilestoneId = async (req, res) => {
 	const { cohort_milestone_id } = req.params;
 	createMilestoneTeams(cohort_milestone_id)
 		.then(data => res.send({ data }))
-		.catch(err => {console.log(err);res.status(500).send(err);});
+		.catch(err => res.status(500).send(err));
+};
+
+const numberOfAttemptedChallenges = async (req, res) => {
+	const user_id = req.jwtData.user.id;
+	getChallengesByUserId(user_id)
+		.then(challenges =>
+			res.send({ data: { noOfChallenges: challenges.length } })
+		)
+		.catch(err => res.status(500).send(err));
 };
 
 export {
@@ -155,5 +167,6 @@ export {
 	createGithubRepository,
 	createRepositoryifnotPresentFromTemplate,
 	provideAccessToRepoIfNot,
-	createMilestoneTeamsbyCohortMilestoneId
+	createMilestoneTeamsbyCohortMilestoneId,
+	numberOfAttemptedChallenges
 };

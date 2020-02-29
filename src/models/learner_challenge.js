@@ -91,9 +91,19 @@ export const learnerChallengesFindOrCreate = async (
           },
           returning: true
         }
-      ).then(result => ({repo: repo_name}));
+      ).then(result => ({ repo: repo_name }));
     }
   } catch (err) {
     return err;
   }
 };
+
+export const getChallengesByUserId = learner_id =>
+  LearnerChallenge.findAll(
+    {
+      where: {
+        learner_id
+      }
+    },
+    { raw: true }
+  );

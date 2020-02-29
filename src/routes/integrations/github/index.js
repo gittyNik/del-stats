@@ -7,12 +7,12 @@ import authenticate from '../../../controllers/auth/auth.controller';
 
 const router = Express.Router();
 
+router.use(authenticate);
+
 router.use('/milestones', milestonesRouter);
 
 // Returns latest commit object of given user {{username}} in repository {{repo_name}}
 router.use('/commits', commitRouter);
-
-router.use(authenticate);
 
 router.use('/challenges', challengesRouter);
 
