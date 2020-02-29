@@ -16,6 +16,11 @@ export const LearnerBreakout = db.define('learner_breakouts', {
   },
   learner_notes: Sequelize.TEXT,
   learner_feedback: Sequelize.TEXT,
+  team_breakout_id: {
+    type: Sequelize.UUID,
+    references: { model: 'team_breakout', key: 'id' },
+  },
+  attendance: Sequelize.BOOLEAN,
 });
 
 export default LearnerBreakout;

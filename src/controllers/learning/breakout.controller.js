@@ -1,5 +1,6 @@
-import uuid from 'uuid/v4';
-import { CohortBreakout } from '../../models/cohort_breakout';
+import { CohortBreakout, createNewBreakout } from '../../models/cohort_breakout';
+import { createScheduledMeeting } from '../../models/video_meeting';
+import { createSandbox } from '../../models/code_sandbox';
 
 export const getBreakouts = (req, res) => {
   CohortBreakout.findAll({})
@@ -14,34 +15,148 @@ export const createBreakout = (req, res) => {
   const {
     type, domain, topic_id,
     cohort_id, time_scheduled, duration,
-    location, catalyst_id, status,
-    catalyst_notes, catalyst_feedback, attendence_count,
+    location, catalyst_id, attendance_count,
+    catalyst_notes, status, catalyst_feedback,
+    isVideoMeeting, isCodeSandbox,
   } = req.body;
+  let time = time_scheduled.toLocaleString().split(' ').join('T');
+  // console.group(time);
 
-  CohortBreakout.create({
-    id: uuid(),
-    type,
-    domain,
-    topic_id,
-    cohort_id,
-    time_scheduled,
-    duration,
-    location,
-    catalyst_id,
-    status,
-    catalyst_notes,
-    catalyst_feedback,
-    attendence_count,
-  })
-    .then(data => {
-      console.log(data);
-      res.send('Breakout created');
-    })
-    .catch(err => {
-      console.error(err);
-      res.status(500);
-    });
+  if (isCodeSandbox && isVideoMeeting) {
+    Promise.all([
+      createSandbox(),
+      createScheduledMeeting(topic_id, time, duration),
+    ])
+      .then(([sandbox, videoMeeting]) => {
+        console.log('Sandbox: ', sandbox);
+        console.log('VideoMeeting: ', videoMeeting);
+        let details = {
+          sandbox_id: sandbox.data.sandbox_id,
+          videoMeeting_id: videoMeeting,
+        };
+        createNewBreakout(
+          type, domain, topic_id, cohort_id, time_scheduled, duration,
+          location, catalyst_id, status, catalyst_notes,
+          catalyst_feedback, attendance_count, details,
+        )
+          .then(data => {
+            console.log(data);
+            res.send('Breakout Created with codesandbox and videomeeting.');
+          })
+          .catch(err => {
+            console.error('Failed to create Cohort Breakout', err);
+            res.send(500);
+          });
+      })
+      .catch(err => {
+        console.log('Failed to create Code Sanbdbox and Videomeeting', err);
+        res.status(500);
+      });
+  } else if (isCodeSandbox) {
+    // todo: pass template, and embedd_options as args
+    createSandbox()
+      .then(sandbox => {
+        // console.log(data);
+        let details = {
+          sandbox_id: sandbox.data.sandbox_id,
+        };
+        createNewBreakout(
+          type, domain, topic_id, cohort_id, time_scheduled, duration,
+          location, catalyst_id, status, catalyst_notes,
+          catalyst_feedback, attendance_count, details,
+        )
+          .then(data => {
+            console.log('Breakout created with code sandbox only', data);
+            res.send('Breakout Created with codesandbox only.');
+          })
+          .catch(err => {
+            console.error('Failed to create Breakout', err);
+            res.send(500);
+          });
+      })
+      .catch(err => {
+        console.log('Failed to create codesandbox', err);
+        res.send(500);
+      });
+  } else if (isVideoMeeting) {
+    createScheduledMeeting(topic_id, time, duration)
+      .then(videoMeeting => {
+        let details = {
+          videoMeeting_id: videoMeeting,
+        };
+        createNewBreakout(
+          type, domain, topic_id, cohort_id, time_scheduled, duration,
+          location, catalyst_id, status, catalyst_notes,
+          catalyst_feedback, attendance_count, details,
+        )
+          .then(data => {
+            console.log(data);
+            res.send('Breakout and video meeting created Created');
+          })
+          .catch(err => {
+            console.error('Failed to create Breakout after creating video meeting', err);
+            res.send(500);
+          });
+      })
+      .catch(err => {
+        // todo: Remove the scheduled meeting from zoom  and deltaDB - delete.
+        console.log(err);
+        res.send(500);
+      });
+  } else {
+    console.log(' No Codesandbox and Videomeeting');
+    res.send('Breakout created without the code-sandbox and video-meeting');
+  }
 };
+// if (isCodeSandbox) {
+//   promisesList.push(
+//     createScheduledMeeting(title, time, duration, duration),
+//   );
+//   createScheduledMeeting(title, time, duration, duration)
+//     .then(sandbox =>{
+//       console.log(sandbox);
+
+//     })
+// } else if (isVideoMeeting) {
+//   promisesList.push(createTemplate());
+
+// console.log(promisesList);
+// Promise.all(promisesList)
+//   .then(([sandbox, video]) => {
+//     console.log('Sandbox: ', sandbox);
+//     console.log('Video: ', video);
+//     res.send('Sandbox and video created.');
+//     // return createNewBreakout(type, domain, topic_id, cohort_id, time_scheduled, duration, location, catalyst_id, status, catalyst_notes, catalyst_feedback, attendance_count, details)
+//   })
+//   .catch(err => {
+//     console.log(err);
+//     res.send('Failed');
+//   });
+
+
+// CohortBreakout.create({
+//   id: uuid(),
+//   type,
+//   domain,
+//   topic_id,
+//   cohort_id,
+//   time_scheduled,
+//   duration,
+//   location,
+//   catalyst_id,
+//   status,
+//   catalyst_notes,
+//   catalyst_feedback,
+//   attendence_count,
+// })
+//   .then(data => {
+//     console.log(data);
+//     res.send('Breakout created');
+//   })
+//   .catch(err => {
+//     console.error(err);
+//     res.status(500);
+//   });
 
 export const updateBreakout = (req, res) => {
   const {
