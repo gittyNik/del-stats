@@ -148,6 +148,21 @@ const numberOfAttemptedChallenges = async (req, res) => {
 		.catch(err => res.status(500).send(err));
 };
 
+const getTotalCohortCommits = async (req, res) => {
+	try {
+		const { cohort_milestone_id } = req.params;
+		let teams = await getTeamsbyCohortMilestoneId(cohort_milestone_id);
+		let commits = 0;
+		for (let i = 0; i < teams.length; i++) {
+			let commit = await getAllCommits(teams[i].github_repo_link); //needs to be repo name not links
+			commits = commits + commit;
+		}
+		res.send({ data: { totalCommits: commits } });
+	} catch (err) {
+		res.status(500).send(err);
+	}
+};
+
 export {
 	createTeam,
 	getTeamIdByName,
@@ -168,5 +183,6 @@ export {
 	createRepositoryifnotPresentFromTemplate,
 	provideAccessToRepoIfNot,
 	createMilestoneTeamsbyCohortMilestoneId,
-	numberOfAttemptedChallenges
+	numberOfAttemptedChallenges,
+	getTotalCohortCommits
 };
