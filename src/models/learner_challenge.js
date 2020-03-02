@@ -46,13 +46,13 @@ export const learnerChallengesFindOrCreate = async (
         learner_id
       }
     });
-    let socialConnection = await getGithubConnecionByUserId(learner_id);
-    let chllenge = await getChallengeByChallengeId(challenge_id);
-    const repo_name = `${socialConnection.username}_${chllenge.starter_repo}`;
 
     if (challenge === null) {
       //No challenge for this learner yet
 
+      let socialConnection = await getGithubConnecionByUserId(learner_id);
+      let chllenge = await getChallengeByChallengeId(challenge_id);
+      const repo_name = `${socialConnection.username}_${chllenge.starter_repo}`;
       // Create repository for Challenge
       await createRepositoryifnotPresentFromTemplate(
         chllenge.starter_repo,
@@ -63,35 +63,43 @@ export const learnerChallengesFindOrCreate = async (
       await provideAccessToRepoIfNot(socialConnection.username, repo_name);
 
       // Add in learner_challenge table
-
-      return LearnerChallenge.create({
+      let chl = await LearnerChallenge.create({
         id: uuid(),
         challenge_id,
         learner_id,
         repo: repo_name
       });
+      return {
+        challenge: chl,
+        repo_link: `https://github.com/${process.env.SOAL_LEARNER_ORG}/${repo_name}`
+      };
     } else {
-      // Create repository for Challenge
-      await createRepositoryifnotPresentFromTemplate(
-        chllenge.starter_repo,
-        repo_name
-      );
+      // // Create repository for Challenge
+      // await createRepositoryifnotPresentFromTemplate(
+      //   chllenge.starter_repo,
+      //   repo_name
+      // );
 
-      // Provide Access to learner
-      await provideAccessToRepoIfNot(socialConnection.username, repo_name);
+      // // Provide Access to learner
+      // await provideAccessToRepoIfNot(socialConnection.username, repo_name);
 
-      return LearnerChallenge.update(
-        {
-          repo: repo_name
-        },
-        {
-          where: {
-            challenge_id,
-            learner_id
-          },
-          returning: true
-        }
-      ).then(result => ({ repo: repo_name }));
+      // return LearnerChallenge.update(
+      //   {
+      //     repo: repo_name
+      //   },
+      //   {
+      //     where: {
+      //       challenge_id,
+      //       learner_id
+      //     },
+      //     returning: true
+      //   }
+      // ).then(result => ({ repo: repo_name }));
+
+      return {
+        challenge,
+        repo_link: `https://github.com/${process.env.SOAL_LEARNER_ORG}/${challenge.repo}`
+      };
     }
   } catch (err) {
     return err;
