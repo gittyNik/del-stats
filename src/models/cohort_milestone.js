@@ -86,6 +86,15 @@ const findTopicsForCohortAndMilestone = (cohort_id, milestone_id = null) =>
     return topics;
   });
 
+const populateTeamsWithLearnersWrapper = async ([
+  topics,
+  programTopics,
+  teams
+]) => {
+  teams = await populateTeamsWithLearners(teams);
+  return [topics, programTopics, teams];
+};
+
 export const getCurrentMilestoneOfCohort = cohort_id => {
   const now = Sequelize.literal("NOW()");
   return CohortMilestone.findOne({
@@ -104,15 +113,17 @@ export const getCurrentMilestoneOfCohort = cohort_id => {
       findTopicsForCohortAndMilestone(cohort_id, milestone_id),
       findTopicsForCohortAndMilestone(cohort_id),
       createMilestoneTeams(id)
-    ]).then(([topics, programTopics, teams]) => {
-      console.log(
-        `Milestone topics: ${topics.length}, Program topics: ${programTopics.length}`
-      );
-      milestone.topics = topics;
-      milestone.programTopics = programTopics;
-      milestone.teams = teams;
-      return milestone;
-    });
+    ])
+      .then(populateTeamsWithLearnersWrapper)
+      .then(([topics, programTopics, teams]) => {
+        console.log(
+          `Milestone topics: ${topics.length}, Program topics: ${programTopics.length}`
+        );
+        milestone.topics = topics;
+        milestone.programTopics = programTopics;
+        milestone.teams = teams;
+        return milestone;
+      });
   });
 };
 
