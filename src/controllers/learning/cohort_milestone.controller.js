@@ -12,8 +12,9 @@ export const getUpcomingReviews = (req, res) => {
 };
 
 export const getCohortLiveMilestone = (req, res) => {
+  const user_id = req.jwtData.user.id;
   const { cohort_id } = req.params;
-  getCurrentMilestoneOfCohort(cohort_id)
+  getCurrentMilestoneOfCohort(cohort_id, user_id)
     .then(milestone => {
       res.send({ 
         text: "Live Milestone of Cohort",

@@ -6,9 +6,13 @@ import { CohortBreakout } from "./cohort_breakout";
 import { Program } from "./program";
 import { Milestone } from "./milestone";
 import { Topic } from "./topic";
-import { Team, createMilestoneTeams } from "./team";
+import { Team, createMilestoneTeams, getLearnerTeamOfMilestone } from "./team";
 import { User } from "./user";
 import { getChallengesByTopicId } from "./challenge.js";
+import {
+	getRecentCommitByUser
+} from "../integrations/github/controllers/commits.controller";
+import { getGithubConnecionByUserId } from "./social_connection";
 
 export const CohortMilestone = db.define("cohort_milestones", {
   id: {
@@ -89,13 +93,31 @@ const findTopicsForCohortAndMilestone = (cohort_id, milestone_id = null) =>
 const populateTeamsWithLearnersWrapper = async ([
   topics,
   programTopics,
-  teams
+  teams,
+  stats
 ]) => {
   teams = await populateTeamsWithLearners(teams);
-  return [topics, programTopics, teams];
+  return [topics, programTopics, teams, stats];
 };
 
-export const getCurrentMilestoneOfCohort = cohort_id => {
+const getMilestoneStats = async (user_id, milestone_id) => {
+  return Promise.all([
+    getGithubConnecionByUserId(user_id),
+    getLearnerTeamOfMilestone(user_id, milestone_id)
+  ]).then( async ([socialConnection, learnerTeam]) => {
+    const recentCommitByUser = await getRecentCommitByUser(socialConnection.username, learnerTeam.github_repo_link);
+    // TODO:
+    // last commit in cohort
+    // user commit frequency over past week in milestone
+    // total user commits vs team commits in milestone
+    // day wise number of commits in milestone by user and rest of team
+    return {
+      recentCommitByUser
+    }
+  })
+}
+
+export const getCurrentMilestoneOfCohort = (cohort_id, user_id) => {
   const now = Sequelize.literal("NOW()");
   return CohortMilestone.findOne({
     order: Sequelize.col("release_time"),
@@ -108,20 +130,23 @@ export const getCurrentMilestoneOfCohort = cohort_id => {
     raw: true
   }).then(milestone => {
     if (!milestone) return milestone;
-    const { milestone_id, id } = milestone;
+    const { milestone_id, id, repo_name } = milestone;
     return Promise.all([
       findTopicsForCohortAndMilestone(cohort_id, milestone_id),
       findTopicsForCohortAndMilestone(cohort_id),
-      createMilestoneTeams(id)
+      createMilestoneTeams(id),
+      getMilestoneStats(user_id, id)
     ])
       .then(populateTeamsWithLearnersWrapper)
-      .then(([topics, programTopics, teams]) => {
+      .then(([topics, programTopics, teams, stats]) => {
+        console.log("***********Stats", stats)
         console.log(
           `Milestone topics: ${topics.length}, Program topics: ${programTopics.length}`
         );
         milestone.topics = topics;
         milestone.programTopics = programTopics;
         milestone.teams = teams;
+        milestone.stats = stats;
         return milestone;
       });
   });

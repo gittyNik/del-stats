@@ -13,6 +13,8 @@ import {
 } from "../integrations/github/controllers";
 import { getGithubConnecionByUserId } from "./social_connection";
 
+const { contains } = Sequelize.Op;
+
 export const Team = db.define("milestone_learner_teams", {
   id: {
     allowNull: false,
@@ -250,4 +252,16 @@ const findTeamsByCohortMilestoneId = cohort_milestone_id =>
       }
     },
     { raw: true }
+  );
+
+export const getLearnerTeamOfMilestone = (user_id, cohort_milestone_id) => 
+  Team.findOne(
+    {
+      where: {
+        cohort_milestone_id,
+        learners: {
+          [contains]: [user_id],
+        }
+      }
+    }
   );
