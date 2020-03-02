@@ -108,55 +108,6 @@ export const createBreakout = (req, res) => {
     res.send('Breakout created without the code-sandbox and video-meeting');
   }
 };
-// if (isCodeSandbox) {
-//   promisesList.push(
-//     createScheduledMeeting(title, time, duration, duration),
-//   );
-//   createScheduledMeeting(title, time, duration, duration)
-//     .then(sandbox =>{
-//       console.log(sandbox);
-
-//     })
-// } else if (isVideoMeeting) {
-//   promisesList.push(createTemplate());
-
-// console.log(promisesList);
-// Promise.all(promisesList)
-//   .then(([sandbox, video]) => {
-//     console.log('Sandbox: ', sandbox);
-//     console.log('Video: ', video);
-//     res.send('Sandbox and video created.');
-//     // return createNewBreakout(type, domain, topic_id, cohort_id, time_scheduled, duration, location, catalyst_id, status, catalyst_notes, catalyst_feedback, attendance_count, details)
-//   })
-//   .catch(err => {
-//     console.log(err);
-//     res.send('Failed');
-//   });
-
-
-// CohortBreakout.create({
-//   id: uuid(),
-//   type,
-//   domain,
-//   topic_id,
-//   cohort_id,
-//   time_scheduled,
-//   duration,
-//   location,
-//   catalyst_id,
-//   status,
-//   catalyst_notes,
-//   catalyst_feedback,
-//   attendence_count,
-// })
-//   .then(data => {
-//     console.log(data);
-//     res.send('Breakout created');
-//   })
-//   .catch(err => {
-//     console.error(err);
-//     res.status(500);
-//   });
 
 export const updateBreakout = (req, res) => {
   const {
