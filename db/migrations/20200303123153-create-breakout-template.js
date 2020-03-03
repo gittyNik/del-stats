@@ -1,3 +1,5 @@
+export const BREAKOUT_LEVEL = ['beginner', 'intermediate', 'advanced'];
+
 const migration = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('breakout_templates', {
     id: {
