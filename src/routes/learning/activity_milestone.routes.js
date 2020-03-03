@@ -4,7 +4,7 @@ import {
   getAllMilestones, getMilestone, getTeam, getMilestoneTeams, resetMilestoneTeams,
   generateMilestoneTeams
 } from '../../controllers/learning/milestone.controller';
-import { getCohortLiveMilestone } from '../../controllers/learning/cohort_milestone.controller';
+import { getCohortLiveMilestone, getAllCohortMilestones } from '../../controllers/learning/cohort_milestone.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 
 
@@ -107,6 +107,15 @@ router.delete('/:milestone_id', deleteOne);
  * @apiName GetCurrentMilestoneOfCohort
  * @apiGroup TEP Milestone
  */
+
+/**
+ * @api {get} /learning/activity/milestones/:milestone_id Get milestone by Id
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetMilestoneById
+ * @apiGroup TEP Milestone
+ */
+router.get('/cohort/:cohort_id', getAllCohortMilestones);
+
 router.get('/cohort/:cohort_id/live', getCohortLiveMilestone);
 
 export default router;

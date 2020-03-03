@@ -250,3 +250,9 @@ export const getOrCreateMilestoneTeams = milestone_id => {
     })
     .then(populateTeamsWithLearners);
 };
+
+export const getCohortMilestones = cohort_id => 
+  CohortMilestone.findAll({
+    where: { cohort_id },
+    include: [Milestone]
+  })
