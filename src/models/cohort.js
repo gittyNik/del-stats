@@ -5,6 +5,7 @@ import { User, USER_ROLES } from "./user";
 import db from "../database";
 import { createCohortMilestones, CohortMilestone } from "./cohort_milestone";
 import { CohortBreakout } from "./cohort_breakout";
+import { BreakoutTemplate, CreateBreakoutsInMilestone } from './breakout_template';
 
 export const Cohort = db.define("cohorts", {
   id: {
@@ -128,8 +129,8 @@ export const updateCohortLearners = id =>
             }
           ),
           User.update(
-            { role: USER_ROLES.LEARNER}, 
-            { 
+            { role: USER_ROLES.LEARNER },
+            {
               where: {
                 id: { [Sequelize.Op.in]: learners }
               },
@@ -146,6 +147,9 @@ export const beginCohortWithId = cohort_id =>
     updateCohortLearners(cohort_id),
     createCohortMilestones(cohort_id)
   ]).then(([cohort, milestones]) => {
+    // get all breakout templates
+    // topic id from bt -> milestone_id -> release_time
+    console.log(milestones);
     cohort.milestones = milestones;
     return cohort;
   });
@@ -165,7 +169,7 @@ export const getUpcomingCohort = date => {
 
 //Replace by findByPK
 export const getCohortFromId = id =>
-  Cohort.findOne({ where: { id } }).then(cohort => cohort );
+  Cohort.findOne({ where: { id } }).then(cohort => cohort);
 
 export const getCohortFromLearnerId = user_id =>
   Application.findOne({
