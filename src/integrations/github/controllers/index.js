@@ -1,4 +1,3 @@
-import request from "superagent";
 import { octokit, org } from "./git.auth.controller.js";
 import {
 	createTeam,
@@ -21,17 +20,26 @@ import {
 	getAllAuthoredCommits,
 	getAllCommits,
 	getRecentCommitByUser,
-	getRecentCommitInRepository
+	getRecentCommitInRepository,
+	getCommitsBetweenDates,
+	getAuthoredCommitsBetweenDates
 } from "./commits.controller.js";
 import {
 	getTeamsbyCohortMilestoneId,
-	createMilestoneTeams
+	createMilestoneTeams,
+	getLearnerTeamOfMilestone,
+	getAllLearnerTeamsByUserId
 } from "../../../models/team";
 import { getGithubConnecionByUserId } from "../../../models/social_connection";
 import {
 	learnerChallengesFindOrCreate,
 	getChallengesByUserId
 } from "../../../models/learner_challenge";
+import {
+	contributersInRepository,
+	weeklyCommitActivityData
+} from "./stats.controller.js";
+import { getCohortMilestonesByCohortId } from "../../../models/cohort_milestone";
 
 // Returns latest commit object of given user {{username}} in repository {{repo_name}}
 const getRecentCommit = async (req, res) => {
@@ -123,13 +131,7 @@ const getTotalTeamAndUserCommits = async (req, res) => {
 const getTotalUserCommitsPastWeek = async (req, res) => {
 	const { milestone_repo_name } = req.params;
 	const user_id = req.jwtData.user.id;
-	request
-		.get(
-			`https://api.github.com/repos/${org}/${milestone_repo_name}/stats/contributors`
-		)
-		.set("accept", "application/vnd.github.baptiste-preview+json")
-		.set("authorization", `token ${process.env.GITHUB_ACCESS_TOKEN}`)
-		.then(data => JSON.parse(data.text))
+	contributersInRepository(milestone_repo_name)
 		.then(async data => {
 			let socialConnection = await getGithubConnecionByUserId(user_id);
 			let commits = 0;
@@ -174,6 +176,107 @@ const getTotalCohortCommits = async (req, res) => {
 	}
 };
 
+const numberOfLinesInEachMilestone = async (req, res) => {
+	try {
+		const { cohort_id } = req.params;
+		const user_id = req.jwtData.user.id;
+		let socialConnection = await getGithubConnecionByUserId(user_id);
+		let teams = await getAllLearnerTeamsByUserId(user_id);
+
+		for (let i = 0; i < teams.length; i++) {
+			let cont = await contributersInRepository(
+				teams[i].github_repo_link
+			);
+			teams[i] = { team: teams[i], cont };
+			for (let j = 0; j < teams[i].cont.length; j++) {
+				if (
+					teams[i].cont[j].author.login === socialConnection.username
+				) {
+					teams[i].cont = teams[i].cont[j];
+					break;
+				}
+			}
+		}
+		for (let i = 0; i < teams.length; i++) {
+			let a = 0,
+				d = 0;
+			for (let j = 0; j < teams[i].cont.weeks.length; j++) {
+				a += teams[i].cont.weeks[j].a;
+				d += teams[i].cont.weeks[j].d;
+			}
+			teams[i] = {
+				noOfLines: a - d,
+				cohort_milestone_id: teams[i].team.cohort_milestone_id
+			};
+		}
+		res.send({ data: teams });
+	} catch (err) {
+		res.status(500).send(err);
+	}
+};
+
+const isoToDateString = str => {
+	str = new Date(str);
+	return `${str.getDate()}/${str.getMonth() + 1}/${str.getUTCFullYear()}`;
+};
+
+const commitsDayWise = (date, commits) => {
+	let first = true;
+	let day = 24 * 60 * 60 * 1000;
+	let dayWiseCommits = [];
+	let index = 0;
+	while (commits.length > 0) {
+		if (first) {
+			let commit = commits[0];
+			dayWiseCommits[index] = {
+				day: isoToDateString(commit.commit.committer.date),
+				commits: 1
+			};
+			commits.pop();
+			first = false;
+			continue;
+		}
+		let commit = commits[0];
+		if (
+			isoToDateString(commit.commit.committer.date) !==
+			dayWiseCommits[index].day
+		) {
+			index++;
+		}
+		dayWiseCommits[index] = {
+			day: isoToDateString(commit.commit.committer.date),
+			commits:
+				dayWiseCommits[index] === undefined
+					? 1
+					: dayWiseCommits[index].commits + 1
+		};
+		commits.pop();
+	}
+	return dayWiseCommits;
+};
+
+const userAndTeamCommitsDayWise = async (user_id, repo, username) => {
+	let now = Date.now();
+	let twoWeeks = 13 * 24 * 60 * 60 * 1000;
+	twoWeeks = now - twoWeeks;
+	let commits = await getCommitsBetweenDates(
+		repo,
+		new Date(twoWeeks).toISOString(),
+		new Date(Date.now()).toISOString()
+	);
+	let authorCommits = await getAuthoredCommitsBetweenDates(
+		repo,
+		new Date(twoWeeks).toISOString(),
+		new Date(Date.now()).toISOString(),
+		username
+	);
+
+	return {
+		userCommitsDayWise: commitsDayWise(twoWeeks, authorCommits),
+		teamCommitsDayWise: commitsDayWise(twoWeeks, commits)
+	};
+};
+
 export {
 	createTeam,
 	getTeamIdByName,
@@ -197,5 +300,8 @@ export {
 	numberOfAttemptedChallenges,
 	getTotalCohortCommits,
 	getLatestCommitInCohort,
-	getTotalTeamAndUserCommitsCount
+	getTotalTeamAndUserCommitsCount,
+	numberOfLinesInEachMilestone,
+	weeklyCommitActivityData,
+	userAndTeamCommitsDayWise
 };

@@ -254,14 +254,29 @@ const findTeamsByCohortMilestoneId = cohort_milestone_id =>
     { raw: true }
   );
 
-export const getLearnerTeamOfMilestone = (user_id, cohort_milestone_id) => 
-  Team.findOne(
-    {
-      where: {
-        cohort_milestone_id,
-        learners: {
-          [contains]: [user_id],
+export const getLearnerTeamOfMilestone = (user_id, cohort_milestone_id) =>
+  Team.findAll({
+    where: {
+      [Sequelize.Op.and]: [
+        {
+          cohort_milestone_id: {
+            [Sequelize.Op.in]: cohort_milestone_id
+          }
+        },
+        {
+          learners: {
+            [Sequelize.Op.contains]: user_id
+          }
         }
+      ]
+    }
+  });
+
+export const getAllLearnerTeamsByUserId = user_id =>
+  Team.findAll({
+    where: {
+      learners: {
+        [Sequelize.Op.contains]: [user_id]
       }
     }
-  );
+  });

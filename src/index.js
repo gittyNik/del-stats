@@ -3,6 +3,7 @@ import 'regenerator-runtime/runtime';
 import 'dotenv/config';
 import app from './server';
 import db from './database';
+import request from "superagent";
 
 const { PORT } = process.env;
 
