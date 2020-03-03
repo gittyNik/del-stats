@@ -36,6 +36,6 @@ router.get("/challenges/user", numberOfAttemptedChallenges);
 
 router.get("/lines/milestones/user/:cohort_id", numberOfLinesInEachMilestone);
 
-router.get(`/all`, allStats)
+router.get(`/all/:cohort_id/:cohort_milestone_id`, allStats)
 
 export default router;
