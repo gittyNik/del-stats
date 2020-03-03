@@ -10,8 +10,12 @@ import { Team, createMilestoneTeams, getLearnerTeamOfMilestone } from "./team";
 import { User } from "./user";
 import { getChallengesByTopicId } from "./challenge.js";
 import {
-	getRecentCommitByUser
+  getRecentCommitByUser,
 } from "../integrations/github/controllers/commits.controller";
+import {
+  getLatestCommitInCohort,
+  getTotalTeamAndUserCommitsCount
+} from "../integrations/github/controllers/";
 import { getGithubConnecionByUserId } from "./social_connection";
 
 export const CohortMilestone = db.define("cohort_milestones", {
@@ -105,14 +109,18 @@ const getMilestoneStats = async (user_id, milestone_id) => {
     getGithubConnecionByUserId(user_id),
     getLearnerTeamOfMilestone(user_id, milestone_id)
   ]).then( async ([socialConnection, learnerTeam]) => {
-    const recentCommitByUser = await getRecentCommitByUser(socialConnection.username, learnerTeam.github_repo_link);
+    const milestoneRepo = learnerTeam.github_repo_link;
+    const latestCommitByUser = await getRecentCommitByUser(socialConnection.username, milestoneRepo);
+    const latestCohortCommit = await getLatestCommitInCohort(milestone_id);
+    const teamAndUserCommits = await getTotalTeamAndUserCommitsCount(user_id, milestoneRepo);
     // TODO:
-    // last commit in cohort
     // user commit frequency over past week in milestone
     // total user commits vs team commits in milestone
     // day wise number of commits in milestone by user and rest of team
     return {
-      recentCommitByUser
+      latestCommitByUser,
+      latestCohortCommit,
+      teamAndUserCommits
     }
   })
 }
@@ -130,7 +138,7 @@ export const getCurrentMilestoneOfCohort = (cohort_id, user_id) => {
     raw: true
   }).then(milestone => {
     if (!milestone) return milestone;
-    const { milestone_id, id, repo_name } = milestone;
+    const { milestone_id, id } = milestone;
     return Promise.all([
       findTopicsForCohortAndMilestone(cohort_id, milestone_id),
       findTopicsForCohortAndMilestone(cohort_id),
@@ -139,7 +147,6 @@ export const getCurrentMilestoneOfCohort = (cohort_id, user_id) => {
     ])
       .then(populateTeamsWithLearnersWrapper)
       .then(([topics, programTopics, teams, stats]) => {
-        console.log("***********Stats", stats)
         console.log(
           `Milestone topics: ${topics.length}, Program topics: ${programTopics.length}`
         );
