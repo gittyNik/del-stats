@@ -1,5 +1,5 @@
 import { CohortBreakout, createNewBreakout } from '../../models/cohort_breakout';
-import { createScheduledMeeting } from '../../models/video_meeting';
+import { createScheduledMeeting, deleteMeetingFromZoom } from '../../models/video_meeting';
 import { createSandbox } from '../../models/code_sandbox';
 
 export const getBreakouts = (req, res) => {
@@ -44,6 +44,7 @@ export const createBreakout = (req, res) => {
             res.send('Breakout Created with codesandbox and videomeeting.');
           })
           .catch(err => {
+            deleteMeetingFromZoom(details.videoMeeting_id);
             console.error('Failed to create Cohort Breakout', err);
             res.send(500);
           });
@@ -94,6 +95,7 @@ export const createBreakout = (req, res) => {
             res.send('Breakout and video meeting created Created');
           })
           .catch(err => {
+            deleteMeetingFromZoom(details.videoMeeting_id);
             console.error('Failed to create Breakout after creating video meeting', err);
             res.send(500);
           });
