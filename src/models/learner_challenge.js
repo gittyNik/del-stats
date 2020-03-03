@@ -2,6 +2,7 @@ import Sequelize from "sequelize";
 import uuid from "uuid/v4";
 import db from "../database";
 import { getChallengeByChallengeId } from "./challenge";
+import { getCohortFromId } from "./cohort";
 import { getGithubConnecionByUserId } from "./social_connection";
 import {
   createGithubRepositoryFromTemplate,
@@ -34,6 +35,16 @@ export const LearnerChallenge = db.define("learner_challenges", {
 });
 
 export default LearnerChallenge;
+
+export const latestChallengeInCohort = async cohort_id => {
+  let ch = await getCohortFromId(cohort_id);
+  return LearnerChallenge.findAll({
+    order: [[Sequelize.col("created_at"), Sequelize.literal("DESC")]],
+    where: {
+      learner_id: { [Sequelize.Op.in]: ch.learners }
+    }
+  }).then(challenges => challenges[0]);
+};
 
 export const learnerChallengesFindOrCreate = async (
   challenge_id,

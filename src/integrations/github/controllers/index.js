@@ -33,7 +33,8 @@ import {
 import { getGithubConnecionByUserId } from "../../../models/social_connection";
 import {
 	learnerChallengesFindOrCreate,
-	getChallengesByUserId
+	getChallengesByUserId,
+	latestChallengeInCohort
 } from "../../../models/learner_challenge";
 import {
 	contributersInRepository,
@@ -49,7 +50,7 @@ const getRecentCommit = async (req, res) => {
 		.catch(err => res.status(500).send(err));
 };
 
-const getLatestCommitInCohort = async (cohort_milestone_id) => {
+const getLatestCommitInCohort = async cohort_milestone_id => {
 	let commits = [];
 	let teams = await getTeamsbyCohortMilestoneId(cohort_milestone_id);
 	teams = teams.map(team => team.github_repo_link);
@@ -77,7 +78,7 @@ const getLatestCommitInCohort = async (cohort_milestone_id) => {
 		}
 	}
 	return latestCommit;
-}
+};
 
 // Returns latest commit in entire cohort for that milestone
 const getRecentCommitInCohort = async (req, res) => {
@@ -102,7 +103,10 @@ const createChallenge = async (req, res) => {
 	}
 };
 
-const getTotalTeamAndUserCommitsCount = async (user_id, milestone_repo_name) => {
+const getTotalTeamAndUserCommitsCount = async (
+	user_id,
+	milestone_repo_name
+) => {
 	const socialConnection = await getGithubConnecionByUserId(user_id);
 	const teamCommits = await getAllCommits(milestone_repo_name);
 	const userCommits = await getAllAuthoredCommits(
@@ -112,14 +116,17 @@ const getTotalTeamAndUserCommitsCount = async (user_id, milestone_repo_name) => 
 	return {
 		teamCommits: teamCommits.length,
 		userCommits: userCommits.length
-	}
-}
+	};
+};
 
 const getTotalTeamAndUserCommits = async (req, res) => {
 	try {
 		const { milestone_repo_name } = req.params;
 		const user_id = req.jwtData.user.id;
-		const count = await getTotalTeamAndUserCommitsCount(user_id, milestone_repo_name);
+		const count = await getTotalTeamAndUserCommitsCount(
+			user_id,
+			milestone_repo_name
+		);
 		res.send({
 			data: count
 		});
@@ -176,11 +183,8 @@ const getTotalCohortCommits = async (req, res) => {
 	}
 };
 
-const numberOfLinesInEachMilestone = async (req, res) => {
+const numberOfLinesInEachMilestone = async (cohort_id, user_id, username) => {
 	try {
-		const { cohort_id } = req.params;
-		const user_id = req.jwtData.user.id;
-		let socialConnection = await getGithubConnecionByUserId(user_id);
 		let teams = await getAllLearnerTeamsByUserId(user_id);
 
 		for (let i = 0; i < teams.length; i++) {
@@ -189,9 +193,7 @@ const numberOfLinesInEachMilestone = async (req, res) => {
 			);
 			teams[i] = { team: teams[i], cont };
 			for (let j = 0; j < teams[i].cont.length; j++) {
-				if (
-					teams[i].cont[j].author.login === socialConnection.username
-				) {
+				if (teams[i].cont[j].author.login === username) {
 					teams[i].cont = teams[i].cont[j];
 					break;
 				}
@@ -277,6 +279,37 @@ const userAndTeamCommitsDayWise = async (user_id, repo, username) => {
 	};
 };
 
+const allStats = async (req, res) => {
+	try {
+		const { cohort_id, cohort_milestone_id } = req.params;
+		const user_id = req.jwtData.user.id;
+		let socialConnection = await getGithubConnecionByUserId(user_id);
+		let a = await numberOfLinesInEachMilestone(
+			cohort_id,
+			user_id,
+			socialConnection.username
+		);
+
+		let teams = await getTeamsbyCohortMilestoneId(cohort_milestone_id);
+		for (let i = 0; i < teams.length; i++) {
+			let commits = await getAllCommits(teams[i].github_repo_link);
+			teams[i] = { team: teams[i], commits };
+		}
+		let LatestChallengeInCohort = await latestChallengeInCohort(cohort_id);
+		const latestCommitInCohort = await getLatestCommitInCohort(cohort_milestone_id);
+		res.send({
+			data: {
+				teams: a.teams,
+				commitsTeams: teams,
+				LatestChallengeInCohort,
+				latestCommitInCohort
+			}
+		});
+	} catch (err) {
+		res.status(500).send(err);
+	}
+};
+
 export {
 	createTeam,
 	getTeamIdByName,
@@ -303,5 +336,6 @@ export {
 	getTotalTeamAndUserCommitsCount,
 	numberOfLinesInEachMilestone,
 	weeklyCommitActivityData,
-	userAndTeamCommitsDayWise
+	userAndTeamCommitsDayWise,
+	allStats
 };

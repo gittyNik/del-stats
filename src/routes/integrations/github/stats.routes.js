@@ -4,7 +4,8 @@ import {
 	getTotalTeamAndUserCommits,
 	getTotalUserCommitsPastWeek,
 	numberOfAttemptedChallenges,
-	getTotalCohortCommits
+	getTotalCohortCommits,
+	allStats
 	// userAndTeamCommitsDayWise
 } from "../../../integrations/github/controllers";
 
@@ -34,5 +35,7 @@ router.get("/commits/cohort/:cohort_milestone_id", getTotalCohortCommits);
 router.get("/challenges/user", numberOfAttemptedChallenges);
 
 router.get("/lines/milestones/user/:cohort_id", numberOfLinesInEachMilestone);
+
+router.get(`/all`, allStats)
 
 export default router;

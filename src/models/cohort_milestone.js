@@ -14,10 +14,11 @@ import {
 } from "../integrations/github/controllers/commits.controller";
 import {
   getLatestCommitInCohort,
-  getTotalTeamAndUserCommitsCount
-} from "../integrations/github/controllers/";
+  getTotalTeamAndUserCommitsCount,
+  userAndTeamCommitsDayWise,
+  weeklyCommitActivityData
+} from "../integrations/github/controllers";
 import { getGithubConnecionByUserId } from "./social_connection";
-import { weeklyCommitActivityData } from "../integrations/github/controllers";
 import _ from "lodash";
 
 export const CohortMilestone = db.define("cohort_milestones", {
