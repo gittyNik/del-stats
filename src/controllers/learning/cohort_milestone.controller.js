@@ -1,4 +1,4 @@
-import { CohortMilestone, getCurrentCohortMilestones, getCurrentMilestoneOfCohort, getCohortMilestones } from '../../models/cohort_milestone';
+import { getCurrentCohortMilestones, getCurrentMilestoneOfCohort, getCohortMilestones } from '../../models/cohort_milestone';
 
 export const getUpcomingReviews = (req, res) => {
   getCurrentCohortMilestones()
@@ -29,6 +29,9 @@ export const getCohortLiveMilestone = (req, res) => {
 export const getAllCohortMilestones = (req, res) => {
   const { cohort_id } = req.params
   getCohortMilestones(cohort_id)
-    .then((data) => { res.json(data); })
+    .then((data) => { res.json({
+      text: "Cohort Milestones",
+      data
+    }); })
     .catch(err => res.status(500).send(err));
 };
