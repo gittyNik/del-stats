@@ -115,8 +115,7 @@ const populateLearnerStats = (
   cohort_milestone_id
 ) => async ([topics, programTopics, teams]) => {
   let socialConnection = await getGithubConnecionByUserId(user_id);
-  let Teams = _.filter(teams, team => _.includes(team.learners, user_id));
-
+  let Teams = _.filter(teams, team => _.some(team.learners, {id: user_id}));
   let lastWeekCommitsInRepoDayWise = await weeklyCommitActivityData(
     Teams[0].github_repo_link
   );
@@ -125,13 +124,19 @@ const populateLearnerStats = (
     Teams[0].github_repo_link,
     socialConnection.username
   );
+  const latestCohortCommit = await getLatestCommitInCohort(cohort_milestone_id);
+  const latestCommitByUser = await getRecentCommitByUser(socialConnection.username, Teams[0].github_repo_link);
+  const teamAndUserCommits = await getTotalTeamAndUserCommitsCount(user_id, Teams[0].github_repo_link);
 
   let userCommitsDayWise = u.userCommitsDayWise;
   let teamCommitsDayWise = u.teamCommitsDayWise;
   let stats = {
     lastWeekCommitsInRepoDayWise,
     userCommitsDayWise,
-    teamCommitsDayWise
+    teamCommitsDayWise,
+    latestCohortCommit,
+    latestCommitByUser,
+    teamAndUserCommits
   };
 
   return [topics, programTopics, teams, stats];
