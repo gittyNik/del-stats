@@ -14,6 +14,10 @@ export const CohortBreakout = db.define('cohort_breakouts', {
     type: Sequelize.ENUM(...BREAKOUT_TYPE),
     defaultValue: 'lecture',
   },
+  breakout_template_id: {
+    type: Sequelize.UUID,
+    references: { model: 'breakout_templates' },
+  },
   domain: Sequelize.STRING,
   topic_id: Sequelize.UUID,
   cohort_id: Sequelize.UUID,
