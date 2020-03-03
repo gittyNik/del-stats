@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 import request from 'superagent';
+import uuid from 'uuid';
 import db from '../database';
 
 
@@ -39,6 +40,10 @@ export const createSandbox = (payload) => {
     eslint: 1,
   };
   payload = payload || defaultTemplate;
+  let sandbox_setting = {
+    defaultTemplate,
+    embed_options,
+  };
   return request
     .post(`${CODE_ENDPOINT}sandboxes/define?json=1`)
     .set('Content-Type', 'application/json')
@@ -47,10 +52,26 @@ export const createSandbox = (payload) => {
     .query(embed_options)
     .then(response => {
       console.log(response);
-      return {
-        text: 'Sanbox successfully created. redirect to ex: https://codesanbox.io/embed/<id>',
-        data: response.body,
-      };
+      // todo: store the sandbox id in DB.
+      CodeSandbox.create({
+        id: uuid(),
+        sandbox_id: response.body.sandbox_id,
+        sandbox_setting,
+      })
+        .then(data => {
+          console.log(data);
+          return {
+            text: 'Sanbox successfully created. redirect to ex: https://codesanbox.io/embed/<id>',
+            data: response.body,
+          };
+        })
+        .catch(err => {
+          console.error('Error in saving the codesandbox to DB.', err);
+          return {
+            text: 'Failed to save the savebox to DB.',
+            err,
+          };
+        });
     })
     .catch(err => {
       console.error(err);
