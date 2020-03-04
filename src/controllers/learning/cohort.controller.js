@@ -137,15 +137,17 @@ export const funTesting = async (req, res) => {
     },
   ];
 
-  
-  createBreakoutsInMilestone(cohort_id)
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      console.error(err);
-      res.sendStatus(500);
-    });
-  console.log('RESPONSE: ', response2);
-  res.send(typeof response2);
+  let updatedlist = await updateBreakoutTemplates(breakoutTemplates, cohort_id);
+  console.log(updatedlist);
+  res.send(updatedlist);
+  // createBreakoutsInMilestone(cohort_id)
+  //   .then(data => {
+  //     res.send(data);
+  //   })
+  //   .catch(err => {
+  //     console.error(err);
+  //     res.sendStatus(500);
+  //   });
+  // console.log('RESPONSE: ', response2);
+  // res.send(typeof response2);
 };

@@ -77,13 +77,13 @@ export const BreakoutTemplate = db.define('breakout_templates', {
   },
 });
 
-export const getReleaseTimeFromTopic = (topic_id, cohort_id) => 
+export const getReleaseTimeFromTopic = (topic_id, cohort_id) =>
   Topic.findByPk(topic_id, {
     attributes: ['milestone_id'],
     raw: true,
   })
-  .then(topic => 
-       CohortMilestone.findOne({
+    .then(topic =>
+      CohortMilestone.findOne({
         attributes: ['id', 'release_time'],
         where: {
           cohort_id,
@@ -91,11 +91,12 @@ export const getReleaseTimeFromTopic = (topic_id, cohort_id) =>
         },
         raw: true,
       })
-    .then(cohortMilestone => {return {
+        .then(cohortMilestone => {
+          return {
             cohort_milestone_id: cohortMilestone.id,
             release_time: cohortMilestone.release_time,
           }
-    })
+        })
         .catch(err => {
           console.error(`Failed to find Cohort Milestone for the topic: ${topic}`);
           console.error(err);
@@ -107,22 +108,19 @@ export const getReleaseTimeFromTopic = (topic_id, cohort_id) =>
       console.error(err);
       return null;
     });
-;
 
 export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => {
-  breakoutTemplates.map((breakoutTemplate) => {
+  return Promise.all(breakoutTemplates.map(async (breakoutTemplate) => {
     console.log('Unpack breakoutTemplate: ');
-    getReleaseTimeFromTopic(breakoutTemplate.topic_id[0], cohort_id)
-      .then(extra => {
-        let updatedItem = { ...breakoutTemplate, ...extra };
-        console.log('updated Item: ');
-        return updatedItem;
-      })
-      .catch(err => {
-        console.error('Error in updating BreakoutTemplates', err);
-        return null;
-      });
-  });
+    try {
+      let extra = await getReleaseTimeFromTopic(breakoutTemplate.topic_id[0], cohort_id);
+      console.log('extra:', extra);
+      return { ...breakoutTemplate, ...extra };
+    } catch (err) {
+      console.log('error in update Breakout Template', err);
+      return null;
+    }
+  }));
 };
 
 export const createBreakoutsInMilestone = (cohort_id) => {
@@ -133,7 +131,7 @@ export const createBreakoutsInMilestone = (cohort_id) => {
     .then(breakoutTemplates => {
       console.log('BreakoutTemplates: ', breakoutTemplates);
       breakoutTemplates = breakoutTemplates.map((breakoutTemplate) => {
-         getReleaseTimeFromTopic(breakoutTemplate.topic_id[0], cohort_id)
+        getReleaseTimeFromTopic(breakoutTemplate.topic_id[0], cohort_id)
           .then(extra => {
             console.log('extra data :', extra);
             let postBreakoutTemplate = { ...breakoutTemplate, ...extra };
