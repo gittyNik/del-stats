@@ -1,6 +1,6 @@
 import Express from 'express';
 import {
-    getTag, getTags, updateTags, deleteTags, createTags, getTagIdName
+    getTag, getTags, updateTags, deleteTags, createTags, getTagIdName, getTagIdNames
 } from '../../controllers/learning/tags.controller';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
@@ -14,7 +14,6 @@ const router = Express.Router();
  */
 router.get('/', getTags);
 
-
 /**
  * @api {get} /tags/:id Get a tag by id
  * @apiHeader {String} authorization JWT Token.
@@ -23,14 +22,22 @@ router.get('/', getTags);
  */
 router.get('/:id', getTag);
 
-
 /**
- * @api {get} /tags/tag_name/:tag_name Get a tag by id
+ * @api {get} /tags/tag_name/:tag_name Get a tag by name
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetTagsByName
  * @apiGroup Tags
  */
-router.get('/tag_name/:tag_name', getTagIdName);
+router.get('/tag/:tag_name', getTagIdName);
+
+
+/**
+ * @api {post} /tags/ Get mutiple tags
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetTagsByName
+ * @apiGroup Tags
+ */
+router.post('/search', getTagIdNames);
 
 
 // Restrict modifications for any applicant to the cohorts

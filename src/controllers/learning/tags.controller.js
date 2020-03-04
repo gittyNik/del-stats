@@ -1,5 +1,5 @@
 import uuid from 'uuid/v4';
-import { Tags, getResourcesByTag, getTagIdbyName } from '../../models/tags';
+import { Tags, getResourcesByTag, getTagIdbyName, getTagIdbyNames } from '../../models/tags';
 
 export const getTags = (req, res) => {
     Tags.findAll({})
@@ -26,7 +26,20 @@ export const getTagIdName = (req, res) => {
     const { tag_name } = req.params;
     getTagIdbyName(tag_name)
     .then(data => {
-      console.log(data);
+      //console.log(data);
+      res.send({ data });
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+}
+
+export const getTagIdNames = (req, res) => {
+    const { tag_name } = req.body;
+    getTagIdbyNames(tag_name)
+    .then(data => {
+      //console.log(data);
       res.send({ data });
     })
     .catch(err => {

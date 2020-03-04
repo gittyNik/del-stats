@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
-import { Resource, getResourcesByTag, getResourceByUrl, createResource, autoTagUrls } from '../../models/resource';
+import { Resource, getResourcesByTag, getResourceByUrl, createResource, autoTagUrls, searchResources, getResourceByTopic } from '../../models/resource';
 import { ResourceComment } from '../../models/resource_comment';
 import { ResourceReport } from '../../models/resource_report';
 import { ResourceVote } from '../../models/resource_vote';
@@ -37,6 +37,19 @@ export const getFirewall = (req, res) => {
 export const getTaggedResources = (req, res) => {
   const { tag } = req.params;
   getResourcesByTag(tag)
+    .then(data => {
+      res.send({ data });
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+};
+
+export const searchTaggedResources = (req, res) => {
+  const { text } = req.query;
+  console.log(text);
+  searchResources(text.toLowerCase())
     .then(data => {
       res.send({ data });
     })
@@ -125,6 +138,18 @@ export const getResourceUrl = (req, res) => {
     });
 };
 
+export const getTopicResource = (req, res) => {
+  const { topic_id } = req.params;
+  getResourceByTopic(topic_id)
+    .then(data => {
+      console.log(data);
+      res.send({ data });
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+};
 
 export const create = (req, res) => {
   const {
@@ -133,13 +158,13 @@ export const create = (req, res) => {
   getResourceByUrl(url)
     .then(data => {
       console.log(data);
-      if (Array.isArray(data) && data.length) {
+      if (data) {
         res.send({ data });
       } else {
         autoTagUrls(url)
         .then(response_data => {
             const level = 'beginner';
-            const owner = '42da6a7f-601a-4a18-bf64-696763711128';
+            const owner = req.jwtData.user.id;
             const type = 'article'; //TODO : Add other types to enum
             const source = 'web';
             const { data } = response_data.body;

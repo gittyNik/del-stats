@@ -34,8 +34,8 @@ export const Resource = db.define('resources', {
     references: { model: 'users' },
   },
   thumbnail: {
-    type: Sequelize.BLOB,
-    unique: true,
+    type: Sequelize.STRING,
+    allowNull: true,
   },
   type: {
     type: Sequelize.ENUM('article', 'repo', 'video', 'tweet'),
@@ -91,6 +91,24 @@ export const getResourcesByTag = tag =>
       res.sendStatus(500);
 });
 
+export const getResourcesByTags = tags =>
+  getTagIdbyNames(tags)
+    .then(data => {
+      const tag_id = data.id;
+      return Resource.findAll({
+        where: {
+          tagged: {
+            [contains]: [tag_id],
+          },
+        },
+        raw: true,
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+});
+
 const getResourceCountByTags = tags => Resource.aggregate('id', 'count', {
   where: {
     tags: {
@@ -107,6 +125,13 @@ export const getResourceByUrl = url => Resource.findOne({
   },
   raw: true,
 });
+
+export const getResourceByTopic = topic_id => Resource.findAll({
+  where: {
+    topic_id: topic_id
+  },
+  raw: true,
+})
 
 // todo: find a way to remove hardcoding of firewall tags
 const firewallTags = ['firewall_know', 'firewall_think', 'firewall_play', 'firewall_reflect'];
