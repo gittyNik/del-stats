@@ -3,6 +3,7 @@ import uuid from 'uuid/v4';
 import db from '../database';
 import { Topic, getTopicById } from './topic';
 import { CohortMilestone, getMilestoneStartDate } from './cohort_milestone';
+import { async } from 'regenerator-runtime';
 
 export const BREAKOUT_LEVEL = ['beginner', 'intermediate', 'advanced'];
 
@@ -122,22 +123,31 @@ export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => {
   }));
 };
 
-export const scheduling = (updatedBreakout) => {
-  console.log('Updated Breakouts with time');
-  console.log(updatedBreakout);
-  const RELEASE_TIME = updatedBreakout[0].release_time;
-  const { duration, time_scheduled, after_days } = updatedBreakout[0];
-  // let newTime = RELEASE_TIME.valueOf() + after_days* 86200000 +
-  //  time_scheduled.split(':').join('');
-  let breakoutScheduledTime = RELEASE_TIME;
-  breakoutScheduledTime.setDate(RELEASE_TIME.getDate() + after_days);
-  let time_split = time_scheduled.split(":")
-  console.log('After adding days: ', breakoutScheduledTime);
-  breakoutScheduledTime.setHours(time_split[0],time_split[1],time_split[2]);
-  console.log('Breakout time: ', breakoutScheduledTime)
-  // newDateTime.setHours()
+export const calculateBreakoutTime = (eachBreakoutTemp) => {
+    // Shallow copy datetime object
+    const RELEASE_TIME = new Date(eachBreakoutTemp.release_time.valueOf());
+    const { duration, time_scheduled, after_days } = eachBreakoutTemp;
+    let breakoutScheduledTime = RELEASE_TIME;
+    breakoutScheduledTime.setDate(RELEASE_TIME.getDate() + after_days);
+    let time_split = time_scheduled.split(":")
+    console.log('After adding days: ', breakoutScheduledTime);
+    breakoutScheduledTime.setHours(time_split[0],time_split[1],time_split[2]);
+    console.log('Breakout time: ', breakoutScheduledTime);
+    let breakoutSchedule = {'breakout_schedule': breakoutScheduledTime};
+        return { ...eachBreakoutTemp, ...breakoutSchedule };
 
-  return updatedBreakout;
+}
+
+export const scheduling = (updatedBreakout) => {
+    return Promise.all(updatedBreakout.map( async (eachBreakout) => {
+        try {
+            let updateBreakout = await calculateBreakoutTime(eachBreakout);
+            return updateBreakout;
+        } catch (err) {
+            console.log('error in calculating Breakout Time', err);
+            return null;
+        }
+    }))
 };
 export const createCohortBreakouts = (templates) => {
   console.log('Created cohort Breakouts');
