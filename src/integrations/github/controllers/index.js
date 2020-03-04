@@ -41,6 +41,7 @@ import {
 	weeklyCommitActivityData
 } from "./stats.controller.js";
 import { getCohortMilestonesByCohortId } from "../../../models/cohort_milestone";
+import _ from "lodash";
 
 // Returns latest commit object of given user {{username}} in repository {{repo_name}}
 const getRecentCommit = async (req, res) => {
@@ -254,7 +255,19 @@ const commitsDayWise = (date, commits) => {
 		};
 		commits.pop();
 	}
-	return dayWiseCommits;
+	let final = [];
+	for (let i = 0; i < 14; i++) {
+		let d = date + day * i;
+		d = isoToDateString(new Date(d).toISOString());
+		let temp = _.filter(dayWiseCommits, el => el.day === d);
+		if (temp.length === 0) {
+			temp = { day: d, commits: 0 };
+		} else {
+			temp = temp[0];
+		}
+		final.push(temp);
+	}
+	return final;
 };
 
 const userAndTeamCommitsDayWise = async (user_id, repo, username) => {
@@ -272,7 +285,6 @@ const userAndTeamCommitsDayWise = async (user_id, repo, username) => {
 		new Date(Date.now()).toISOString(),
 		username
 	);
-
 	return {
 		userCommitsDayWise: commitsDayWise(twoWeeks, authorCommits),
 		teamCommitsDayWise: commitsDayWise(twoWeeks, commits)
@@ -296,7 +308,9 @@ const allStats = async (req, res) => {
 			teams[i] = { team: teams[i], commits };
 		}
 		let LatestChallengeInCohort = await latestChallengeInCohort(cohort_id);
-		const latestCommitInCohort = await getLatestCommitInCohort(cohort_milestone_id);
+		const latestCommitInCohort = await getLatestCommitInCohort(
+			cohort_milestone_id
+		);
 		res.send({
 			data: {
 				teams: a.teams,

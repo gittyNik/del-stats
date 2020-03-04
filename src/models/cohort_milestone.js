@@ -119,6 +119,9 @@ const populateLearnerStats = (
   let lastWeekCommitsInRepoDayWise = await weeklyCommitActivityData(
     Teams[0].github_repo_link
   );
+  
+
+  //*************************//
   let u = await userAndTeamCommitsDayWise(
     user_id,
     Teams[0].github_repo_link,
