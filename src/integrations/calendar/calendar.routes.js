@@ -1,5 +1,6 @@
 import Express from 'express';
-import { getAllCalendarEvents, createCalendarEvent } from './calendar.controller';
+import { getAllCalendarEvents, createCalendarEvent, 
+    scheduleCalendarEventForLearner } from './calendar.controller';
 
 const router = Express.Router();
 
@@ -28,12 +29,18 @@ router.get('/', getAllCalendarEvents);
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddCalendarEvent
  * @apiGroup CalendarEvent
-
- * @apiParam {String} title Title of the topic
- * @apiParam {String} description Description of the topic
- * @apiParam {String} milestone_id ID of the Milestone
  */
 router.post('/', createCalendarEvent);
+
+/**
+ * @api {post} /calendar/learner Add Calendar Events for Learner
+ * @apiDescription Add Calendar Events for Learner
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName AddCalendarEvent
+ * @apiGroup CalendarEvent
+
+ */
+router.post('/learner', scheduleCalendarEventForLearner);
 
 /**
  * @api {patch} /calendar/:id  Update Calendar Event
