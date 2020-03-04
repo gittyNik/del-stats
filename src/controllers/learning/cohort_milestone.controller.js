@@ -1,4 +1,4 @@
-import { getCurrentCohortMilestones, getCurrentMilestoneOfCohort } from '../../models/cohort_milestone';
+import { getCurrentCohortMilestones, getCurrentMilestoneOfCohort, getCohortMilestones } from '../../models/cohort_milestone';
 
 export const getUpcomingReviews = (req, res) => {
   getCurrentCohortMilestones()
@@ -12,8 +12,9 @@ export const getUpcomingReviews = (req, res) => {
 };
 
 export const getCohortLiveMilestone = (req, res) => {
+  const user_id = req.jwtData.user.id;
   const { cohort_id } = req.params;
-  getCurrentMilestoneOfCohort(cohort_id)
+  getCurrentMilestoneOfCohort(cohort_id, user_id)
     .then(milestone => {
       res.send({ 
         text: "Live Milestone of Cohort",
@@ -23,4 +24,14 @@ export const getCohortLiveMilestone = (req, res) => {
       console.error(e);
       res.sendStatus(500);
     });
+};
+
+export const getAllCohortMilestones = (req, res) => {
+  const { cohort_id } = req.params
+  getCohortMilestones(cohort_id)
+    .then((data) => { res.json({
+      text: "Cohort Milestones",
+      data
+    }); })
+    .catch(err => res.status(500).send(err));
 };

@@ -2,12 +2,15 @@ import Sequelize from "sequelize";
 import uuid from "uuid/v4";
 import db from "../database";
 import { getChallengeByChallengeId } from "./challenge";
+import { getCohortFromId } from "./cohort";
 import { getGithubConnecionByUserId } from "./social_connection";
 import {
   createGithubRepositoryFromTemplate,
   addCollaboratorToRepository,
   repositoryPresentOrNot,
-  isRepositoryCollaborator
+  isRepositoryCollaborator,
+  createRepositoryifnotPresentFromTemplate,
+  provideAccessToRepoIfNot
 } from "../integrations/github/controllers";
 export const LearnerChallenge = db.define("learner_challenges", {
   id: {
@@ -33,6 +36,16 @@ export const LearnerChallenge = db.define("learner_challenges", {
 
 export default LearnerChallenge;
 
+export const latestChallengeInCohort = async cohort_id => {
+  let ch = await getCohortFromId(cohort_id);
+  return LearnerChallenge.findAll({
+    order: [[Sequelize.col("created_at"), Sequelize.literal("DESC")]],
+    where: {
+      learner_id: { [Sequelize.Op.in]: ch.learners }
+    }
+  }).then(challenges => challenges[0]);
+};
+
 export const learnerChallengesFindOrCreate = async (
   challenge_id,
   learner_id
@@ -44,49 +57,72 @@ export const learnerChallengesFindOrCreate = async (
         learner_id
       }
     });
+
     if (challenge === null) {
       //No challenge for this learner yet
+
       let socialConnection = await getGithubConnecionByUserId(learner_id);
       let chllenge = await getChallengeByChallengeId(challenge_id);
       const repo_name = `${socialConnection.username}_${chllenge.starter_repo}`;
-
       // Create repository for Challenge
-
-      let isPresent = await repositoryPresentOrNot(repo_name);
-
-      if (!isPresent) {
-        let repo = await createGithubRepositoryFromTemplate(
-          chllenge.starter_repo,
-          repo_name
-        );
-      }
-
-      // Provide Access to learner
-
-      let isCollaborator = await isRepositoryCollaborator(
-        socialConnection.username,
+      await createRepositoryifnotPresentFromTemplate(
+        chllenge.starter_repo,
         repo_name
       );
 
-      if (!isCollaborator) {
-        let collab = await addCollaboratorToRepository(
-          socialConnection.username,
-          repo_name
-        );
-      }
+      // Provide Access to learner
+      await provideAccessToRepoIfNot(socialConnection.username, repo_name);
 
       // Add in learner_challenge table
-
-      return LearnerChallenge.create({
+      let chl = await LearnerChallenge.create({
         id: uuid(),
         challenge_id,
         learner_id,
         repo: repo_name
       });
+      return {
+        challenge: chl,
+        repo_link: `https://github.com/${process.env.SOAL_LEARNER_ORG}/${repo_name}`
+      };
     } else {
-      return challenge;
+      // // Create repository for Challenge
+      // await createRepositoryifnotPresentFromTemplate(
+      //   chllenge.starter_repo,
+      //   repo_name
+      // );
+
+      // // Provide Access to learner
+      // await provideAccessToRepoIfNot(socialConnection.username, repo_name);
+
+      // return LearnerChallenge.update(
+      //   {
+      //     repo: repo_name
+      //   },
+      //   {
+      //     where: {
+      //       challenge_id,
+      //       learner_id
+      //     },
+      //     returning: true
+      //   }
+      // ).then(result => ({ repo: repo_name }));
+
+      return {
+        challenge,
+        repo_link: `https://github.com/${process.env.SOAL_LEARNER_ORG}/${challenge.repo}`
+      };
     }
   } catch (err) {
     return err;
   }
 };
+
+export const getChallengesByUserId = learner_id =>
+  LearnerChallenge.findAll(
+    {
+      where: {
+        learner_id
+      }
+    },
+    { raw: true }
+  );

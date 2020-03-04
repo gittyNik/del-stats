@@ -59,10 +59,10 @@ const getAllRepositoryCollaborators = async repo =>
 // 		username
 // 	});
 
-const createGithubRepository = repo =>
+export const createGithubRepository = repo =>
 	octokit.repos.createInOrg({
 		org,
-		name
+		name: repo
 	});
 
 export const createGithubRepositoryFromTemplate = async (
@@ -85,8 +85,8 @@ export const createGithubRepositoryFromTemplate = async (
 		.then(data => data);
 };
 
-export const repositoryPresentOrNot = async name =>
-	await getAllRepos()
+export const repositoryPresentOrNot = name =>
+	getAllRepos()
 		.then(repos => _.filter(repos, repo => repo.name === name))
 		.then(repo => (repo.length > 0 ? true : false));
 
@@ -106,3 +106,33 @@ export const addCollaboratorToRepository = async (collaborater, repo) =>
 		repo,
 		username: collaborater
 	});
+
+export const createRepositoryifnotPresentFromTemplate = async (
+	template_repo_name,
+	repo
+) => {
+	// Create repository for Challenge
+
+	let isPresent = await repositoryPresentOrNot(repo);
+
+	if (!isPresent) {
+		return createGithubRepositoryFromTemplate(template_repo_name, repo);
+	} else {
+		return {};
+	}
+};
+
+export const provideAccessToRepoIfNot = async (collaborater, repo_name) => {
+	// Provide Access to learner
+
+	let isCollaborator = await isRepositoryCollaborator(
+		collaborater,
+		repo_name
+	);
+
+	if (!isCollaborator) {
+		return addCollaboratorToRepository(collaborater, repo_name);
+	} else {
+		return {};
+	}
+};

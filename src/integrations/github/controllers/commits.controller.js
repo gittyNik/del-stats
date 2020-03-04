@@ -1,5 +1,5 @@
 import { octokit, org } from "./git.auth.controller.js";
-
+import { getNumberOfPages } from "./pagination.controller.js";
 // Receives github username, repository name from front-end
 
 export const getRecentCommitByUser = (username, repository_name) =>
@@ -79,3 +79,29 @@ export const getAllAuthoredCommits = async (repository_name, author) =>
 			return commits;
 		}
 	);
+
+export const getCommitsBetweenDates = async (repo, since, until) =>
+	octokit.repos
+		.listCommits({
+			owner: org,
+			repo,
+			since,
+			until
+		})
+		.then(data => data.data);
+
+export const getAuthoredCommitsBetweenDates = async (
+	repo,
+	since,
+	until,
+	author
+) =>
+	octokit.repos
+		.listCommits({
+			owner: org,
+			repo: repo,
+			since,
+			until,
+			author
+		})
+		.then(data => data.data);
