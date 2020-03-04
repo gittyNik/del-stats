@@ -114,17 +114,22 @@ const populateLearnerStats = (
   let Teams = _.filter(teams, team => _.some(team.learners, { id: user_id }));
 
   //*****************************************************************//
-  let lastWeek = []
+  let lastWeek = [];
   let lastWeekCommitsInRepoDayWise = await weeklyCommitActivityData(
     Teams[0].github_repo_link
   );
-  let dayId = new Date(Date.now()).getDay();
-  lastWeek = lastWeekCommitsInRepoDayWise[51];
-  let cnt = 6-dayId;
-  lastWeek.splice(dayId+1, cnt);
-  let pWeek = lastWeekCommitsInRepoDayWise[50];
-  pWeek.splice(0, 6-cnt+1);
-  lastWeek.splice(0, 0, pWeek);
+  console.log(`221222222222222`, lastWeekCommitsInRepoDayWise.length)
+  if (lastWeekCommitsInRepoDayWise.length !== 0) {
+    let dayId = new Date(Date.now()).getDay();
+    lastWeek = lastWeekCommitsInRepoDayWise[51].days;
+    let cnt = 6 - dayId;
+    lastWeek.splice(dayId + 1, cnt);
+    let pWeek = lastWeekCommitsInRepoDayWise[50].days;
+    pWeek.splice(0, 6 - cnt + 1);
+    lastWeek = pWeek.concat(lastWeek)
+    // lastWeek.splice(0, 0, pWeek);
+  }
+console.log(`221222222222222`, lastWeek)
   //*****************************************************************//
   let u = await userAndTeamCommitsDayWise(
     Teams[0].learners,

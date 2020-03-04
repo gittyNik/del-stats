@@ -15,4 +15,4 @@ export const weeklyCommitActivityData = repo =>
 		)
 		.set("accept", "application/vnd.github.baptiste-preview+json")
 		.set("authorization", `token ${process.env.GITHUB_ACCESS_TOKEN}`)
-		.then(data => JSON.parse(data.text));
+		.then(data => (data.text === "" ? [] : JSON.parse(data.text)));

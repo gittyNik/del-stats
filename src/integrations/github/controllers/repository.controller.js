@@ -62,7 +62,8 @@ const getAllRepositoryCollaborators = async repo =>
 export const createGithubRepository = repo =>
 	octokit.repos.createInOrg({
 		org,
-		name: repo
+		name: repo,
+		license_template: "mit"
 	});
 
 export const createGithubRepositoryFromTemplate = async (

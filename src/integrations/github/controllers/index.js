@@ -282,19 +282,29 @@ const userAndTeamCommitsDayWise = async (learners, repo) => {
 	);
 	for (let i = 0; i < learners.length; i++) {
 		let user = learners[i];
-		let socialConnection = await getGithubConnecionByUserId(user);
-		let authorCommits = await getAuthoredCommitsBetweenDates(
-			repo,
-			new Date(twoWeeks).toISOString(),
-			new Date(Date.now()).toISOString(),
-			socialConnection.username
-		);
-		ret.push({
-			user_id: user,
-			gitUsername: socialConnection.username,
-			userCommitsDayWise: commitsDayWise(twoWeeks, authorCommits),
-			teamCommitsDayWise: commitsDayWise(twoWeeks, commits)
-		});
+		console.log(`4444444444`, user);
+		let socialConnection = await getGithubConnecionByUserId(user.id);
+		if (socialConnection === null) {
+			ret.push({
+				user_id: user.id,
+				gitUsername: null,
+				userCommitsDayWise: 0,
+				teamCommitsDayWise: 0
+			});
+		} else {
+			let authorCommits = await getAuthoredCommitsBetweenDates(
+				repo,
+				new Date(twoWeeks).toISOString(),
+				new Date(Date.now()).toISOString(),
+				socialConnection.username
+			);
+			ret.push({
+				user_id: user.id,
+				gitUsername: socialConnection.username,
+				userCommitsDayWise: commitsDayWise(twoWeeks, authorCommits),
+				teamCommitsDayWise: commitsDayWise(twoWeeks, commits)
+			});
+		}
 	}
 	return ret;
 };
