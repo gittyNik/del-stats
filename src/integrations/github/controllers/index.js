@@ -212,9 +212,9 @@ const numberOfLinesInEachMilestone = async (cohort_id, user_id, username) => {
 				cohort_milestone_id: teams[i].team.cohort_milestone_id
 			};
 		}
-		res.send({ data: teams });
+		return teams;
 	} catch (err) {
-		res.status(500).send(err);
+		return err;
 	}
 };
 
@@ -282,7 +282,6 @@ const userAndTeamCommitsDayWise = async (learners, repo) => {
 	);
 	for (let i = 0; i < learners.length; i++) {
 		let user = learners[i];
-		console.log(`4444444444`, user);
 		let socialConnection = await getGithubConnecionByUserId(user.id);
 		if (socialConnection === null) {
 			ret.push({
@@ -320,7 +319,6 @@ const allStats = async (req, res) => {
 				user_id,
 				socialConnection.username
 			);
-
 			let teams = await getTeamsbyCohortMilestoneId(cohort_milestone_id);
 			for (let i = 0; i < teams.length; i++) {
 				let commits = await getAllCommits(teams[i].github_repo_link);
@@ -329,12 +327,13 @@ const allStats = async (req, res) => {
 			let LatestChallengeInCohort = await latestChallengeInCohort(
 				cohort_id
 			);
+
 			const latestCommitInCohort = await getLatestCommitInCohort(
 				cohort_milestone_id
 			);
 			res.send({
 				data: {
-					teams: a.teams,
+					teams: a,
 					commitsTeams: teams,
 					LatestChallengeInCohort,
 					latestCommitInCohort
