@@ -78,48 +78,82 @@ export const BreakoutTemplate = db.define('breakout_templates', {
 });
 
 export const getReleaseTimeFromTopic = async (topic_id, cohort_id) => {
-  // topic_id -> Topic(id) -> milestone_id,
-  // milestone_id ->look in the CohortMilestone where milestone_id ==id -> release_time.
-  let milestone_id;
-  try {
-    milestone_id = await Topic.findByPk(topic_id, {
-      attributes: ['milestone_id'],
+  return Topic.findByPk(topic_id, {
+    attributes: ['milestone_id'],
+    raw: true,
+  })
+    .then(topic => {
+      return CohortMilestone.findOne({
+        attributes: ['id', 'release_time'],
+        where: {
+          cohort_id,
+          milestone_id: topic.milestone_id,
+        },
+        raw: true,
+      })
+        .then(cohortMilestone => {
+          // console.log('<------Cohort_milestone---->');
+          console.log('Cohort Milestone: ', cohortMilestone);
+          return {
+            cohort_milestone_id: cohortMilestone.id,
+            release_time: cohortMilestone.release_time,
+          };
+        })
+        .catch(err => {
+          console.error(`Failed to find Cohort Milestone for the topic: ${topic}`);
+          console.error(err);
+          return null;
+        });
+    })
+    .catch(err => {
+      console.error(`Failed to find topic for ${topic_id}`);
+      console.error(err);
+      return null;
     });
-  } catch (e) {
-    console.log(e);
-    return null;
-  }
-  console.log(milestone_id);
-  return milestone_id;
-
-  // let release_time = await CohortMilestone.findOne({
-  //   attributes: ['id', 'release_time'],
-  //   where: {
-  //     cohort_id,
-  //     milestone_id,
-  //   },
-  // });
-  // console.log(release_time);
-  // return release_time;
 };
 
 export const createBreakoutsInMilestone = (cohort_id, cohort_milestones) => {
-  BreakoutTemplate.findAll({
-    attributes: ['id', 'topic_id'],
+  return BreakoutTemplate.findAll({
+    attributes: ['id', 'topic_id', 'duration', 'time_scheduled', 'after_days'],
     raw: true,
-  }).then(breakoutTemplates => {
-    console.log('<------BreakoutTemplate ------->');
-    console.log(breakoutTemplates);
-    let releaseTimeWithCohortMilestone = breakoutTemplates.map(breakoutTemplate => {
-      return getReleaseTimeFromTopic(breakoutTemplate.topic_id, cohort_id);
-    });
-    console.log(releaseTimeWithCohortMilestone);
-    let scheduledMilestones = releaseTimeWithCohortMilestone.map(data => {
-      let { release_time, cohort_milestone_id } = data;
-      //
-      console.log(data);
+  })
+    .then(async (breakoutTemplates) => {
+      console.log('<------BreakoutTemplate ------->');
+      console.log(breakoutTemplates);
+
+      let breakoutTemplateWithReleasetime = await breakoutTemplates.map(async (breakoutTemplate) => {
+        try {
+          let { cohort_milestone_id, release_time } = await getReleaseTimeFromTopic(breakoutTemplate.topic_id[0], cohort_id);
+          breakoutTemplate.cohort_milestone = cohort_milestone_id;
+          breakoutTemplate.releaseTime = release_time;
+          return breakoutTemplate;
+        } catch (err) {
+          console.error(err);
+          return null;
+        }
+      });
+      console.log('<-------- Breakout Template with release time and cohort_milestone ---------->');
+      console.log(breakoutTemplateWithReleasetime);
+
+      let scheduledMilestones = breakoutTemplateWithReleasetime.map(data => {
+        // here the actual scheduling happens.
+        // breakoutTemplateWithReleasetime = {id, [topic_id], release_time, cohort_milestone_id }
+        // create cohort_breakout only for the topic in breakout_template.
+
+        //  const DAY = 86400000
+        // const MINUTE = 60000
+        // console.log('<------ CORE -------->');
+        // console.log(data);
+        return data;
+      });
+
+      console.log('<-----CORE: SCHEDULED MILESTONES ----->');
+      console.log(scheduledMilestones);
     })
-  });
+    .catch(err => {
+      console.error(err);
+      return null;
+    });
 };
 
 // getReleaseTimeFromTopic('80dc8b76-03ca-4f4a-a255-5ded6d3f6c66', 'bb504186-a435-4548-a171-ec89daaebb00');

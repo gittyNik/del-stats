@@ -10,7 +10,7 @@ import { Team, createMilestoneTeams, getLearnerTeamOfMilestone } from "./team";
 import { User } from "./user";
 import { getChallengesByTopicId } from "./challenge.js";
 import {
-	getRecentCommitByUser
+  getRecentCommitByUser
 } from "../integrations/github/controllers/commits.controller";
 import { getGithubConnecionByUserId } from "./social_connection";
 
@@ -104,7 +104,7 @@ const getMilestoneStats = async (user_id, milestone_id) => {
   return Promise.all([
     getGithubConnecionByUserId(user_id),
     getLearnerTeamOfMilestone(user_id, milestone_id)
-  ]).then( async ([socialConnection, learnerTeam]) => {
+  ]).then(async ([socialConnection, learnerTeam]) => {
     const recentCommitByUser = await getRecentCommitByUser(socialConnection.username, learnerTeam.github_repo_link);
     // TODO:
     // last commit in cohort
@@ -175,7 +175,7 @@ function* calculateReleaseTime(cohort_start, pending) {
 export const createCohortMilestones = cohort_id =>
   Cohort.findByPk(cohort_id, {
     include: [Program],
-    raw: true
+    raw: true,
   }).then(cohort => {
     const milestones = cohort["program.milestones"];
     const release = calculateReleaseTime(cohort.start_date, milestones.length);
