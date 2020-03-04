@@ -3,6 +3,7 @@ import uuid from 'uuid/v4';
 import db from '../database';
 import { Topic } from './topic';
 import { CohortMilestone } from './cohort_milestone';
+import { async } from 'regenerator-runtime';
 
 export const BREAKOUT_LEVEL = ['beginner', 'intermediate', 'advanced'];
 
@@ -130,10 +131,10 @@ export const createBreakoutsInMilestone = (cohort_id) => {
     attributes: ['id', 'topic_id', 'duration', 'time_scheduled', 'after_days'],
     raw: true,
   })
-    .then(breakoutTemplates => {
+    .then(async breakoutTemplates => {
       console.log('BreakoutTemplates: ', breakoutTemplates);
-      breakoutTemplates = breakoutTemplates.map((breakoutTemplate) => {
-         getReleaseTimeFromTopic(breakoutTemplate.topic_id[0], cohort_id)
+      const updatedBreakoutTemplates = breakoutTemplates.map(async breakoutTemplate => {
+         await getReleaseTimeFromTopic(breakoutTemplate.topic_id[0], cohort_id)
           .then(extra => {
             console.log('extra data :', extra);
             let postBreakoutTemplate = { ...breakoutTemplate, ...extra };
@@ -144,26 +145,8 @@ export const createBreakoutsInMilestone = (cohort_id) => {
             return null;
           });
       });
-      return breakoutTemplates
+      const breakoutTemplatePromises = await Promise.all(updatedBreakoutTemplates);
+      console.log(breakoutTemplatePromises);
+      return breakoutTemplatePromises;
     })
-    .then(postBreakoutTemplates => {
-      console.log('----MAIN SCHEDULING ------');
-      console.log(postBreakoutTemplates);
-      return postBreakoutTemplates;
-      // return postBreakoutTemplates
-      //   .then(data => {
-      //     console.log('DATA: ', data);
-      //     return data;
-      //   })
-      //   .catch(err => {
-      //     console.error('Failed at 2: ', err);
-      //     return null;
-      //   });
-
-      // here we create cohort_breakout using
-    })
-    .catch(err => {
-      console.error(err);
-      return null;
-    });
 };
