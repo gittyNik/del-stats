@@ -3,7 +3,7 @@ import {
   getLatest, getTop, getAll, getUnmoderated, getOne, create, update,
   deleteOne, getComments, addComment, deleteComment, upvote, unvote,
   getReports, addReport, resolveReport, approve, getTrending, getFirewall,
-  logResourceVisit, getTaggedResources, getResourceUrl, searchTaggedResources
+  logResourceVisit, getTaggedResources, getResourceUrl, searchTaggedResources, getTopicResource
 } from '../../controllers/learning/content_resource.controller';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
