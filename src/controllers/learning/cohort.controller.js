@@ -137,25 +137,15 @@ export const funTesting = async (req, res) => {
     },
   ];
 
-  // let result = getReleaseTimeFromTopic(topic_id, cohort_id);
-  // res.send(result);
-
-  // let response = await getReleaseTimeFromTopic(topic_id, cohort_id);
-  // let breakouts = await createBreakoutsInMilestone(cohort_id);
-
-  // console.log(getReleaseTimeFromTopic(topic_id, cohort_id));
-  // console.log(breakouts);
-  let response2 = await updateBreakoutTemplates(breakoutTemplates, cohort_id);
-  // createBreakoutsInMilestone(cohort_id)
-  //   .then(data => {
-  //     console.log('1:', response);
-  //     console.log('2:', data);
-  //     res.send(response);
-  //   })
-  //   .catch(err => {
-  //     console.error(err);
-  //     res.sendStatus(500);
-  //   });
+  
+  createBreakoutsInMilestone(cohort_id)
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
   console.log('RESPONSE: ', response2);
   res.send(typeof response2);
 };
