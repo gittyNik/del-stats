@@ -1,4 +1,6 @@
 const { google } = require('googleapis');
+import { LearnerBreakout } from '../../models/learner_breakout';
+import { CohortBreakout } from '../../models/cohort_breakout';
 
 
 export const listEvents = function (auth, cb) {
@@ -48,13 +50,13 @@ export const listEvents = function (auth, cb) {
 //     },
 // };
 
-export const eventCreator = (summary, start=null, end=null, recurrence, attendees, 
+export const eventCreator = (summary, start=null, end=null, duration=30, recurrence, attendees, 
     reminders, location='School of Accelerated learning', description='') => {
     if (start == null){
         start = (new Date()).toISOString()
     }
     if (end == null){
-        var d = new Date(); d.setMinutes(d.getMinutes() + 30);
+        var d = new Date(start.valueOf()); d.setMinutes(d.getMinutes() + duration);
         end = d.toISOString()
     }
     if (reminders == null){
@@ -85,10 +87,10 @@ export const eventCreator = (summary, start=null, end=null, recurrence, attendee
     return event
 };
 
-export const CreateEvents = function (auth, event_details, cb) {
+export const createEvents = function (auth, event_details, cb) {
     const calendar = google.calendar({version: 'v3', auth});
-    const {summary, location, description, start, end, recurrence, attendees, reminders} = event_details;
-    const calendar_event = eventCreator(summary, start, end, recurrence, attendees, reminders, location, description);
+    const {summary, location, description, start, end, duration, recurrence, attendees, reminders} = event_details;
+    const calendar_event = eventCreator(summary, start, end, duration, recurrence, attendees, reminders, location, description);
     calendar.events.insert({
         auth: auth,
         calendarId: 'primary',
@@ -146,3 +148,60 @@ export const createCalendarEvent = (req, res) => {
         res.send(data);
     });
 };
+
+export const getCohortSchedule = (cohortBreakoutId) =>
+  CohortBreakout.findOne({
+    attributes: ['time_scheduled', 'duration', 'location'],
+    where: {
+      id: cohortBreakoutId
+    },
+    raw: true,
+  })
+
+export const getCohortBreakouts = (leanerBreakouts) => {
+  return Promise.all(leanerBreakouts.map(async (learnerBreakout) => {
+    try {
+      let cohortBreakoutDetails = await getCohortSchedule(learnerBreakout.cohort_breakout_id);
+      console.log('cohortBreakoutDetails: ', cohortBreakoutDetails);
+      return cohortBreakoutDetails;
+    } catch (err) {
+      console.log('error in getting Cohort breakouts', err);
+      return null;
+    }
+  }));
+};
+
+export const setGoogleCalendarReminder = (eachcohortBreakout) => {
+  const { time_scheduled, duration, location} = eachcohortBreakout;
+
+  let createdEvent = createEvents(auth, event_details, cb);
+  return createdEvent;
+}
+
+export const createLearnerCalendarEvents = (cohortBreakouts) => {
+  return Promise.all(cohortBreakouts.map(async (eachcohortBreakout) => {
+    try {
+      let cohortBreakoutDetails = await setGoogleCalendarReminder(eachcohortBreakout);
+      console.log('extra:', cohortBreakoutDetails);
+      return cohortBreakoutDetails;
+    } catch (err) {
+      console.log('error in creating calendar event', err);
+      return null;
+    }
+  }));
+}
+
+export const scheduleLearnerBreakoutEvents = (user_id) => 
+  LearnerBreakout.findAll({
+    attributes: ['cohort_breakout_id'],
+    where: {
+      id: user_id,
+    },
+    raw: true,
+  })
+  .then(leanerBreakouts => getCohortBreakouts(leanerBreakouts))
+  .then(cohortBreakouts => createLearnerCalendarEvents(cohortBreakouts))
+  .catch(err => {
+    console.error(err);
+    return null;
+});
