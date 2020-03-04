@@ -126,6 +126,15 @@ export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => {
 export const scheduling = (updatedBreakout) => {
   console.log('Updated Breakouts with time');
   console.log(updatedBreakout);
+  const RELEASE_TIME = updatedBreakout[0].release_time;
+  const { duration, time_scheduled, after_days } = updatedBreakout[0];
+  // let newTime = RELEASE_TIME.valueOf() + after_days* 86200000 +
+  //  time_scheduled.split(':').join('');
+  let newDateTime = new Date();
+  newDateTime.setDate(RELEASE_TIME + after_days);
+  console.log('After adding days: ', newDateTime);
+  // newDateTime.setHours()
+
   return updatedBreakout;
 };
 export const createCohortBreakouts = (templates) => {
