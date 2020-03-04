@@ -11,7 +11,7 @@ const router = Express.Router();
 router.use('/resources', resourceRouter);
 
 // Disable until tested
-router.use(allowSuperAdminOnly);
+// router.use(allowSuperAdminOnly);
 
 router.use('/breakouts', breakoutRouter);
 router.use('/challenges', challengeRouter);

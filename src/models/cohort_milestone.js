@@ -118,7 +118,6 @@ const populateLearnerStats = (
   let lastWeekCommitsInRepoDayWise = await weeklyCommitActivityData(
     Teams[0].github_repo_link
   );
-  console.log(`221222222222222`, lastWeekCommitsInRepoDayWise.length)
   if (lastWeekCommitsInRepoDayWise.length !== 0) {
     let dayId = new Date(Date.now()).getDay();
     lastWeek = lastWeekCommitsInRepoDayWise[51].days;
@@ -126,10 +125,9 @@ const populateLearnerStats = (
     lastWeek.splice(dayId + 1, cnt);
     let pWeek = lastWeekCommitsInRepoDayWise[50].days;
     pWeek.splice(0, 6 - cnt + 1);
-    lastWeek = pWeek.concat(lastWeek)
+    lastWeek = pWeek.concat(lastWeek);
     // lastWeek.splice(0, 0, pWeek);
   }
-console.log(`221222222222222`, lastWeek)
   //*****************************************************************//
   let u = await userAndTeamCommitsDayWise(
     Teams[0].learners,
@@ -284,6 +282,15 @@ export const getOrCreateMilestoneTeams = milestone_id => {
     })
     .then(populateTeamsWithLearners);
 };
+
+export const getCohortMilestoneBylearnerId = learner_id =>
+  Cohort.findOne({
+    where: {
+      learners: {
+        [Sequelize.Op.contains]: [learner_id]
+      }
+    }
+  }).then(cohort => getCohortMilestones(cohort.id));
 
 export const getCohortMilestones = cohort_id =>
   CohortMilestone.findAll({

@@ -2,6 +2,7 @@ import Express from 'express';
 import {
   getAllMilestones, createMilestone, updateMilestone, deleteMilestone,
 } from '../../controllers/learning/milestone.controller';
+import { getCohortMilestonesByUserId } from '../../controllers/learning/cohort_milestone.controller';
 // import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
@@ -14,6 +15,8 @@ const router = Express.Router();
  * @apiGroup ContentMilestones
  */
 router.get('/', getAllMilestones);
+
+router.get('/:user_id', getCohortMilestonesByUserId);
 
 /**
  * @api {post} /learning/content/milestones/ Add Content Milestone
@@ -53,5 +56,7 @@ router.patch('/:id', updateMilestone);
  * @apiGroup ContentMilestone
  */
 router.delete('/:id', deleteMilestone);
+
+
 
 export default router;
