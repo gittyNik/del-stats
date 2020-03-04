@@ -77,7 +77,7 @@ export const BreakoutTemplate = db.define('breakout_templates', {
   },
 });
 
-export const getReleaseTimeFromTopic = async (topic_id, cohort_id) => {
+export const getReleaseTimeFromTopic = (topic_id, cohort_id) => {
   return Topic.findByPk(topic_id, {
     attributes: ['milestone_id'],
     raw: true,
@@ -93,7 +93,7 @@ export const getReleaseTimeFromTopic = async (topic_id, cohort_id) => {
       })
         .then(cohortMilestone => {
           // console.log('<------Cohort_milestone---->');
-          console.log('Cohort Milestone: ', cohortMilestone);
+          // console.log('Cohort Milestone: ', cohortMilestone);
           return {
             cohort_milestone_id: cohortMilestone.id,
             release_time: cohortMilestone.release_time,
@@ -112,48 +112,65 @@ export const getReleaseTimeFromTopic = async (topic_id, cohort_id) => {
     });
 };
 
+export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => {
+  return breakoutTemplates.map((breakoutTemplate) => {
+    console.log('Unpack breakoutTemplate: ', breakoutTemplate);
+    return getReleaseTimeFromTopic(breakoutTemplate.topic_id[0], cohort_id)
+      .then(extra => {
+        let updatedItem = { ...breakoutTemplate, ...extra };
+        console.log('updated Item: ', updatedItem);
+        return updatedItem;
+      })
+      .catch(err => {
+        console.error('Error in updating BreakoutTemplates', err);
+        return null;
+      });
+    // console.log('extra: ', extra);
+    // let updatedBreakoutTemplate = { ...breakoutTemplate, ...extra };
+    // return updatedBreakoutTemplate;
+  });
+  // console.log('UPDATED LIST: ', updatedList);
+  // return updatedList;
+};
+
 export const createBreakoutsInMilestone = (cohort_id, cohort_milestones) => {
-  return BreakoutTemplate.findAll({
+  BreakoutTemplate.findAll({
     attributes: ['id', 'topic_id', 'duration', 'time_scheduled', 'after_days'],
     raw: true,
   })
-    .then(async (breakoutTemplates) => {
-      console.log('<------BreakoutTemplate ------->');
-      console.log(breakoutTemplates);
-
-      let breakoutTemplateWithReleasetime = await breakoutTemplates.map(async (breakoutTemplate) => {
-        try {
-          let { cohort_milestone_id, release_time } = await getReleaseTimeFromTopic(breakoutTemplate.topic_id[0], cohort_id);
-          breakoutTemplate.cohort_milestone = cohort_milestone_id;
-          breakoutTemplate.releaseTime = release_time;
-          return breakoutTemplate;
-        } catch (err) {
-          console.error(err);
-          return null;
-        }
+    .then(breakoutTemplates => {
+      console.log('BreakoutTemplates: ', breakoutTemplates);
+      const updatedBreakoutTemplates = breakoutTemplates.map((breakoutTemplate) => {
+        return getReleaseTimeFromTopic(breakoutTemplate.topic_id[0], cohort_id)
+          .then(extra => {
+            console.log('extra data :', extra);
+            let postBreakoutTemplate = { ...breakoutTemplate, ...extra };
+            return postBreakoutTemplate;
+          })
+          .catch(err => {
+            console.log('Failed to get Release time and cohort_milestone_id.', err);
+            return null;
+          });
       });
-      console.log('<-------- Breakout Template with release time and cohort_milestone ---------->');
-      console.log(breakoutTemplateWithReleasetime);
+    })
+    .then(postBreakoutTemplates => {
+      console.log('----MAIN SCHEDULING ------');
+      console.log(postBreakoutTemplates);
+      return postBreakoutTemplates;
+      // return postBreakoutTemplates
+      //   .then(data => {
+      //     console.log('DATA: ', data);
+      //     return data;
+      //   })
+      //   .catch(err => {
+      //     console.error('Failed at 2: ', err);
+      //     return null;
+      //   });
 
-      let scheduledMilestones = breakoutTemplateWithReleasetime.map(data => {
-        // here the actual scheduling happens.
-        // breakoutTemplateWithReleasetime = {id, [topic_id], release_time, cohort_milestone_id }
-        // create cohort_breakout only for the topic in breakout_template.
-
-        //  const DAY = 86400000
-        // const MINUTE = 60000
-        // console.log('<------ CORE -------->');
-        // console.log(data);
-        return data;
-      });
-
-      console.log('<-----CORE: SCHEDULED MILESTONES ----->');
-      console.log(scheduledMilestones);
+      // here we create cohort_breakout using
     })
     .catch(err => {
       console.error(err);
       return null;
     });
 };
-
-// getReleaseTimeFromTopic('80dc8b76-03ca-4f4a-a255-5ded6d3f6c66', 'bb504186-a435-4548-a171-ec89daaebb00');
