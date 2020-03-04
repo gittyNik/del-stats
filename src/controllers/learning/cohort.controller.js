@@ -111,32 +111,7 @@ export const getCohortByLearnerId = (req, res) => {
 };
 
 export const funTesting = async (req, res) => {
-  let topic_id = '15df135c-92ca-4d82-8c41-079854cc43ca'; // filesystem traversal
   let cohort_id = '05bb9432-f5b6-4b92-aa7f-7325abedde0e'; // Centaurus
-  let breakoutTemplates = [
-    {
-      id: 'b519a3e1-3821-49c9-992d-613a58fb1f31',
-      topic_id:
-        ['f9fe219a-7dab-4c59-944f-9f70bbd070dd',
-          '15df135c-92ca-4d82-8c41-079854cc43ca',
-          'd7da19fe-509b-44dc-acb0-186503cbc158',
-          '9c161e2e-7938-4484-b102-e5bcfd06fbc7'],
-      duration: 60,
-      time_scheduled: '12:00:00',
-      after_days: 1,
-    },
-    {
-      id: '57b9f110-5c20-4dc5-a534-f74aabb6b8ee',
-      topic_id:
-        ['0c08f370-68e9-4887-841a-d50a5f70a67b',
-          'da09bf99-15d3-4e30-b927-73ea9ac3b103',
-          '3bbb6992-feb2-4ff2-814c-3e1cda376333'],
-      duration: 60,
-      time_scheduled: '15:00:00',
-      after_days: 1,
-    },
-  ];
-
   
   createBreakoutsInMilestone(cohort_id)
     .then(data => {
@@ -146,6 +121,4 @@ export const funTesting = async (req, res) => {
       console.error(err);
       res.sendStatus(500);
     });
-  console.log('RESPONSE: ', response2);
-  res.send(typeof response2);
 };

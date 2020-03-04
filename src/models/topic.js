@@ -32,4 +32,11 @@ export const Topic = db.define('topics', {
   domain: Sequelize.ENUM('generic', 'tech', 'mindset', 'dsa'),
 });
 
+export const getTopicById = topic_id  => Topic.findByPk(topic_id, {
+  attributes: ['milestone_id'],
+  raw: true,
+});
+
+
+
 export default Topic;

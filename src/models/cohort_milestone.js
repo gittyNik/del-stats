@@ -48,6 +48,15 @@ export const CohortMilestone = db.define("cohort_milestones", {
 
 const { lte, gt } = Sequelize.Op;
 
+export const getMilestoneStartDate = (cohort_id, milestone_id) => CohortMilestone.findOne({
+  attributes: ['id', 'release_time'],
+  where: {
+    cohort_id,
+    milestone_id,
+  },
+  raw: true,
+})
+
 export const getDataForMilestoneName = id =>
   CohortMilestone.findOne({
     where: {
