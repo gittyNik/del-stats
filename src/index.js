@@ -7,15 +7,6 @@ import request from "superagent";
 import { userAndTeamCommitsDayWise } from "./integrations/github/controllers";
 const { PORT } = process.env;
 
-// let test = async () => {
-// 	let a = await userAndTeamCommitsDayWise(
-// 		"Niskarsh_tep-challenge-100001-nginx-basics",
-// 		"gittyNik"
-// 	);
-// 	console.log(a);
-// };
-// test();
-
 db.authenticate()
 	.then(() => {
 		app.listen(PORT, err => {

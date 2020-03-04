@@ -9,9 +9,7 @@ import { Topic } from "./topic";
 import { Team, createMilestoneTeams, getLearnerTeamOfMilestone } from "./team";
 import { User } from "./user";
 import { getChallengesByTopicId } from "./challenge.js";
-import {
-  getRecentCommitByUser,
-} from "../integrations/github/controllers/commits.controller";
+import { getRecentCommitByUser } from "../integrations/github/controllers/commits.controller";
 import {
   getLatestCommitInCohort,
   getTotalTeamAndUserCommitsCount,
@@ -107,34 +105,45 @@ const populateTeamsWithLearnersWrapper = async ([
   return [topics, programTopics, teams];
 };
 
-
-
 const populateLearnerStats = (
   user_id,
   cohort_id,
   cohort_milestone_id
 ) => async ([topics, programTopics, teams]) => {
   let socialConnection = await getGithubConnecionByUserId(user_id);
-  let Teams = _.filter(teams, team => _.some(team.learners, {id: user_id}));
+  let Teams = _.filter(teams, team => _.some(team.learners, { id: user_id }));
+
+  //*****************************************************************//
+  let lastWeek = []
   let lastWeekCommitsInRepoDayWise = await weeklyCommitActivityData(
     Teams[0].github_repo_link
   );
-  
-
-  //*************************//
+  let dayId = new Date(Date.now()).getDay();
+  lastWeek = lastWeekCommitsInRepoDayWise[51];
+  let cnt = 6-dayId;
+  lastWeek.splice(dayId+1, cnt);
+  let pWeek = lastWeekCommitsInRepoDayWise[50];
+  pWeek.splice(0, 6-cnt+1);
+  lastWeek.splice(0, 0, pWeek);
+  //*****************************************************************//
   let u = await userAndTeamCommitsDayWise(
-    user_id,
-    Teams[0].github_repo_link,
-    socialConnection.username
+    Teams[0].learners,
+    Teams[0].github_repo_link
   );
   const latestCohortCommit = await getLatestCommitInCohort(cohort_milestone_id);
-  const latestCommitByUser = await getRecentCommitByUser(socialConnection.username, Teams[0].github_repo_link);
-  const teamAndUserCommits = await getTotalTeamAndUserCommitsCount(user_id, Teams[0].github_repo_link);
+  const latestCommitByUser = await getRecentCommitByUser(
+    socialConnection.username,
+    Teams[0].github_repo_link
+  );
+  const teamAndUserCommits = await getTotalTeamAndUserCommitsCount(
+    user_id,
+    Teams[0].github_repo_link
+  );
 
-  let userCommitsDayWise = u.userCommitsDayWise;
-  let teamCommitsDayWise = u.teamCommitsDayWise;
+  let userCommitsDayWise = u;
+  let teamCommitsDayWise = u[0].teamCommitsDayWise;
   let stats = {
-    lastWeekCommitsInRepoDayWise,
+    lastWeekCommitsInRepoDayWise: lastWeek,
     userCommitsDayWise,
     teamCommitsDayWise,
     latestCohortCommit,
@@ -162,7 +171,7 @@ export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
     return Promise.all([
       findTopicsForCohortAndMilestone(cohort_id, milestone_id),
       findTopicsForCohortAndMilestone(cohort_id),
-      createMilestoneTeams(id),
+      createMilestoneTeams(id)
     ])
       .then(populateTeamsWithLearnersWrapper)
       .then(populateLearnerStats(user_id, cohort_id, milestone.id))
@@ -271,8 +280,8 @@ export const getOrCreateMilestoneTeams = milestone_id => {
     .then(populateTeamsWithLearners);
 };
 
-export const getCohortMilestones = cohort_id => 
+export const getCohortMilestones = cohort_id =>
   CohortMilestone.findAll({
     where: { cohort_id },
     include: [Milestone]
-  })
+  });

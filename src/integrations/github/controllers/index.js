@@ -270,7 +270,8 @@ const commitsDayWise = (date, commits) => {
 	return final;
 };
 
-const userAndTeamCommitsDayWise = async (user_id, repo, username) => {
+const userAndTeamCommitsDayWise = async (learners, repo) => {
+	let ret = [];
 	let now = Date.now();
 	let twoWeeks = 13 * 24 * 60 * 60 * 1000;
 	twoWeeks = now - twoWeeks;
@@ -279,16 +280,23 @@ const userAndTeamCommitsDayWise = async (user_id, repo, username) => {
 		new Date(twoWeeks).toISOString(),
 		new Date(Date.now()).toISOString()
 	);
-	let authorCommits = await getAuthoredCommitsBetweenDates(
-		repo,
-		new Date(twoWeeks).toISOString(),
-		new Date(Date.now()).toISOString(),
-		username
-	);
-	return {
-		userCommitsDayWise: commitsDayWise(twoWeeks, authorCommits),
-		teamCommitsDayWise: commitsDayWise(twoWeeks, commits)
-	};
+	for (let i = 0; i < learners.length; i++) {
+		let user = learners[i];
+		let socialConnection = await getGithubConnecionByUserId(user);
+		let authorCommits = await getAuthoredCommitsBetweenDates(
+			repo,
+			new Date(twoWeeks).toISOString(),
+			new Date(Date.now()).toISOString(),
+			socialConnection.username
+		);
+		ret.push({
+			user_id: user,
+			gitUsername: socialConnection.username,
+			userCommitsDayWise: commitsDayWise(twoWeeks, authorCommits),
+			teamCommitsDayWise: commitsDayWise(twoWeeks, commits)
+		});
+	}
+	return ret;
 };
 
 const allStats = async (req, res) => {
