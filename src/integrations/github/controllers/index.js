@@ -406,7 +406,13 @@ const allStats = async (req, res) => {
 			let LatestChallengeInCohort = await latestChallengeInCohort(
 				cohort_id
 			);
-			let latChalUser = await getProfile(LatestChallengeInCohort.learner_id);
+			let latChalUser;
+			if (LatestChallengeInCohort === undefined){
+				LatestChallengeInCohort = 0;
+				latChalUser = 0;
+			} else {
+				latChalUser = await getProfile(LatestChallengeInCohort.learner_id);
+			}
 
 			const latestCommitInCohort = await getLatestCommitInCohort(
 				cohort_milestone_id
@@ -441,6 +447,7 @@ const allStats = async (req, res) => {
 			});
 		}
 	} catch (err) {
+		console.log(err);
 		res.status(500).send(err);
 	}
 };

@@ -42,7 +42,8 @@ export const latestChallengeInCohort = async cohort_id => {
     order: [[Sequelize.col("created_at"), Sequelize.literal("DESC")]],
     where: {
       learner_id: { [Sequelize.Op.in]: ch.learners }
-    }
+    },
+  raw: true
   }).then(challenges => challenges[0]);
 };
 
