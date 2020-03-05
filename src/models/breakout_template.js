@@ -3,7 +3,7 @@ import uuid from 'uuid/v4';
 import db from '../database';
 import { Topic, getTopicById } from './topic';
 import { CohortMilestone, getMilestoneStartDate } from './cohort_milestone';
-import { async } from 'regenerator-runtime';
+import { createCohortBreakouts } from './cohort_breakout';
 
 export const BREAKOUT_LEVEL = ['beginner', 'intermediate', 'advanced'];
 
@@ -124,59 +124,45 @@ export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => {
 };
 
 export const calculateBreakoutTime = (eachBreakoutTemp) => {
-    // Shallow copy datetime object
-    const RELEASE_TIME = new Date(eachBreakoutTemp.release_time.valueOf());
-    const { duration, time_scheduled, after_days } = eachBreakoutTemp;
-    let breakoutScheduledTime = RELEASE_TIME;
-    breakoutScheduledTime.setDate(RELEASE_TIME.getDate() + after_days);
-    let time_split = time_scheduled.split(":")
-    console.log('After adding days: ', breakoutScheduledTime);
-    breakoutScheduledTime.setHours(time_split[0],time_split[1],time_split[2]);
-    console.log('Breakout time: ', breakoutScheduledTime);
-    let breakoutSchedule = {'breakout_schedule': breakoutScheduledTime};
-        return { ...eachBreakoutTemp, ...breakoutSchedule };
-
-}
+  // Shallow copy datetime object
+  const RELEASE_TIME = new Date(eachBreakoutTemp.release_time.valueOf());
+  const { duration, time_scheduled, after_days } = eachBreakoutTemp;
+  let breakoutScheduledTime = RELEASE_TIME;
+  breakoutScheduledTime.setDate(RELEASE_TIME.getDate() + after_days);
+  let time_split = time_scheduled.split(":")
+  console.log('After adding days: ', breakoutScheduledTime);
+  breakoutScheduledTime.setHours(time_split[0], time_split[1], time_split[2]);
+  console.log('Breakout time: ', breakoutScheduledTime);
+  let breakoutSchedule = { 'breakout_schedule': breakoutScheduledTime };
+  return { ...eachBreakoutTemp, ...breakoutSchedule };
+};
 
 export const scheduling = (updatedBreakout) => {
-    return Promise.all(updatedBreakout.map( async (eachBreakout) => {
-        try {
-            let updateBreakout = await calculateBreakoutTime(eachBreakout);
-            return updateBreakout;
-        } catch (err) {
-            console.log('error in calculating Breakout Time', err);
-            return null;
-        }
-    }))
-};
-export const createCohortBreakouts = (templates) => {
-  console.log('Created cohort Breakouts');
-  return templates;
+  return Promise.all(updatedBreakout.map(async (eachBreakout) => {
+    try {
+      let updateBreakout = await calculateBreakoutTime(eachBreakout);
+      return updateBreakout;
+    } catch (err) {
+      console.log('error in calculating Breakout Time', err);
+      return null;
+    }
+  }));
 };
 
-export const createBreakoutsInMilestone = (cohort_id) => 
-  BreakoutTemplate.findAll({
-    attributes: ['id', 'topic_id', 'duration', 'time_scheduled', 'after_days'],
+
+export const createBreakoutsInMilestone = (cohort_id) => BreakoutTemplate
+  .findAll({
+    attributes: ['id', 'name', 'topic_id', 'details', 'duration', 'time_scheduled', 'after_days'],
     raw: true,
   })
-    .then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
-    .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
-    .then(breakouts => createCohortBreakouts(breakouts))
-    .catch(err => {
-      console.error(err);
-      return null;
-    });
-
-  // breakoutTemplates = breakoutTemplates.map((breakoutTemplate) => {
-  //   getReleaseTimeFromTopic(breakoutTemplate.topic_id[0], cohort_id)
-  //     .then(extra => {
-  //       console.log('extra data :', extra);
-  //       let postBreakoutTemplate = { ...breakoutTemplate, ...extra };
-  //       return postBreakoutTemplate;
-  //     })
-  //     .catch(err => {
-  //       console.log('Failed to get Release time and cohort_milestone_id.', err);
-  //       return null;
-  //     });
-  // });
-//};
+  .then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
+  .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
+  .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates, cohort_id))
+  .then(createdBreakouts => {
+    // console.log('FINAL RETURN :', createdBreakouts);
+    return (createdBreakouts);
+  })
+  .catch(err => {
+    console.error(err);
+    return null;
+  });

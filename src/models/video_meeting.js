@@ -78,7 +78,7 @@ Meeting type:
   3- Recurring Meeting with no fixed time
   4- Recurring Meeting with a fixed time
 */
-export const createScheduledMeeting = (topic, start_time, duration, type, agenda) => {
+export const createScheduledMeeting = (topic, start_time, duration, agenda, type) => {
   const { ZOOM_BASE_URL, ZOOM_USER } = process.env;
   const meeting_object = {
     topic,

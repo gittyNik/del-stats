@@ -40,6 +40,7 @@ export const createSandbox = (payload) => {
     eslint: 1,
   };
   payload = payload || defaultTemplate;
+  payload = (Object.keys(payload).length > 0) ? payload : defaultTemplate;
   let sandbox_setting = {
     defaultTemplate,
     embed_options,

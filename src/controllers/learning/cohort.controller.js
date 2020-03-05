@@ -114,17 +114,7 @@ export const funTesting = async (req, res) => {
   let cohort_id = '05bb9432-f5b6-4b92-aa7f-7325abedde0e'; // Centaurus
 
   let result = await createBreakoutsInMilestone(cohort_id);
+  console.log('<-------OUPUT IN CONTROLLER-------->');
   console.log(result);
-
   res.send(result);
-  // createBreakoutsInMilestone(cohort_id)
-  //   .then(data => {
-  //     res.send(data);
-  //   })
-  //   .catch(err => {
-  //     console.error(err);
-  //     res.sendStatus(500);
-  //   });
-  // console.log('RESPONSE: ', response2);
-  // res.send(typeof response2);
 };
