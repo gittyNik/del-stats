@@ -6,6 +6,8 @@ import db from "../database";
 import { createCohortMilestones, CohortMilestone } from "./cohort_milestone";
 import { CohortBreakout } from "./cohort_breakout";
 import { BreakoutTemplate, CreateBreakoutsInMilestone } from './breakout_template';
+import { createBreakoutsInMilestone } from './breakout_template';
+
 
 export const Cohort = db.define("cohorts", {
   id: {
@@ -145,14 +147,21 @@ export const updateCohortLearners = id =>
 export const beginCohortWithId = cohort_id =>
   Promise.all([
     updateCohortLearners(cohort_id),
-    createCohortMilestones(cohort_id)
-  ]).then(([cohort, milestones]) => {
-    // get all breakout templates
-    // topic id from bt -> milestone_id -> release_time
-    console.log(milestones);
-    cohort.milestones = milestones;
-    return cohort;
-  });
+    createCohortMilestones(cohort_id),
+  ])
+    .then(([cohort, milestones]) => {
+      createBreakoutsInMilestone(cohort_id)
+        .then(allBreakouts => {
+          console.log(`All breakouts scheduled for the cohort ${cohort_id} `);
+          console.log(milestones);
+          cohort.milestones = milestones;
+          return { ...cohort, ...allBreakouts };
+        });
+    })
+    .catch(err => {
+      console.log(err);
+      return null;
+    });
 
 export const getUpcomingCohort = date => {
   const tonight = date || new Date();

@@ -96,52 +96,6 @@ export const createNewBreakout = (
   });
 };
 
-
-export const createCohortBreakouts = (breakoutTemplateList, cohort_id) => {
-  return Cohort.findByPk(cohort_id, {
-    attributes: ['location'],
-    raw: true,
-  })
-    .then(async (cohort) => {
-      console.log(cohort.location);
-      let BreakoutObjects = await breakoutTemplateList.map(async (breakoutTemplate) => {
-        let {
-          id, name, topic_id, duration, primary_catalyst,
-          breakout_schedule, details,
-        } = breakoutTemplate;
-        let breakoutObject = {
-          topic_id,
-          cohort_id,
-          breakout_template_id: id,
-          time_scheduled: breakout_schedule,
-          duration,
-          location: cohort.location,
-          catalyst_id: primary_catalyst,
-          details,
-          topic_name: name,
-          isVideoMeeting: true,
-          isCodeSandbox: true,
-        };
-        return breakoutObject;
-        // end of map
-      });
-      return Promise.all(BreakoutObjects);
-      // end of first then.
-    })
-    .then(async (breakoutObjects) => {
-      let breakouts = await breakoutObjects.map(async (breakoutObject) => {
-        let breakout = await BreakoutWithOptions(breakoutObject);
-        return breakout;
-      });
-      console.log('<----- BREAKOUT OBJECT -------->', breakouts);
-      return breakouts;
-    })
-    .catch(err => {
-      console.error('Failed to location for a cohort', err);
-      return null;
-    });
-};
-
 export const BreakoutWithOptions = (breakoutObject) => {
   const {
     topic_id, cohort_id, breakout_template_id, time_scheduled,
@@ -248,3 +202,50 @@ export const BreakoutWithOptions = (breakoutObject) => {
       });
   }
 };
+
+
+export const createCohortBreakouts = (breakoutTemplateList, cohort_id) => {
+  return Cohort.findByPk(cohort_id, {
+    attributes: ['location'],
+    raw: true,
+  })
+    .then(async (cohort) => {
+      console.log(cohort.location);
+      let BreakoutObjects = await breakoutTemplateList.map(async (breakoutTemplate) => {
+        let {
+          id, name, topic_id, duration, primary_catalyst,
+          breakout_schedule, details,
+        } = breakoutTemplate;
+        let breakoutObject = {
+          topic_id,
+          cohort_id,
+          breakout_template_id: id,
+          time_scheduled: breakout_schedule,
+          duration,
+          location: cohort.location,
+          catalyst_id: primary_catalyst,
+          details,
+          topic_name: name,
+          isVideoMeeting: true,
+          isCodeSandbox: true,
+        };
+        return breakoutObject;
+        // end of map
+      });
+      return Promise.all(BreakoutObjects);
+      // end of first then.
+    })
+    .then(async (breakoutObjects) => {
+      let breakouts = await breakoutObjects.map(async (breakoutObject) => {
+        let breakout = await BreakoutWithOptions(breakoutObject);
+        return breakout;
+      });
+      console.log('<----- BREAKOUT OBJECT -------->', breakouts);
+      return breakouts;
+    })
+    .catch(err => {
+      console.error('Failed to location for a cohort', err);
+      return null;
+    });
+};
+
