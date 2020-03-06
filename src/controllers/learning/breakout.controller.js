@@ -1,6 +1,7 @@
 import { CohortBreakout, createNewBreakout } from '../../models/cohort_breakout';
-import { createScheduledMeeting } from '../../models/video_meeting';
+import { createScheduledMeeting, deleteMeetingFromZoom } from '../../models/video_meeting';
 import { createSandbox } from '../../models/code_sandbox';
+import { getAllBreakoutsInCohortMilestone } from '../../models/cohort_breakout';
 
 export const getBreakouts = (req, res) => {
   CohortBreakout.findAll({})
@@ -44,6 +45,7 @@ export const createBreakout = (req, res) => {
             res.send('Breakout Created with codesandbox and videomeeting.');
           })
           .catch(err => {
+            deleteMeetingFromZoom(details.videoMeeting_id);
             console.error('Failed to create Cohort Breakout', err);
             res.send(500);
           });
@@ -94,6 +96,7 @@ export const createBreakout = (req, res) => {
             res.send('Breakout and video meeting created Created');
           })
           .catch(err => {
+            deleteMeetingFromZoom(details.videoMeeting_id);
             console.error('Failed to create Breakout after creating video meeting', err);
             res.send(500);
           });
@@ -108,55 +111,6 @@ export const createBreakout = (req, res) => {
     res.send('Breakout created without the code-sandbox and video-meeting');
   }
 };
-// if (isCodeSandbox) {
-//   promisesList.push(
-//     createScheduledMeeting(title, time, duration, duration),
-//   );
-//   createScheduledMeeting(title, time, duration, duration)
-//     .then(sandbox =>{
-//       console.log(sandbox);
-
-//     })
-// } else if (isVideoMeeting) {
-//   promisesList.push(createTemplate());
-
-// console.log(promisesList);
-// Promise.all(promisesList)
-//   .then(([sandbox, video]) => {
-//     console.log('Sandbox: ', sandbox);
-//     console.log('Video: ', video);
-//     res.send('Sandbox and video created.');
-//     // return createNewBreakout(type, domain, topic_id, cohort_id, time_scheduled, duration, location, catalyst_id, status, catalyst_notes, catalyst_feedback, attendance_count, details)
-//   })
-//   .catch(err => {
-//     console.log(err);
-//     res.send('Failed');
-//   });
-
-
-// CohortBreakout.create({
-//   id: uuid(),
-//   type,
-//   domain,
-//   topic_id,
-//   cohort_id,
-//   time_scheduled,
-//   duration,
-//   location,
-//   catalyst_id,
-//   status,
-//   catalyst_notes,
-//   catalyst_feedback,
-//   attendence_count,
-// })
-//   .then(data => {
-//     console.log(data);
-//     res.send('Breakout created');
-//   })
-//   .catch(err => {
-//     console.error(err);
-//     res.status(500);
-//   });
 
 export const updateBreakout = (req, res) => {
   const {
@@ -201,4 +155,41 @@ export const deleteBreakout = (req, res) => {
       console.error(err);
       res.status(500);
     });
+};
+
+// http://localhost:3000/api/learning/ops/breakouts/:cohort_id/all
+export const getAllCohortBreakouts = (req, res) => {
+  const { cohort_id } = req.params;
+  CohortBreakout.findAll({
+    where: {
+      cohort_id,
+    },
+    raw: true,
+  })
+    .then(breakouts => {
+      res.json({
+        text: 'List of all breakouts scheduled in this cohort',
+        data: breakouts,
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      res.json({
+        text: 'Failed to get list of all breakouts in this cohort',
+        data: null,
+      });
+    });
+};
+
+// http://localhost:3000/api/learning/ops/breakouts/:cohort_id/:milestone_id/all
+export const getBreakoutsForCohortMilestone = async (req, res) => {
+  const { cohort_id, milestone_id } = req.params;
+
+  let breakouts = await getAllBreakoutsInCohortMilestone(cohort_id, milestone_id);
+  console.log('RESPONSE: ', breakouts);
+  breakouts = breakouts.filter(breakout => breakout != null);
+  res.json({
+    text: 'List of all breakouts in a cohort milestone',
+    data: breakouts,
+  });
 };

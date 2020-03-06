@@ -50,7 +50,35 @@ const MEETING_SETTINGS = {
   waiting_room: 'true',
 };
 
-export const createScheduledMeeting = (topic, start_time, duration, type, agenda) => {
+export const deleteMeetingFromZoom = (video_id) => {
+  const { ZOOM_BASE_URL } = process.env;
+  request
+    .delete(`${ZOOM_BASE_URL}meetings/${video_id}`)
+    .set('Authorization', `Bearer ${zoom_token}`)
+    .set('User-Agent', 'Zoom-api-Jwt-Request')
+    .then(data => {
+      console.log(data);
+      if (data.status === 204) {
+        console.log('Meeting successfully deleted');
+        return true;
+      }
+      console.error(`failed to delete Meeting ${video_id}`);
+      return false;
+    })
+    .catch(err => {
+      console.log(err);
+      return false;
+    });
+};
+
+/*
+Meeting type:
+  1- Instant meeting
+  2- Scheduled Meeting
+  3- Recurring Meeting with no fixed time
+  4- Recurring Meeting with a fixed time
+*/
+export const createScheduledMeeting = (topic, start_time, duration, agenda, type) => {
   const { ZOOM_BASE_URL, ZOOM_USER } = process.env;
   const meeting_object = {
     topic,
@@ -72,16 +100,34 @@ export const createScheduledMeeting = (topic, start_time, duration, type, agenda
     .then(data => {
       // console.log(data);
       const {
-        uuid, id, status,
+        id, status,
         start_url, join_url, h323_password,
       } = data.body;
-      console.log(`ZOOM MEETING --> uuid: ${uuid}, id: ${id}, status: ${status}, join_url: ${join_url}, start_url: ${start_url} h323_password: ${h323_password}.`);
-      return {
-        id,
-        status,
+      console.log(`ZOOM MEETING --> id: ${id}, status: ${status}, join_url: ${join_url}`);
+      VideoMeeting.create({
+        id: uuid(),
+        video_id: id,
         start_url,
         join_url,
-      };
+        duration,
+      })
+        .then(video => {
+          console.log('meeting updated in db.', video);
+          return {
+            id,
+            status,
+            start_url,
+            join_url,
+          };
+        })
+        .catch(err => {
+          // todo: delete the meeting from Zoom.
+          deleteMeetingFromZoom(id);
+          console.error('meeting created on zoom but error in storing to DB', err);
+          return {
+            text: 'Failed to save the vide details on DB.',
+          };
+        });
     })
     .catch(err => {
       console.log(err);

@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 import request from 'superagent';
+import uuid from 'uuid';
 import db from '../database';
 
 
@@ -39,6 +40,11 @@ export const createSandbox = (payload) => {
     eslint: 1,
   };
   payload = payload || defaultTemplate;
+  payload = (Object.keys(payload).length > 0) ? payload : defaultTemplate;
+  let sandbox_setting = {
+    defaultTemplate,
+    embed_options,
+  };
   return request
     .post(`${CODE_ENDPOINT}sandboxes/define?json=1`)
     .set('Content-Type', 'application/json')
@@ -46,11 +52,13 @@ export const createSandbox = (payload) => {
     .send(payload)
     .query(embed_options)
     .then(response => {
-      console.log(response);
-      return {
-        text: 'Sanbox successfully created. redirect to ex: https://codesanbox.io/embed/<id>',
-        data: response.body,
-      };
+      // console.log(response);
+      // todo: store the sandbox id in DB.
+      return CodeSandbox.create({
+        id: uuid(),
+        sandbox_id: response.body.sandbox_id,
+        sandbox_setting,
+      })
     })
     .catch(err => {
       console.error(err);

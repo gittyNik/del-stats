@@ -3,6 +3,7 @@ import {
   getCohortLearnerDetailsByName, beginCohortWithId,
   getCohortFromLearnerId
 } from '../../models/cohort';
+import { createBreakoutsInMilestone, BreakoutTemplate, getReleaseTimeFromTopic, updateBreakoutTemplates } from '../../models/breakout_template';
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
@@ -107,4 +108,13 @@ export const getCohortByLearnerId = (req, res) => {
       console.log(err);
       res.sendStatus(404);
     })
-}
+};
+
+export const funTesting = async (req, res) => {
+  let cohort_id = '05bb9432-f5b6-4b92-aa7f-7325abedde0e'; // Centaurus
+
+  let result = await createBreakoutsInMilestone(cohort_id);
+  console.log('<-------OUPUT IN CONTROLLER-------->');
+  console.log(result);
+  res.send(result);
+};

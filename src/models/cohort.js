@@ -5,6 +5,9 @@ import { User, USER_ROLES } from "./user";
 import db from "../database";
 import { createCohortMilestones, CohortMilestone } from "./cohort_milestone";
 import { CohortBreakout } from "./cohort_breakout";
+import { BreakoutTemplate, CreateBreakoutsInMilestone } from './breakout_template';
+import { createBreakoutsInMilestone } from './breakout_template';
+
 
 export const Cohort = db.define("cohorts", {
   id: {
@@ -128,8 +131,8 @@ export const updateCohortLearners = id =>
             }
           ),
           User.update(
-            { role: USER_ROLES.LEARNER}, 
-            { 
+            { role: USER_ROLES.LEARNER },
+            {
               where: {
                 id: { [Sequelize.Op.in]: learners }
               },
@@ -144,11 +147,21 @@ export const updateCohortLearners = id =>
 export const beginCohortWithId = cohort_id =>
   Promise.all([
     updateCohortLearners(cohort_id),
-    createCohortMilestones(cohort_id)
-  ]).then(([cohort, milestones]) => {
-    cohort.milestones = milestones;
-    return cohort;
-  });
+    createCohortMilestones(cohort_id),
+  ])
+    .then(([cohort, milestones]) => {
+      createBreakoutsInMilestone(cohort_id)
+        .then(allBreakouts => {
+          console.log(`All breakouts scheduled for the cohort ${cohort_id} `);
+        });
+      console.log(milestones);
+      cohort.milestones = milestones;
+      return cohort;
+    })
+    .catch(err => {
+      console.log(err);
+      return null;
+    });
 
 export const getUpcomingCohort = date => {
   const tonight = date || new Date();
@@ -165,7 +178,7 @@ export const getUpcomingCohort = date => {
 
 //Replace by findByPK
 export const getCohortFromId = id =>
-  Cohort.findOne({ where: { id } }).then(cohort => cohort );
+  Cohort.findOne({ where: { id } }).then(cohort => cohort);
 
 export const getCohortFromLearnerId = user_id =>
   Application.findOne({

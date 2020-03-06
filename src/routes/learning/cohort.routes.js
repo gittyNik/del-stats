@@ -1,11 +1,14 @@
 import Express from 'express';
 import {
   getCohortByName, getCohorts, getCohort, createCohort, updateCohort,
-  getUpcomingCohorts, deleteCohort, beginCohort, getCohortByLearnerId
+  getUpcomingCohorts, deleteCohort, beginCohort, getCohortByLearnerId,
+  funTesting,
 } from '../../controllers/learning/cohort.controller';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
+
+router.get('/fun-testing', funTesting);
 
 /**
  * @api {get} /cohorts Get all cohorts
@@ -81,5 +84,6 @@ router.patch('/:id', updateCohort);
  * @apiGroup Cohort
  */
 router.delete('/:id', deleteCohort);
+
 
 export default router;
