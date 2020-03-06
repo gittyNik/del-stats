@@ -278,7 +278,7 @@ export const getAllBreakoutsInCohortMilestone = (cohort_id, milestone_id) => {
     .then(async (topics) => {
       let breakouts = await topics.map(async (topic) => {
         // console.log('TOPIC', topic);
-        let breakout = await CohortBreakout.findAll({
+        let breakout = await CohortBreakout.findOne({
           where: {
             topic_id: topic.id,
             cohort_id,

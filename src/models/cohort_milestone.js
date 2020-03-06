@@ -13,6 +13,7 @@ import {
   getRecentCommitByUser
 } from "../integrations/github/controllers/commits.controller";
 import { getGithubConnecionByUserId } from "./social_connection";
+import { getAllBreakoutsInCohortMilestone } from './cohort_breakout';
 
 export const CohortMilestone = db.define("cohort_milestones", {
   id: {
@@ -78,7 +79,7 @@ export const getCurrentCohortMilestones = () => {
 };
 
 // milestone_id=null represents the topics belonging to the program
-const findTopicsForCohortAndMilestone = (cohort_id, milestone_id = null) =>
+export const findTopicsForCohortAndMilestone = (cohort_id, milestone_id = null) =>
   Topic.findAll({
     where: { milestone_id },
     raw: true,
@@ -103,10 +104,11 @@ const populateTeamsWithLearnersWrapper = async ([
   topics,
   programTopics,
   teams,
-  stats
+  stats,
+  breakouts,
 ]) => {
   teams = await populateTeamsWithLearners(teams);
-  return [topics, programTopics, teams, stats];
+  return [topics, programTopics, teams, stats, breakouts];
 };
 
 const getMilestoneStats = async (user_id, milestone_id) => {
@@ -124,7 +126,12 @@ const getMilestoneStats = async (user_id, milestone_id) => {
       recentCommitByUser
     }
   })
-}
+};
+
+export const findBreakoutsForMilestone = async (cohort_id, milestone_id) => {
+  let breakouts = await getAllBreakoutsInCohortMilestone(cohort_id, milestone_id);
+  return breakouts.filter((breakout) => (breakout != null));
+};
 
 export const getCurrentMilestoneOfCohort = (cohort_id, user_id) => {
   const now = Sequelize.literal("NOW()");
@@ -144,18 +151,23 @@ export const getCurrentMilestoneOfCohort = (cohort_id, user_id) => {
       findTopicsForCohortAndMilestone(cohort_id, milestone_id),
       findTopicsForCohortAndMilestone(cohort_id),
       createMilestoneTeams(id),
-      getMilestoneStats(user_id, id)
+      getMilestoneStats(user_id, id),
+      // get milestone breakouts.
+      findBreakoutsForMilestone(cohort_id, milestone_id),
     ])
       .then(populateTeamsWithLearnersWrapper)
-      .then(([topics, programTopics, teams, stats]) => {
+      .then(([topics, programTopics, teams, stats, breakouts]) => {  // add breakouts
         console.log("***********Stats", stats)
         console.log(
           `Milestone topics: ${topics.length}, Program topics: ${programTopics.length}`
         );
+        console.log(`Breakouts in the milestone ${milestone_id}`, breakouts);
         milestone.topics = topics;
         milestone.programTopics = programTopics;
         milestone.teams = teams;
         milestone.stats = stats;
+        milestone.breakouts = breakouts;
+        //  milestone.breakouts = milestones;
         return milestone;
       });
   });

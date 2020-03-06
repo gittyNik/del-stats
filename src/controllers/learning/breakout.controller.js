@@ -186,7 +186,8 @@ export const getBreakoutsForCohortMilestone = async (req, res) => {
   const { cohort_id, milestone_id } = req.params;
 
   let breakouts = await getAllBreakoutsInCohortMilestone(cohort_id, milestone_id);
-  // console.log('FINAL RESULT IN CONTROLLER: ', breakouts);
+  console.log('RESPONSE: ', breakouts);
+  breakouts = breakouts.filter(breakout => breakout != null);
   res.json({
     text: 'List of all breakouts in a cohort milestone',
     data: breakouts,
