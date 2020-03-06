@@ -103,7 +103,7 @@ export const createScheduledMeeting = (topic, start_time, duration, agenda, type
         id, status,
         start_url, join_url, h323_password,
       } = data.body;
-      console.log(`ZOOM MEETING --> uuid: ${uuid}, id: ${id}, status: ${status}, join_url: ${join_url}, start_url: ${start_url} h323_password: ${h323_password}.`);
+      console.log(`ZOOM MEETING --> id: ${id}, status: ${status}, join_url: ${join_url}`);
       VideoMeeting.create({
         id: uuid(),
         video_id: id,

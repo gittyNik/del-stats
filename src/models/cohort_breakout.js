@@ -79,6 +79,7 @@ export const createNewBreakout = (
   attendance_count = null, domain = null,
   catalyst_notes = null, catalyst_feedback = null,
 ) => {
+  console.log(`${time_scheduled} ${duration} ${location}`)
   CohortBreakout.create({
     id: uuid(),
     breakout_template_id,
@@ -115,7 +116,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
         console.log('Sandbox: ', sandbox);
         console.log('VideoMeeting: ', videoMeeting);
 
-        details.sandbox.sandbox_id = sandbox.data.sandbox_id;
+        details.sandbox.sandbox_id = sandbox.sandbox_id;
         details.zoom = videoMeeting;
         createNewBreakout(
           breakout_template_id, topic_id, cohort_id,
@@ -237,7 +238,7 @@ export const createCohortBreakouts = (breakoutTemplateList, cohort_id) => {
     })
     .then(async (breakoutObjects) => {
       let breakouts = await breakoutObjects.map(async (breakoutObject) => {
-        let breakout = await BreakoutWithOptions(breakoutObject);
+        let breakout = BreakoutWithOptions(breakoutObject);
         return breakout;
       });
       console.log('<----- BREAKOUT OBJECT -------->', breakouts);

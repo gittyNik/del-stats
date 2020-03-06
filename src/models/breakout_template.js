@@ -152,17 +152,17 @@ export const scheduling = (updatedBreakout) => {
 
 export const createBreakoutsInMilestone = (cohort_id) => BreakoutTemplate
   .findAll({
-    attributes: ['id', 'name', 'topic_id', 'details', 'duration', 'time_scheduled', 'after_days'],
+    attributes: ['id', 'name', 'topic_id', 'details', 'duration', 'time_scheduled', 'after_days', 'primary_catalyst', 'level'],
     raw: true,
   })
   .then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
   .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
   .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates, cohort_id))
   .then(createdBreakouts => {
-    // console.log('FINAL RETURN :', createdBreakouts);
-    return (createdBreakouts);
+    console.log('Breakouts created for Cohort');
+    //return (createdBreakouts);
   })
   .catch(err => {
     console.error(err);
-    return null;
+    //return null;
   });

@@ -52,27 +52,13 @@ export const createSandbox = (payload) => {
     .send(payload)
     .query(embed_options)
     .then(response => {
-      console.log(response);
+      // console.log(response);
       // todo: store the sandbox id in DB.
-      CodeSandbox.create({
+      return CodeSandbox.create({
         id: uuid(),
         sandbox_id: response.body.sandbox_id,
         sandbox_setting,
       })
-        .then(data => {
-          console.log(data);
-          return {
-            text: 'Sanbox successfully created. redirect to ex: https://codesanbox.io/embed/<id>',
-            data: response.body,
-          };
-        })
-        .catch(err => {
-          console.error('Error in saving the codesandbox to DB.', err);
-          return {
-            text: 'Failed to save the savebox to DB.',
-            err,
-          };
-        });
     })
     .catch(err => {
       console.error(err);
