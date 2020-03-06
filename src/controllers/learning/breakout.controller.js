@@ -1,6 +1,7 @@
 import { CohortBreakout, createNewBreakout } from '../../models/cohort_breakout';
 import { createScheduledMeeting, deleteMeetingFromZoom } from '../../models/video_meeting';
 import { createSandbox } from '../../models/code_sandbox';
+import { getAllBreakoutsInCohortMilestone } from '../../models/cohort_breakout';
 
 export const getBreakouts = (req, res) => {
   CohortBreakout.findAll({})
@@ -154,4 +155,40 @@ export const deleteBreakout = (req, res) => {
       console.error(err);
       res.status(500);
     });
+};
+
+// http://localhost:3000/api/learning/ops/breakouts/:cohort_id/all
+export const getAllCohortBreakouts = (req, res) => {
+  const { cohort_id } = req.params;
+  CohortBreakout.findAll({
+    where: {
+      cohort_id,
+    },
+    raw: true,
+  })
+    .then(breakouts => {
+      res.json({
+        text: 'List of all breakouts scheduled in this cohort',
+        data: breakouts,
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      res.json({
+        text: 'Failed to get list of all breakouts in this cohort',
+        data: null,
+      });
+    });
+};
+
+// http://localhost:3000/api/learning/ops/breakouts/:cohort_id/:milestone_id/all
+export const getBreakoutsForCohortMilestone = async (req, res) => {
+  const { cohort_id, milestone_id } = req.params;
+
+  let breakouts = await getAllBreakoutsInCohortMilestone(cohort_id, milestone_id);
+  // console.log('FINAL RESULT IN CONTROLLER: ', breakouts);
+  res.json({
+    text: 'List of all breakouts in a cohort milestone',
+    data: breakouts,
+  });
 };

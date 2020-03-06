@@ -4,6 +4,7 @@ import db from '../database';
 import { Cohort } from './cohort';
 import { createSandbox } from './code_sandbox';
 import { createScheduledMeeting, deleteMeetingFromZoom } from './video_meeting';
+import { Topic } from './topic';
 
 export const EVENT_STATUS = ['scheduled', 'started', 'cancelled', 'aborted', 'running'];
 export const BREAKOUT_TYPE = ['lecture', 'codealong', 'questionhour', 'activity', 'groupdiscussion'];
@@ -124,9 +125,9 @@ export const BreakoutWithOptions = (breakoutObject) => {
           catalyst_id, details,
         )
           .then(data => {
-            console.log('Breakout created with codesandbox and videoMeeting', data);
+            console.log('Breakout created with codesandbox and videoMeeting', data.toJSON());
             // res.send('Breakout Created with codesandbox and videomeeting.');
-            return data;
+            return data.toJSON();
           })
           .catch(err => {
             deleteMeetingFromZoom(details.videoMeeting_id);
@@ -250,3 +251,55 @@ export const createCohortBreakouts = (breakoutTemplateList, cohort_id) => {
     });
 };
 
+
+export const getAllBreakoutsInCohort = (cohort_id) => {
+  return CohortBreakout.findAll({
+    where: {
+      cohort_id,
+    },
+    raw: true,
+  })
+    .then(allBreakouts => {
+      return allBreakouts;
+    })
+    .catch(err => {
+      console.error('Unable to find all breakouts in the cohort', err);
+      return null;
+    });
+};
+
+export const getAllBreakoutsInCohortMilestone = (cohort_id, milestone_id) => {
+  return Topic.findAll({
+    where: {
+      milestone_id,
+    },
+    raw: true,
+  })
+    .then(async (topics) => {
+      let breakouts = await topics.map(async (topic) => {
+        // console.log('TOPIC', topic);
+        let breakout = await CohortBreakout.findAll({
+          where: {
+            topic_id: topic.id,
+            cohort_id,
+          },
+          raw: true,
+        })
+          .then(data => {
+            console.log('SINGLE BREAKOUT', data);
+            return data;
+          })
+          .catch(err => {
+            console.log(err);
+            return null;
+          });
+        return breakout;
+      });
+      // console.log('BREAKOUTS: ', (breakouts));
+      return Promise.all(breakouts);
+    })
+    .catch(err => {
+      console.log('Unable to find topics for the milestone', err);
+      return null;
+    });
+};

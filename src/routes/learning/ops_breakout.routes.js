@@ -1,5 +1,6 @@
 import Express from 'express';
 import { getLearnerBreakouts, getUpcomingBreakouts, createLearnerBreakout } from '../../controllers/learning/learner_breakout.controller';
+import { getAllCohortBreakouts, getBreakoutsForCohortMilestone } from '../../controllers/learning/breakout.controller';
 
 const router = Express.Router();
 
@@ -21,6 +22,7 @@ router.get('/', getLearnerBreakouts);
  */
 router.get('/upcoming', getUpcomingBreakouts);
 
+
 /**
  * @api {post} /learning/ops/breakouts Submit a Breakout
  * @apiDescription Submit a Breakout that the learner has attended
@@ -34,5 +36,22 @@ router.get('/upcoming', getUpcomingBreakouts);
  * @apiParam {String} learner_feedback Learner feedback on Breakout
  */
 router.post('/', createLearnerBreakout);
+
+
+/**
+ * @api {get} /learning/ops/breakouts/:cohort_id/all Get all Cohort breakouts in a Cohort
+ * @apiDescription get all cohort breakouts scheduled for a cohort
+ * @apiHeader GetBreakouts
+ * @apiGroup Breakouts
+ */
+router.get('/:cohort_id/all', getAllCohortBreakouts);
+
+/**
+ * @api {get} /learning/ops/breakouts/:cohort_id/:milestone_id/all Get all breakouts in Cohort Milestone.
+ * @apiDescription get all Cohort Breakouts scheduled in a milestone in cohort.
+ * @apiHeader GetBreakouts
+ * @apiGroup Breakouts
+ */
+router.get('/:cohort_id/:milestone_id/all', getBreakoutsForCohortMilestone);
 
 export default router;
