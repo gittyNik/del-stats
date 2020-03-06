@@ -145,8 +145,8 @@ const populateLearnerStats = (
     Teams[0].github_repo_link
   );
 
-  let userCommitsDayWise = u;
-  let teamCommitsDayWise = u[0].teamCommitsDayWise;
+  let userCommitsDayWise = u.userCommitsDayWise;
+  let teamCommitsDayWise = u.teamCommitsDayWise;
   let stats = {
     lastWeekCommitsInRepoDayWise: lastWeek,
     userCommitsDayWise,

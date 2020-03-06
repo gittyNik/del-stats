@@ -306,7 +306,6 @@ const userAndTeamCommitsDayWise = async (learners, repo) => {
 				user_id: user.id,
 				gitUsername: null,
 				userCommitsDayWise: 0,
-				teamCommitsDayWise: 0
 			});
 		} else {
 			let authorCommits = await getAuthoredCommitsBetweenDates(
@@ -319,11 +318,13 @@ const userAndTeamCommitsDayWise = async (learners, repo) => {
 				user_id: user.id,
 				gitUsername: socialConnection.username,
 				userCommitsDayWise: commitsDayWise(twoWeeks, authorCommits),
-				teamCommitsDayWise: commitsDayWise(twoWeeks, commits)
 			});
 		}
 	}
-	return ret;
+	return {
+		userCommitsDayWise: ret,
+		teamCommitsDayWise: commitsDayWise(twoWeeks, commits)
+	};
 };
 
 const allStats = async (req, res) => {
