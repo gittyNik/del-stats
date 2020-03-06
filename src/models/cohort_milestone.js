@@ -118,7 +118,7 @@ const populateLearnerStats = (
   let lastWeekCommitsInRepoDayWise = await weeklyCommitActivityData(
     Teams[0].github_repo_link
   );
-  if (lastWeekCommitsInRepoDayWise.length !== 0) {
+  if (typeof lastWeekCommitsInRepoDayWise[51] != "undefined") {
     let dayId = new Date(Date.now()).getDay();
     lastWeek = lastWeekCommitsInRepoDayWise[51].days;
     let cnt = 6 - dayId;
