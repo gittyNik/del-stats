@@ -80,11 +80,11 @@ export const createNewBreakout = (
   catalyst_notes = null, catalyst_feedback = null,
 ) => {
   console.log(`${time_scheduled} ${duration} ${location}`)
-  CohortBreakout.create({
+  return CohortBreakout.create({
     id: uuid(),
     breakout_template_id,
     domain,
-    topic_id,
+    topic_id: topic_id[0],
     cohort_id,
     time_scheduled,
     duration,

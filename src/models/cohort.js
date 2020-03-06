@@ -156,7 +156,7 @@ export const beginCohortWithId = cohort_id =>
         });
         console.log(milestones);
         cohort.milestones = milestones;
-        return { ...cohort, ...allBreakouts };
+        return cohort;
     })
     .catch(err => {
       console.log(err);
