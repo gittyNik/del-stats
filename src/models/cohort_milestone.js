@@ -18,6 +18,7 @@ import {
 } from "../integrations/github/controllers";
 import { getGithubConnecionByUserId } from "./social_connection";
 import _ from "lodash";
+import { getResourceByTopic } from "./resource";
 
 export const CohortMilestone = db.define("cohort_milestones", {
   id: {
@@ -91,6 +92,7 @@ const findTopicsForCohortAndMilestone = (cohort_id, milestone_id = null) =>
   }).then(async topics => {
     for (let i = 0; i < topics.length; i++) {
       topics[i].challenges = await getChallengesByTopicId(topics[i].id);
+      topics[i].resources = await getResourceByTopic(topics[i].id);
     }
     return topics;
   });
