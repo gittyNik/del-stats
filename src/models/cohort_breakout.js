@@ -283,6 +283,7 @@ export const getAllBreakoutsInCohortMilestone = (cohort_id, milestone_id) => {
             topic_id: topic.id,
             cohort_id,
           },
+          include: [Topic],
           raw: true,
         })
           .then(data => {
