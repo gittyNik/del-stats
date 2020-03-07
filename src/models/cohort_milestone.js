@@ -102,18 +102,17 @@ const populateTeamsWithLearnersWrapper = async ([
   topics,
   programTopics,
   teams,
-  stats,
   breakouts,
 ]) => {
   teams = await populateTeamsWithLearners(teams);
-  return [topics, programTopics, teams, stats, breakouts];
+  return [topics, programTopics, teams, breakouts];
 };
 
 const populateLearnerStats = (
   user_id,
   cohort_id,
   cohort_milestone_id
-) => async ([topics, programTopics, teams]) => {
+) => async ([topics, programTopics, teams, breakouts]) => {
   let socialConnection = await getGithubConnecionByUserId(user_id);
   let Teams = _.filter(teams, team => _.some(team.learners, { id: user_id }));
 
@@ -158,7 +157,7 @@ const populateLearnerStats = (
     teamAndUserCommits
   };
 
-  return [topics, programTopics, teams, stats];
+  return [topics, programTopics, teams, stats, breakouts];
 };
 
 export const findBreakoutsForMilestone = async (cohort_id, milestone_id) => {
@@ -187,6 +186,7 @@ export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
       findBreakoutsForMilestone(cohort_id, milestone_id),
     ])
       .then(populateTeamsWithLearnersWrapper)
+      .then(populateLearnerStats(user_id, cohort_id, milestone.id))
       .then(([topics, programTopics, teams, stats, breakouts]) => {  // add breakouts
         console.log("***********Stats", stats)
         console.log(
