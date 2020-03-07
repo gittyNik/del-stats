@@ -8,8 +8,6 @@ import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
 
-router.get('/fun-testing', funTesting);
-
 /**
  * @api {get} /cohorts Get all cohorts
  * @apiHeader {String} authorization JWT Token.

@@ -19,7 +19,6 @@ import {
 import { getGithubConnecionByUserId } from "./social_connection";
 import _ from "lodash";
 import { getResourceByTopic } from "./resource";
-import { getAllBreakoutsInCohortMilestone } from './cohort_breakout';
 
 export const CohortMilestone = db.define("cohort_milestones", {
   id: {
@@ -55,15 +54,6 @@ export const CohortMilestone = db.define("cohort_milestones", {
 
 const { lte, gt } = Sequelize.Op;
 
-export const getMilestoneStartDate = (cohort_id, milestone_id) => CohortMilestone.findOne({
-  attributes: ['id', 'release_time'],
-  where: {
-    cohort_id,
-    milestone_id,
-  },
-  raw: true,
-})
-
 export const getDataForMilestoneName = id =>
   CohortMilestone.findOne({
     where: {
@@ -85,7 +75,7 @@ export const getCurrentCohortMilestones = () => {
 };
 
 // milestone_id=null represents the topics belonging to the program
-export const findTopicsForCohortAndMilestone = (cohort_id, milestone_id = null) =>
+const findTopicsForCohortAndMilestone = (cohort_id, milestone_id = null) =>
   Topic.findAll({
     where: { milestone_id },
     raw: true,
@@ -111,11 +101,10 @@ const populateTeamsWithLearnersWrapper = async ([
   topics,
   programTopics,
   teams,
-  stats,
-  breakouts,
+  stats
 ]) => {
   teams = await populateTeamsWithLearners(teams);
-  return [topics, programTopics, teams, stats, breakouts];
+  return [topics, programTopics, teams];
 };
 
 const populateLearnerStats = (
@@ -166,31 +155,9 @@ const populateLearnerStats = (
     latestCommitByUser,
     teamAndUserCommits
   };
+
   return [topics, programTopics, teams, stats];
 };
-
-const getMilestoneStats = async (user_id, milestone_id) => {
-  return Promise.all([
-    getGithubConnecionByUserId(user_id),
-    getLearnerTeamOfMilestone(user_id, milestone_id)
-  ]).then(async ([socialConnection, learnerTeam]) => {
-    const recentCommitByUser = await getRecentCommitByUser(socialConnection.username, learnerTeam.github_repo_link);
-    // TODO:
-    // last commit in cohort
-    // user commit frequency over past week in milestone
-    // total user commits vs team commits in milestone
-    // day wise number of commits in milestone by user and rest of team
-    return {
-      recentCommitByUser
-    }
-  })
-};
-
-export const findBreakoutsForMilestone = async (cohort_id, milestone_id) => {
-  let breakouts = await getAllBreakoutsInCohortMilestone(cohort_id, milestone_id);
-  return breakouts.filter((breakout) => (breakout != null));
-};
-
 
 export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
   const now = Sequelize.literal("NOW()");
@@ -209,25 +176,18 @@ export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
     return Promise.all([
       findTopicsForCohortAndMilestone(cohort_id, milestone_id),
       findTopicsForCohortAndMilestone(cohort_id),
-      createMilestoneTeams(id),
-      getMilestoneStats(user_id, id),
-      // get milestone breakouts.
-      findBreakoutsForMilestone(cohort_id, milestone_id),
+      createMilestoneTeams(id)
     ])
       .then(populateTeamsWithLearnersWrapper)
       .then(populateLearnerStats(user_id, cohort_id, milestone.id))
-      .then(([topics, programTopics, teams, stats, breakouts]) => { // add breakouts
-        console.log("***********Stats", stats);
+      .then(([topics, programTopics, teams, stats]) => {
         console.log(
           `Milestone topics: ${topics.length}, Program topics: ${programTopics.length} Stats: ${stats}`
         );
-        console.log(`Breakouts in the milestone ${milestone_id}`, breakouts);
         milestone.topics = topics;
         milestone.programTopics = programTopics;
         milestone.teams = teams;
         milestone.stats = stats;
-        milestone.breakouts = breakouts;
-        //  milestone.breakouts = milestones;
         return milestone;
       });
   });
@@ -256,7 +216,7 @@ function* calculateReleaseTime(cohort_start, pending) {
 export const createCohortMilestones = cohort_id =>
   Cohort.findByPk(cohort_id, {
     include: [Program],
-    raw: true,
+    raw: true
   }).then(cohort => {
     const milestones = cohort["program.milestones"];
     const release = calculateReleaseTime(cohort.start_date, milestones.length);
