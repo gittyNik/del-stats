@@ -2,6 +2,7 @@ import { CohortBreakout, createNewBreakout } from '../../models/cohort_breakout'
 import { createScheduledMeeting, deleteMeetingFromZoom } from '../../models/video_meeting';
 import { createSandbox } from '../../models/code_sandbox';
 import { getAllBreakoutsInCohortMilestone } from '../../models/cohort_breakout';
+import Topic from '../../models/topic';
 
 export const getBreakouts = (req, res) => {
   CohortBreakout.findAll({})
@@ -164,6 +165,7 @@ export const getAllCohortBreakouts = (req, res) => {
     where: {
       cohort_id,
     },
+    include: [Topic],
     raw: true,
   })
     .then(breakouts => {
