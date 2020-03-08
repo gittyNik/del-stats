@@ -3,7 +3,9 @@ import request from 'superagent';
 import uuid from 'uuid/v4';
 import jwt from 'jsonwebtoken';
 import db from '../database';
-
+import { LearnerBreakout } from './learner_breakout';
+import { SocialConnection } from './social_connection';
+import { CohortBreakout } from './cohort_breakout';
 
 export const VideoMeeting = db.define('video_meetings', {
   id: {
@@ -133,6 +135,88 @@ export const createScheduledMeeting = (topic, start_time, duration, agenda, type
       console.log(err);
       return {
         text: 'Failed to create meeting',
+      };
+    })
+  );
+};
+
+export const markIndividualAttendance = (participants, catalyst_id,
+  cohort_breakout_id, attentiveness_threshold) => {
+  let attendanceCount = 0;
+  participants.forEach(participant => {
+    const { user_email, duration, attentiveness_score } = participant;
+    SocialConnection.findOne({
+      attributes: ['user_id'],
+      where: {
+        email: user_email,
+      },
+    }).then(data => {
+      let attendance;
+      if ((attentiveness_score >= attentiveness_threshold) || (data.user_id !== catalyst_id)) {
+        attendanceCount += 1;
+        attendance = true;
+      } else {
+        attendance = false;
+      }
+      LearnerBreakout.update({
+        attendance,
+      }, {
+        where: {
+          cohort_breakout_id,
+          learner_id: data.user_id,
+        },
+      });
+    });
+  });
+  return attendanceCount;
+};
+
+/*
+From Zoom API endpoint get users in breakout and mark attendance for them
+https://marketplace.zoom.us/docs/api-reference/zoom-api/reports/reportmeetingparticipants
+Zoom returns the users that attended a meeting, using this to mark attendance
+*/
+export const markAttendanceFromZoom = (meeting_id, catalyst_id,
+  cohort_breakout_id, attentiveness_threshold = 70) => {
+  const { ZOOM_BASE_URL } = process.env;
+  console.log('Marking attendance for Cohort Breakout id', cohort_breakout_id);
+
+  return (request
+    .get(`${ZOOM_BASE_URL}report/meetings/{meetingId}/participants`) // todo: need to assign delta user to zoom user
+    .set('Authorization', `Bearer ${zoom_token}`)
+    .set('User-Agent', 'Zoom-api-Jwt-Request')
+    .set('content-type', 'application/json')
+    .then(data => {
+      // TODO: Handle pagination if more than 30 attendees
+      const {
+        participants,
+        total_records,
+        next_page_token
+      } = data.body;
+      console.log(`Fetched data for Zoom Meeting: ${meeting_id}`);
+      markIndividualAttendance(participants, catalyst_id,
+        cohort_breakout_id, attentiveness_threshold)
+        .then(attendanceCount => {
+          console.log('Attendance Count.', attendanceCount);
+          CohortBreakout.update({
+            attendance_count: attendanceCount,
+          }, {
+            where: {
+              cohort_breakout_id,
+            },
+          });
+        })
+        .catch(err => {
+          console.error('Failed to update Cohort attendance count', err);
+          return {
+            text: `Failed to update Cohort attendance count for ${cohort_breakout_id} .`,
+          };
+        });
+    })
+    .catch(err => {
+      console.log(err);
+      return {
+        text: `Failed to get breakout details from Zoom ${cohort_breakout_id}`,
       };
     })
   );
