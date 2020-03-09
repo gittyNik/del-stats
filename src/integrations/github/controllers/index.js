@@ -207,10 +207,12 @@ const numberOfLinesInEachMilestone = async (cohort_id, user_id, username) => {
 				continue;
 			}
 			teams[i] = { team: teams[i], cont, commits: com.length };
-			for (let j = 0; j < teams[i].cont.length; j++) {
-				if (teams[i].cont[j].author.login === username) {
-					teams[i].cont = teams[i].cont[j];
-					break;
+			if(!_.isEmpty(cont)) {
+				for (let j = 0; j < teams[i].cont.length; j++) {
+					if (teams[i].cont[j].author.login === username) {
+						teams[i].cont = teams[i].cont[j];
+						break;
+					}
 				}
 			}
 		}
@@ -220,9 +222,11 @@ const numberOfLinesInEachMilestone = async (cohort_id, user_id, username) => {
 			if (teams[i].hasOwnProperty("noOfLines")) {
 				continue;
 			}
-			for (let j = 0; j < teams[i].cont.weeks.length; j++) {
-				a += teams[i].cont.weeks[j].a;
-				d += teams[i].cont.weeks[j].d;
+			if(!_.isEmpty(teams[i].cont)) {
+				for (let j = 0; j < teams[i].cont.weeks.length; j++) {
+					a += teams[i].cont.weeks[j].a;
+					d += teams[i].cont.weeks[j].d;
+				}
 			}
 			teams[i] = {
 				noOfLines: a - d,
