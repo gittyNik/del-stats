@@ -204,23 +204,29 @@ export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
   });
 };
 
-function* calculateReleaseTime(cohort_start, pending) {
+function* calculateReleaseTime(cohort_start, pending, cohort_duration, cohort_program) {
   const DAY_MSEC = 86400000;
+  let milestone_duration = 0;
   const start = new Date(cohort_start);
+  if (cohort_duration === 16) {
+    milestone_duration = 7;
+  } else {
+    milestone_duration = 14;
+  }
   start.setHours(0, 0, 0, 0);
   // Calculate first Monday
-  start.setDate(cohort_start.getDate() + ((1 + 7 - cohort_start.getDay()) % 7));
+  start.setDate(cohort_start.getDate() + ((1 + milestone_duration - cohort_start.getDay()) % milestone_duration));
   // Calculate Tuesday 6 pm
   const end = new Date(+start + DAY_MSEC * 1.75);
 
   while (pending--) {
     if (pending === 0) {
       // Calculate next friday
-      end.setDate(start.getDate() + ((5 + 7 - cohort_start.getDay()) % 7));
+      end.setDate(start.getDate() + ((5 + milestone_duration - cohort_start.getDay()) % milestone_duration));
     }
     yield { start, end };
     start.setTime(+end + DAY_MSEC / 4);
-    end.setTime(+end + DAY_MSEC * 7);
+    end.setTime(+end + DAY_MSEC * milestone_duration);
   }
 }
 
@@ -230,7 +236,9 @@ export const createCohortMilestones = cohort_id =>
     raw: true
   }).then(cohort => {
     const milestones = cohort["program.milestones"];
-    const release = calculateReleaseTime(cohort.start_date, milestones.length);
+    const cohort_duration = cohort.duration;
+    const cohort_program_id = cohort.program_id;
+    const release = calculateReleaseTime(cohort.start_date, milestones.length, cohort_duration, cohort_program_id);
     const cohort_milestones = milestones.map(milestone_id => {
       const { value } = release.next();
 
@@ -239,7 +247,9 @@ export const createCohortMilestones = cohort_id =>
         release_time: new Date(value.start),
         cohort_id,
         milestone_id,
-        review_scheduled: new Date(value.end)
+        review_scheduled: new Date(value.end),
+        cohort_duration,
+        cohort_program_id,
       };
     });
 

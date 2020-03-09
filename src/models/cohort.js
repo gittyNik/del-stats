@@ -25,7 +25,8 @@ export const Cohort = db.define("cohorts", {
   learning_ops_manager: {
     type: Sequelize.UUID,
     references: { model: "users", key: "id" }
-  }
+  },
+  duration: Sequelize.INTEGER,
 });
 
 export const getCohortsStartingToday = () => {
@@ -150,7 +151,7 @@ export const beginCohortWithId = cohort_id =>
     createCohortMilestones(cohort_id),
   ])
     .then(([cohort, milestones]) => {
-      createBreakoutsInMilestone(cohort_id)
+      createBreakoutsInMilestone(cohort_id, cohort.program_id, cohort.duration)
         .then(allBreakouts => {
           console.log(`All breakouts scheduled for the cohort ${cohort_id} `);
         });

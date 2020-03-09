@@ -76,6 +76,11 @@ export const BreakoutTemplate = db.define('breakout_templates', {
     ),
     allowNull: true,
   },
+  cohort_duration: Sequelize.INTEGER,
+  program_id: {
+    type: Sequelize.UUID,
+    references: { model: 'programs' },
+  },
 });
 
 export const getReleaseTimeFromTopic = (topic_id, cohort_id) =>
@@ -150,9 +155,10 @@ export const scheduling = (updatedBreakout) => {
 };
 
 
-export const createBreakoutsInMilestone = (cohort_id) => BreakoutTemplate
+export const createBreakoutsInMilestone = (cohort_id, program_id, cohort_duration) => BreakoutTemplate
   .findAll({
     attributes: ['id', 'name', 'topic_id', 'details', 'duration', 'time_scheduled', 'after_days', 'primary_catalyst', 'level'],
+    where: { program_id, cohort_duration },
     raw: true,
   })
   .then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
