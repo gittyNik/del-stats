@@ -155,7 +155,7 @@ export const beginCohortWithId = cohort_id =>
         .then(allBreakouts => {
           console.log(`All breakouts scheduled for the cohort ${cohort_id} `);
         });
-      console.log(milestones);
+      // console.log(milestones);
       cohort.milestones = milestones;
       return cohort;
     })

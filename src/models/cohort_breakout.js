@@ -125,7 +125,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
           catalyst_id, details,
         )
           .then(data => {
-            console.log('Breakout created with codesandbox and videoMeeting', data.toJSON());
+            // console.log('Breakout created with codesandbox and videoMeeting');
             // res.send('Breakout Created with codesandbox and videomeeting.');
             return data.toJSON();
           })

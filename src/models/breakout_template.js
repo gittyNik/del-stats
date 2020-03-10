@@ -130,15 +130,18 @@ export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => {
 
 export const calculateBreakoutTime = (eachBreakoutTemp) => {
   // Shallow copy datetime object
-  const RELEASE_TIME = new Date(eachBreakoutTemp.release_time.valueOf());
+  const RELEASE_TIME = new Date(eachBreakoutTemp.release_time.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
   const { duration, time_scheduled, after_days } = eachBreakoutTemp;
   let breakoutScheduledTime = RELEASE_TIME;
+  let time_split = time_scheduled.split(':');
+
   breakoutScheduledTime.setDate(RELEASE_TIME.getDate() + after_days);
-  let time_split = time_scheduled.split(":")
   console.log('After adding days: ', breakoutScheduledTime);
   breakoutScheduledTime.setHours(time_split[0], time_split[1], time_split[2]);
   console.log('Breakout time: ', breakoutScheduledTime);
-  let breakoutSchedule = { 'breakout_schedule': breakoutScheduledTime };
+
+  let breakoutScheduledUTC = new Date(breakoutScheduledTime.toISOString());
+  let breakoutSchedule = { breakout_schedule: breakoutScheduledUTC };
   return { ...eachBreakoutTemp, ...breakoutSchedule };
 };
 
