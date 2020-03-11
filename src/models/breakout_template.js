@@ -128,6 +128,22 @@ export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => {
   }));
 };
 
+
+function changeTimezone(date, ianatz) {
+  // suppose the date is 02:30 UTC
+  let invdate = new Date(date.toLocaleString('en-US', {
+    timeZone: ianatz,
+  }));
+
+  // then invdate will be 08:00pm in India
+  // and the diff is 5:30 hours
+  let diff = date.getTime() - invdate.getTime();
+
+  // so 08:00pm in India is 02:30 UTC
+  return new Date(date.getTime() + diff);
+}
+
+
 export const calculateBreakoutTime = (eachBreakoutTemp) => {
   // Shallow copy datetime object
   const RELEASE_TIME = new Date(eachBreakoutTemp.release_time.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
@@ -140,7 +156,7 @@ export const calculateBreakoutTime = (eachBreakoutTemp) => {
   breakoutScheduledTime.setHours(time_split[0], time_split[1], time_split[2]);
   console.log('Breakout time: ', breakoutScheduledTime);
 
-  let breakoutScheduledUTC = new Date(breakoutScheduledTime.toISOString());
+  let breakoutScheduledUTC = changeTimezone(breakoutScheduledTime, 'Asia/Kolkata');
   let breakoutSchedule = { breakout_schedule: breakoutScheduledUTC };
   return { ...eachBreakoutTemp, ...breakoutSchedule };
 };
