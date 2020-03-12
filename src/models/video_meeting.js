@@ -114,7 +114,7 @@ export const createScheduledMeeting = (topic, start_time, duration, agenda, type
         duration,
       })
         .then(video => {
-          console.log('meeting updated in db.', video);
+          console.log('meeting updated in db.');
           return {
             id,
             status,

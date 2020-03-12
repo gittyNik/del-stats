@@ -5,6 +5,7 @@ import { Cohort } from './cohort';
 import { createSandbox } from './code_sandbox';
 import { createScheduledMeeting, deleteMeetingFromZoom } from './video_meeting';
 import { Topic } from './topic';
+// import sandbox from 'bullmq/dist/classes/sandbox';
 
 export const EVENT_STATUS = ['scheduled', 'started', 'cancelled', 'aborted', 'running'];
 export const BREAKOUT_TYPE = ['lecture', 'codealong', 'questionhour', 'activity', 'groupdiscussion'];
@@ -102,14 +103,14 @@ export const BreakoutWithOptions = (breakoutObject) => {
   const {
     topic_id, cohort_id, breakout_template_id, time_scheduled,
     duration, location, catalyst_id, details,
-    isVideoMeeting, isCodeSandbox, topic_name
+    isVideoMeeting, isCodeSandbox, topic_name,
   } = breakoutObject;
 
   let time = time_scheduled.toLocaleString().split(' ').join('T');
   let agenda = `Breakout is scheduled for the topic "${topic_name}" at ${time_scheduled} for ${duration} hours `;
 
   if (isCodeSandbox && isVideoMeeting) {
-    Promise.all([
+    return Promise.all([
       createSandbox(details.sandbox.template),
       createScheduledMeeting(topic_name, time, duration, agenda),
     ])
@@ -119,7 +120,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
 
         details.sandbox.sandbox_id = sandbox.sandbox_id;
         details.zoom = videoMeeting;
-        createNewBreakout(
+        return createNewBreakout(
           breakout_template_id, topic_id, cohort_id,
           time_scheduled, duration, location,
           catalyst_id, details,
@@ -128,46 +129,26 @@ export const BreakoutWithOptions = (breakoutObject) => {
             // console.log('Breakout created with codesandbox and videoMeeting');
             // res.send('Breakout Created with codesandbox and videomeeting.');
             return data.toJSON();
-          })
-          .catch(err => {
-            deleteMeetingFromZoom(details.videoMeeting_id);
-            console.error('Failed to create Cohort Breakout', err);
-            return `Failed to create Cohort Breakout for breakout_template_id ${breakout_template_id}`;
           });
-      })
-      .catch(err => {
-        console.log('Failed to create Code Sanbdbox and Videomeeting', err);
-        return null;
       });
+    // eslint-disable-next-line no-else-return
   } else if (isCodeSandbox) {
-    createSandbox(details.sandbox.template)
-      .then(sandbox => {
-        // console.log(data);
-        details.sandbox.sandbox_id = sandbox.data.sandbox_id;
-        createNewBreakout(
-          breakout_template_id, topic_id, cohort_id,
-          time_scheduled, duration, location,
-          catalyst_id, details,
-        )
-          .then(data => {
-            console.log('Breakout created with code sandbox only', data);
-            return data;
-          })
-          .catch(err => {
-            console.error('Failed to create Breakout', err);
-            return 'Failed to create Breakout';
-
-          });
-      })
-      .catch(err => {
-        console.log('Failed to create codesandbox', err);
-        return null;
+    return createSandbox(details.sandbox.template).then(sandbox_value => {
+      details.sandbox.sandbox_id = sandbox_value.data.sandbox_id;
+      return createNewBreakout(
+        breakout_template_id, topic_id, cohort_id,
+        time_scheduled, duration, location,
+        catalyst_id, details,
+      ).then(data => {
+        console.log('Breakout created with code sandbox only', data);
+        return data;
       });
+    });
   } else if (isVideoMeeting) {
-    createScheduledMeeting(topic_id, time, duration, agenda)
+    return createScheduledMeeting(topic_id, time, duration, agenda)
       .then(videoMeeting => {
         details.zoom = videoMeeting;
-        createNewBreakout(
+        return createNewBreakout(
           breakout_template_id, topic_id, cohort_id,
           time_scheduled, duration, location,
           catalyst_id, details,
@@ -175,20 +156,10 @@ export const BreakoutWithOptions = (breakoutObject) => {
           .then(data => {
             console.log('Breakout and video meeting created Created', data);
             return data;
-          })
-          .catch(err => {
-            deleteMeetingFromZoom(details.videoMeeting_id);
-            console.error('Failed to create Breakout after creating video meeting', err);
-            return 'Failed to create Breakout after creating video meeting';
           });
       })
-      .catch(err => {
-        // todo: Remove the scheduled meeting from zoom  and deltaDB - delete.
-        console.log('failed to create videoMeeting', err);
-        return null;
-      });
   } else {
-    createNewBreakout(
+    return createNewBreakout(
       breakout_template_id, topic_id, cohort_id,
       time_scheduled, duration, location,
       catalyst_id, details,
@@ -196,11 +167,6 @@ export const BreakoutWithOptions = (breakoutObject) => {
       .then(data => {
         console.log('Breakout created without video meeting created Created', data);
         return data;
-      })
-      .catch(err => {
-        deleteMeetingFromZoom(details.videoMeeting_id);
-        console.error('Failed to create Breakout', err);
-        return null;
       });
   }
 };
@@ -211,9 +177,9 @@ export const createCohortBreakouts = (breakoutTemplateList, cohort_id) => {
     attributes: ['location'],
     raw: true,
   })
-    .then(async (cohort) => {
+    .then((cohort) => {
       console.log(cohort.location);
-      let BreakoutObjects = await breakoutTemplateList.map(async (breakoutTemplate) => {
+      let BreakoutObjects = breakoutTemplateList.map((breakoutTemplate) => {
         let {
           id, name, topic_id, duration, primary_catalyst,
           breakout_schedule, details,
@@ -234,16 +200,17 @@ export const createCohortBreakouts = (breakoutTemplateList, cohort_id) => {
         return breakoutObject;
         // end of map
       });
-      return Promise.all(BreakoutObjects);
+      return BreakoutObjects;
       // end of first then.
     })
     .then(async (breakoutObjects) => {
-      let breakouts = await breakoutObjects.map(async (breakoutObject) => {
-        let breakout = BreakoutWithOptions(breakoutObject);
-        return breakout;
-      });
+      let breakouts = [];
+      for (let i = 0; i < breakoutObjects.length; i++) {
+        let breakout = BreakoutWithOptions(breakoutObjects[i]);
+        breakouts.push(breakout);
+      }
       console.log('<----- BREAKOUT OBJECT -------->', breakouts);
-      return breakouts;
+      return Promise.all(breakouts);
     })
     .catch(err => {
       console.error('Failed to location for a cohort', err);
