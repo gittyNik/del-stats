@@ -25,7 +25,9 @@ export const LearnerBreakout = db.define('learner_breakouts', {
   attendance: Sequelize.BOOLEAN,
 });
 
-export const createLearnerBreakoutsForCohortMilestones = (cohort_breakout_id, cohort_id) => {
+export const createLearnerBreakoutsForCohortMilestones = (cohort_breakout, cohort_id) => {
+  let cohort_breakout_id = cohort_breakout.id;
+  console.log(cohort_breakout_id, cohort_id);
   return Cohort.findOne({
     attributes: ['id', 'learners'],
     where: {
@@ -35,10 +37,13 @@ export const createLearnerBreakoutsForCohortMilestones = (cohort_breakout_id, co
   })
     .then((cohort) => {
       let learnerBreakouts = cohort.learners.map((learner) => {
+        // console.log(learner, cohort_breakout_id);
         let learnerBreakout = LearnerBreakout.create({
           id: uuid(),
           cohort_breakout_id,
           learner_id: learner,
+          created_at: Date.now(),
+          updated_at: Date.now(),
           attendance: false,
         })
           .then(data => data.get({ plain: true }))
