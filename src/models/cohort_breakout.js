@@ -115,8 +115,8 @@ export const BreakoutWithOptions = (breakoutObject) => {
       createScheduledMeeting(topic_name, time, duration, agenda),
     ])
       .then(([sandbox, videoMeeting]) => {
-        console.log('Sandbox: ', sandbox);
-        console.log('VideoMeeting: ', videoMeeting);
+        // console.log('Sandbox: ', sandbox);
+        // console.log('VideoMeeting: ', videoMeeting);
 
         details.sandbox.sandbox_id = sandbox.sandbox_id;
         details.zoom = videoMeeting;
@@ -209,7 +209,7 @@ export const createCohortBreakouts = (breakoutTemplateList, cohort_id) => {
         let breakout = BreakoutWithOptions(breakoutObjects[i]);
         breakouts.push(breakout);
       }
-      console.log('<----- BREAKOUT OBJECT -------->', breakouts);
+      console.log('<----- BREAKOUT OBJECT -------->', breakouts.length);
       return Promise.all(breakouts);
     })
     .catch(err => {
