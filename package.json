@@ -72,6 +72,7 @@
     "sendotp": "github:msg91/sendotp-node#096de78",
     "sequelize": "^5.21.3",
     "sequelize-cli": "^5.5.1",
+    "stopword": "^0.3.4",
     "superagent": "^3.8.2",
     "twitter": "^1.7.1",
     "uuid": "^3.3.3",

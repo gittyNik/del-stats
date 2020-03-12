@@ -4,6 +4,7 @@ import db from '../database';
 import 'dotenv/config';
 import request from 'superagent';
 import { getTagIdbyName } from './tags';
+import sw from 'stopword';
 
 const {
   AUTO_TAGGER_URL: autotag_url
@@ -188,7 +189,9 @@ export const createFromSlackAttachment = (attachment, owner) => {
 export const searchResources = text => {
   console.log(`searching for: ${text}`);
   // TODO: important: remove special chars from text
-  let searchtext = text.split(' ').join('%');
+  let initialSearchText = text.split(' ');
+  let textWithWords = sw.removeStopwords(initialSearchText);
+  let searchtext = textWithWords.join('%');
   return db.query("SELECT * FROM resources where lower(CONCAT(title, ' ', description)) like :match;", {
     model: Resource,
     replacements: { match: `%${searchtext}%` },
