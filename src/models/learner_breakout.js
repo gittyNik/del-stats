@@ -23,6 +23,16 @@ export const LearnerBreakout = db.define('learner_breakouts', {
     references: { model: 'team_breakout', key: 'id' },
   },
   attendance: Sequelize.BOOLEAN,
+  created_at: {
+    allowNull: false,
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.literal('NOW()'),
+  },
+  updated_at: {
+    allowNull: false,
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.literal('NOW()'),
+  },
 });
 
 export const createLearnerBreakoutsForCohortMilestones = (cohort_breakout, cohort_id) => {
@@ -42,8 +52,6 @@ export const createLearnerBreakoutsForCohortMilestones = (cohort_breakout, cohor
           id: uuid(),
           cohort_breakout_id,
           learner_id: learner,
-          created_at: Date.now(),
-          updated_at: Date.now(),
           attendance: false,
         })
           .then(data => data.get({ plain: true }))
