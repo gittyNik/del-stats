@@ -103,16 +103,17 @@ export const BreakoutWithOptions = (breakoutObject) => {
   const {
     topic_id, cohort_id, breakout_template_id, time_scheduled,
     duration, location, catalyst_id, details,
-    isVideoMeeting, isCodeSandbox, topic_name,
+    isVideoMeeting, isCodeSandbox, topic_name, cohortName
   } = breakoutObject;
 
   let time = time_scheduled.toLocaleString().split(' ').join('T');
-  let agenda = `Breakout is scheduled for the topic "${topic_name}" at ${time_scheduled} for ${duration} hours `;
+  let zoomTopic = `Cohort ${cohortName} - Breakout \n\n Topics: \n ${details.topics} \n\n ${location}`;
+  let agenda = `Cohort ${cohortName} \n\n Breakout is scheduled for the topics \n "${details.topics}" at ${time_scheduled} for ${duration} hours `;
 
   if (isCodeSandbox && isVideoMeeting) {
     return Promise.all([
       createSandbox(details.sandbox.template),
-      createScheduledMeeting(topic_name, time, duration, agenda),
+      createScheduledMeeting(zoomTopic, time, duration, agenda),
     ])
       .then(([sandbox, videoMeeting]) => {
         // console.log('Sandbox: ', sandbox);
@@ -145,7 +146,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
       });
     });
   } else if (isVideoMeeting) {
-    return createScheduledMeeting(topic_id, time, duration, agenda)
+    return createScheduledMeeting(zoomTopic, time, duration, agenda)
       .then(videoMeeting => {
         details.zoom = videoMeeting;
         return createNewBreakout(
@@ -174,7 +175,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
 
 export const createCohortBreakouts = (breakoutTemplateList, cohort_id) => {
   return Cohort.findByPk(cohort_id, {
-    attributes: ['location'],
+    attributes: ['location', 'name'],
     raw: true,
   })
     .then((cohort) => {
@@ -196,6 +197,7 @@ export const createCohortBreakouts = (breakoutTemplateList, cohort_id) => {
           topic_name: name,
           isVideoMeeting: true,
           isCodeSandbox: true,
+          cohortName: cohort.name,
         };
         return breakoutObject;
         // end of map
@@ -203,10 +205,10 @@ export const createCohortBreakouts = (breakoutTemplateList, cohort_id) => {
       return BreakoutObjects;
       // end of first then.
     })
-    .then(async (breakoutObjects) => {
+    .then(async (breakoutsWithCohortName) => {
       let breakouts = [];
-      for (let i = 0; i < breakoutObjects.length; i++) {
-        let breakout = BreakoutWithOptions(breakoutObjects[i]);
+      for (let i = 0; i < breakoutsWithCohortName.length; i++) {
+        let breakout = BreakoutWithOptions(breakoutsWithCohortName[i]);
         breakouts.push(breakout);
       }
       console.log('<----- BREAKOUT OBJECT -------->', breakouts.length);

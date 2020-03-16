@@ -27,7 +27,7 @@ const MEETING_SETTINGS = {
 // example controller. dont use
 // creating a recurring meeting for a user.
 export const createMeeting = (req, res) => {
-  const { ZOOM_BASE_URL } = process.env;
+  const { ZOOM_BASE_URL, ZOOM_USER } = process.env;
 
   // Recurrent meeting having 'soal' as password
   const meeting_object = {
@@ -53,7 +53,7 @@ export const createMeeting = (req, res) => {
     },
   };
   request
-    .post(`${ZOOM_BASE_URL}users/ro-ppuJKTM6bE1xwVHN4hw/meetings`) // need to assign delta user to zoom user
+    .post(`${ZOOM_BASE_URL}users/${ZOOM_USER}/meetings`) // need to assign delta user to zoom user
     .send(meeting_object)
     .set('Authorization', `Bearer ${token}`)
     .set('User-Agent', 'Zoom-api-Jwt-Request')
@@ -130,7 +130,7 @@ export const meetingDetails = (req, res) => {
 *  }
 */
 export const scheduleNewMeeting = (req, res) => {
-  const { ZOOM_BASE_URL } = process.env;
+  const { ZOOM_BASE_URL, ZOOM_USER } = process.env;
   const { topic, type, start_time, duration, agenda } = req.body;
   const meeting_object = {
     topic,
@@ -144,7 +144,7 @@ export const scheduleNewMeeting = (req, res) => {
   };
   // console.log(meeting_object);
   request
-    .post(`${ZOOM_BASE_URL}users/ro-ppuJKTM6bE1xwVHN4hw/meetings`) // todo: need to assign delta user to zoom user
+    .post(`${ZOOM_BASE_URL}users/${ZOOM_USER}/meetings`) // todo: need to assign delta user to zoom user
     .send(meeting_object)
     .set('Authorization', `Bearer ${token}`)
     .set('User-Agent', 'Zoom-api-Jwt-Request')
