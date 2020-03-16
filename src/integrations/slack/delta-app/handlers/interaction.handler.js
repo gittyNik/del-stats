@@ -5,6 +5,7 @@ import { saveLink } from '../controllers/resource.controller';
 
 // Authenticate higher order function
 const authenticate = next => (payload, respond) => {
+  console.log(payload);
   const { user, team } = payload;
   authSlack(user.id, team.id)
     .then(authData => {
