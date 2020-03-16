@@ -4,6 +4,7 @@ import db from '../database';
 import 'dotenv/config';
 import request from 'superagent';
 import { getTagIdbyName } from './tags';
+import sw from 'stopword';
 
 const {
   AUTO_TAGGER_URL: autotag_url
@@ -73,7 +74,7 @@ export const Resource = db.define('resources', {
 
 const { contains, overlap } = Sequelize.Op;
 
-export const getResourcesByTag = tag => 
+export const getResourcesByTag = tag =>
   getTagIdbyName(tag)
     .then(data => {
       const tag_id = data.id;
@@ -89,7 +90,7 @@ export const getResourcesByTag = tag =>
     .catch(err => {
       console.error(err);
       res.sendStatus(500);
-});
+    });
 
 export const getResourcesByTags = tags =>
   getTagIdbyNames(tags)
@@ -107,7 +108,7 @@ export const getResourcesByTags = tags =>
     .catch(err => {
       console.error(err);
       res.sendStatus(500);
-});
+    });
 
 const getResourceCountByTags = tags => Resource.aggregate('id', 'count', {
   where: {
@@ -137,17 +138,17 @@ export const getResourceByTopic = topic_id => Resource.findAll({
 const firewallTags = ['firewall_know', 'firewall_think', 'firewall_play', 'firewall_reflect'];
 export const getFirewallResourceCount = getResourceCountByTags.bind(null, firewallTags);
 
-export const autoTagUrls = (url) => 
+export const autoTagUrls = (url) =>
   request
-  .post(autotag_url, { url })
-  .then((response_data) => {
-    return response_data;
+    .post(autotag_url, { url })
+    .then((response_data) => {
+      return response_data;
     }).catch(err => {
-          console.error("###########",err);
-          res.sendStatus(500);
-});
+      console.error("###########", err);
+      res.sendStatus(500);
+    });
 
-export const createResource = (url, level, owner, tagged, title='', description='', source='slack', type='article', details={}, thumbnail='', program='tep') => 
+export const createResource = (url, level, owner, tagged, title = '', description = '', source = 'slack', type = 'article', details = {}, thumbnail = '', program = 'tep') =>
   Resource.create({
     id: uuid(),
     url,
@@ -167,10 +168,10 @@ export const createResource = (url, level, owner, tagged, title='', description=
 export const createFromSlackAttachment = (attachment, owner) => {
   autoTagUrls(url)
     .then(data => {
-      const {tagged=predicted_tag_ids} = response_data.body.data;;
+      const { tagged = predicted_tag_ids } = response_data.body.data;;
       return createResource(url = attachment.original_url || attachment.app_unfurl_url,
-        type =  'article',
-        level= 'beginner',
+        type = 'article',
+        level = 'beginner',
         owner,
         title = attachment.title,
         description = attachment.text,
@@ -188,8 +189,11 @@ export const createFromSlackAttachment = (attachment, owner) => {
 export const searchResources = text => {
   console.log(`searching for: ${text}`);
   // TODO: important: remove special chars from text
+  let initialSearchText = text.split(' ');
+  let textWithWords = sw.removeStopwords(initialSearchText);
+  let searchtext = textWithWords.join('%');
   return db.query("SELECT * FROM resources where lower(CONCAT(title, ' ', description)) like :match;", {
     model: Resource,
-    replacements: { match: `%${text}%` },
+    replacements: { match: `%${searchtext}%` },
   });
 };

@@ -4,6 +4,7 @@ import db from '../database';
 import { Topic, getTopicById } from './topic';
 import { CohortMilestone, getMilestoneStartDate } from './cohort_milestone';
 import { createCohortBreakouts } from './cohort_breakout';
+import { createLearnerBreakoutsForCohortMilestones } from './learner_breakout';
 
 export const BREAKOUT_LEVEL = ['beginner', 'intermediate', 'advanced'];
 
@@ -116,10 +117,10 @@ export const getReleaseTimeFromTopic = (topic_id, cohort_id) =>
 
 export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => {
   return Promise.all(breakoutTemplates.map(async (breakoutTemplate) => {
-    console.log('Unpack breakoutTemplate: ');
+    // console.log('Unpack breakoutTemplate: ');
     try {
       let extra = await getReleaseTimeFromTopic(breakoutTemplate.topic_id[0], cohort_id);
-      console.log('extra:', extra);
+      // console.log('extra:', extra);
       return { ...breakoutTemplate, ...extra };
     } catch (err) {
       console.log('error in update Breakout Template', err);
@@ -152,9 +153,9 @@ export const calculateBreakoutTime = (eachBreakoutTemp) => {
   let time_split = time_scheduled.split(':');
 
   breakoutScheduledTime.setDate(RELEASE_TIME.getDate() + after_days);
-  console.log('After adding days: ', breakoutScheduledTime);
+  // console.log('After adding days: ', breakoutScheduledTime);
   breakoutScheduledTime.setHours(time_split[0], time_split[1], time_split[2]);
-  console.log('Breakout time: ', breakoutScheduledTime);
+  // console.log('Breakout time: ', breakoutScheduledTime);
 
   let breakoutScheduledUTC = changeTimezone(breakoutScheduledTime, 'Asia/Kolkata');
   let breakoutSchedule = { breakout_schedule: breakoutScheduledUTC };
@@ -173,21 +174,33 @@ export const scheduling = (updatedBreakout) => {
   }));
 };
 
+const createLearnerBreakouts = async (cohortBreakouts, cohort_id) => {
+  // Create Learner breakouts based on Cohort Milestone breakouts
+  let learnerBreakouts = [];
+  for (let i = 0; i < cohortBreakouts.length; i++) {
+    let breakout = createLearnerBreakoutsForCohortMilestones(cohortBreakouts[i], cohort_id);
+    learnerBreakouts.push(breakout);
+  }
+  let allLearnerBreakouts = Promise.all(learnerBreakouts);
+  console.log(`Total Learner Breakouts created for cohort_id: ${cohort_id} is ${allLearnerBreakouts.length}`);
+  return allLearnerBreakouts;
+};
 
-export const createBreakoutsInMilestone = (cohort_id, program_id, cohort_duration) => BreakoutTemplate
-  .findAll({
-    attributes: ['id', 'name', 'topic_id', 'details', 'duration', 'time_scheduled', 'after_days', 'primary_catalyst', 'level'],
-    where: { program_id, cohort_duration },
-    raw: true,
-  })
-  .then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
-  .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
-  .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates, cohort_id))
-  .then(createdBreakouts => {
-    console.log('Breakouts created for Cohort');
-    //return (createdBreakouts);
-  })
-  .catch(err => {
-    console.error(err);
-    //return null;
-  });
+export const createBreakoutsInMilestone = (cohort_id, program_id,
+  cohort_duration) => BreakoutTemplate
+    .findAll({
+      attributes: ['id', 'name', 'topic_id', 'details',
+        'duration', 'time_scheduled', 'after_days',
+        'primary_catalyst', 'level'],
+      where: { program_id, cohort_duration },
+      raw: true,
+    })
+    .then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
+    .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
+    .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates, cohort_id))
+    .then(createdBreakouts => {
+      console.log('Breakouts created for Cohort');
+      //console.log(createdBreakouts);
+      return createLearnerBreakouts(createdBreakouts, cohort_id);
+      //return (createdBreakouts);
+    });

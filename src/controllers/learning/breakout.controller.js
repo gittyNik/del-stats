@@ -30,8 +30,8 @@ export const createBreakout = (req, res) => {
       createScheduledMeeting(topic_id, time, duration),
     ])
       .then(([sandbox, videoMeeting]) => {
-        console.log('Sandbox: ', sandbox);
-        console.log('VideoMeeting: ', videoMeeting);
+        console.log('Sandbox Created');
+        console.log('VideoMeeting Created');
         let details = {
           sandbox_id: sandbox.data.sandbox_id,
           videoMeeting_id: videoMeeting,

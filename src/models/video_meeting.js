@@ -106,7 +106,7 @@ export const createScheduledMeeting = (topic, start_time, duration, agenda, type
         start_url, join_url, h323_password,
       } = data.body;
       console.log(`ZOOM MEETING --> id: ${id}, status: ${status}, join_url: ${join_url}`);
-      VideoMeeting.create({
+      return VideoMeeting.create({
         id: uuid(),
         video_id: id,
         start_url,
@@ -114,7 +114,7 @@ export const createScheduledMeeting = (topic, start_time, duration, agenda, type
         duration,
       })
         .then(video => {
-          console.log('meeting updated in db.', video);
+          console.log('meeting updated in db.');
           return {
             id,
             status,
