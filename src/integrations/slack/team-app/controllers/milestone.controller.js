@@ -1,5 +1,5 @@
 import { WebClient } from '@slack/web-api';
-import { getCurrentMilestoneOfCohort, markMilestoneReview } from '../../../../models/cohort_milestone';
+import { getCurrentMilestoneOfCohortDelta, markMilestoneReview } from '../../../../models/cohort_milestone';
 import { Cohort } from '../../../../models/cohort';
 import { Milestone } from '../../../../models/milestone';
 import { startBreakout } from '../../../../models/cohort_breakout';
@@ -12,7 +12,7 @@ const { SLACK_TEAM_BOT_TOKEN } = process.env;
 const web = new WebClient(SLACK_TEAM_BOT_TOKEN);
 
 export const showMilestoneDetails = (cohort_id, trigger_id) => {
-  getCurrentMilestoneOfCohort(cohort_id)
+  getCurrentMilestoneOfCohortDelta(cohort_id)
     .then(milestone => {
       // console.log(milestone);
       const view = composeMilestoneModal(milestone);
