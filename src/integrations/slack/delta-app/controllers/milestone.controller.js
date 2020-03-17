@@ -1,14 +1,14 @@
 import web from '../client';
 import { Cohort } from '../../../../models/cohort';
 import { Topic } from '../../../../models/topic';
-import { getCurrentMilestoneOfCohort } from '../../../../models/cohort_milestone';
+import { getCurrentMilestoneOfCohortDelta } from '../../../../models/cohort_milestone';
 import { composeMilestoneModal, composeBreakoutMessage } from '../views/milestone.view';
 
 export const showMilestoneDetails = (payload, respond) => {
   const { trigger_id } = payload;
   const cohort_id = payload.actions[0].value;
 
-  getCurrentMilestoneOfCohort(cohort_id)
+  getCurrentMilestoneOfCohortDelta(cohort_id)
     .then(composeMilestoneModal)
     .then(view => {
       console.log(0);
