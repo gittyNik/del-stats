@@ -15,7 +15,7 @@ export const updateProfile = (req, res) => {
     email, firstName, lastName, name, location, profile, hubspot
   } = req.body;
   const { gender, birthDate } = profile;
-  const { knowAboutSOALFrom, occupationBeforeSOAL, whichCohort, program } = hubspot;
+  const { knowAboutSOALFrom, occupationBeforeSOAL, program, format, preferredCampus, cohortStartDate } = hubspot;
   createOrUpdateContact({
     email, 
     phone,
@@ -25,14 +25,17 @@ export const updateProfile = (req, res) => {
     gender,
     knowAboutSOALFrom,
     occupationBeforeSOAL,
-    birthDate,
-    whichCohort,
-    program
+    birthDate
   }).then(result => {
     createDeal({
       name,
       email,
-      phone
+      phone,
+      program,
+      format,
+      preferredCampus,
+      cohortStartDate,
+      applicantStatus: "Applicant"
     })
     .then(deal => { 
       const dealId = deal.dealId;
@@ -55,10 +58,13 @@ export const updateProfile = (req, res) => {
             });
           })
           .catch(err => {
-            console.error(err);
+            console.log(err);
             res.sendStatus(500);
           });
       })
+    }).catch(err => {
+      console.log(err);
+      res.sendStatus(500);
     })
   }).catch(err => {
     console.error(err);
