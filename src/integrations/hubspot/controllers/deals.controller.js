@@ -1,4 +1,5 @@
 import hubspot from "./auth.controller";
+import moment from "moment";
 
 const getPropertyName = name => {
 	switch (name) {
@@ -17,7 +18,13 @@ const getPropertyName = name => {
 		case "cohortStartDate":
 			return "cohort_start_date";
 		case "applicantStatus":
-			return "applicant_status"
+			return "applicant_status";
+		case "dateOfStartTest":
+			return "date_of_start_test";
+		case "dateOfTestCompletion":
+			return "date_of_test_completion";
+		case "dateOfReview":
+			return "date_of_review";
 		default:
 			return null;
 	}
@@ -48,24 +55,55 @@ export const createDeal = data => {
 
 export const updateDealApplicationStatus = (dealId, status) => {
 	let hubspotStatus;
+	let testTime;
 	if (status === "applied") {
 		hubspotStatus = "Test In Progress";
+		testTime = {
+			name: "date_of_start_test",
+			value: moment.utc().set({hour: 0, minute: 0, second: 0, millisecond: 0}).valueOf()
+		}
 	} else if (status === "review_pending") {
 		hubspotStatus = "Review Pending";
+		testTime = {
+			name: "date_of_test_completion",
+			value: moment.utc().set({hour: 0, minute: 0, second: 0, millisecond: 0}).valueOf()
+		}
 	} else if (status === "offered") {
 		hubspotStatus = "Offered";
+		testTime = {
+			name: "date_of_review",
+			value: moment.utc().set({hour: 0, minute: 0, second: 0, millisecond: 0}).valueOf()
+		}
 	} else if (status === "rejected") {
 		hubspotStatus = "Rejected";
+		testTime = {
+			name: "date_of_review",
+			value: moment.utc().set({hour: 0, minute: 0, second: 0, millisecond: 0}).valueOf()
+		}
 	}
 	const updateObj = {
 		properties: [{
 			name: "applicant_status",
 			value: hubspotStatus
-		}, ],
+		},
+		testTime ],
 	};
 	return hubspot.deals.updateById(dealId, updateObj);
 }
 
 export const associateDealWithContact = (dealId, contactId) => {
 	return hubspot.deals.associate(dealId, "CONTACT", contactId);
+}
+
+export const getDealById = (req, res) => {
+  const { hubspotDealId } = req.query;
+  hubspot.deals.getById(hubspotDealId).then(deal => {
+    res.send({
+      text: "Hubspot Deal details",
+      data: deal
+    });
+  }).catch(err => {
+    console.log(err);
+    res.sendStatus(500)
+  })
 }
