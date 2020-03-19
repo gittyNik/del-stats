@@ -44,7 +44,7 @@ const MEETING_SETTINGS = {
   mute_upon_entry: true,
   watermark: false,
   use_pmi: false,
-  approval_type: 0,
+  approval_type: 2,
   audio: 'voip',
   auto_recording: 'local', // options: local, cloud and none
   enforce_login: false,
@@ -114,6 +114,7 @@ export const createScheduledMeeting = (topic, start_time, duration, agenda, type
       })
         .then(video => {
           console.log('meeting updated in db.');
+          console.log(video);
           return {
             id,
             status,
