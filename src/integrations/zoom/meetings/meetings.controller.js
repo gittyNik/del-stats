@@ -1,5 +1,6 @@
 const request = require('superagent');
 const jwt = require('jsonwebtoken');
+import { createScheduledMeeting } from '../../../models/video_meeting';
 
 const jwt_payload = {
   iss: process.env.ZOOM_API_KEY,
@@ -26,52 +27,56 @@ const MEETING_SETTINGS = {
 
 // example controller. dont use
 // creating a recurring meeting for a user.
-export const createMeeting = (req, res) => {
+export const createMeeting = async (req, res) => {
   const { ZOOM_BASE_URL, ZOOM_USER } = process.env;
+  const { topic, start_time, duration, agenda, type } = req.body;
 
-  // Recurrent meeting having 'soal' as password
-  const meeting_object = {
-    topic: 'Milestone Breakout temp',
-    type: 3,
-    timezone: 'Asia/Calcutta',
-    password: 'soal',
-    agenda: 'Milestone Breakout 1',
-    settings: {
-      host_video: 'false',
-      participant_video: 'true',
-      cn_meeting: 'false',
-      in_meeting: 'true',
-      join_before_host: 'true',
-      mute_upon_entry: 'false',
-      watermark: 'false',
-      use_pmi: 'false',
-      approval_type: 0,
-      audio: 'voip',
-      auto_recording: 'false',
-      enforce_login: 'false',
-      registrants_email_notification: 'false',
-    },
-  };
-  request
-    .post(`${ZOOM_BASE_URL}users/${ZOOM_USER}/meetings`) // need to assign delta user to zoom user
-    .send(meeting_object)
-    .set('Authorization', `Bearer ${token}`)
-    .set('User-Agent', 'Zoom-api-Jwt-Request')
-    .set('content-type', 'application/json')
-    .then(data => {
-      // console.log(data);
-      res.json({
-        text: 'Response data from creating meeting, contains start_url and join_url',
-        data: data.body, // todo: send only necessary resources.
-      });
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500).send({
-        text: 'Error:',
-        data: err.response.text,
-      });
-    });
+  let data = await createScheduledMeeting(topic, start_time, duration, agenda, type);
+  return data;
+
+  // // Recurrent meeting having 'soal' as password
+  // const meeting_object = {
+  //   topic: 'Milestone Breakout temp',
+  //   type: 3,
+  //   timezone: 'Asia/Calcutta',
+  //   password: 'soal',
+  //   agenda: 'Milestone Breakout 1',
+  //   settings: {
+  //     host_video: 'false',
+  //     participant_video: 'true',
+  //     cn_meeting: 'false',
+  //     in_meeting: 'true',
+  //     join_before_host: 'true',
+  //     mute_upon_entry: 'false',
+  //     watermark: 'false',
+  //     use_pmi: 'false',
+  //     approval_type: 0,
+  //     audio: 'voip',
+  //     auto_recording: 'false',
+  //     enforce_login: 'false',
+  //     registrants_email_notification: 'false',
+  //   },
+  // };
+  // request
+  //   .post(`${ZOOM_BASE_URL}users/${ZOOM_USER}/meetings`) // need to assign delta user to zoom user
+  //   .send(meeting_object)
+  //   .set('Authorization', `Bearer ${token}`)
+  //   .set('User-Agent', 'Zoom-api-Jwt-Request')
+  //   .set('content-type', 'application/json')
+  //   .then(data => {
+  //     // console.log(data);
+  //     res.json({
+  //       text: 'Response data from creating meeting, contains start_url and join_url',
+  //       data: data.body, // todo: send only necessary resources.
+  //     });
+  //   })
+  //   .catch(err => {
+  //     console.log(err);
+  //     res.status(500).send({
+  //       text: 'Error:',
+  //       data: err.response.text,
+  //     });
+  //   });
 };
 
 export const listMeetings = (req, res) => {

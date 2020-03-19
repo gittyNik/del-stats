@@ -37,19 +37,18 @@ const jwt_payload = {
 export const zoom_token = jwt.sign(jwt_payload, process.env.ZOOM_API_SECRET);
 
 const MEETING_SETTINGS = {
-  host_video: 'true',
-  participant_video: 'true',
-  cn_meeting: 'false',
-  in_meeting: 'true',
-  join_before_host: 'true',
-  mute_upon_entry: 'true',
-  watermark: 'false',
-  use_pmi: 'false',
-  approval_type: 1,
+  host_video: true,
+  participant_video: true,
+  in_meeting: true,
+  join_before_host: true,
+  mute_upon_entry: true,
+  watermark: false,
+  use_pmi: false,
+  approval_type: 0,
   audio: 'voip',
-  auto_recording: 'none', // options: local, cloud and none
-  enforce_login: 'false',
-  waiting_room: 'true',
+  auto_recording: 'local', // options: local, cloud and none
+  enforce_login: false,
+
 };
 
 export const deleteMeetingFromZoom = (video_id) => {
