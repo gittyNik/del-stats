@@ -1,4 +1,5 @@
 import hubspot from "./auth.controller";
+import moment from "moment";
 
 const getPropertyName = name => {
   switch(name) {
@@ -41,8 +42,12 @@ const createProperties = data => {
   let properties = [];
   for(let key in data) {
     if(data[key] !== undefined) {
-      // TODO: format date and add it to the property
-      if(key !== "birthDate") {
+      if(key === "birthDate") {
+        properties.push({
+          property: getPropertyName(key),
+          value: moment.utc(data[key]).set({hour: 0, minute: 0, second: 0, millisecond: 0}).valueOf() 
+        })
+      } else {
         properties.push({
           property: getPropertyName(key),
           value: data[key]
