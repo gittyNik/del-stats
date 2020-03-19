@@ -148,7 +148,8 @@ export const updateApplication = (req, res) => {
   const { id } = req.params;
 
   if (cohort_joining && status === 'review_pending') {
-    submitApplication(id)
+    updateDealApplicationStatus(profile.hubspotDealId, status)
+      .then(() => submitApplication(id))
       .then(notifyApplicationSubmitted(phone))
       .then(data => res.status(200).json(data))
       .catch(() => res.sendStatus(500));
