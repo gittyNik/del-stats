@@ -1,31 +1,31 @@
-import Express from "express";
+import Express from 'express';
 import {
-	getLatest,
-	getTop,
-	getAll,
-	getUnmoderated,
-	getOne,
-	create,
-	update,
-	deleteOne,
-	getComments,
-	addComment,
-	deleteComment,
-	upvote,
-	unvote,
-	getReports,
-	addReport,
-	resolveReport,
-	approve,
-	getTrending,
-	getFirewall,
-	logResourceVisit,
-	getTaggedResources,
-	getResourceUrl,
-	searchTaggedResources,
-	getTopicResource
-} from "../../controllers/learning/content_resource.controller";
-import { allowSuperAdminOnly } from "../../controllers/auth/roles.controller";
+  getLatest,
+  getTop,
+  getAll,
+  getUnmoderated,
+  getOne,
+  create,
+  update,
+  deleteOne,
+  getComments,
+  addComment,
+  deleteComment,
+  upvote,
+  unvote,
+  getReports,
+  addReport,
+  resolveReport,
+  approve,
+  getTrending,
+  getFirewall,
+  logResourceVisit,
+  getTaggedResources,
+  getResourceUrl,
+  searchTaggedResources,
+  getTopicResource,
+} from '../../controllers/learning/content_resource.controller';
+import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 const router = Express.Router();
 
 /**
@@ -34,7 +34,7 @@ const router = Express.Router();
  * @apiName GetAllReports
  * @apiGroup Content Resource Report
  */
-router.get("/reports", getReports);
+router.get('/reports', getReports);
 
 /**
  * @api {post} /learning/content/resources/:resource_id/reports Report Content resource
@@ -44,14 +44,14 @@ router.get("/reports", getReports);
  *
  * @apiParam {String} report report of the resource
  */
-router.post("/:resource_id/reports", addReport);
+router.post('/:resource_id/reports', addReport);
 /**
  * @api {post} /learning/content/resources/:resource_id/visits Log Content resource visit
  * @apiHeader {String} authorization JWT Token.
  * @apiName LogResourceVisit
  * @apiGroup Content Resource
  */
-router.post("/:resource_id/visits", logResourceVisit);
+router.post('/:resource_id/visits', logResourceVisit);
 
 /**
  * @api {patch} /learning/content/resources/:resource_id/reports/:report_id/resolve
@@ -61,9 +61,9 @@ router.post("/:resource_id/visits", logResourceVisit);
  * @apiGroup Content Resource Report
  */
 router.patch(
-	"/:resource_id/reports/:report_id/resolve",
-	allowSuperAdminOnly,
-	resolveReport
+  '/:resource_id/reports/:report_id/resolve',
+  allowSuperAdminOnly,
+  resolveReport
 );
 
 /**
@@ -72,7 +72,7 @@ router.patch(
  * @apiName GetAll
  * @apiGroup Content Resource
  */
-router.get("/", allowSuperAdminOnly, getAll);
+router.get('/', allowSuperAdminOnly, getAll);
 
 /**
  * @api {get} /learning/content/resources/tag/:tag Get tagged resources
@@ -80,7 +80,7 @@ router.get("/", allowSuperAdminOnly, getAll);
  * @apiName GetTaggedResource
  * @apiGroup Content Resource
  */
-router.get("/tag/:tag", getTaggedResources);
+router.get('/tag/:tag', getTaggedResources);
 
 /**
  * @api {get} /learning/content/resources/search Search resources
@@ -90,7 +90,7 @@ router.get("/tag/:tag", getTaggedResources);
  *
  * @apiParam {String} comment comment about the resource
  */
-router.get("/search", searchTaggedResources);
+router.get('/search', searchTaggedResources);
 
 /**
  * @api {get} /learning/content/resources/topic Get resources by topic id
@@ -100,7 +100,7 @@ router.get("/search", searchTaggedResources);
  *
  * @apiParam {String} get all resources by topic id
  */
-router.get("/topic/:topic_id", getTopicResource);
+router.get('/topic/:topic_id', getTopicResource);
 
 /**
  * @api {get} /learning/content/resources/latest Get latest Content resources
@@ -108,7 +108,7 @@ router.get("/topic/:topic_id", getTopicResource);
  * @apiName GetLatest
  * @apiGroup Content Resource
  */
-router.get("/latest", getLatest);
+router.get('/latest', getLatest);
 
 /**
  * @api {get} /learning/content/resources/top Get the top Content resources
@@ -116,7 +116,7 @@ router.get("/latest", getLatest);
  * @apiName GetTop
  * @apiGroup Content Resource
  */
-router.get("/top", getTop);
+router.get('/top', getTop);
 
 /**
  * @api {get} /learning/content/resources/trending Get the trending Content resources
@@ -124,7 +124,7 @@ router.get("/top", getTop);
  * @apiName GetTrending
  * @apiGroup Content Resource
  */
-router.get("/trending", getTrending);
+router.get('/trending', getTrending);
 
 /**
  * @api {get} /learning/content/resources/firewall Get the resources for firewall
@@ -132,7 +132,7 @@ router.get("/trending", getTrending);
  * @apiName GetFirewallResources
  * @apiGroup Content Resource
  */
-router.get("/firewall", getFirewall);
+router.get('/firewall', getFirewall);
 
 /**
  * @api {get} /learning/content/resources/pending Get Unmoderated Content resources
@@ -140,7 +140,7 @@ router.get("/firewall", getFirewall);
  * @apiName GetUnmoderated
  * @apiGroup Content Resource
  */
-router.get("/pending", allowSuperAdminOnly, getUnmoderated);
+router.get('/pending', allowSuperAdminOnly, getUnmoderated);
 
 /**
  * @api {post} /learning/content/resources/url/:url Get resources by url
@@ -148,7 +148,7 @@ router.get("/pending", allowSuperAdminOnly, getUnmoderated);
  * @apiName GetResourceUrl
  * @apiGroup Content Resource
  */
-router.post("/url", getResourceUrl);
+router.post('/url', getResourceUrl);
 
 /**
  * @api {post} /learning/content/resources Add new Content resources
@@ -161,7 +161,7 @@ router.post("/url", getResourceUrl);
  * @apiParam {String} type article/repo/video/tweet
  * @apiParam {String} level beginner/advanced
  */
-router.post("/", create);
+router.post('/', create);
 
 /**
  * @api {get} /learning/content/resources/:resource_id Get one Content resource
@@ -169,7 +169,7 @@ router.post("/", create);
  * @apiName GetOne
  * @apiGroup Content Resource
  */
-router.get("/:resource_id", getOne);
+router.get('/:resource_id', getOne);
 
 /**
  * @api {patch} /learning/content/resources/:resource_id Update Content resource
@@ -179,7 +179,7 @@ router.get("/:resource_id", getOne);
  *
  * @apiParam {String} url URL of the resource
  */
-router.patch("/:resource_id", allowSuperAdminOnly, update);
+router.patch('/:resource_id', allowSuperAdminOnly, update);
 
 /**
  * @api {delete} /learning/content/resources/:resource_id Delete Content resource
@@ -187,7 +187,7 @@ router.patch("/:resource_id", allowSuperAdminOnly, update);
  * @apiName DeleteOne
  * @apiGroup Content Resource
  */
-router.delete("/:resource_id", allowSuperAdminOnly, deleteOne);
+router.delete('/:resource_id', allowSuperAdminOnly, deleteOne);
 
 /**
  * @api {patch} /learning/content/resources/:resource_id/approve Update Content resource status
@@ -195,7 +195,7 @@ router.delete("/:resource_id", allowSuperAdminOnly, deleteOne);
  * @apiName Approve
  * @apiGroup Content Resource
  */
-router.patch("/:resource_id/approve", allowSuperAdminOnly, approve);
+router.patch('/:resource_id/approve', allowSuperAdminOnly, approve);
 
 /**
  * @api {get} /learning/content/resources/:resource_id/comments Get Content resource comments
@@ -203,7 +203,7 @@ router.patch("/:resource_id/approve", allowSuperAdminOnly, approve);
  * @apiName GetComments
  * @apiGroup Content Resource Comment
  */
-router.get("/:resource_id/comments", getComments);
+router.get('/:resource_id/comments', getComments);
 
 /**
  * @api {post} /learning/content/resources/:resource_id/comments Add Content resource comments
@@ -213,7 +213,7 @@ router.get("/:resource_id/comments", getComments);
  *
  * @apiParam {String} comment comment about the resource
  */
-router.post("/:resource_id/comments", addComment);
+router.post('/:resource_id/comments', addComment);
 
 /**
  * @api {delete} /learning/content/resources/:resource_id/comments/:comment_id
@@ -222,7 +222,7 @@ router.post("/:resource_id/comments", addComment);
  * @apiName DeleteComment
  * @apiGroup Content Resource Comment
  */
-router.delete("/:resource_id/comments/:comment_id", deleteComment);
+router.delete('/:resource_id/comments/:comment_id', deleteComment);
 
 /**
  * @api {post} /learning/content/resources/:resource_id/vote Vote Content resource
@@ -230,7 +230,7 @@ router.delete("/:resource_id/comments/:comment_id", deleteComment);
  * @apiName Upvote
  * @apiGroup Content Resource Vote
  */
-router.post("/:resource_id/vote", upvote);
+router.post('/:resource_id/vote', upvote);
 
 /**
  * @api {delete} /learning/content/resources/:resource_id/vote Unvote Content resource
@@ -240,6 +240,6 @@ router.post("/:resource_id/vote", upvote);
  *
  * @apiParam {String} user_id id of the user
  */
-router.delete("/:resource_id/vote", unvote);
+router.delete('/:resource_id/vote', unvote);
 
 export default router;

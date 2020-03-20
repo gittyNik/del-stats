@@ -2,7 +2,7 @@ import { WebClient } from '@slack/web-api';
 import { getCurrentMilestoneOfCohortDelta, markMilestoneReview } from '../../../../models/cohort_milestone';
 import { Cohort } from '../../../../models/cohort';
 import { Milestone } from '../../../../models/milestone';
-import { startBreakout } from '../../../../models/cohort_breakout';
+import { createOrUpdateCohortBreakout } from '../../../../models/cohort_breakout';
 import { Topic } from '../../../../models/topic';
 import { composeMilestoneModal, milestoneReviewMessage } from '../views/milestone.view';
 
@@ -72,7 +72,7 @@ export const markTopicAsFinished = (topic_id, cohort_id, username) => {
     })
       .catch(err => console.log(err)));
 
-  startBreakout(topic_id, cohort_id, new Date())
+  createOrUpdateCohortBreakout(topic_id, cohort_id, new Date())
     .then(sendMessageToSlack)
     .catch(err => console.log(err));
 };

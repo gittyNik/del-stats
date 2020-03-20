@@ -140,24 +140,26 @@ export const createScheduledMeeting = (topic, start_time, duration, agenda, type
   );
 };
 
-export const markIndividualAttendance = (participants, catalyst_id,
+export const learnerAttendance = async (participant, catalyst_id,
   cohort_breakout_id, attentiveness_threshold) => {
+  const { user_email, duration, attentiveness_score } = participant;
+  // TODO use duration also to mark attendance
+  let attentivenessScore = parseFloat(attentiveness_score);
   let attendanceCount = 0;
-  participants.forEach(participant => {
-    const { user_email, duration, attentiveness_score } = participant;
-    SocialConnection.findOne({
-      attributes: ['user_id'],
-      where: {
-        email: user_email,
-      },
-    }).then(data => {
-      let attendance;
-      if ((attentiveness_score >= attentiveness_threshold) || (data.user_id !== catalyst_id)) {
-        attendanceCount += 1;
-        attendance = true;
-      } else {
-        attendance = false;
-      }
+  return SocialConnection.findOne({
+    attributes: ['user_id'],
+    where: {
+      email: user_email,
+    },
+  }).then(data => {
+    let attendance;
+    if ((attentivenessScore >= attentiveness_threshold) && (data.user_id !== catalyst_id)) {
+      attendanceCount += 1;
+      attendance = true;
+    } else {
+      attendance = false;
+    }
+    try {
       LearnerBreakout.update({
         attendance,
       }, {
@@ -166,10 +168,38 @@ export const markIndividualAttendance = (participants, catalyst_id,
           learner_id: data.user_id,
         },
       });
-    });
+    } catch (err) {
+      console.error(err);
+      if (attendance) {
+        attendanceCount -= 1;
+      }
+      if (err instanceof TypeError) {
+        console.log(`${user_email} not present in social connections`);
+      } else {
+        console.log(`${user_email} does not have learner breakout ${cohort_breakout_id}`);
+      }
+    }
+    return attendanceCount;
   });
+};
+
+export const markIndividualAttendance = async (participants, catalyst_id,
+  cohort_breakout_id, attentiveness_threshold) => {
+  const attendanceCount = Promise.all(participants.map(async (participant) => {
+    try {
+      let attendance_count = await learnerAttendance(participant, catalyst_id,
+        cohort_breakout_id, attentiveness_threshold);
+      return attendance_count;
+    } catch (err) {
+      console.log('error in finding user', err);
+      return 0;
+    }
+  }));
   return attendanceCount;
 };
+
+// function for adding two numbers
+const add = (a, b) => a + b;
 
 /*
 From Zoom API endpoint get users in breakout and mark attendance for them
@@ -182,7 +212,7 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
   console.log('Marking attendance for Cohort Breakout id', cohort_breakout_id);
 
   return (request
-    .get(`${ZOOM_BASE_URL}report/meetings/{meetingId}/participants`) // todo: need to assign delta user to zoom user
+    .get(`${ZOOM_BASE_URL}report/meetings/${meeting_id}/participants`) // todo: need to assign delta user to zoom user
     .set('Authorization', `Bearer ${zoom_token}`)
     .set('User-Agent', 'Zoom-api-Jwt-Request')
     .set('content-type', 'application/json')
@@ -194,27 +224,26 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
         next_page_token
       } = data.body;
       console.log(`Fetched data for Zoom Meeting: ${meeting_id}`);
-      markIndividualAttendance(participants, catalyst_id,
-        cohort_breakout_id, attentiveness_threshold)
-        .then(attendanceCount => {
-          console.log('Attendance Count.', attendanceCount);
-          CohortBreakout.update({
-            attendance_count: attendanceCount,
-          }, {
-            where: {
-              cohort_breakout_id,
-            },
-          });
-        })
-        .catch(err => {
-          console.error('Failed to update Cohort attendance count', err);
-          return {
-            text: `Failed to update Cohort attendance count for ${cohort_breakout_id} .`,
-          };
+      return markIndividualAttendance(participants, catalyst_id,
+        cohort_breakout_id, attentiveness_threshold).then(attendanceCountArray => {
+        // use reduce to sum our array
+        const attendanceCount = attendanceCountArray.reduce(add);
+        console.log('Attendance Count.', attendanceCountArray);
+        return CohortBreakout.update({
+          attendance_count: attendanceCount,
+        }, {
+          where: {
+            id: cohort_breakout_id,
+          },
         });
-    })
-    .catch(err => {
-      console.log(err);
+      }).catch(err => {
+        console.error('Failed to update Cohort attendance count', err);
+        return {
+          text: `Failed to update Cohort attendance count for ${cohort_breakout_id} .`,
+        };
+      });
+    }).catch(err => {
+      // console.log(err);
       return {
         text: `Failed to get breakout details from Zoom ${cohort_breakout_id}`,
       };

@@ -2,8 +2,8 @@ import Express from 'express';
 import {
   getCohortByName, getCohorts, getCohort, createCohort, updateCohort,
   getUpcomingCohorts, deleteCohort, beginCohort, getCohortByLearnerId,
-  funTesting,
 } from '../../controllers/learning/cohort.controller';
+import { createBreakouts } from '../../models/cohort_breakout';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
@@ -66,6 +66,14 @@ router.post('/', createCohort);
  * @apiGroup Cohort
  */
 router.patch('/:id/begin', beginCohort);
+
+/**
+ * @api {patch} /cohorts/:id/begin Mark beginning of a cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName BeginCohort
+ * @apiGroup Cohort
+ */
+router.patch('/:id/schdeule', createBreakouts);
 
 /**
  * @api {patch} /cohorts/:id Update a cohort

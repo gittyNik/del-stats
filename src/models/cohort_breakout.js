@@ -1,13 +1,16 @@
-import Sequelize from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import uuid from 'uuid/v4';
+import _ from 'lodash';
 import db from '../database';
 import { Cohort } from './cohort';
 import { createSandbox } from './code_sandbox';
-import { createScheduledMeeting, deleteMeetingFromZoom } from './video_meeting';
+import { createScheduledMeeting, deleteMeetingFromZoom, markAttendanceFromZoom } from './video_meeting';
 import { Topic } from './topic';
+import { createBreakoutsInMilestone, BreakoutTemplate } from './breakout_template';
+
 // import sandbox from 'bullmq/dist/classes/sandbox';
 
-export const EVENT_STATUS = ['scheduled', 'started', 'cancelled', 'aborted', 'running'];
+export const EVENT_STATUS = ['scheduled', 'started', 'cancelled', 'aborted', 'running', 'completed'];
 export const BREAKOUT_TYPE = ['lecture', 'codealong', 'questionhour', 'activity', 'groupdiscussion'];
 
 export const CohortBreakout = db.define('cohort_breakouts', {
@@ -66,12 +69,67 @@ export const scheduleBreakoutLecture = (topic_id, cohort_id, time_scheduled) => 
   });
 };
 
+
 export const startBreakout = (topic_id, cohort_id, time_scheduled) => CohortBreakout.create({
   id: uuid(),
   topic_id,
   cohort_id,
   time_scheduled,
-  status: 'started',
+  status: 'completed',
+});
+
+export const markComplete = (topic_id, cohort_id) => CohortBreakout.update({
+  status: 'completed',
+}, {
+  where: { topic_id, cohort_id },
+});
+
+// If cohort breakouts exist mark cohort breakout complete
+// Fetch zoom url and mark attendance
+// mark learner attendance in learner breakouts
+// update total attendance count for learners in cohort breakouts
+// If cohort breakout does not exist, create
+export const createOrUpdateCohortBreakout = (cohort_topic_id,
+  cohort_id, time_scheduled) => Cohort.findOne(
+  {
+    attributes: ['duration', 'program_id'],
+    where: {
+      id: cohort_id,
+    },
+  },
+).then(cohortDetails => {
+  const { duration, program_id } = cohortDetails;
+  return BreakoutTemplate.findOne({
+    attributes: ['id', 'topic_id'],
+    where: {
+      cohort_duration: duration,
+      program_id,
+      topic_id: { [Op.contains]: [cohort_topic_id] },
+    },
+  }).then(breakoutTemplate => {
+    const { id, topic_id } = breakoutTemplate;
+    if (_.isEmpty(breakoutTemplate)) {
+      return startBreakout(cohort_topic_id, cohort_id, time_scheduled);
+      // eslint-disable-next-line no-else-return
+    } else {
+      return markComplete(cohort_topic_id, cohort_id).then(cohortBreakout => {
+        return CohortBreakout.findOne({
+          attributes: ['id', 'details', 'catalyst_id'],
+          where: {
+            cohort_id,
+            topic_id: cohort_topic_id,
+            breakout_template_id: id,
+          },
+        }).then(cohort_breakout_details => {
+          const { join_url } = cohort_breakout_details.details.zoom;
+          const { catalyst_id, id: cohort_breakout_id } = cohort_breakout_details;
+          let mettingDetails = join_url.split('/')[4];
+          let meetingId = mettingDetails.split('?')[0];
+          return markAttendanceFromZoom(meetingId, catalyst_id, cohort_breakout_id);
+        });
+      });
+    }
+  });
 });
 
 export const createNewBreakout = (
@@ -81,7 +139,7 @@ export const createNewBreakout = (
   attendance_count = null, domain = null,
   catalyst_notes = null, catalyst_feedback = null,
 ) => {
-  console.log(`${time_scheduled} ${duration} ${location}`)
+  console.log(`${time_scheduled} ${duration} ${location}`);
   return CohortBreakout.create({
     id: uuid(),
     breakout_template_id,
@@ -99,11 +157,21 @@ export const createNewBreakout = (
   });
 };
 
+export const createBreakouts = (req, res) => {
+  let {
+    cohort_id, cohort_program_id, cohort_duration,
+  } = req.body;
+  createBreakoutsInMilestone(cohort_id, cohort_program_id, cohort_duration).then((data) => {
+    res.status(201).json({ data });
+  })
+    .catch(err => res.status(500).send({ err }));
+};
+
 export const BreakoutWithOptions = (breakoutObject) => {
   const {
     topic_id, cohort_id, breakout_template_id, time_scheduled,
     duration, location, catalyst_id, details,
-    isVideoMeeting, isCodeSandbox, topic_name, cohortName
+    isVideoMeeting, isCodeSandbox, topic_name, cohortName,
   } = breakoutObject;
 
   let time = time_scheduled.toLocaleString().split(' ').join('T');
