@@ -2,8 +2,8 @@ import {
   getCohortMilestoneBylearnerId,
   getCurrentCohortMilestones,
   getCurrentMilestoneOfCohort,
-  getCohortMilestones
-} from "../../models/cohort_milestone";
+  getCohortMilestones,
+} from '../../models/cohort_milestone';
 
 export const getUpcomingReviews = (req, res) => {
   getCurrentCohortMilestones()
@@ -23,8 +23,8 @@ export const getCohortLiveMilestone = (req, res) => {
   getCurrentMilestoneOfCohort(cohort_id, user_id)
     .then(milestone => {
       res.send({
-        text: "Live Milestone of Cohort",
-        data: milestone
+        text: 'Live Milestone of Cohort',
+        data: milestone,
       });
     })
     .catch(e => {
@@ -38,8 +38,8 @@ export const getAllCohortMilestones = (req, res) => {
   getCohortMilestones(cohort_id)
     .then(data => {
       res.json({
-        text: "Cohort Milestones",
-        data
+        text: 'Cohort Milestones',
+        data,
       });
     })
     .catch(err => res.status(500).send(err));
@@ -50,8 +50,8 @@ export const getCohortMilestonesByUserId = async (req, res) => {
   getCohortMilestoneBylearnerId(user_id)
     .then(data => {
       res.json({
-        text: "Cohort Milestones",
-        data
+        text: 'Cohort Milestones',
+        data,
       });
     })
     .catch(err => res.status(500).send(err));

@@ -1,5 +1,4 @@
 import Sequelize from 'sequelize';
-import uuid from 'uuid/v4';
 import db from '../database';
 
 export const Tags = db.define('tags', {
@@ -23,10 +22,10 @@ export const Tags = db.define('tags', {
   },
   moderator: {
     type: Sequelize.ARRAY(
-        {
-            type: Sequelize.UUID,
-            references: { model: 'users' },
-        }
+      {
+        type: Sequelize.UUID,
+        references: { model: 'users' },
+      },
     ),
     allowNull: true,
   },
@@ -35,31 +34,29 @@ export const Tags = db.define('tags', {
   details: Sequelize.JSON,
   parent_tags: {
     type: Sequelize.ARRAY(Sequelize.UUID),
-    allowNull: true
+    allowNull: true,
   },
   child_tags: {
     type: Sequelize.ARRAY(Sequelize.UUID),
-    allowNull: true
+    allowNull: true,
   },
   similar_tags: {
     type: Sequelize.ARRAY(Sequelize.UUID),
-    allowNull: true
-  }
+    allowNull: true,
+  },
 });
 
 
-export const getTagIdbyName = tag_name  => Tags.findOne({
+export const getTagIdbyName = tag_name => Tags.findOne({
   where: {
-      tag_name: tag_name
+    tag_name,
   },
   raw: true,
 });
 
-export const getTagIdbyNames = tag_names  => Tags.findAll({
+export const getTagIdbyNames = tag_names => Tags.findAll({
   where: {
-    tag_name: tag_names
+    tag_name: tag_names,
   },
   raw: true,
 });
-
-const { contains, overlap } = Sequelize.Op;

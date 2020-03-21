@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import uuid from 'uuid/v4';
+// import uuid from 'uuid/v4';
 import db from '../database';
 import { Topic, getTopicById } from './topic';
 import { CohortMilestone, getMilestoneStartDate } from './cohort_milestone';
@@ -187,20 +187,20 @@ const createLearnerBreakouts = async (cohortBreakouts, cohort_id) => {
 };
 
 export const createBreakoutsInMilestone = (cohort_id, program_id,
-  cohort_duration) => BreakoutTemplate
-    .findAll({
-      attributes: ['id', 'name', 'topic_id', 'details',
-        'duration', 'time_scheduled', 'after_days',
-        'primary_catalyst', 'level'],
-      where: { program_id, cohort_duration },
-      raw: true,
-    })
-    .then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
-    .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
-    .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates, cohort_id))
-    .then(createdBreakouts => {
-      console.log('Breakouts created for Cohort');
-      //console.log(createdBreakouts);
-      return createLearnerBreakouts(createdBreakouts, cohort_id);
-      //return (createdBreakouts);
-    });
+  cohort_duration) => BreakoutTemplate.findAll(
+  {
+    attributes: ['id', 'name', 'topic_id', 'details',
+      'duration', 'time_scheduled', 'after_days',
+      'primary_catalyst', 'level'],
+    where: { program_id, cohort_duration },
+    raw: true,
+  },
+).then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
+  .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
+  .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates, cohort_id))
+  .then(createdBreakouts => {
+    console.log('Breakouts created for Cohort');
+    // console.log(createdBreakouts);
+    return createLearnerBreakouts(createdBreakouts, cohort_id);
+    // return (createdBreakouts);
+  });
