@@ -48,7 +48,7 @@ const MEETING_SETTINGS = {
   audio: 'voip',
   auto_recording: 'local', // options: local, cloud and none
   enforce_login: false,
-
+  alternative_hosts: process.env.ZOOM_HOSTS,
 };
 
 export const deleteMeetingFromZoom = (video_id) => {
@@ -72,6 +72,11 @@ export const deleteMeetingFromZoom = (video_id) => {
     });
 };
 
+function millisecondsToMinutes(millis) {
+  let minutes = Math.floor(millis / 60000);
+  return minutes;
+}
+
 /*
 Meeting type:
   1- Instant meeting
@@ -79,8 +84,9 @@ Meeting type:
   3- Recurring Meeting with no fixed time
   4- Recurring Meeting with a fixed time
 */
-export const createScheduledMeeting = (topic, start_time, duration, agenda, type) => {
+export const createScheduledMeeting = (topic, start_time, millisecs_duration, agenda, type) => {
   const { ZOOM_BASE_URL, ZOOM_USER } = process.env;
+  const duration = millisecondsToMinutes(millisecs_duration);
   const meeting_object = {
     topic,
     type: type || 2, // defaults to scheduled Meeting
@@ -242,7 +248,8 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
           text: `Failed to update Cohort attendance count for ${cohort_breakout_id} .`,
         };
       });
-    }).catch(err => {
+    })
+    .catch(err => {
       // console.log(err);
       return {
         text: `Failed to get breakout details from Zoom ${cohort_breakout_id}`,

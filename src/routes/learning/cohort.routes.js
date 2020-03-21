@@ -68,20 +68,20 @@ router.post('/', createCohort);
 router.patch('/:id/begin', beginCohort);
 
 /**
- * @api {patch} /cohorts/:id/begin Mark beginning of a cohort
- * @apiHeader {String} authorization JWT Token.
- * @apiName BeginCohort
- * @apiGroup Cohort
- */
-router.patch('/:id/schdeule', createBreakouts);
-
-/**
  * @api {patch} /cohorts/:id Update a cohort
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateCohort
  * @apiGroup Cohort
  */
 router.patch('/:id', updateCohort);
+
+/**
+ * @api {patch} /cohorts/schedule Schedule Breakouts for Cohorts
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ScheduleBreakouts
+ * @apiGroup Cohort
+ */
+router.post('/schedule', createBreakouts);
 
 /**
  * @api {delete} /cohorts/:id Delete a cohort
