@@ -1,9 +1,9 @@
 import {
   Cohort, getFutureCohorts, getCohortLearnerDetails,
   getCohortLearnerDetailsByName, beginCohortWithId,
-  getCohortFromLearnerId
+  getCohortFromLearnerId,
 } from '../../models/cohort';
-import { createBreakoutsInMilestone, BreakoutTemplate, getReleaseTimeFromTopic, updateBreakoutTemplates } from '../../models/breakout_template';
+import { createOrUpdateCohortBreakout } from '../../models/cohort_breakout';
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
@@ -66,6 +66,16 @@ export const getUpcomingCohorts = (req, res) => {
       res.send({ data });
     })
     .catch(() => res.sendStatus(404));
+};
+
+export const createUpdateCohortBreakout = (req, res) => {
+  let {
+    cohort_id, cohort_topic_id, time_scheduled,
+  } = req.body;
+  createOrUpdateCohortBreakout(cohort_topic_id, cohort_id, time_scheduled).then((data) => {
+    res.status(201).json({ data });
+  })
+    .catch(err => res.status(500).send({ err }));
 };
 
 export const beginCohort = (req, res) => {

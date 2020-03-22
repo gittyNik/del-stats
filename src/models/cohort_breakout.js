@@ -78,11 +78,58 @@ export const startBreakout = (topic_id, cohort_id, time_scheduled) => CohortBrea
   status: 'completed',
 });
 
-export const markComplete = (topic_id, cohort_id) => CohortBreakout.update({
-  status: 'completed',
-}, {
-  where: { topic_id, cohort_id },
-});
+export const markZoomAttendance = (cohort_breakout_details) => {
+  try {
+    const { join_url } = cohort_breakout_details.details.zoom;
+    const { catalyst_id, id: cohort_breakout_id } = cohort_breakout_details;
+    let mettingDetails = join_url.split('/')[4];
+    let meetingId = mettingDetails.split('?')[0];
+    return markAttendanceFromZoom(meetingId, catalyst_id, cohort_breakout_id);
+  } catch (err) {
+    // If meeting does not have zoom url
+    // If zoom meeting url creation has failed
+    console.warn('Meeting missing Zoom url');
+    console.warn(cohort_breakout_details);
+    return { message: 'Meeting marked as complete' };
+  }
+};
+
+export const markComplete = (topic_id, cohort_id) => CohortBreakout.update(
+  {
+    status: 'completed',
+  }, {
+    where: { topic_id, cohort_id },
+    returning: true,
+    plain: true,
+  },
+);
+
+export const checkForAttendance = (cohort_id, topic_id) => CohortBreakout.findOne({
+  attributes: ['id', 'details', 'catalyst_id'],
+  where: {
+    cohort_id,
+    topic_id,
+  },
+}).then(cohort_breakout_details => markZoomAttendance(cohort_breakout_details));
+
+export const markStatusAndAttendance = (breakoutTemplate, cohort_topic_id,
+  cohort_id, time_scheduled) => {
+  let breakout_topic_id;
+  if (_.isEmpty(breakoutTemplate)) {
+    breakout_topic_id = cohort_topic_id;
+    // eslint-disable-next-line no-else-return
+  } else {
+    const { topic_id } = breakoutTemplate;
+    breakout_topic_id = topic_id[0];
+  }
+  return checkForAttendance(cohort_id, breakout_topic_id)
+    .then(attendance => {
+      if (_.isEmpty(breakoutTemplate)) {
+        return startBreakout(breakout_topic_id, cohort_id, time_scheduled);
+      }
+      return markComplete(breakout_topic_id, cohort_id);
+    });
+};
 
 // If cohort breakouts exist mark cohort breakout complete
 // Fetch zoom url and mark attendance
@@ -106,30 +153,8 @@ export const createOrUpdateCohortBreakout = (cohort_topic_id,
       program_id,
       topic_id: { [Op.contains]: [cohort_topic_id] },
     },
-  }).then(breakoutTemplate => {
-    const { id, topic_id } = breakoutTemplate;
-    if (_.isEmpty(breakoutTemplate)) {
-      return startBreakout(cohort_topic_id, cohort_id, time_scheduled);
-      // eslint-disable-next-line no-else-return
-    } else {
-      return markComplete(cohort_topic_id, cohort_id).then(cohortBreakout => {
-        return CohortBreakout.findOne({
-          attributes: ['id', 'details', 'catalyst_id'],
-          where: {
-            cohort_id,
-            topic_id: cohort_topic_id,
-            breakout_template_id: id,
-          },
-        }).then(cohort_breakout_details => {
-          const { join_url } = cohort_breakout_details.details.zoom;
-          const { catalyst_id, id: cohort_breakout_id } = cohort_breakout_details;
-          let mettingDetails = join_url.split('/')[4];
-          let meetingId = mettingDetails.split('?')[0];
-          return markAttendanceFromZoom(meetingId, catalyst_id, cohort_breakout_id);
-        });
-      });
-    }
-  });
+  }).then(breakoutTemplate => markStatusAndAttendance(breakoutTemplate,
+    cohort_topic_id, cohort_id, time_scheduled));
 });
 
 export const createNewBreakout = (
@@ -157,15 +182,6 @@ export const createNewBreakout = (
   });
 };
 
-export const createBreakouts = (req, res) => {
-  let {
-    cohort_id, cohort_program_id, cohort_duration,
-  } = req.body;
-  createBreakoutsInMilestone(cohort_id, cohort_program_id, cohort_duration).then((data) => {
-    res.status(201).json({ data });
-  })
-    .catch(err => res.status(500).send({ err }));
-};
 
 export const BreakoutWithOptions = (breakoutObject) => {
   const {
