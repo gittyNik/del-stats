@@ -37,16 +37,16 @@ const buildTopicBlocks = (milestone, isProgram = false) => {
     },
     dividerBlock,
     ...topics.map(topic => {
-      const started = topic['cohort_breakouts.status'] === 'started';
+      const completed = topic['cohort_breakouts.status'] === 'completed';
       // const time = `${topic['cohort_breakouts.time_scheduled']}`.split(' GMT')[0];
       const topicItem = {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `${topic.title} ${started ? ':soal:' : ''}`,
+          text: `${topic.title} ${completed ? ':soal:' : ''}`,
         },
       };
-      if (!started) {
+      if (!completed) {
         topicItem.accessory = {
           type: 'button',
           action_id: `mark_topic_finished.${topic.id}`,

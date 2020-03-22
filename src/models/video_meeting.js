@@ -48,7 +48,7 @@ const MEETING_SETTINGS = {
   audio: 'voip',
   auto_recording: 'local', // options: local, cloud and none
   enforce_login: false,
-  alternative_hosts: process.env.ZOOM_HOSTS,
+  // alternative_hosts: process.env.ZOOM_HOSTS,
 };
 
 export const deleteMeetingFromZoom = (video_id) => {

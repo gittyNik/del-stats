@@ -73,7 +73,7 @@ slackInteractions.action({ action_id: 'cohort_settings' }, (payload) => {
   const cohort_id = payload.actions[0].selected_option.value;
   beginCohortWithId(cohort_id)
     .then(cohort => {
-      console.log(`${cohort.name} cohort will be started`);
+      console.log(`${cohort.name} cohort will be marked completed`);
     }).catch(err => console.log(err));
 });
 

@@ -2,8 +2,9 @@ import Express from 'express';
 import {
   getCohortByName, getCohorts, getCohort, createCohort, updateCohort,
   getUpcomingCohorts, deleteCohort, beginCohort, getCohortByLearnerId,
+  createUpdateCohortBreakout,
 } from '../../controllers/learning/cohort.controller';
-import { createBreakouts } from '../../models/cohort_breakout';
+import { createBreakouts } from '../../controllers/learning/breakout.controller';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
@@ -82,6 +83,14 @@ router.patch('/:id', updateCohort);
  * @apiGroup Cohort
  */
 router.post('/schedule', createBreakouts);
+
+/**
+ * @api {patch} /cohorts/breakout Schedule a Breakout for Cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ScheduleBreakouts
+ * @apiGroup Cohort
+ */
+router.post('/breakout', createUpdateCohortBreakout);
 
 /**
  * @api {delete} /cohorts/:id Delete a cohort

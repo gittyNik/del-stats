@@ -32,7 +32,7 @@ router.get('/', getBreakouts);
  * @apiParam {String} location location of the Breakout
  * @apiParam {String} catalyst_id Id of the Catalyst
  * @apiParam {String="scheduled","started","cancelled",
- *  "aborted","running"} status Status of Breakout
+ *  "aborted","running","completed"} status Status of Breakout
  * @apiParam {String} catalyst_notes Catalyst Note
  * @apiParam {String} catalyst_feedback Feedback by Catalyst
  * @apiParam {Number} attendance_count Total attendence for the Breakout
@@ -56,7 +56,7 @@ router.post('/', createBreakout);
  * @apiParam {String} location location of the Breakout
  * @apiParam {String} catalyst_id Id of the Catalyst
  * @apiParam {String="scheduled","started",
- * "cancelled","aborted","running"} status Status of Breakout
+ * "cancelled","aborted","running","completed"} status Status of Breakout
  * @apiParam {String} catalyst_notes Catalyst Note
  * @apiParam {String} catalyst_feedback Feedback by Catalyst
  * @apiParam {Number} attendance_count Total attendence for the Breakout
