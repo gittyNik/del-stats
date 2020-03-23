@@ -9,7 +9,8 @@ import {
   toSentenceCase,
   createGithubRepository,
   repositoryPresentOrNot,
-  addCollaboratorToRepository
+  addCollaboratorToRepository,
+  createGithubRepositoryFromTemplate
 } from "../integrations/github/controllers";
 import { getGithubConnecionByUserId } from "./social_connection";
 
@@ -125,11 +126,11 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
         ? "Hyderabad"
         : data.cohort.location
     )}_${new Date(data.cohort.start_date).getFullYear()}`;
-
+    let starter_repo = data.milestone.starter_repo;
     for (let i = 0; i < teams.length; i++) {
       let msName = `${baseMilestoneName}_${i + 1}`;
       msName = toGithubFormat(msName);
-      let repo = await createGithubRepository(msName);
+      let repo = await createGithubRepositoryFromTemplate(starter_repo, msName);
       var team = teams[i];
       for (let j = 0; j < team.length; j++) {
         msName = repo.data.name;
@@ -174,11 +175,12 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
         ? "Hyderabad"
         : data.cohort.location
     )}_${new Date(data.cohort.start_date).getFullYear()}`;
+    let starter_repo = data.milestone.starter_repo;
     let teams = splitTeams(m);
     for (let i = 0; i < teams.length; i++) {
       let msName = `${baseMilestoneName}_${i + 1}`;
       msName = toGithubFormat(msName);
-      let repo = await createGithubRepository(msName);
+      let repo = await createGithubRepositoryFromTemplate(starter_repo, msName);
       var team = teams[i];
       for (let j = 0; j < team.length; j++) {
         msName = repo.data.name;
