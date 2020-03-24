@@ -35,8 +35,7 @@ export const LearnerBreakout = db.define('learner_breakouts', {
   },
 });
 
-export const createLearnerBreakoutsForCohortMilestones = (cohort_breakout, cohort_id) => {
-  let cohort_breakout_id = cohort_breakout.id;
+export const createLearnerBreakoutsForCohortMilestones = (cohort_breakout_id, cohort_id) => {
   console.log(cohort_breakout_id, cohort_id);
   return Cohort.findOne({
     attributes: ['id', 'learners'],

@@ -6,7 +6,8 @@ import { Cohort } from './cohort';
 import { createSandbox } from './code_sandbox';
 import { createScheduledMeeting, deleteMeetingFromZoom, markAttendanceFromZoom } from './video_meeting';
 import { Topic } from './topic';
-import { createBreakoutsInMilestone, BreakoutTemplate } from './breakout_template';
+import { BreakoutTemplate } from './breakout_template';
+import { createLearnerBreakoutsForCohortMilestones } from './learner_breakout';
 
 // import sandbox from 'bullmq/dist/classes/sandbox';
 
@@ -70,13 +71,33 @@ export const scheduleBreakoutLecture = (topic_id, cohort_id, time_scheduled) => 
 };
 
 
-export const startBreakout = (topic_id, cohort_id, time_scheduled) => CohortBreakout.create({
-  id: uuid(),
-  topic_id,
-  cohort_id,
-  time_scheduled,
-  status: 'completed',
-});
+export const startBreakout = (topic_id, cohort_id,
+  time_scheduled, details, status = 'started', duration = 1800000) => {
+  if (typeof topic_id !== 'undefined') {
+    return CohortBreakout.create(
+      {
+        id: uuid(),
+        cohort_id,
+        topic_id,
+        time_scheduled,
+        status,
+        details,
+        duration,
+      },
+    );
+  }
+  return CohortBreakout.create(
+    {
+      id: uuid(),
+      cohort_id,
+      time_scheduled,
+      status,
+      details,
+      duration,
+    },
+  );
+};
+
 
 export const markZoomAttendance = (cohort_breakout_details) => {
   try {
@@ -125,7 +146,7 @@ export const markStatusAndAttendance = (breakoutTemplate, cohort_topic_id,
   return checkForAttendance(cohort_id, breakout_topic_id)
     .then(attendance => {
       if (_.isEmpty(breakoutTemplate)) {
-        return startBreakout(breakout_topic_id, cohort_id, time_scheduled);
+        return startBreakout(breakout_topic_id, cohort_id, time_scheduled, {}, 'completed');
       }
       return markComplete(breakout_topic_id, cohort_id);
     });
@@ -357,3 +378,19 @@ export const getAllBreakoutsInCohortMilestone = (cohort_id, milestone_id) => {
       return null;
     });
 };
+
+export const createSingleBreakoutAndLearnerBreakout = (cohort_id, topic_id,
+  breakout_duration, time_scheduled, agenda) => createScheduledMeeting(topic_id,
+  time_scheduled, breakout_duration, agenda)
+  .then(zoomMeeting => {
+    const zoomDetails = { zoom: zoomMeeting };
+    return startBreakout(topic_id,
+      cohort_id, time_scheduled, zoomDetails, 'scheduled', breakout_duration)
+      .then(cohortBreakout => {
+        const { id } = cohortBreakout;
+        return createLearnerBreakoutsForCohortMilestones(id, cohort_id)
+          .then(() => {
+            return { zoomDetails, id, cohort_id };
+          });
+      });
+  });

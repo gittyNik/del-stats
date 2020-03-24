@@ -1,4 +1,7 @@
-import { getAllBreakoutsInCohortMilestone, CohortBreakout, createNewBreakout } from '../../models/cohort_breakout';
+import {
+  getAllBreakoutsInCohortMilestone, CohortBreakout,
+  createNewBreakout, createSingleBreakoutAndLearnerBreakout,
+} from '../../models/cohort_breakout';
 import { createScheduledMeeting, deleteMeetingFromZoom } from '../../models/video_meeting';
 import { createSandbox } from '../../models/code_sandbox';
 import { createBreakoutsInMilestone } from '../../models/breakout_template';
@@ -201,6 +204,18 @@ export const createBreakouts = (req, res) => {
     cohort_id, cohort_program_id, cohort_duration,
   } = req.body;
   createBreakoutsInMilestone(cohort_id, cohort_program_id, cohort_duration).then((data) => {
+    res.status(201).json({ data });
+  })
+    .catch(err => res.status(500).send({ err }));
+};
+
+export const createSingleBreakout = (req, res) => {
+  let {
+    topic_id, breakout_duration, time_scheduled, agenda,
+  } = req.body;
+  const { id: cohort_id } = req.params;
+  createSingleBreakoutAndLearnerBreakout(cohort_id, topic_id,
+    breakout_duration, time_scheduled, agenda).then((data) => {
     res.status(201).json({ data });
   })
     .catch(err => res.status(500).send({ err }));

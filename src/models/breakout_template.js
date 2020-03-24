@@ -178,7 +178,7 @@ const createLearnerBreakouts = async (cohortBreakouts, cohort_id) => {
   // Create Learner breakouts based on Cohort Milestone breakouts
   let learnerBreakouts = [];
   for (let i = 0; i < cohortBreakouts.length; i++) {
-    let breakout = createLearnerBreakoutsForCohortMilestones(cohortBreakouts[i], cohort_id);
+    let breakout = createLearnerBreakoutsForCohortMilestones(cohortBreakouts[i].id, cohort_id);
     learnerBreakouts.push(breakout);
   }
   let allLearnerBreakouts = Promise.all(learnerBreakouts);

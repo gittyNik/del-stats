@@ -120,7 +120,7 @@ export const createScheduledMeeting = (topic, start_time, millisecs_duration, ag
       })
         .then(video => {
           console.log('meeting updated in db.');
-          console.log(video);
+          // console.log(video);
           return {
             id,
             status,

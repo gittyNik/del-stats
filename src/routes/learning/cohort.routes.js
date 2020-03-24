@@ -4,7 +4,7 @@ import {
   getUpcomingCohorts, deleteCohort, beginCohort, getCohortByLearnerId,
   createUpdateCohortBreakout,
 } from '../../controllers/learning/cohort.controller';
-import { createBreakouts } from '../../controllers/learning/breakout.controller';
+import { createBreakouts, createSingleBreakout } from '../../controllers/learning/breakout.controller';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
@@ -83,6 +83,14 @@ router.patch('/:id', updateCohort);
  * @apiGroup Cohort
  */
 router.post('/schedule', createBreakouts);
+
+/**
+ * @api {patch} /cohorts/:id/breakout Schedule a Single Breakout for Cohort with Learners Breakouts
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ScheduleBreakouts
+ * @apiGroup Cohort
+ */
+router.post('/:id/breakout', createSingleBreakout);
 
 /**
  * @api {patch} /cohorts/breakout Schedule a Breakout for Cohort
