@@ -3,6 +3,9 @@ require('@babel/register');
 
 const common = {
   dialect: 'postgres',
+  dialectOptions: {
+    "ssl": { "require": true }
+  },
   pool: {
     max: 5,
     acquire: 30000,
