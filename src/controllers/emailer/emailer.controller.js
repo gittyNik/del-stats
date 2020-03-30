@@ -23,11 +23,9 @@ export const sendEmail = async (from_name, to_users, subject, html, auth) => {
 };
 
 export const sendEmailApi = (req, res) => {
-  console.log(req.body);
   const {
     auth, user_emails, subject, html, from_name,
   } = req.body;
-  console.log(auth);
   let messageId = sendEmail(from_name, user_emails, subject, html, auth);
   return res.json({
     text: 'Email sent successfully!',

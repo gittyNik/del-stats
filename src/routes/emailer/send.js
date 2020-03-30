@@ -1,10 +1,10 @@
 import Express from 'express';
-import { sendEmailApi } from '../../../integrations/emailer/emailer.controller';
+import { sendEmailApi } from '../../controllers/emailer/emailer.controller';
 
 const router = Express.Router();
 
 /**
- * @api {post} /email
+ * @api {post} /email/send
  * @apiDescription This is the first request made in the sign in process.
  * A token will be sent back to the frontend for authentication with github
  * @apiName SigninWithGithub
