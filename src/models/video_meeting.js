@@ -46,8 +46,8 @@ const MEETING_SETTINGS = {
   use_pmi: false,
   approval_type: 2,
   audio: 'voip',
-  auto_recording: 'local', // options: local, cloud and none
-  enforce_login: false,
+  auto_recording: 'cloud', // options: local, cloud and none
+  enforce_login: true,
   // alternative_hosts: process.env.ZOOM_HOSTS,
 };
 
@@ -215,10 +215,11 @@ Zoom returns the users that attended a meeting, using this to mark attendance
 export const markAttendanceFromZoom = (meeting_id, catalyst_id,
   cohort_breakout_id, attentiveness_threshold = 70) => {
   const { ZOOM_BASE_URL } = process.env;
+  const page_size = 100;
   console.log('Marking attendance for Cohort Breakout id', cohort_breakout_id);
 
   return (request
-    .get(`${ZOOM_BASE_URL}report/meetings/${meeting_id}/participants`) // todo: need to assign delta user to zoom user
+    .get(`${ZOOM_BASE_URL}report/meetings/${meeting_id}/participants?page_size=${page_size}`) // todo: need to assign delta user to zoom user
     .set('Authorization', `Bearer ${zoom_token}`)
     .set('User-Agent', 'Zoom-api-Jwt-Request')
     .set('content-type', 'application/json')
