@@ -1,6 +1,6 @@
 const migration = {
 
-  up: (queryInterface, Sequelize) => queryInterface.createTable('slack_channel', {
+  up: (queryInterface, Sequelize) => queryInterface.createTable('slack_channels', {
     id: {
       type: Sequelize.UUID,
       primaryKey: true,
@@ -15,7 +15,7 @@ const migration = {
     }),
 
   }),
-  down: queryInterface => queryInterface.dropTable('slack_channel'),
+  down: queryInterface => queryInterface.dropTable('slack_channels'),
 };
 
 export default migration;
