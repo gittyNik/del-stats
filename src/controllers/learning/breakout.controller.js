@@ -2,7 +2,10 @@ import {
   getAllBreakoutsInCohortMilestone, CohortBreakout,
   createNewBreakout, createSingleBreakoutAndLearnerBreakout,
 } from '../../models/cohort_breakout';
-import { createScheduledMeeting, deleteMeetingFromZoom } from '../../models/video_meeting';
+import {
+  createScheduledMeeting, deleteMeetingFromZoom,
+  updateVideoMeeting, updateCohortMeeting,
+} from '../../models/video_meeting';
 import { createSandbox } from '../../models/code_sandbox';
 import { createBreakoutsInMilestone } from '../../models/breakout_template';
 import Topic from '../../models/topic';
@@ -219,4 +222,27 @@ export const createSingleBreakout = (req, res) => {
     res.status(201).json({ data });
   })
     .catch(err => res.status(500).send({ err }));
+};
+
+export const updateZoomMeeting = (req, res) => {
+  let {
+    updated_time,
+  } = req.body;
+  const { zoom_meeting_id } = req.params;
+  updateVideoMeeting(zoom_meeting_id, updated_time).then((data) => {
+    if (data) {
+      res.status(200).json({ message: 'Zoom meeting updated with time' });
+    }
+    res.status(400).json({ message: 'Zoom meeting not updated' });
+  });
+};
+
+export const updateCohortBreakout = (req, res) => {
+  let {
+    updated_time,
+  } = req.body;
+  const { id: cohort_breakout_id } = req.params;
+  updateCohortMeeting(cohort_breakout_id, updated_time).then((data) => {
+    res.status(201).json({ data });
+  }).catch(err => res.status(500).send({ err }));
 };
