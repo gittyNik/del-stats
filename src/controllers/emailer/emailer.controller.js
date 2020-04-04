@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import AWS from 'aws-sdk';
 import nodemailer from 'nodemailer';
 import { getLearnerDetailsForCohorts } from '../../models/cohort';
@@ -24,14 +25,14 @@ async function downloadFile(bucket, objectKey) {
     };
 
     const data = await s3.getObject(params).promise();
-
-    return data.Body.toString('utf-8');
+    return data;
   } catch (e) {
     throw new Error(`Could not retrieve file from S3: ${e.message}`);
   }
 }
 
-export const sendEmail = async (from_name, to_users, subject, html_path, auth) => {
+export const sendEmail = async (from_name, to_users, subject,
+  html_path, auth, email_attachments) => {
   // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
     service: auth.email_client,
@@ -42,7 +43,8 @@ export const sendEmail = async (from_name, to_users, subject, html_path, auth) =
     },
   });
 
-  let html = await downloadFile(AWS_BUCKET_NAME, html_path);
+  let html_file = await downloadFile(AWS_BUCKET_NAME, html_path);
+  let html = html_file.Body.toString('utf-8');
 
   // send mail with defined transport object
   const mailOptions = {
@@ -51,6 +53,25 @@ export const sendEmail = async (from_name, to_users, subject, html_path, auth) =
     subject,
     html,
   };
+
+  // Downloading attachment files and sending as attachment
+  if (!(_.isEmpty(email_attachments))) {
+    let attachment_array = [];
+    await Promise.all(email_attachments.map(async (attachment) => {
+      const attachment_file = await downloadFile(AWS_BUCKET_NAME, attachment.aws_path);
+      const attach_file = attachment_file.Body;
+      attachment_array.push(
+        {
+          filename: attachment.filename,
+          content: attach_file,
+          contentType: attachment_file.ContentType,
+        },
+      );
+    }));
+    let key = 'attachments';
+    mailOptions[key] = attachment_array;
+  }
+
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
@@ -63,7 +84,7 @@ export const sendEmail = async (from_name, to_users, subject, html_path, auth) =
   });
 };
 
-export const sendCohortEmail = async (from_name, cohort_ids, subject, html, auth) => {
+export const sendCohortEmail = async (from_name, cohort_ids, subject, html, auth, attachments) => {
   let user_emails = [];
   let cohort_array = cohort_ids.split(',');
 
@@ -77,16 +98,16 @@ export const sendCohortEmail = async (from_name, cohort_ids, subject, html, auth
     });
   });
   let user_email_string = user_emails.join(',');
-  let messageId = await sendEmail(from_name, user_email_string, subject, html, auth);
+  let messageId = await sendEmail(from_name, user_email_string, subject, html, auth, attachments);
   return messageId;
 };
 
 // Controller to send email for given email list
 export const sendEmailApi = async (req, res) => {
   const {
-    auth, user_emails, subject, html, from_name,
+    auth, user_emails, subject, html, from_name, attachments,
   } = req.body;
-  let messageId = await sendEmail(from_name, user_emails, subject, html, auth);
+  let messageId = await sendEmail(from_name, user_emails, subject, html, auth, attachments);
   return res.json({
     text: 'Email sent successfully!',
     message_token: messageId,
@@ -96,9 +117,9 @@ export const sendEmailApi = async (req, res) => {
 // Controller to send email to Cohorts
 export const sendCohortEmailApi = async (req, res) => {
   const {
-    auth, cohort_ids, subject, html, from_name,
+    auth, cohort_ids, subject, html, from_name, attachments,
   } = req.body;
-  let messageId = await sendCohortEmail(from_name, cohort_ids, subject, html, auth);
+  let messageId = await sendCohortEmail(from_name, cohort_ids, subject, html, auth, attachments);
   return res.json({
     text: 'Email sent successfully!',
     message_token: messageId,
