@@ -45,7 +45,7 @@ const MEETING_SETTINGS = {
   watermark: false,
   use_pmi: false,
   approval_type: 2,
-  audio: 'voip',
+  audio: 'both',
   auto_recording: 'cloud', // options: local, cloud and none
   enforce_login: true,
   // alternative_hosts: process.env.ZOOM_HOSTS,
@@ -231,24 +231,26 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
         next_page_token
       } = data.body;
       console.log(`Fetched data for Zoom Meeting: ${meeting_id}`);
-      return markIndividualAttendance(participants, catalyst_id,
-        cohort_breakout_id, attentiveness_threshold).then(attendanceCountArray => {
-        // use reduce to sum our array
-        const attendanceCount = attendanceCountArray.reduce(add);
-        console.log('Attendance Count.', attendanceCountArray);
-        return CohortBreakout.update({
-          attendance_count: attendanceCount,
-        }, {
-          where: {
-            id: cohort_breakout_id,
-          },
+      return markIndividualAttendance(
+        participants, catalyst_id,
+        cohort_breakout_id, attentiveness_threshold
+      )
+        .then(attendanceCountArray => {
+          const attendanceCount = attendanceCountArray.reduce(add);
+          console.log('Attendance Count.', attendanceCountArray);
+          return CohortBreakout.update({
+            attendance_count: attendanceCount,
+          }, {
+            where: {
+              id: cohort_breakout_id,
+            },
+          });
+        }).catch(err => {
+          console.error('Failed to update Cohort attendance count', err);
+          return {
+            text: `Failed to update Cohort attendance count for ${cohort_breakout_id} .`,
+          };
         });
-      }).catch(err => {
-        console.error('Failed to update Cohort attendance count', err);
-        return {
-          text: `Failed to update Cohort attendance count for ${cohort_breakout_id} .`,
-        };
-      });
     })
     .catch(err => {
       // console.log(err);
@@ -257,4 +259,47 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
       };
     })
   );
+};
+
+
+export const updateVideoMeeting = async (cohort_breakout_id, updatedTime) => {
+  const { ZOOM_BASE_URL } = process.env;
+  let cohort_breakout = await CohortBreakout.findByPk(cohort_breakout_id);
+  let { time_scheduled, details } = cohort_breakout.toJSON();
+  if (details.zoom.id === undefined) {
+    return `No zoom meeting available to update ${cohort_breakout_id}`;
+  }
+
+  let response = await request
+    .patch(`${ZOOM_BASE_URL}meetings/${details.zoom.id}`)
+    .set('Authorization', `Bearer ${zoom_token}`)
+    .set('content-type', 'application/json')
+    .send({
+      start_time: updatedTime,
+      // settings: MEETING_SETTINGS,
+    });
+  // console.log(response.status);
+  let data = {};
+  if (response.status === 204) {
+    data.zoom = { id: details.zoom.id };
+
+    data.cohort_breakout = await CohortBreakout
+      .update(
+        { time_scheduled: updatedTime },
+        { returning: true, where: { id: cohort_breakout_id } }
+      )
+      .then(([rowsUpdated, updatedCB]) => {
+        // console.log(rowsUpdated);
+        // console.log(updatedCB[0]);
+        console.log(`Cohort breakout ${cohort_breakout_id} updated to ${updatedTime}`);
+        return updatedCB[0].toJSON();
+      })
+      .catch((err) => {
+        console.error(err);
+        return `Error updating cohort breakout ${cohort_breakout_id}`;
+      });
+    return data;
+  }
+  data.error = response.body;
+  return data;
 };
