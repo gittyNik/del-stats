@@ -257,49 +257,56 @@ export const calculateAfterDays = (previousTime, afterDays) => {
   return updatedTime;
 };
 
-export const updateMilestoneByDays = async (cohortId, updateByDays) => CohortMilestone.findAll({
-  where: {
-    cohort_id: cohortId,
-  },
-  attributes: ['id', 'release_time', 'review_scheduled'],
-  raw: true,
-}).then(cohortMilestones => {
-  return cohortMilestones.forEach(cohortMilestone => {
-    console.log(cohortMilestone);
-    // Calculating Milestone start and end time
-    let updatedReleaseTime = calculateAfterDays(cohortMilestone.release_time, updateByDays);
-    let updatedReviewScheduled = calculateAfterDays(cohortMilestone.review_scheduled,
-      updateByDays);
-    CohortMilestone.update({
-      release_time: updatedReleaseTime,
-      review_scheduled: updatedReviewScheduled,
-    }, {
-      where: {
-        id: cohortMilestone.id,
-      },
-    }).then(() => CohortBreakout
-      .findAll(
-        {
-          attributes: ['id', 'time_scheduled', 'details'],
-          where: {
-            cohort_id: cohortId,
-          },
+export const updateMilestoneByDays = async (cohortId, updateByDays) => {
+  await CohortMilestone.findAll({
+    where: {
+      cohort_id: cohortId,
+    },
+    attributes: ['id', 'release_time', 'review_scheduled'],
+    raw: true,
+  }).then(cohortMilestones => {
+    console.log('Updating Milestone timings');
+    Promise.all(cohortMilestones.map(cohortMilestone => {
+      // Calculating Milestone start and end time
+      let updatedReleaseTime = calculateAfterDays(cohortMilestone.release_time, updateByDays);
+      let updatedReviewScheduled = calculateAfterDays(cohortMilestone.review_scheduled,
+        updateByDays);
+      console.debug(`Previous meeting time ${cohortMilestone.release_time}`);
+      console.debug(`Updated meeting time ${updatedReleaseTime}`);
+      CohortMilestone.update({
+        release_time: updatedReleaseTime,
+        review_scheduled: updatedReviewScheduled,
+      }, {
+        where: {
+          id: cohortMilestone.id,
         },
-      ).then(cohortBreakouts => cohortBreakouts.forEach(cohortBreakout => {
-        let updatedScheduledTime = calculateAfterDays(cohortBreakout.time_scheduled,
-          updateByDays);
-        let zoomMeetingId = cohortBreakout.details.zoom.id;
-        // Update breakout time and Zoom meeting
-        CohortBreakout.update({
-          time_scheduled: updatedScheduledTime,
-        }, {
-          where: {
-            id: cohortBreakout.id,
-          },
-        }).then(() => updateVideoMeeting(zoomMeetingId, updatedScheduledTime));
-      })));
+      });
+    }));
   });
-});
+  await CohortBreakout
+    .findAll(
+      {
+        attributes: ['id', 'time_scheduled', 'details'],
+        where: {
+          cohort_id: cohortId,
+        },
+      },
+    ).then(cohortBreakouts => Promise.all(cohortBreakouts.map(cohortBreakout => {
+      let updatedScheduledTime = calculateAfterDays(cohortBreakout.time_scheduled,
+        updateByDays);
+      let zoomMeetingId = cohortBreakout.details.zoom.id;
+      // Update breakout time and Zoom meeting
+      CohortBreakout.update({
+        time_scheduled: updatedScheduledTime,
+      }, {
+        where: {
+          id: cohortBreakout.id,
+        },
+      }).then(() => updateVideoMeeting(zoomMeetingId, updatedScheduledTime));
+    })));
+  return { message: 'Update Milestones and breakouts' };
+};
+
 
 export const updateMilestonesBreakoutTimelines = async (req, res) => {
   let {
