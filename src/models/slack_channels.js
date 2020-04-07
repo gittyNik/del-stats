@@ -74,7 +74,7 @@ export const createChannel = async (cohort_id, userIds) => {
     .send({
       name: channelName,
       is_private: true,
-      user_ids: userIds.join(','),
+      // user_ids: userIds.join(','),
     });
   const { ok, channel } = emptyChannel.body;
   if (ok) {
@@ -95,12 +95,67 @@ export const createChannel = async (cohort_id, userIds) => {
 };
 
 
-// export const addLearnerToChannels = () => {
+// channelId :  channel Id's
+// learnersId : Array of slackLearner Id's
+export const addLearnerToAChannel = async (channelId, learnerIds) => {
+  const channel = await request
+    .post('https://slack.com/api/conversations.invite')
+    .set('Content-Type', 'application/json')
+    .set('Authorization', `Bearer ${SLACK_DELTA_BOT_TOKEN}`)
+    .send({
+      channel: channelId,
+      users: learnerIds.join(','),
+    });
+  let data = {};
+  if (channel.body.ok) {
+    data.channelObject = channel.body.channel;
+    return data;
+  }
+  data.error = channel.body.error;
+  return data;
+};
 
-// }
-
+export const addLearnerToChannels = async (cohort_id, learnerSlackID) => {
+  const slackChannels = await SlackChannel
+    .findAll({
+      where: { cohort_id },
+      raw: true,
+    });
+  let { channels } = slackChannels;
+  let channelResponses = await channels.map(async (channelId) => {
+    return addLearnerToAChannel(channelId, learnerSlackID);
+  });
+  // TODO: test whether learner is added to all the channels;
+  return channelResponses;
+};
 
 // invite user to workspace.
 // export const inviteLearnersToSpe = async(teamId, learnerList) =>{
 
 // };
+
+
+// Need Enterprise grid account to enable this routes.
+// works with user tooken. and scope: admin.users.write.
+export const inviteLearnerToWorkspace = async (learnerEmail, channelIds, teamId) => {
+  const { SLACK_DELTA_USER_TOKEN: token } = process.env;
+  const invite = await request
+    .post('https://slack.com/api/admin.users.invite')
+    .set('Content-Type', 'application/json')
+    .set('Authorization', `Bearer ${token}`)
+    .send({
+      channel_ids: channelIds.join(','),
+      email: learnerEmail,
+      team_id: teamId,
+      custom_message: '', // optionals
+      resend: true,
+    });
+  let data = {};
+  if (invite.body.ok) {
+    data.text = 'Invite sent successfully';
+    data.ok = true;
+    return data;
+  }
+  data.error = invite.body;
+  return data;
+};
