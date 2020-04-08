@@ -43,6 +43,51 @@ export const Documents = db.define('documents', {
   },
 });
 
+export const getAllDocuments = (req, res) => {
+  Documents.findAll({})
+    .then(data => res.json(data))
+    .catch(err => {
+      console.error(err);
+      res.status(500);
+    });
+};
+
 export const getDocumentsFromId = id => Documents.findOne(
   { where: { id } },
 ).then(documents => documents);
+
+export const getDocumentsByStatus = status => Documents.findAll(
+  {
+    where: { status },
+    raw: true,
+  },
+);
+
+export const getDocumentsByUser = user_id => Documents.findAll(
+  {
+    where: { user_id },
+    raw: true,
+  },
+);
+
+export const createUserEntry = (user_id, document_details, status, payment_status,
+  is_isa = false, is_verified = false) => Documents.create(
+  {
+    user_id,
+    document_details,
+    status,
+    payment_status,
+    is_isa,
+    is_verified,
+  },
+);
+
+
+export const updateUserEntry = (user_id, document_details, status, payment_status,
+  is_isa = false, is_verified = false) => Documents.update({
+  document_details,
+  status,
+  payment_status,
+  is_isa,
+  is_verified,
+}, { where: { user_id } });
