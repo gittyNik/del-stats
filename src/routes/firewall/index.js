@@ -3,6 +3,7 @@ import applicationRouter from './application.routes';
 import testRouter from './test.routes';
 import testQuestionRouter from './test_question.routes';
 import browserHistory from './browser_history.routes';
+import documentsRouter from './documents.routes';
 import { getPublicStats } from '../../controllers/firewall/firewall.controller';
 import authenticate from '../../controllers/auth/auth.controller';
 
@@ -21,5 +22,6 @@ router.use('/applications', applicationRouter);
 router.use('/tests', testRouter);
 router.use('/test_questions', testQuestionRouter);
 router.use('/browser_history', browserHistory);
+router.use('/documents', documentsRouter);
 
 export default router;
