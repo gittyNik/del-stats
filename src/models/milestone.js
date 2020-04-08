@@ -16,6 +16,7 @@ export const Milestone = db.define('milestones', {
   problem_statement: Sequelize.TEXT,
   learning_competencies: Sequelize.ARRAY(Sequelize.STRING),
   guidelines: Sequelize.TEXT,
+  starter_repo: Sequelize.STRING
 });
 
 export const getMilestoneDetails = milestone_id => Milestone.findByPk(milestone_id, {

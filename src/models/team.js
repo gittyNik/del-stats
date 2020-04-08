@@ -133,13 +133,14 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
       let repo = await createGithubRepositoryFromTemplate(starter_repo, msName);
       var team = teams[i];
       for (let j = 0; j < team.length; j++) {
-        msName = repo.data.name;
+        msName = repo.name;
+
         let u = await getGithubConnecionByUserId(team[j]);
         if (!u) {
           continue;
         }
         u = u.username;
-        let col = await addCollaboratorToRepository(u, repo.data.name);
+        let col = await addCollaboratorToRepository(u, repo.name);
         // return {id: user, username: u.username}
       }
 
@@ -183,13 +184,13 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
       let repo = await createGithubRepositoryFromTemplate(starter_repo, msName);
       var team = teams[i];
       for (let j = 0; j < team.length; j++) {
-        msName = repo.data.name;
+        msName = repo.name;
         let u = await getGithubConnecionByUserId(team[j]);
         if (!u) {
           continue;
         }
         u = u.username;
-        let col = await addCollaboratorToRepository(u, repo.data.name);
+        let col = await addCollaboratorToRepository(u, repo.name);
         // return {id: user, username: u.username}
       }
 
