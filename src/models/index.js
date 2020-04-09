@@ -33,6 +33,7 @@ import { TestQuestion } from './test_question';
 import { Topic } from './topic';
 import { User } from './user';
 import connection from '../database';
+import { BreakoutTemplate } from './breakout_template';
 
 // TODO: describe all associations here
 
@@ -52,6 +53,11 @@ CohortMilestone.belongsTo(Milestone, { foreignKey: 'milestone_id', constraints: 
 
 CohortBreakout.belongsTo(Topic);
 Topic.hasMany(CohortBreakout, { foreignKey: 'topic_id' });
+
+Topic.belongsTo(Milestone, { foreignKey: 'milestone_id' });
+
+CohortBreakout.belongsTo(BreakoutTemplate);
+CohortBreakout.belongsTo(User, { as: "catalyst", foreignKey: 'catalyst_id' });
 
 LearnerChallenge.belongsTo(Challenge);
 
