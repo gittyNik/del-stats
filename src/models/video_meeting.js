@@ -147,10 +147,14 @@ export const createScheduledMeeting = (topic, start_time, millisecs_duration, ag
 };
 
 export const learnerAttendance = async (participant, catalyst_id,
-  cohort_breakout_id, attentiveness_threshold) => {
+  cohort_breakout_id, attentiveness_threshold, duration_threshold) => {
   const { user_email, duration, attentiveness_score } = participant;
   // TODO use duration also to mark attendance
   let attentivenessScore = parseFloat(attentiveness_score);
+  let durationTime = parseFloat(duration);
+  // if (isNaN(attentivenessScore)) {
+  //   attentivenessScore = attentiveness_threshold;
+  // }
   let attendanceCount = 0;
   return SocialConnection.findOne({
     attributes: ['user_id'],
@@ -159,7 +163,7 @@ export const learnerAttendance = async (participant, catalyst_id,
     },
   }).then(data => {
     let attendance;
-    if ((attentivenessScore >= attentiveness_threshold) && (data.user_id !== catalyst_id)) {
+    if ((durationTime >= duration_threshold) && (data.user_id !== catalyst_id)) {
       attendanceCount += 1;
       attendance = true;
     } else {
@@ -190,11 +194,11 @@ export const learnerAttendance = async (participant, catalyst_id,
 };
 
 export const markIndividualAttendance = async (participants, catalyst_id,
-  cohort_breakout_id, attentiveness_threshold) => {
+  cohort_breakout_id, attentiveness_threshold, duration_threshold) => {
   const attendanceCount = Promise.all(participants.map(async (participant) => {
     try {
       let attendance_count = await learnerAttendance(participant, catalyst_id,
-        cohort_breakout_id, attentiveness_threshold);
+        cohort_breakout_id, attentiveness_threshold, duration_threshold);
       return attendance_count;
     } catch (err) {
       console.log('error in finding user', err);
@@ -213,7 +217,7 @@ https://marketplace.zoom.us/docs/api-reference/zoom-api/reports/reportmeetingpar
 Zoom returns the users that attended a meeting, using this to mark attendance
 */
 export const markAttendanceFromZoom = (meeting_id, catalyst_id,
-  cohort_breakout_id, attentiveness_threshold = 70) => {
+  cohort_breakout_id, attentiveness_threshold = 70, duration_threshold = 600) => {
   const { ZOOM_BASE_URL } = process.env;
   const page_size = 100;
   console.log('Marking attendance for Cohort Breakout id', cohort_breakout_id);
@@ -233,7 +237,7 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
       console.log(`Fetched data for Zoom Meeting: ${meeting_id}`);
       return markIndividualAttendance(
         participants, catalyst_id,
-        cohort_breakout_id, attentiveness_threshold
+        cohort_breakout_id, attentiveness_threshold, duration_threshold,
       )
         .then(attendanceCountArray => {
           const attendanceCount = attendanceCountArray.reduce(add);
