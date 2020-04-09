@@ -1,3 +1,4 @@
+import Sequelize from 'sequelize';
 import {
   getAllBreakoutsInCohortMilestone, CohortBreakout,
   createNewBreakout, createSingleBreakoutAndLearnerBreakout,
@@ -10,14 +11,64 @@ import { createSandbox } from '../../models/code_sandbox';
 import { createBreakoutsInMilestone } from '../../models/breakout_template';
 import Topic from '../../models/topic';
 import { CohortMilestone } from '../../models/cohort_milestone';
+import { getLiveCohorts, Cohort } from '../../models/cohort';
+import { BreakoutTemplate } from '../../models/breakout_template';
+import { User } from '../../models/user';
+import { Milestone } from '../../models/milestone';
 
 export const getBreakouts = (req, res) => {
   CohortBreakout.findAll({})
-    .then(data => res.json(data))
+    .then(data => res.json(data)) 
     .catch(err => {
       console.error(err);
       res.status(500);
     });
+};
+
+const populateTopics = breakouts => {
+  const topicGetters = breakouts.map(breakout => Topic.findAll({
+    where: {
+      id: {
+        [Sequelize.Op.in]: breakout["breakout_template.topic_id"]
+      }
+    },
+    include: [Milestone],
+    raw: true
+  }).then(topics => {
+    breakout.topics = topics;
+    return breakout;
+  }))
+  return Promise.all(topicGetters);
+}
+
+export const getLiveCohortsBreakouts = (req, res) => {
+  getLiveCohorts()
+    .then(cohorts => {
+      const cohortIds = cohorts.map(c => c.id);
+      return CohortBreakout.findAll({
+          where: {
+            cohort_id: {
+              [Sequelize.Op.in]: cohortIds
+            }
+          },
+          include: [
+            {model: User, as: "catalyst"},
+            Cohort,
+            BreakoutTemplate
+          ],
+          raw: true
+        }).then(async data => {
+          const breakouts =  await populateTopics(data);
+          return res.json({
+            text: "Live cohort breakouts",
+            data: breakouts
+          });
+        })
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500);
+    })
 };
 
 export const createBreakout = (req, res) => {
