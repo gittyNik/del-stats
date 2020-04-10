@@ -25,14 +25,13 @@ export const getBreakouts = (req, res) => {
     });
 };
 
-const populateTopics = breakouts => {
-  const topicGetters = breakouts.map(breakout => Topic.findAll({
+const populateTopics = async breakouts => {
+  const topicGetters = await breakouts.map(breakout => Topic.findAll({
     where: {
       id: {
         [Sequelize.Op.in]: breakout["breakout_template.topic_id"]
       }
     },
-    include: [Milestone],
     raw: true
   }).then(topics => {
     breakout.topics = topics;
@@ -51,18 +50,28 @@ export const getLiveCohortsBreakouts = (req, res) => {
               [Sequelize.Op.in]: cohortIds
             }
           },
-          include: [
-            {model: User, as: "catalyst"},
+          include: [{
+              model: User,
+              as: "catalyst"
+            },
             Cohort,
-            BreakoutTemplate
+            BreakoutTemplate,
+            {
+              model: Topic,
+              include: [Milestone]
+            }
           ],
           raw: true
-        }).then(async data => {
-          const breakouts =  await populateTopics(data);
-          return res.json({
-            text: "Live cohort breakouts",
-            data: breakouts
-          });
+        })
+        //Populating topics takee more time, >30 sec
+        // Todo: Find a better way to populate topics of breakout_template
+        // .then(populateTopics)
+        .then(data => res.json({
+          text: "Live cohort breakouts",
+          data,
+        })).catch(err => {
+          console.error(err);
+          res.status(500);
         })
     })
     .catch(err => {
