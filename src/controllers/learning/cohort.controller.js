@@ -4,6 +4,7 @@ import {
   getCohortFromLearnerId,
 } from '../../models/cohort';
 import { createOrUpdateCohortBreakout } from '../../models/cohort_breakout';
+import { USER_ROLES } from '../../models/user';
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
@@ -70,12 +71,27 @@ export const getUpcomingCohorts = (req, res) => {
 
 export const createUpdateCohortBreakout = (req, res) => {
   let {
-    cohort_id, cohort_topic_id, time_scheduled,
+    cohort_id,
+    topic_id,
+    time_scheduled,
+    catalyst_id
   } = req.body;
-  createOrUpdateCohortBreakout(cohort_topic_id, cohort_id, time_scheduled).then((data) => {
-    res.status(201).json({ data });
-  })
-    .catch(err => res.status(500).send({ err }));
+  const {
+    id: user_id,
+    role
+  } = req.params;
+  if (user_id === catalyst_id || role === USER_ROLES.SUPERADMIN) {
+    createOrUpdateCohortBreakout(topic_id, cohort_id, time_scheduled).then((data) => {
+        res.status(201).json({
+          data
+        });
+      })
+      .catch(err => res.status(500).send({
+        err
+      }));
+  } else {
+    res.status(403).send("You do not have access to this data!");
+  }
 };
 
 export const beginCohort = (req, res) => {
