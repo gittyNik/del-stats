@@ -1,24 +1,23 @@
 import Sequelize from 'sequelize';
 import {
   getAllBreakoutsInCohortMilestone, CohortBreakout,
-  createNewBreakout, createSingleBreakoutAndLearnerBreakout,
+  createNewBreakout, createSingleBreakoutAndLearnerBreakout, BREAKOUT_TYPE,
 } from '../../models/cohort_breakout';
 import {
   createScheduledMeeting, deleteMeetingFromZoom,
   updateVideoMeeting, updateCohortMeeting,
 } from '../../models/video_meeting';
 import { createSandbox } from '../../models/code_sandbox';
-import { createBreakoutsInMilestone } from '../../models/breakout_template';
-import Topic from '../../models/topic';
+import { BreakoutTemplate, createBreakoutsInMilestone } from '../../models/breakout_template';
+import { Topic } from '../../models/topic';
 import { CohortMilestone } from '../../models/cohort_milestone';
 import { getLiveCohorts, Cohort } from '../../models/cohort';
-import { BreakoutTemplate } from '../../models/breakout_template';
 import { User } from '../../models/user';
 import { Milestone } from '../../models/milestone';
 
 export const getBreakouts = (req, res) => {
   CohortBreakout.findAll({})
-    .then(data => res.json(data)) 
+    .then(data => res.json(data))
     .catch(err => {
       console.error(err);
       res.status(500);
@@ -26,58 +25,61 @@ export const getBreakouts = (req, res) => {
 };
 
 const populateTopics = async breakouts => {
-  const topicGetters = await breakouts.map(breakout => Topic.findAll({
-    where: {
-      id: {
-        [Sequelize.Op.in]: breakout["breakout_template.topic_id"]
-      }
-    },
-    raw: true
-  }).then(topics => {
-    breakout.topics = topics;
+  const allTopics = await Topic.findAll();
+  let allTopicsIds = [];
+  allTopics.map(eachTopic => allTopicsIds.push(eachTopic.id));
+  breakouts.map(breakout => {
+    let breakoutTopics = [];
+    if (breakout['breakout_template.topic_id'] !== null) {
+      breakout['breakout_template.topic_id'].map(breakTopic => {
+        let topicIndex = allTopicsIds.indexOf(breakTopic);
+        breakoutTopics.push(allTopics[topicIndex]);
+        return allTopics[topicIndex];
+      });
+      breakout.topics = breakoutTopics;
+    }
     return breakout;
-  }))
-  return Promise.all(topicGetters);
-}
+  });
+  return breakouts;
+};
 
 export const getLiveCohortsBreakouts = (req, res) => {
   getLiveCohorts()
     .then(cohorts => {
       const cohortIds = cohorts.map(c => c.id);
       return CohortBreakout.findAll({
-          where: {
-            cohort_id: {
-              [Sequelize.Op.in]: cohortIds
-            }
+        where: {
+          cohort_id: {
+            [Sequelize.Op.in]: cohortIds,
           },
-          include: [{
-              model: User,
-              as: "catalyst"
-            },
-            Cohort,
-            BreakoutTemplate,
-            {
-              model: Topic,
-              include: [Milestone]
-            }
-          ],
-          raw: true
-        })
-        //Populating topics takee more time, >30 sec
-        // Todo: Find a better way to populate topics of breakout_template
-        // .then(populateTopics)
+        },
+        include: [{
+          model: User,
+          as: 'catalyst',
+        },
+        Cohort,
+        BreakoutTemplate,
+        {
+          model: Topic,
+          attributes: [],
+          include: [Milestone]
+        }
+        ],
+        raw: true,
+      })
+        .then(populateTopics)
         .then(data => res.json({
-          text: "Live cohort breakouts",
+          text: 'Live cohort breakouts',
           data,
         })).catch(err => {
           console.error(err);
           res.status(500);
-        })
+        });
     })
     .catch(err => {
       console.error(err);
       res.status(500);
-    })
+    });
 };
 
 export const createBreakout = (req, res) => {
