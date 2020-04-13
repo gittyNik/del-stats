@@ -1,6 +1,6 @@
 import Express from 'express';
 import {
-  getBreakouts, createBreakout, updateBreakout, deleteBreakout,
+  getBreakouts, createBreakout, updateBreakout, deleteBreakout, getLiveCohortsBreakouts
 } from '../../controllers/learning/breakout.controller';
 // import { apiNotReady } from '../../controllers/api.controller';
 
@@ -14,6 +14,15 @@ const router = Express.Router();
  * @apiGroup ContentBreakouts
  */
 router.get('/', getBreakouts);
+
+/**
+ * @api {get} /learning/content/breakouts Get all live cohorts Content Breakouts
+ * @apiDescription get all live cohorts Content Breakouts
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetLiveCohortsContentBreakouts
+ * @apiGroup ContentBreakouts
+ */
+router.get('/live_cohorts', getLiveCohortsBreakouts);
 
 /**
  * @api {post} /learning/content/breakouts/ Add Content Breakout

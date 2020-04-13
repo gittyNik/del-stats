@@ -4,7 +4,11 @@ import {
   getUpcomingCohorts, deleteCohort, beginCohort, getCohortByLearnerId,
   createUpdateCohortBreakout,
 } from '../../controllers/learning/cohort.controller';
-import { createBreakouts, createSingleBreakout } from '../../controllers/learning/breakout.controller';
+import {
+  createBreakouts, createSingleBreakout,
+  updateZoomMeeting, updateCohortBreakout,
+  updateMilestonesBreakoutTimelines,
+} from '../../controllers/learning/breakout.controller';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
@@ -77,6 +81,14 @@ router.patch('/:id/begin', beginCohort);
 router.patch('/:id', updateCohort);
 
 /**
+ * @api {patch} /cohorts/:id/milestones Update cohort milestone and breakouts
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UpdateCohortMilestoneBreakouts
+ * @apiGroup Cohort
+ */
+router.patch('/:id/milestones', updateMilestonesBreakoutTimelines);
+
+/**
  * @api {patch} /cohorts/schedule Schedule Breakouts for Cohorts
  * @apiHeader {String} authorization JWT Token.
  * @apiName ScheduleBreakouts
@@ -100,6 +112,15 @@ router.post('/:id/breakout', createSingleBreakout);
  */
 router.post('/breakout', createUpdateCohortBreakout);
 
+
+/**
+ * @api {patch} /cohorts/breakout/:id Update Cohort Breakout Time
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UpdateBreakout
+ * @apiGroup CohortBreakout
+ */
+router.patch('/breakout/:id', updateCohortBreakout);
+
 /**
  * @api {delete} /cohorts/:id Delete a cohort
  * @apiHeader {String} authorization JWT Token.
@@ -107,6 +128,15 @@ router.post('/breakout', createUpdateCohortBreakout);
  * @apiGroup Cohort
  */
 router.delete('/:id', deleteCohort);
+
+// TODO: Move zoom meeting to separate route
+/**
+ * @api {patch} /cohorts/zoom/:id Update a cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UpdateZoom
+ * @apiGroup Zoom
+ */
+router.patch('/zoom/:id', updateZoomMeeting);
 
 
 export default router;
