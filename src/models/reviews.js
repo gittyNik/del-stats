@@ -22,7 +22,7 @@ export const Reviews = db.define('reviews', {
   },
   milestone_team_id: {
     type: Sequelize.UUID,
-    references: { model: 'teams', key: 'id' },
+    references: { model: 'team', key: 'id' },
   },
   milestone_name: Sequelize.STRING,
   learner_feedbacks: {
