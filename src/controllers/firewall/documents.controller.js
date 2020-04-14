@@ -1,8 +1,13 @@
+import request from 'superagent';
+import buffer from 'buffer';
 import {
   getDocumentsByStatus, getDocumentsByUser,
   getDocumentsFromId, createUserEntry, updateUserEntry,
   getAllDocuments,
 } from '../../models/documents';
+
+const { DIGIO_BASE_URL, DIGIO_CLIENT, DIGIO_SECRET } = process.env;
+const { BASE_64_TOKEN } = buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
 
 export const getDocumentsAll = (req, res) => {
   getAllDocuments().then((data) => { res.json(data); })
@@ -61,4 +66,33 @@ export const updateUser = (req, res) => {
     is_isa,
     is_verified).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
+};
+
+export const EsignRequest = (req, res) => {
+  const { id } = req.params;
+  const {
+    template_values,
+    signers,
+    template_id,
+  } = req.body;
+
+  const requestObject = {
+    template_values,
+    signers,
+  };
+
+  return (request
+    .post(`${DIGIO_BASE_URL}v2/client/template/${template_id}/create_sign_request`) // todo: need to assign delta user to zoom user
+    .send(requestObject)
+    .set('Authorization', `Basic ${BASE_64_TOKEN}`)
+    .set('content-type', 'application/json')
+    .then(data => {
+      res.json(data);
+    })
+    .catch(err => {
+      console.log(err);
+      let data = { message: 'Failed to send Esign request', status: 'Failure' };
+      res.json(data);
+    })
+  );
 };
