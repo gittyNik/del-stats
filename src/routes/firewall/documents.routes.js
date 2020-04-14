@@ -2,7 +2,7 @@ import Express from 'express';
 import {
   getDocumentsByID, getDocumentsByUserId,
   getDocumentsStatus, updateUser, createUser,
-  getDocumentsAll,
+  getDocumentsAll, EsignRequest,
 } from '../../controllers/firewall/documents.controller';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 // import { apiNotReady } from '../../controllers/api.controller';
@@ -88,5 +88,22 @@ router.patch('/:id', updateUser);
  * @apiGroup Documents
  */
 // router.delete('/:id', deleteOne);
+
+/**
+ * @api {patch} /firewall/documents/:id/esign Send Esign Request to User
+ * @apiDescription Send Esign Request to a User
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName SendESignRequest
+ * @apiGroup Documents
+ *
+ * @apiParam {String} user_id
+ * @apiParam {String} document_details Description of the topic
+ * @apiParam {String} status ID of the Milestone
+ * @apiParam {String} payment_status Description of the topic
+ * @apiParam {String} is_isa Description of the topic
+ * @apiParam {String} is_verified Description of the topic
+ */
+router.post('/:id/esign', EsignRequest);
+
 
 export default router;
