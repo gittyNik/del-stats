@@ -1,7 +1,9 @@
-import Sequelize from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import request from 'superagent';
 import db from '../database';
 import { Cohort } from './cohort';
+import { SocialConnection } from './social_connection';
+import Redis from 'ioredis';
 
 
 export const SlackChannel = db.define('slack_channels', {
@@ -29,6 +31,7 @@ const getChannelName = async (cohort_id) => {
   return `${cohort.name.toLowerCase()}-${location.toLowerCase()}-${start_date.getFullYear()}`
 };
 
+// currently not working due to irregularities.
 export const getEducatorsSlackID = async () => {
   const { SLACK_DELTA_ADMIN_TOKEN, SLACK_DELTA_BOT_TOKEN } = process.env;
   let channelId = 'G9N2850DU'; // educator channel in SOAL.
@@ -63,10 +66,37 @@ export const getEducatorsSlackID = async () => {
   return Promise.all(userIdSPE);
 };
 
-export const createChannel = async (cohort_id, userIds) => {
+
+export const getTeamSlackIDs = async () => {
+  const redis = new Redis(process.env.REDIS_URL);
+  const res = await redis.lrange('teamSlackIds', 0, -1);
+  return res;
+};
+
+export const getLearnerSlackIds = async (cohort_id) => {
+  const cohort = await Cohort.findByPk(cohort_id);
+  console.log(cohort.learners);
+  let learnerIds = await Promise.all(cohort.learners.map(async (user_id) => {
+    let social = await SocialConnection
+      .findOne({
+        attributes: ['id', 'provider', 'username', 'eamil'],
+        where: {
+          user_id,
+          provider: { [Op.startsWith]: 'slack' },
+        },
+        raw: true,
+      });
+    return social.username;
+  }));
+
+  return learnerIds;
+};
+
+// tobe called in beginCohortWithId
+export const createChannel = async (cohort_id) => {
   const { SLACK_DELTA_BOT_TOKEN } = process.env;
   const channelName = await getChannelName(cohort_id);
-  console.log(userIds.join(','));
+
   let emptyChannel = await request
     .post('https://slack.com/api/conversations.create')
     .set('Content-Type', 'application/json')
@@ -74,10 +104,15 @@ export const createChannel = async (cohort_id, userIds) => {
     .send({
       name: channelName,
       is_private: true,
-      // user_ids: userIds.join(','),
     });
   const { ok, channel } = emptyChannel.body;
   if (ok) {
+    // get list of all slackIDS - both team and learers
+    const teamIds = await getTeamSlackIDs();
+    const learnerIds = await getLearnerSlackIds();
+
+    let userIds = [...teamIds, ...learnerIds];
+
     const channelWithTeam = await request
       .post('https://slack.com/api/conversations.invite')
       .set('Content-Type', 'application/json')
@@ -128,11 +163,6 @@ export const addLearnerToChannels = async (cohort_id, learnerSlackID) => {
   // TODO: test whether learner is added to all the channels;
   return channelResponses;
 };
-
-// invite user to workspace.
-// export const inviteLearnersToSpe = async(teamId, learnerList) =>{
-
-// };
 
 
 // Need Enterprise grid account to enable this routes.
