@@ -20,7 +20,7 @@ const migration = {
     },
     milestone_team_id: {
       type: Sequelize.UUID,
-      references: { model: 'team', key: 'id' },
+      references: { model: 'milestone_learner_teams', key: 'id' },
     },
     milestone_name: Sequelize.STRING,
     learner_feedbacks: {
