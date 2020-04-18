@@ -48,14 +48,7 @@ export const Reviews = db.define('reviews', {
   },
 });
 
-export const getAllReviews = (req, res) => {
-  Reviews.findAll({})
-    .then(data => res.json(data))
-    .catch(err => {
-      console.error(err);
-      res.status(500);
-    });
-};
+export const getAllReviews = () => Reviews.findAll({});
 
 export const getReviewsById = id => Reviews.findOne(
   { where: { id } },
