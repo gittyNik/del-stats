@@ -33,4 +33,5 @@ export const allowSuperAdminOnly = allowRole(
 export const allowLearnersOnly = allowRole(USER_ROLES.LEARNER);
 export const allowAdminsOnly = allowRole(USER_ROLES.ADMIN);
 export const allowEducatorsOnly = allowRole(USER_ROLES.EDUCATOR);
+export const allowCatalystOnly = allowRole(USER_ROLES.CATALYST);
 export const allowEnablersOnly = allowRole(USER_ROLES.ENABLER);
