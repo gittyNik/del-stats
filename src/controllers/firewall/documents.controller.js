@@ -1,5 +1,4 @@
 import request from 'superagent';
-import buffer from 'buffer';
 import {
   getDocumentsByStatus, getDocumentsByUser,
   getDocumentsFromId, createUserEntry, updateUserEntry,
@@ -7,7 +6,7 @@ import {
 } from '../../models/documents';
 
 const { DIGIO_BASE_URL, DIGIO_CLIENT, DIGIO_SECRET } = process.env;
-const { BASE_64_TOKEN } = buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
+const { BASE_64_TOKEN } = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
 
 export const getDocumentsAll = (req, res) => {
   getAllDocuments().then((data) => { res.json(data); })
