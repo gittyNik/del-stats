@@ -1,15 +1,28 @@
 import Express from 'express';
 import {
-  getCohortByName, getCohorts, getCohort, createCohort, updateCohort,
-  getUpcomingCohorts, deleteCohort, beginCohort, getCohortByLearnerId,
+  getCohortByName,
+  getCohorts,
+  getCohort,
+  createCohort,
+  updateCohort,
+  getUpcomingCohorts,
+  deleteCohort,
+  beginCohort,
+  getCohortByLearnerId,
   createUpdateCohortBreakout,
 } from '../../controllers/learning/cohort.controller';
 import {
-  createBreakouts, createSingleBreakout,
-  updateZoomMeeting, updateCohortBreakout,
+  createBreakouts,
+  createSingleBreakout,
+  updateZoomMeeting,
+  updateCohortBreakout,
   updateMilestonesBreakoutTimelines,
 } from '../../controllers/learning/breakout.controller';
-import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
+import {
+  allowSuperAdminOnly,
+  allowEducatorsOnly,
+  allowCatalystOnly
+} from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
 
@@ -52,6 +65,17 @@ router.get('/:year/:location/:name', getCohortByName);
  * @apiGroup Cohort
  */
 router.get('/user/:id', getCohortByLearnerId);
+
+router.use(allowEducatorsOnly);
+router.use(allowCatalystOnly);
+
+/**
+ * @api {patch} /cohorts/breakout Schedule a Breakout for Cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ScheduleBreakouts
+ * @apiGroup Cohort
+ */
+router.post('/breakout', createUpdateCohortBreakout);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowSuperAdminOnly);
@@ -103,15 +127,6 @@ router.post('/schedule', createBreakouts);
  * @apiGroup Cohort
  */
 router.post('/:id/breakout', createSingleBreakout);
-
-/**
- * @api {patch} /cohorts/breakout Schedule a Breakout for Cohort
- * @apiHeader {String} authorization JWT Token.
- * @apiName ScheduleBreakouts
- * @apiGroup Cohort
- */
-router.post('/breakout', createUpdateCohortBreakout);
-
 
 /**
  * @api {patch} /cohorts/breakout/:id Update Cohort Breakout Time
