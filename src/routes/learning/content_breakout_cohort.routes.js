@@ -1,6 +1,6 @@
 import Express from 'express';
 import {
-  getBreakouts, createBreakout, updateBreakout, deleteBreakout, getLiveCohortsBreakouts
+  getBreakouts, createBreakout, updateBreakout, deleteBreakout, getLiveCohortsBreakouts,
 } from '../../controllers/learning/breakout.controller';
 // import { apiNotReady } from '../../controllers/api.controller';
 

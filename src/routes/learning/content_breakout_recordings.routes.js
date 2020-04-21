@@ -7,7 +7,7 @@ import {
 const router = Express.Router();
 
 /**
- * @api {get} /learning/content/breakout/recordings Get all Content Breakouts recordings
+ * @api {get} /learning/content/breakouts/recordings Get all Content Breakouts recordings
  * @apiDescription get all Content Breakouts recordings
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetContentBreakouts
@@ -19,7 +19,7 @@ const router = Express.Router();
 router.get('/', getAllRecordingsAPI);
 
 /**
- * @api {get} /learning/content/breakout/recordings/:id Get all Content Breakouts recordings
+ * @api {get} /learning/content/breakouts/recordings/:id Get all Content Breakouts recordings
  * @apiDescription get all Content Breakouts recordings
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetContentBreakouts
@@ -31,7 +31,7 @@ router.get('/', getAllRecordingsAPI);
 router.get('/:id', getRecordingsByIdAPI);
 
 /**
- * @api {post} /learning/content/breakout/recordings/ Insert Breakout recording
+ * @api {post} /learning/content/breakouts/recordings/ Insert Breakout recording
  * @apiDescription get all Content Breakouts recordings
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetContentBreakouts
@@ -39,11 +39,12 @@ router.get('/:id', getRecordingsByIdAPI);
  * @apiParam {catalyst_id} Id of Catalyst taking recording
  * @apiParam {recording_url} Url of the recoring
  * @apiParam {recording_details} Details of the recording
+ * @apiParam {topics} Array of topics for Breakout
  */
 router.post('/', createRecording);
 
 /**
- * @api {patch} /learning/content/breakout/recordings/:id Update Breakout recording
+ * @api {patch} /learning/content/breakouts/recordings/:id Update Breakout recording
  * @apiDescription get all Content Breakouts recordings
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetContentBreakouts
@@ -55,7 +56,7 @@ router.post('/', createRecording);
 router.patch('/:id', updateRecordingsAPI);
 
 /**
- * @api {get} /learning/content/breakout/recordings/catalyst/:id
+ * @api {get} /learning/content/breakouts/recordings/catalyst/:id
  * Get all Content Breakouts recordings for Catalyst
  * @apiDescription get all Content Breakouts recordings
  * @apiHeader {String} authorization JWT Token.
@@ -63,3 +64,5 @@ router.patch('/:id', updateRecordingsAPI);
  * @apiGroup ContentBreakoutsRecordings
  */
 router.get('/catalyst/:id', getRecordingsByCatalystAPI);
+
+export default router;

@@ -1,6 +1,9 @@
+import AWS from 'aws-sdk';
 import Sequelize from 'sequelize';
 import db from '../database';
 
+const privateKey = process.env.CLOUDFRONT_KEY;
+const publicKey = process.env.PUBLIC_KEY;
 
 export const BreakoutRecordings = db.define('breakout_recordings', {
   id: {
@@ -43,6 +46,18 @@ export const BreakoutRecordings = db.define('breakout_recordings', {
   },
 });
 
+const cloudFront = new AWS.CloudFront.Signer(publicKey, privateKey);
+
+export const getSignedUrl = (unSignedUrl) => {
+  cloudFront.getSignedUrl({
+    url: unSignedUrl,
+    expires: Math.floor((new Date()).getTime() / 1000) + (60 * 60 * 1),
+    // Current Time in UTC + time in seconds, (60 * 60 * 1 = 1 hour)
+  }, (err, url) => {
+    if (err) throw err;
+    return url;
+  });
+};
 
 // sort by values -> likes, views, created_at
 export const getAllRecordings = (skip = 0, limit = 10, sort_by = 'likes') => BreakoutRecordings.findAll({
@@ -71,16 +86,21 @@ export const getRecordingsByCatalyst = (catalyst_id, skip = 0,
 );
 
 export const createRecordingEntry = (catalyst_id,
-  recording_url, recording_details) => BreakoutRecordings.create(
+  recording_url, recording_details, topics) => BreakoutRecordings.create(
   {
     catalyst_id,
     recording_url,
     recording_details,
     created_at: Sequelize.literal('NOW()'),
+    topics_array: topics,
+    likes: 0,
   },
 );
 
-export const updateRecordings = (id, likes, recording_details) => BreakoutRecordings.update({
-  likes,
-  recording_details
-}, { where: { id } });
+export const updateRecordings = (id, likes, recording_details, views) => BreakoutRecordings.update({
+  likes, recording_details, views,
+}, {
+  where: {
+    id,
+  },
+});
