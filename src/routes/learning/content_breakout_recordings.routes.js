@@ -1,7 +1,7 @@
 import Express from 'express';
 import {
   getAllRecordingsAPI, getRecordingsByCatalystAPI, getRecordingsByIdAPI,
-  createRecording, updateRecordingsAPI,
+  createRecording, updateRecordingsAPI, getVideoUrl,
 } from '../../controllers/learning/breakout_recording.controller';
 
 const router = Express.Router();
@@ -29,6 +29,15 @@ router.get('/', getAllRecordingsAPI);
  * @apiParam {sort_by} sort_by values - [likes, views, created_at]
  */
 router.get('/:id', getRecordingsByIdAPI);
+
+/**
+ * @api {get} /learning/content/breakouts/recordings/:id/video Get Video of recording
+ * @apiDescription get Video recordings
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetContentBreakouts
+ * @apiGroup ContentBreakoutsRecordings
+ */
+router.get('/:id/video', getVideoUrl);
 
 /**
  * @api {post} /learning/content/breakouts/recordings/ Insert Breakout recording

@@ -1,6 +1,6 @@
 import {
   getAllRecordings, getRecordingsById, getRecordingsByCatalyst,
-  createRecordingEntry, updateRecordings,
+  createRecordingEntry, updateRecordings, getRecordingVideoUrl,
 } from '../../models/breakout_recordings';
 
 
@@ -13,6 +13,14 @@ export const getAllRecordingsAPI = (req, res) => {
     limit = parseInt(limit, 10);
   }
   getAllRecordings(skip, limit, sort_by).then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
+
+export const getVideoUrl = (req, res) => {
+  const { id } = req.params;
+  getRecordingVideoUrl(id).then((data) => {
+    res.json(data);
+  })
     .catch(err => res.status(500).send(err));
 };
 
@@ -55,6 +63,6 @@ export const updateRecordingsAPI = (req, res) => {
     likes, recording_details, views,
   } = req.body;
   const { id } = req.params;
-  updateRecordings(id, likes, recording_details, views).then((data) => { res.json(data); })
+  updateRecordings(id, likes, views, recording_details).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };

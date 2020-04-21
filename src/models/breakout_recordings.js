@@ -48,15 +48,17 @@ export const BreakoutRecordings = db.define('breakout_recordings', {
 
 const cloudFront = new AWS.CloudFront.Signer(publicKey, privateKey);
 
-export const getSignedUrl = (unSignedUrl) => {
+export const getAWSSignedUrl = (unSignedUrl) => {
+  let signedUrl = '';
   cloudFront.getSignedUrl({
     url: unSignedUrl,
     expires: Math.floor((new Date()).getTime() / 1000) + (60 * 60 * 1),
     // Current Time in UTC + time in seconds, (60 * 60 * 1 = 1 hour)
   }, (err, url) => {
     if (err) throw err;
-    return url;
+    signedUrl = url;
   });
+  return signedUrl;
 };
 
 // sort by values -> likes, views, created_at
@@ -66,6 +68,24 @@ export const getAllRecordings = (skip = 0, limit = 10, sort_by = 'likes') => Bre
   order: [
     [sort_by, 'DESC'],
   ],
+});
+
+export const updateRecordings = (id, likes, views, recording_details) => BreakoutRecordings.update({
+  likes, recording_details, views,
+}, {
+  where: {
+    id,
+  },
+});
+
+export const getRecordingVideoUrl = (id) => BreakoutRecordings.findOne(
+  { where: { id } },
+).then(record => {
+  let url = getAWSSignedUrl(record.recording_url);
+  record.dataValues.url = url;
+  let currentViews = record.views + 1;
+  updateRecordings(id, record.likes, currentViews);
+  return record;
 });
 
 
@@ -96,11 +116,3 @@ export const createRecordingEntry = (catalyst_id,
     likes: 0,
   },
 );
-
-export const updateRecordings = (id, likes, recording_details, views) => BreakoutRecordings.update({
-  likes, recording_details, views,
-}, {
-  where: {
-    id,
-  },
-});
