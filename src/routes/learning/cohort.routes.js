@@ -21,7 +21,7 @@ import {
 import {
   allowSuperAdminOnly,
   allowEducatorsOnly,
-  allowCatalystOnly
+  allowCatalystOnly,
 } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
@@ -127,6 +127,15 @@ router.post('/schedule', createBreakouts);
  * @apiGroup Cohort
  */
 router.post('/:id/breakout', createSingleBreakout);
+
+/**
+ * @api {patch} /cohorts/breakout/:id Update Cohort Breakout Time
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UpdateBreakout
+ * @apiGroup CohortBreakout
+ */
+router.patch('/breakout/:id', updateCohortBreakout);
+
 
 /**
  * @api {patch} /cohorts/breakout/:id Update Cohort Breakout Time
