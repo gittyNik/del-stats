@@ -1,13 +1,13 @@
 import Express from 'express';
 import {
-  getBreakouts, createBreakout, updateBreakout, deleteBreakout, getLiveCohortsBreakouts
+  getBreakouts, createBreakout, updateBreakout, deleteBreakout, getLiveCohortsBreakouts,
 } from '../../controllers/learning/breakout.controller';
 // import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
 
 /**
- * @api {get} /learning/content/breakouts Get all Content Breakouts
+ * @api {get} /learning/content/breakouts/cohort Get all Content Breakouts
  * @apiDescription get all Content Breakouts
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetContentBreakouts
@@ -16,7 +16,7 @@ const router = Express.Router();
 router.get('/', getBreakouts);
 
 /**
- * @api {get} /learning/content/breakouts Get all live cohorts Content Breakouts
+ * @api {get} /learning/content/breakouts/cohort Get all live cohorts Content Breakouts
  * @apiDescription get all live cohorts Content Breakouts
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetLiveCohortsContentBreakouts
@@ -25,7 +25,7 @@ router.get('/', getBreakouts);
 router.get('/live_cohorts', getLiveCohortsBreakouts);
 
 /**
- * @api {post} /learning/content/breakouts/ Add Content Breakout
+ * @api {post} /learning/content/breakouts/cohort Add Content Breakout
  * @apiDescription Add a Content Breakout
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddContentBreakout
@@ -49,7 +49,7 @@ router.get('/live_cohorts', getLiveCohortsBreakouts);
 router.post('/', createBreakout);
 
 /**
- * @api {patch} /learning/content/breakouts/:id  Update Content Breakout
+ * @api {patch} /learning/content/breakouts/cohort/:id  Update Content Breakout
  * @apiDescription Update a Content Breakout
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateContentBreakout
@@ -73,7 +73,7 @@ router.post('/', createBreakout);
 router.patch('/:id', updateBreakout);
 
 /**
- * @api {delete} /learning/content/breakouts/:id Delete Content Breakout
+ * @api {delete} /learning/content/breakouts/cohort/:id Delete Content Breakout
  * @apiDescription Delete a Content Breakout
  * @apiHeader {String} authorization JWT Token.
  * @apiName DeleteContentBreakout
