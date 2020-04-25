@@ -65,3 +65,23 @@ export const getLearnerBreakoutsByBreakoutId = (req, res) => {
       res.status(500);
     });
 };
+
+export const markAttendance = (req, res) => {
+  const {
+    learnerBreakouts
+  } = req.body;
+  Promise.all(learnerBreakouts.map(breakout => LearnerBreakout.update({
+    attendance: breakout.attendance
+  }, {
+    where: {
+      id: breakout.id
+    }
+  }))).then(() => {
+    res.json({
+      text: "Mark attendance success"
+    })
+  }).catch(err => {
+    console.error(err.stack);
+    res.status(500);
+  });
+}
