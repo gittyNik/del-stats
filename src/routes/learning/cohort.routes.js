@@ -22,7 +22,11 @@ import {
   allowSuperAdminOnly,
   allowEducatorsOnly,
   allowCatalystOnly,
+  allowMultipleRoles,
 } from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
+
+const { ADMIN, SUPERADMIN, CATALYST, EDUCATOR } = USER_ROLES
 
 const router = Express.Router();
 
@@ -66,8 +70,7 @@ router.get('/:year/:location/:name', getCohortByName);
  */
 router.get('/user/:id', getCohortByLearnerId);
 
-router.use(allowEducatorsOnly);
-router.use(allowCatalystOnly);
+router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR]));
 
 /**
  * @api {patch} /cohorts/breakout Schedule a Breakout for Cohort
