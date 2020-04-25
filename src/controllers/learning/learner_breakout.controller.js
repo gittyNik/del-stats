@@ -1,6 +1,7 @@
 import { uuid } from 'uuid/v4';
 import { LearnerBreakout } from '../../models/learner_breakout';
 import { CohortBreakout } from '../../models/cohort_breakout';
+import { User } from '../../models/user';
 
 export const getLearnerBreakouts = (req, res) => {
   LearnerBreakout.findAll({
@@ -41,6 +42,24 @@ export const createLearnerBreakout = (req, res) => {
     learner_feedback,
   })
     .then(() => res.send('Created Learner Breakout'))
+    .catch(err => {
+      console.error(err.stack);
+      res.status(500);
+    });
+};
+
+export const getLearnerBreakoutsByBreakoutId = (req, res) => {
+  const {cohort_breakout_id} = req.params;
+  LearnerBreakout.findAll({
+    where: {
+      cohort_breakout_id
+    },
+    include: [User]
+  })
+    .then(data => res.json({
+      text: "Learner breakouts for a cohort breakout",
+      data
+    }))
     .catch(err => {
       console.error(err.stack);
       res.status(500);

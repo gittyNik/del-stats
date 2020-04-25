@@ -1,5 +1,5 @@
 import Express from 'express';
-import { getLearnerBreakouts, getUpcomingBreakouts, createLearnerBreakout } from '../../controllers/learning/learner_breakout.controller';
+import { getLearnerBreakouts, getUpcomingBreakouts, createLearnerBreakout, getLearnerBreakoutsByBreakoutId } from '../../controllers/learning/learner_breakout.controller';
 import { getAllCohortBreakouts, getBreakoutsForCohortMilestone } from '../../controllers/learning/breakout.controller';
 
 const router = Express.Router();
@@ -12,6 +12,15 @@ const router = Express.Router();
  * @apiGroup Breakouts
  */
 router.get('/', getLearnerBreakouts);
+
+/**
+ * @api {get} /learning/ops/breakouts/cohort_breakout/:cohort_breakout_id Get all learner breakouts for cohort breakout
+ * @apiDescription get all learner breakouts for cohort breakout
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetBreakouts
+ * @apiGroup Breakouts
+ */
+router.get('/cohort_breakout/:cohort_breakout_id', getLearnerBreakoutsByBreakoutId);
 
 /**
  * @api {get} /learning/ops/breakouts/upcoming Get all upcoming Breakouts
