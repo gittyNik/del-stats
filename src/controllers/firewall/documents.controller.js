@@ -96,6 +96,9 @@ export const Esign = (template_values, signers,
 };
 
 // TODO: Testing pending
+// Will send Esign request from Digio to User
+// Requires template id, user details to pre-fill in the agreement
+// send date, signer email/mobile and sign co-ordinates
 export const EsignRequest = (req, res) => {
   const { id } = req.params;
 
@@ -123,7 +126,9 @@ export const EsignRequest = (req, res) => {
       template_values.learner_witness = userDetails.profile.personal_details.learner_witness;
       template_values.guardian_witness = userDetails.profile.personal_details.guardian_witness;
     } else {
+      // Deep cloning and saving user details in database
       const personalDetails = _.cloneDeep(template_values);
+      delete personalDetails.document_send_date;
       userDetails.profile.personal_details = personalDetails;
       User({
         profile: userDetails.profile,
