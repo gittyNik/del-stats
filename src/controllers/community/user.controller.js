@@ -1,7 +1,10 @@
+import Sequelize from 'sequelize';
 import { apiNotReady } from '../api.controller';
-import { User } from '../../models/user';
+import { User, USER_ROLES } from '../../models/user';
 import { createOrUpdateContact } from '../../integrations/hubspot/controllers/contacts.controller';
 import { createDeal, associateDealWithContact } from '../../integrations/hubspot/controllers/deals.controller';
+
+const { CATALYST, EDUCATOR, ADMIN, SUPERADMIN } = USER_ROLES
 
 export const getProfile = (req, res) => {
   res.json({ user: req.jwtData.user });
@@ -71,3 +74,21 @@ export const updateProfile = (req, res) => {
     res.sendStatus(500);
   })
 };
+
+export const getEducators = (req, res) => {
+  User.findAll({
+    where: {
+      role: {
+        [Sequelize.Op.in]: [CATALYST, EDUCATOR, ADMIN, SUPERADMIN]
+      }
+    }
+  }).then(data => {
+    res.json({
+      text: "Teaching users",
+      data
+    })
+  }).catch(err => {
+    console.error(err);
+    res.sendStatus(500);
+  })
+}

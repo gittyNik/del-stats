@@ -1,5 +1,4 @@
 import request from 'superagent';
-import buffer from 'buffer';
 import _ from 'lodash';
 import {
   getDocumentsByStatus, getDocumentsByUser,
@@ -9,7 +8,7 @@ import {
 import { User } from '../../models/user';
 
 const { DIGIO_BASE_URL, DIGIO_CLIENT, DIGIO_SECRET } = process.env;
-const { BASE_64_TOKEN } = buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
+const { BASE_64_TOKEN } = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
 
 export const getDocumentsAll = (req, res) => {
   getAllDocuments().then((data) => { res.json(data); })
@@ -104,10 +103,10 @@ export const EsignRequest = (req, res) => {
 
   const {
     template_values,
-    signers,
     template_id,
     sign_coordinates,
     expire_in_days,
+    document_description,
   } = req.body;
 
   return User.findOne(
@@ -116,7 +115,7 @@ export const EsignRequest = (req, res) => {
       attributes: ['name', 'email', 'profile'],
     },
   ).then(userDetails => {
-    if ('personal_details' in userDetails.profile) {
+    if ((_.isEmpty(userDetails)) && ('personal_details' in userDetails.profile)) {
       template_values.learner_email = userDetails.email;
       template_values.learner_name = userDetails.name;
       template_values.learner_address = userDetails.profile.personal_details.learner_address;
@@ -129,8 +128,8 @@ export const EsignRequest = (req, res) => {
       // Deep cloning and saving user details in database
       const personalDetails = _.cloneDeep(template_values);
       delete personalDetails.document_send_date;
-      userDetails.profile.personal_details = personalDetails;
-      User({
+      userDetails = { profile: { personal_details: personalDetails } };
+      User.update({
         profile: userDetails.profile,
       }, {
         where: { id },
@@ -138,11 +137,23 @@ export const EsignRequest = (req, res) => {
         raw: true,
       });
     }
+    let signers = [{
+      identifier: template_values.learner_email,
+      name: template_values.learner_name,
+      reason: document_description,
+    }, {
+      identifier: template_values.guardian_email,
+      name: template_values.guardian_name,
+      reason: document_description,
+    }];
 
     return Esign(template_values,
       signers,
       template_id,
       sign_coordinates,
-      expire_in_days).then(esignStatus => res.json(esignStatus));
+      expire_in_days).then(esignStatus => {
+      createUserEntry(id, esignStatus, 'requested');
+      return res.json(esignStatus);
+    });
   });
 };

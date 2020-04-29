@@ -96,7 +96,7 @@ router.patch('/:id', updateUser);
  * @apiName SendESignRequest
  * @apiGroup Documents
  *
- * @apiParam {String} user_id
+ * @apiParam {String} id user id
  * @apiParam {String} document_details Description of the topic
  * @apiParam {String} status ID of the Milestone
  * @apiParam {String} payment_status Description of the topic
