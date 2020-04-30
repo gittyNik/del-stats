@@ -8,7 +8,6 @@ import {
 import { User } from '../../models/user';
 
 const { DIGIO_BASE_URL, DIGIO_CLIENT, DIGIO_SECRET } = process.env;
-const { BASE_64_TOKEN } = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
 
 export const getDocumentsAll = (req, res) => {
   getAllDocuments().then((data) => { res.json(data); })
@@ -79,7 +78,9 @@ export const Esign = (template_values, signers,
     sign_coordinates,
     expire_in_days,
   };
+  const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
 
+  console.log(DIGIO_CLIENT, DIGIO_SECRET);
   return (request
     .post(`${DIGIO_BASE_URL}v2/client/template/${template_id}/create_sign_request`)
     .send(requestObject)
