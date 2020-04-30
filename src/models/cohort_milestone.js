@@ -256,17 +256,17 @@ export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
       findBreakoutsForMilestone(cohort_id, milestone_id),
     ])
       .then(populateTeamsWithLearnersWrapper)
-      .then(populateLearnerStats(user_id, cohort_id, milestone.id))
-      .then(([topics, programTopics, teams, stats, breakouts]) => {  // add breakouts
-        console.log('***********Stats', stats)
-        console.log(
-          `Milestone topics: ${topics.length}, Program topics: ${programTopics.length} Stats: ${stats}`
-        );
-        console.log(`Breakouts in the milestone ${milestone_id}`, breakouts);
+      // UNCOMMENT THIS ONCE THE STATS ARE READY
+      // .then(populateLearnerStats(user_id, cohort_id, milestone.id))
+      .then(([topics, programTopics, teams,
+        // UNCOMMENT THIS ONCE THE STATS ARE READY
+        // stats,
+         breakouts]) => {  // add breakouts
         milestone.topics = topics;
         milestone.programTopics = programTopics;
         milestone.teams = teams;
-        milestone.stats = stats;
+        // UNCOMMENT THIS ONCE THE STATS ARE READY
+        // milestone.stats = stats;
         milestone.breakouts = breakouts;
         //  milestone.breakouts = milestones;
         return milestone;
