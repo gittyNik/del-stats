@@ -80,7 +80,6 @@ export const Esign = (template_values, signers,
   };
   const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
 
-  console.log(DIGIO_CLIENT, DIGIO_SECRET);
   return (request
     .post(`${DIGIO_BASE_URL}v2/client/template/${template_id}/create_sign_request`)
     .send(requestObject)
@@ -116,7 +115,7 @@ export const EsignRequest = (req, res) => {
       attributes: ['name', 'email', 'profile'],
     },
   ).then(userDetails => {
-    if ((_.isEmpty(userDetails)) && ('personal_details' in userDetails.profile)) {
+    if ((_.isEmpty(userDetails)) && (_.isEmpty(userDetails.profile)) && ('personal_details' in userDetails.profile)) {
       template_values.learner_email = userDetails.email;
       template_values.learner_name = userDetails.name;
       template_values.learner_address = userDetails.profile.personal_details.learner_address;
@@ -129,9 +128,10 @@ export const EsignRequest = (req, res) => {
       // Deep cloning and saving user details in database
       const personalDetails = _.cloneDeep(template_values);
       delete personalDetails.document_send_date;
-      userDetails = { profile: { personal_details: personalDetails } };
+      let personDetails = { personal_details: personalDetails };
+      let mergedUserDetails = { ...personDetails, ...userDetails.profile };
       User.update({
-        profile: userDetails.profile,
+        profile: mergedUserDetails.profile,
       }, {
         where: { id },
         returning: true,
