@@ -131,7 +131,7 @@ export const EsignRequest = (req, res) => {
       let personDetails = { personal_details: personalDetails };
       let mergedUserDetails = { ...personDetails, ...userDetails.profile };
       User.update({
-        profile: mergedUserDetails.profile,
+        profile: mergedUserDetails,
       }, {
         where: { id },
         returning: true,
