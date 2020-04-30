@@ -131,13 +131,10 @@ export const EsignRequest = (req, res) => {
       delete personalDetails.document_send_date;
       let personDetails = { personal_details: personalDetails };
       let mergedUserDetails = { ...personDetails, ...userDetails.profile };
-      User.update({
-        profile: mergedUserDetails.profile,
-      }, {
-        where: { id },
-        returning: true,
-        raw: true,
-      });
+      let updatedProfile = User.update({
+        profile: mergedUserDetails,
+      }, { where: { id }, returning: true });
+      console.log(updatedProfile);
     }
     let signers = [{
       identifier: template_values.learner_email,
