@@ -80,7 +80,6 @@ export const Esign = (template_values, signers,
   };
   const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
 
-  console.log(DIGIO_CLIENT, DIGIO_SECRET);
   return (request
     .post(`${DIGIO_BASE_URL}v2/client/template/${template_id}/create_sign_request`)
     .send(requestObject)
