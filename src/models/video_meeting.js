@@ -49,6 +49,7 @@ const MEETING_SETTINGS = {
   auto_recording: 'cloud', // options: local, cloud and none
   enforce_login: true,
   // alternative_hosts: process.env.ZOOM_HOSTS,
+  waiting_room: false,
 };
 
 export const deleteMeetingFromZoom = (video_id) => {
