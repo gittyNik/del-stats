@@ -10,3 +10,4 @@ tmp
 .eslintrc.json
 .idea/
 .vscode/
+connectToDB.sh
