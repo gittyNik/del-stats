@@ -27,7 +27,7 @@ const getChannelName = async (cohort_id) => {
   let location = cohort.location.split(' ');
   location = location.length > 1 ? location[location.length - 1].slice(0, 3) : location[0].slice(0, 3);
 
-  let start_date = cohort.start_date;
+  let { start_date } = cohort;
   return `${cohort.name.toLowerCase()}-${location.toLowerCase()}-${start_date.getFullYear()}`
 };
 

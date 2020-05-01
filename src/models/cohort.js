@@ -150,7 +150,7 @@ export const beginCohortWithId = cohort_id => Promise.all([
     cohort.milestones = milestones;
     return cohort;
   })
-  .then(createChannel(cohort_id)) // todo: pass team SlackId's
+  .then(createChannel(cohort_id))
   .catch(err => {
     console.log(err);
     return null;
