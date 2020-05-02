@@ -109,7 +109,7 @@ export const createChannel = async (cohort_id) => {
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .set('Authorization', `Bearer ${SLACK_DELTA_BOT_TOKEN}`)
     .send({
-      name: 'testing1-cohort-temp',
+      name: channelName,
       is_private: true,
       // user_ids: 'UQTS58D6K',
     });

@@ -49,7 +49,7 @@ describe('Testing slack channel creation', () => {
 
     let start_date = cohort.start_date;
 
-    let channel_name = `${cohort.name.toLowerCase()}-${location}-${start_date.getFullYear()}`
+    let channel_name = `${cohort.name.toLowerCase()}-${location}-${start_date.getFullYear()}`;
     expect(channel_name).toBe('volans-hyd-2020');
 
   });
@@ -80,7 +80,7 @@ describe('Testing slack channel creation', () => {
 
   test('get channel name from a function', async () => {
     const cohort_id = '75674b76-dabb-4e84-90ff-f129c4e834ac';
-    let channel_name = await getChannelName(cohort_id)
+    let channel_name = await getChannelName(cohort_id);
     expect(channel_name).toBe('columba-mum-2020');
   });
 

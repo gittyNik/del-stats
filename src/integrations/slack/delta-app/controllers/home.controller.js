@@ -32,7 +32,7 @@ export const createChannel = async (channel_name, user_ids) => {
     .send({
       name: channel_name,
       is_private: true,
-      user_ids: user_ids.join(', '),
+      user_ids: user_ids.join(','),
     });
   if (response.body.ok) {
     return {
