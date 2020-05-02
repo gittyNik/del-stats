@@ -1,9 +1,9 @@
 import { Sequelize, Op } from 'sequelize';
 import request from 'superagent';
+import Redis from 'ioredis';
 import db from '../database';
 import { Cohort } from './cohort';
 import { SocialConnection } from './social_connection';
-import Redis from 'ioredis';
 
 
 export const SlackChannel = db.define('slack_channels', {
@@ -69,26 +69,33 @@ export const getEducatorsSlackID = async () => {
 
 export const getTeamSlackIDs = async () => {
   const redis = new Redis(process.env.REDIS_URL);
-  const res = await redis.lrange('teamSlackIds', 0, -1);
-  return res;
+  const list = await redis.lrange('teamSlackIds', 0, -1);
+  // console.log(list);
+  return list;
 };
 
 export const getLearnerSlackIds = async (cohort_id) => {
   const cohort = await Cohort.findByPk(cohort_id);
   console.log(cohort.learners);
   let learnerIds = await Promise.all(cohort.learners.map(async (user_id) => {
-    let social = await SocialConnection
-      .findOne({
-        attributes: ['id', 'provider', 'username', 'eamil'],
-        where: {
-          user_id,
-          provider: { [Op.startsWith]: 'slack' },
-        },
-        raw: true,
-      });
-    return social.username;
+    try {
+      let social = await SocialConnection
+        .findOne({
+          attributes: ['id', 'provider', 'username', 'email'],
+          where: {
+            user_id,
+            provider: { [Op.startsWith]: 'slack' },
+          },
+          raw: true,
+        });
+      return {
+        username: social.username,
+      };
+    } catch (error) {
+      // console.log('Hello', error);
+      return { notRegistered: user_id };
+    }
   }));
-
   return learnerIds;
 };
 
@@ -96,35 +103,54 @@ export const getLearnerSlackIds = async (cohort_id) => {
 export const createChannel = async (cohort_id) => {
   const { SLACK_DELTA_BOT_TOKEN } = process.env;
   const channelName = await getChannelName(cohort_id);
-
+  console.log(channelName);
   let emptyChannel = await request
     .post('https://slack.com/api/conversations.create')
-    .set('Content-Type', 'application/json')
+    .set('Content-Type', 'application/x-www-form-urlencoded')
     .set('Authorization', `Bearer ${SLACK_DELTA_BOT_TOKEN}`)
     .send({
-      name: channelName,
+      name: 'testing1-cohort-temp',
       is_private: true,
+      // user_ids: 'UQTS58D6K',
     });
   const { ok, channel } = emptyChannel.body;
   if (ok) {
     // get list of all slackIDS - both team and learers
     const teamIds = await getTeamSlackIDs();
-    const learnerIds = await getLearnerSlackIds();
+    let learners = await getLearnerSlackIds(cohort_id);
+    let learnerIds = learners.filter(learner => learner.username);
+    learnerIds = learnerIds.map(l => l.username);
+    let notRegistered = learners.filter(learner => learner.notRegisted);
 
     let userIds = [...teamIds, ...learnerIds];
 
+    // todo: check all userIds are valid ? invite all: invite only valid.
+
+    // invite team and learners to newly created slack channel.
     const channelWithTeam = await request
       .post('https://slack.com/api/conversations.invite')
-      .set('Content-Type', 'application/json')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
       .set('Authorization', `Bearer ${SLACK_DELTA_BOT_TOKEN}`)
       .send({
         channel: channel.id,
         users: userIds.join(','),
       });
     if (channelWithTeam.body.ok) {
-      return channelWithTeam.body.channel;
+      return {
+        text: 'Team and learners invited to the newly created slack channel',
+        notRegistered,
+        added: userIds,
+        channel: channelWithTeam.body.channel,
+      };
     }
-    return emptyChannel.body;
+    console.log(channelWithTeam.body);
+    return {
+      text: 'Channel created and error in inviting',
+      channel: emptyChannel.body,
+      userIds,
+      notRegistered,
+      error: channelWithTeam.body,
+    };
   }
   return emptyChannel.body;
 };
@@ -133,6 +159,7 @@ export const createChannel = async (cohort_id) => {
 // channelId :  channel Id's
 // learnersId : Array of slackLearner Id's
 export const addLearnerToAChannel = async (channelId, learnerIds) => {
+  const { SLACK_DELTA_BOT_TOKEN } = process.env;
   const channel = await request
     .post('https://slack.com/api/conversations.invite')
     .set('Content-Type', 'application/json')
@@ -162,30 +189,4 @@ export const addLearnerToChannels = async (cohort_id, learnerSlackID) => {
   });
   // TODO: test whether learner is added to all the channels;
   return channelResponses;
-};
-
-
-// Need Enterprise grid account to enable this routes.
-// works with user tooken. and scope: admin.users.write.
-export const inviteLearnerToWorkspace = async (learnerEmail, channelIds, teamId) => {
-  const { SLACK_DELTA_USER_TOKEN: token } = process.env;
-  const invite = await request
-    .post('https://slack.com/api/admin.users.invite')
-    .set('Content-Type', 'application/json')
-    .set('Authorization', `Bearer ${token}`)
-    .send({
-      channel_ids: channelIds.join(','),
-      email: learnerEmail,
-      team_id: teamId,
-      custom_message: '', // optionals
-      resend: true,
-    });
-  let data = {};
-  if (invite.body.ok) {
-    data.text = 'Invite sent successfully';
-    data.ok = true;
-    return data;
-  }
-  data.error = invite.body;
-  return data;
 };

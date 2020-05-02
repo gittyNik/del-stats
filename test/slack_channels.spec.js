@@ -1,14 +1,14 @@
-import Sequelize from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 // import app from '../src/server';
 import models from '../src/models';
 import request from 'supertest';
 import superagent from 'superagent';
 import db from '../src/database';
-import { getEducatorsSlackID, createChannel } from '../src/models/slack_channels';
+import { getEducatorsSlackID, createChannel, getLearnerSlackIds, getTeamSlackIDs } from '../src/models/slack_channels';
 
 
-const { Cohort, User, SlackChannel } = models;
-const { PORT } = process.env;
+const { Cohort, User, SlackChannel, SocialConnection } = models;
+const { PORT, SLACK_DELTA_BOT_TOKEN } = process.env;
 
 
 describe('Testing slack channel creation', () => {
@@ -39,7 +39,7 @@ describe('Testing slack channel creation', () => {
   });
 
 
-  test('channel name for hyd cohort', async () => {
+  test('get channel name for hyd cohort', async () => {
     // volans start_date 3/30
     const cohort_id = 'adb93b83-a55a-4ec0-8da0-9c9483fc9bb3'; // volans
     const cohort = await Cohort.findByPk(cohort_id);
@@ -54,7 +54,7 @@ describe('Testing slack channel creation', () => {
 
   });
 
-  test('channel name from cohort: mumbai', async () => {
+  test('get channel name from cohort: mumbai', async () => {
     const cohort_id = '75674b76-dabb-4e84-90ff-f129c4e834ac';
 
     const cohort = await Cohort.findByPk(cohort_id);
@@ -78,7 +78,7 @@ describe('Testing slack channel creation', () => {
     return `${cohort.name.toLowerCase()}-${location.toLowerCase()}-${start_date.getFullYear()}`;
   };
 
-  test('from a function', async () => {
+  test('get channel name from a function', async () => {
     const cohort_id = '75674b76-dabb-4e84-90ff-f129c4e834ac';
     let channel_name = await getChannelName(cohort_id)
     expect(channel_name).toBe('columba-mum-2020');
@@ -94,7 +94,6 @@ describe('Testing slack channel creation', () => {
     console.log(users[0]);
     let email_list = users.map(user => user.email);
     console.log(email_list);
-
     expect(email_list.length).toBeGreaterThan(1);
   });
 
@@ -104,7 +103,7 @@ describe('Testing slack channel creation', () => {
     expect(res.length).toBeGreaterThan(1);
   })
 
-  test('Creating a Channel with team', async () => {
+  test.skip('Creating a Channel with team', async () => {
     const userIds = []; // list of all SlackUserId's.
     let cohort_id = '' // need to enter cohort_id
     let res = await createChannel(cohort_id, list2);
@@ -120,14 +119,59 @@ describe('Testing slack channel creation', () => {
     expect(members).arrayContaining(list2);
   });
 
-  // test('Invite users to channel', async () => {
-  //   let usersList,
-  //     channel;
+  test('Get learner Slack Ids', async () => {
+    expect.assertions(1);
+    const cohort_id = 'bb504186-a435-4548-a171-ec89daaebb00'; //Delphinus;
+    const learnerIds = await getLearnerSlackIds(cohort_id);
+    console.log(learnerIds);
+    expect(learnerIds).toBeDefined();
+  });
 
-  //   let res = await inviteToChannel(channel, usersList);
-  //   console.log(res);
-  //   expect(res).toBe(usersList);
+  test('getTeamSlackIds', async () => {
+    expect.assertions(1);
+    const res = await getTeamSlackIDs();
+    console.log(res);
+    expect(res.length).toBe(15);
+  });
 
-  // });
+  test('Check if list of userIds are valid', async () => {
+    const cohort_id = 'bb504186-a435-4548-a171-ec89daaebb00';
+    const teamIds = await getTeamSlackIDs();
+    let learners = await getLearnerSlackIds(cohort_id);
+    let learnerIds = learners.filter(learner => learner.username);
+    learnerIds = learnerIds.map(l => l.username);
+    let notRegistered = learners.filter(learner => learner.notRegisted);
+
+    let userIds = [...teamIds, ...learnerIds];
+
+    let usersInfo = await Promise.all(userIds.map(async (user) => {
+      const userInfo = await superagent
+        .post('https://slack.com/api/users.info')
+        .set('Content-Type', 'application/x-www-form-urlencoded')
+        .set('Authorization', `Bearer ${SLACK_DELTA_BOT_TOKEN}`)
+        .send({
+          user,
+        });
+
+      if (userInfo.body.ok) {
+        return {
+          valid_user: user,
+          type: typeof user,
+        }
+      }
+      return { invalid_user: user, type: typeof user }
+    }));
+    console.log(usersInfo);
+    expect(usersInfo).toBeDefined();
+  });
+
+  // Testing whole slackChannel creation.
+  test.only('Create slack channel for Delpinus cohort', async () => {
+    const cohort_id = 'bb504186-a435-4548-a171-ec89daaebb00'; // Delphinus Hyd.
+    const res = await createChannel(cohort_id);
+    console.log(res);
+    expect(res).toBeDefined();
+    expect(res.channel).toBeDefined();
+  });
 
 });
