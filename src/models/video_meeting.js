@@ -45,10 +45,11 @@ const MEETING_SETTINGS = {
   watermark: false,
   use_pmi: false,
   approval_type: 2,
-  audio: 'voip',
-  auto_recording: 'local', // options: local, cloud and none
-  enforce_login: false,
+  audio: 'both',
+  auto_recording: 'cloud', // options: local, cloud and none
+  enforce_login: true,
   // alternative_hosts: process.env.ZOOM_HOSTS,
+  waiting_room: false,
 };
 
 export const deleteMeetingFromZoom = (video_id) => {
@@ -147,10 +148,14 @@ export const createScheduledMeeting = (topic, start_time, millisecs_duration, ag
 };
 
 export const learnerAttendance = async (participant, catalyst_id,
-  cohort_breakout_id, attentiveness_threshold) => {
+  cohort_breakout_id, attentiveness_threshold, duration_threshold) => {
   const { user_email, duration, attentiveness_score } = participant;
   // TODO use duration also to mark attendance
   let attentivenessScore = parseFloat(attentiveness_score);
+  let durationTime = parseFloat(duration);
+  // if (isNaN(attentivenessScore)) {
+  //   attentivenessScore = attentiveness_threshold;
+  // }
   let attendanceCount = 0;
   return SocialConnection.findOne({
     attributes: ['user_id'],
@@ -159,7 +164,7 @@ export const learnerAttendance = async (participant, catalyst_id,
     },
   }).then(data => {
     let attendance;
-    if ((attentivenessScore >= attentiveness_threshold) && (data.user_id !== catalyst_id)) {
+    if ((durationTime >= duration_threshold) && (data.user_id !== catalyst_id)) {
       attendanceCount += 1;
       attendance = true;
     } else {
@@ -190,11 +195,11 @@ export const learnerAttendance = async (participant, catalyst_id,
 };
 
 export const markIndividualAttendance = async (participants, catalyst_id,
-  cohort_breakout_id, attentiveness_threshold) => {
+  cohort_breakout_id, attentiveness_threshold, duration_threshold) => {
   const attendanceCount = Promise.all(participants.map(async (participant) => {
     try {
       let attendance_count = await learnerAttendance(participant, catalyst_id,
-        cohort_breakout_id, attentiveness_threshold);
+        cohort_breakout_id, attentiveness_threshold, duration_threshold);
       return attendance_count;
     } catch (err) {
       console.log('error in finding user', err);
@@ -213,12 +218,13 @@ https://marketplace.zoom.us/docs/api-reference/zoom-api/reports/reportmeetingpar
 Zoom returns the users that attended a meeting, using this to mark attendance
 */
 export const markAttendanceFromZoom = (meeting_id, catalyst_id,
-  cohort_breakout_id, attentiveness_threshold = 70) => {
+  cohort_breakout_id, attentiveness_threshold = 70, duration_threshold = 600) => {
   const { ZOOM_BASE_URL } = process.env;
+  const page_size = 100;
   console.log('Marking attendance for Cohort Breakout id', cohort_breakout_id);
 
   return (request
-    .get(`${ZOOM_BASE_URL}report/meetings/${meeting_id}/participants`) // todo: need to assign delta user to zoom user
+    .get(`${ZOOM_BASE_URL}report/meetings/${meeting_id}/participants?page_size=${page_size}`) // todo: need to assign delta user to zoom user
     .set('Authorization', `Bearer ${zoom_token}`)
     .set('User-Agent', 'Zoom-api-Jwt-Request')
     .set('content-type', 'application/json')
@@ -230,24 +236,26 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
         next_page_token
       } = data.body;
       console.log(`Fetched data for Zoom Meeting: ${meeting_id}`);
-      return markIndividualAttendance(participants, catalyst_id,
-        cohort_breakout_id, attentiveness_threshold).then(attendanceCountArray => {
-        // use reduce to sum our array
-        const attendanceCount = attendanceCountArray.reduce(add);
-        console.log('Attendance Count.', attendanceCountArray);
-        return CohortBreakout.update({
-          attendance_count: attendanceCount,
-        }, {
-          where: {
-            id: cohort_breakout_id,
-          },
+      return markIndividualAttendance(
+        participants, catalyst_id,
+        cohort_breakout_id, attentiveness_threshold, duration_threshold,
+      )
+        .then(attendanceCountArray => {
+          const attendanceCount = attendanceCountArray.reduce(add);
+          console.log('Attendance Count.', attendanceCountArray);
+          return CohortBreakout.update({
+            attendance_count: attendanceCount,
+          }, {
+            where: {
+              id: cohort_breakout_id,
+            },
+          });
+        }).catch(err => {
+          console.error('Failed to update Cohort attendance count', err);
+          return {
+            text: `Failed to update Cohort attendance count for ${cohort_breakout_id} .`,
+          };
         });
-      }).catch(err => {
-        console.error('Failed to update Cohort attendance count', err);
-        return {
-          text: `Failed to update Cohort attendance count for ${cohort_breakout_id} .`,
-        };
-      });
     })
     .catch(err => {
       // console.log(err);
@@ -256,4 +264,55 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
       };
     })
   );
+};
+
+export const updateVideoMeeting = async (meetingId, updatedTime) => {
+  const { ZOOM_BASE_URL } = process.env;
+
+  let response = await request
+    .patch(`${ZOOM_BASE_URL}meetings/${meetingId}`)
+    .set('Authorization', `Bearer ${zoom_token}`)
+    .set('content-type', 'application/json')
+    .send({
+      start_time: updatedTime,
+      // settings: MEETING_SETTINGS,
+    });
+
+  if (response.status === 204) {
+    return true;
+  }
+  return false;
+};
+
+export const updateCohortMeeting = async (cohort_breakout_id, updatedTime) => {
+  let cohort_breakout = await CohortBreakout.findByPk(cohort_breakout_id);
+  let { details } = cohort_breakout.toJSON();
+  if (details.zoom.id === undefined) {
+    return `No zoom meeting available to update ${cohort_breakout_id}`;
+  }
+
+  let updated = updateVideoMeeting(details.zoom.id, updatedTime);
+  let data = {};
+  if (updated) {
+    data.zoom = { id: details.zoom.id };
+
+    data.cohort_breakout = await CohortBreakout
+      .update(
+        { time_scheduled: updatedTime },
+        { returning: true, where: { id: cohort_breakout_id } }
+      )
+      .then(([rowsUpdated, updatedCB]) => {
+        // console.log(rowsUpdated);
+        // console.log(updatedCB[0]);
+        console.log(`Cohort breakout ${cohort_breakout_id} updated to ${updatedTime}`);
+        return updatedCB[0].toJSON();
+      })
+      .catch((err) => {
+        console.error(err);
+        return `Error updating cohort breakout ${cohort_breakout_id}`;
+      });
+    return data;
+  }
+  data.error = 'Unable to update zoom meeting';
+  return data;
 };

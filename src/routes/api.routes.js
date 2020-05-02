@@ -6,6 +6,7 @@ import communityRouter from './community';
 import firewallRouter from './firewall';
 import learningRouter from './learning';
 import toolsetRouter from './toolset';
+import emailer from './emailer';
 
 import authRouter from './auth';
 import adminRouter from './admin.routes';
@@ -37,6 +38,7 @@ router.use('/learning', learningRouter);
 router.use('/toolset', toolsetRouter);
 router.use('/admin', adminRouter);
 router.use('/profile', profileRouter);
+router.use('/email', emailer);
 
 /**
  * @api {get} / Get sample response

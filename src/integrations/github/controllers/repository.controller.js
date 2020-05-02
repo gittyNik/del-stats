@@ -83,7 +83,7 @@ export const createGithubRepositoryFromTemplate = async (
 		.send(params)
 		.set("accept", "application/vnd.github.baptiste-preview+json")
 		.set("authorization", `token ${process.env.GITHUB_ACCESS_TOKEN}`)
-		.then(data => data);
+		.then(data => JSON.parse(data.text));
 };
 
 export const repositoryPresentOrNot = name =>

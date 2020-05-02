@@ -256,17 +256,17 @@ export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
       findBreakoutsForMilestone(cohort_id, milestone_id),
     ])
       .then(populateTeamsWithLearnersWrapper)
-      .then(populateLearnerStats(user_id, cohort_id, milestone.id))
-      .then(([topics, programTopics, teams, stats, breakouts]) => {  // add breakouts
-        console.log('***********Stats', stats)
-        console.log(
-          `Milestone topics: ${topics.length}, Program topics: ${programTopics.length} Stats: ${stats}`
-        );
-        console.log(`Breakouts in the milestone ${milestone_id}`, breakouts);
+      // UNCOMMENT THIS ONCE THE STATS ARE READY
+      // .then(populateLearnerStats(user_id, cohort_id, milestone.id))
+      .then(([topics, programTopics, teams,
+        // UNCOMMENT THIS ONCE THE STATS ARE READY
+        // stats,
+         breakouts]) => {  // add breakouts
         milestone.topics = topics;
         milestone.programTopics = programTopics;
         milestone.teams = teams;
-        milestone.stats = stats;
+        // UNCOMMENT THIS ONCE THE STATS ARE READY
+        // milestone.stats = stats;
         milestone.breakouts = breakouts;
         //  milestone.breakouts = milestones;
         return milestone;
@@ -284,10 +284,17 @@ function* calculateReleaseTime(cohort_start, pending, cohort_duration, cohort_pr
     milestone_duration = 14;
   }
   start.setHours(0, 0, 0, 0);
-  // Calculate first Monday
-  start.setDate(cohort_start.getDate() + ((1 + milestone_duration - cohort_start.getDay()) % milestone_duration));
-  // Calculate Tuesday 6 pm
-  const end = new Date(+start + DAY_MSEC * 1.75);
+  if (cohort_duration === 26) {
+    // Calculate first Saturday 00:00:00
+    start.setDate(cohort_start.getDate() + (((1 + 7 - cohort_start.getDay()) % 7)) - 2);
+    // Calculate Monday 23:59:59
+    var end = new Date(+start + DAY_MSEC * 2.99999);
+  } else {
+    // Calculate first Monday 00:00:00
+    start.setDate(cohort_start.getDate() + ((1 + 7 - cohort_start.getDay()) % 7));
+    // Calculate Tuesday 23:59:59
+    var end = new Date(+start + DAY_MSEC * 1.99999);
+  }
 
   while (pending--) {
     if (pending === 0) {
@@ -295,7 +302,7 @@ function* calculateReleaseTime(cohort_start, pending, cohort_duration, cohort_pr
       end.setDate(start.getDate() + ((5 + milestone_duration - cohort_start.getDay()) % milestone_duration));
     }
     yield { start, end };
-    start.setTime(+end + DAY_MSEC / 4);
+    start.setTime(+end + 1000);
     end.setTime(+end + DAY_MSEC * milestone_duration);
   }
 }
