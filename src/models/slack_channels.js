@@ -274,7 +274,7 @@ const createChannelFromSlackIds = async (cohort_id, channelName, slackIds) => {
       channel,
     };
   }
-  if (emptyChannel.error === 'name_taken') {
+  if (emptyChannel.body.error === 'name_taken') {
     const cid = await getChannelIdForCohort(cohort_id);
     const inviteUsers = await Promise.all(slackIds.map(async (l) => {
       const invite = await request
