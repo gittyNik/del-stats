@@ -7,6 +7,7 @@ import { createCohortMilestones, CohortMilestone } from './cohort_milestone';
 // import { CohortBreakout } from "./cohort_breakout";
 // import { BreakoutTemplate, CreateBreakoutsInMilestone } from './breakout_template';
 import { createBreakoutsInMilestone } from './breakout_template';
+import { createChannel } from './slack_channels';
 
 
 export const Cohort = db.define('cohorts', {
@@ -157,6 +158,7 @@ export const beginCohortWithId = cohort_id => Promise.all([
     cohort.milestones = milestones;
     return cohort;
   })
+  .then(createChannel(cohort_id))
   .catch(err => {
     console.log(err);
     return null;
