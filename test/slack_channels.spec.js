@@ -6,7 +6,8 @@ import superagent from 'superagent';
 import db from '../src/database';
 import {
   getEducatorsSlackID, createChannel, getLearnerSlackIds,
-  getTeamSlackIDs, createSlackChannelRow, getChannelIdForCohort
+  getTeamSlackIDs, createSlackChannelRow, getChannelIdForCohort,
+  beginChannel
 } from '../src/models/slack_channels';
 
 
@@ -177,9 +178,9 @@ describe('Testing slack channel creation', () => {
     expect(res.channel).toBeDefined();
   });
 
-  test.only('Test creating a row in slack Channel', async () => {
+  test('Test creating a row in slack Channel', async () => {
     const cohort_id = 'bb504186-a435-4548-a171-ec89daaebb00';
-    const channelId = '1234';
+    const channelId = 'GSDSTQG3H';
 
     const row = await createSlackChannelRow(cohort_id, channelId);
     console.log(row);
@@ -192,5 +193,21 @@ describe('Testing slack channel creation', () => {
     console.log(id);
     expect(id).toBe('1234');
   });
+
+  // jest.setTimeout(10000);
+  test.only('Create slack channel route', async () => {
+    expect.assertions(1);
+    const cohort_id = 'bb504186-a435-4548-a171-ec89daaebb00';
+    const emailList = ['technovanzed@gmail.com', 'aditya.aas.srivastava@gmail.com', 'hello@gmail.com'];
+    try {
+
+
+      const res = await beginChannel(cohort_id, emailList);
+      console.log(res);
+      expect(res).toBeDefined();
+    } catch (err) {
+      console.log(err);
+    }
+  }, 15000);
 
 });

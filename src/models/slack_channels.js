@@ -312,7 +312,7 @@ export const beginChannel = async (cohort_id, emailList) => {
   const slackUser = learnerIds.filter(l => !l.text);
 
   const channel = await createChannelFromSlackIds(cohort_id, channelName, [...teamIds, ...slackUser]);
-
+  console.log(JSON.stringify(channel, null, 2));
   return {
     text: 'Creating slack channel, inviting soal team and learners',
     data: {
@@ -320,7 +320,7 @@ export const beginChannel = async (cohort_id, emailList) => {
       teamIds,
       slackUser,
       notSlackUser,
-      channel,
+      channel, // main data
     },
   };
 };
