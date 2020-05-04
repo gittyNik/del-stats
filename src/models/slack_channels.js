@@ -1,4 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
+import uuid from 'uuid/v4';
 import request from 'superagent';
 import Redis from 'ioredis';
 import db from '../database';
@@ -20,6 +21,24 @@ export const SlackChannel = db.define('slack_channels', {
     allowNUll: false,
   }),
 });
+
+export const createSlackChannelRow = (cohort_id, channelId) => SlackChannel
+  .create({
+    id: uuid(),
+    cohort_id,
+    channels: [channelId],
+  })
+  .then(data => {
+    console.log(data.toJSON());
+    return data.toJSON();
+  });
+
+export const getChannelIdForCohort = (cohort_id) => SlackChannel
+  .findOne({ attributes: ['channels'], where: { cohort_id }, raw: true })
+  .then(data => {
+    console.log(data.channels);
+    return data.channels[0];
+  });
 
 const getChannelName = async (cohort_id) => {
   const cohort = await Cohort.findByPk(cohort_id);
@@ -189,4 +208,119 @@ export const addLearnerToChannels = async (cohort_id, learnerSlackID) => {
   });
   // TODO: test whether learner is added to all the channels;
   return channelResponses;
+};
+
+const getSlackIdsFromEmail = async (emailIds) => {
+  const { SLACK_DELTA_BOT_TOKEN } = process.env;
+  const slackId = async (emailId) => {
+    try {
+      const response = await request
+        .post('https://slack.com/api/users.lookupByEmail')
+        .set('Content-Type', 'application/x-www-form-urlencoded')
+        .set('Authorization', `Bearer ${SLACK_DELTA_BOT_TOKEN}`)
+        .send({
+          email: emailId,
+        });
+      let { ok, user } = response.body;
+      if (ok) return user.id;
+      return {
+        text: `Error finding slackId for ${emailId}`,
+        body: response.body,
+      };
+    } catch (error) {
+      console.error(error);
+      return { text: `Error with ${emailId}` };
+    }
+  };
+  let slackIds = await Promise.all(emailIds.map(email => slackId(email)));
+  console.log(slackIds);
+  return slackIds;
+};
+
+const createChannelFromSlackIds = async (cohort_id, channelName, slackIds) => {
+  const { SLACK_DELTA_BOT_TOKEN } = process.env;
+  let emptyChannel = await request
+    .post('https://slack.com/api/conversations.create')
+    .set('Content-Type', 'application/x-www-form-urlencoded')
+    .set('Authorization', `Bearer ${SLACK_DELTA_BOT_TOKEN}`)
+    .send({
+      name: channelName,
+      is_private: true,
+    });
+  const { ok: ok1, channel: channel1 } = emptyChannel.body;
+  if (ok1) {
+    // add a row in slack_channels table
+    createSlackChannelRow(cohort_id, channel1.id);
+    const channel2 = await request
+      .post('https://slack.com/api/conversations.invite')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
+      .set('Authorization', `Bearer ${SLACK_DELTA_BOT_TOKEN}`)
+      .send({
+        channel: channel1.id,
+        users: slackIds.join(','),
+      });
+    const { ok, channel } = channel2.body;
+    if (ok) {
+      return {
+        text: `Slack channel ${channel.id} created. Team and Learners are added`,
+        users_added: slackIds,
+        channel,
+      };
+    }
+    console.error(channel);
+    return {
+      text: 'Channel created but failed to invite users.',
+      slackIds,
+      channel,
+    };
+  }
+  if (emptyChannel.body.error === 'name_taken') {
+    const cid = await getChannelIdForCohort(cohort_id);
+    const inviteUsers = await Promise.all(slackIds.map(async (l) => {
+      const invite = await request
+        .post('https://slack.com/api/conversations.invite')
+        .set('Content-Type', 'application/x-www-form-urlencoded')
+        .set('Authorization', `Bearer ${SLACK_DELTA_BOT_TOKEN}`)
+        .send({
+          channel: cid,
+          users: l,
+        });
+      if (invite.body.ok) {
+        return `${l} added to channel`;
+      }
+      if (invite.body.error === 'already_in_channel') {
+        return `${l} already in channel`;
+      }
+      return {
+        text: `error inviting ${l}`,
+        data: invite.body.error,
+      };
+    }));
+    return inviteUsers;
+  }
+  return {
+    text: 'Failed to create empty slack channel',
+    error: emptyChannel.body,
+  };
+};
+
+export const beginChannel = async (cohort_id, emailList) => {
+  const channelName = await getChannelName(cohort_id);
+  const teamIds = await getTeamSlackIDs();
+  const learnerIds = await getSlackIdsFromEmail(emailList);
+  const notSlackUser = learnerIds.filter(l => l.text);
+  const slackUser = learnerIds.filter(l => !l.text);
+
+  const channel = await createChannelFromSlackIds(cohort_id, channelName, [...teamIds, ...slackUser]);
+  console.log(JSON.stringify(channel, null, 2));
+  return {
+    text: 'Creating slack channel, inviting soal team and learners',
+    data: {
+      channelName,
+      teamIds,
+      slackUser,
+      notSlackUser,
+      channel, // main data
+    },
+  };
 };

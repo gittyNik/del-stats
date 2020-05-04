@@ -4,7 +4,11 @@ import models from '../src/models';
 import request from 'supertest';
 import superagent from 'superagent';
 import db from '../src/database';
-import { getEducatorsSlackID, createChannel, getLearnerSlackIds, getTeamSlackIDs } from '../src/models/slack_channels';
+import {
+  getEducatorsSlackID, createChannel, getLearnerSlackIds,
+  getTeamSlackIDs, createSlackChannelRow, getChannelIdForCohort,
+  beginChannel
+} from '../src/models/slack_channels';
 
 
 const { Cohort, User, SlackChannel, SocialConnection } = models;
@@ -166,12 +170,44 @@ describe('Testing slack channel creation', () => {
   });
 
   // Testing whole slackChannel creation.
-  test.only('Create slack channel for Delpinus cohort', async () => {
+  test('Create slack channel for Delpinus cohort', async () => {
     const cohort_id = 'bb504186-a435-4548-a171-ec89daaebb00'; // Delphinus Hyd.
     const res = await createChannel(cohort_id);
     console.log(res);
     expect(res).toBeDefined();
     expect(res.channel).toBeDefined();
   });
+
+  test('Test creating a row in slack Channel', async () => {
+    const cohort_id = 'bb504186-a435-4548-a171-ec89daaebb00';
+    const channelId = 'GSDSTQG3H';
+
+    const row = await createSlackChannelRow(cohort_id, channelId);
+    console.log(row);
+    expect(row).toBeDefined();
+  });
+
+  test('Get cohort slack channel from cohort_id', async () => {
+    const cohort_id = 'bb504186-a435-4548-a171-ec89daaebb00';
+    const id = await getChannelIdForCohort(cohort_id);
+    console.log(id);
+    expect(id).toBe('1234');
+  });
+
+  // jest.setTimeout(10000);
+  test.only('Create slack channel route', async () => {
+    expect.assertions(1);
+    const cohort_id = 'bb504186-a435-4548-a171-ec89daaebb00';
+    const emailList = ['technovanzed@gmail.com', 'aditya.aas.srivastava@gmail.com', 'hello@gmail.com'];
+    try {
+
+
+      const res = await beginChannel(cohort_id, emailList);
+      console.log(res);
+      expect(res).toBeDefined();
+    } catch (err) {
+      console.log(err);
+    }
+  }, 15000);
 
 });
