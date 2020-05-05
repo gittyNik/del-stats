@@ -9,6 +9,7 @@ import { createCohortMilestones, CohortMilestone } from './cohort_milestone';
 import { createBreakoutsInMilestone } from './breakout_template';
 
 
+
 export const Cohort = db.define('cohorts', {
   id: {
     type: Sequelize.UUID,
