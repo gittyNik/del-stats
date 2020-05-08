@@ -71,12 +71,18 @@ export const updateUser = (req, res) => {
 export const Esign = (template_values, signers,
   template_id,
   sign_coordinates,
-  expire_in_days) => {
+  expire_in_days,
+  notify_signers,
+  send_sign_link,
+  file_name) => {
   const requestObject = {
     template_values,
     signers,
     sign_coordinates,
     expire_in_days,
+    send_sign_link,
+    file_name,
+    notify_signers,
   };
   const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
 
@@ -106,7 +112,10 @@ export const EsignRequest = (req, res) => {
     template_id,
     sign_coordinates,
     expire_in_days,
-    document_description,
+    notify_signers,
+    send_sign_link,
+    file_name,
+    signers,
   } = req.body;
 
   return User.findOne(
@@ -135,21 +144,15 @@ export const EsignRequest = (req, res) => {
       }, { where: { id }, returning: true });
       console.log(updatedProfile);
     }
-    let signers = [{
-      identifier: template_values.learner_email,
-      name: template_values.learner_name,
-      reason: document_description,
-    }, {
-      identifier: template_values.guardian_email,
-      name: template_values.guardian_name,
-      reason: document_description,
-    }];
 
     return Esign(template_values,
       signers,
       template_id,
       sign_coordinates,
-      expire_in_days).then(esignStatus => {
+      expire_in_days,
+      notify_signers,
+      send_sign_link,
+      file_name).then(esignStatus => {
       createUserEntry(id, esignStatus, 'requested');
       return res.json(esignStatus);
     });

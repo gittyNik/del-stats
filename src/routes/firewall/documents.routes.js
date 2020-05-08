@@ -97,11 +97,14 @@ router.patch('/:id', updateUser);
  * @apiGroup Documents
  *
  * @apiParam {String} id user id
- * @apiParam {String} document_details Description of the topic
- * @apiParam {String} status ID of the Milestone
- * @apiParam {String} payment_status Description of the topic
- * @apiParam {String} is_isa Description of the topic
- * @apiParam {String} is_verified Description of the topic
+ * @apiParam {Json} template_values
+ * @apiParam {String} template_id Template to send
+ * @apiParam {Json} sign_coordinates co-ordinates where sign is required
+ * @apiParam {String} expire_in_days for document expiry
+ * @apiParam {Boolean} notify_signers notify via email
+ * @apiParam {Boolean} send_sign_link send link
+ * @apiParam {String} file_name file name to save doc as
+ * @apiParam {Json} signers signer details
  */
 router.post('/:id/esign', EsignRequest);
 
