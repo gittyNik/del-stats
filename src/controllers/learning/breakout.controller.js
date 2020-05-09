@@ -1,14 +1,18 @@
 import Sequelize from 'sequelize';
 import {
   getAllBreakoutsInCohortMilestone, CohortBreakout,
-  createNewBreakout, createSingleBreakoutAndLearnerBreakout, BREAKOUT_TYPE,
+  createNewBreakout, createSingleBreakoutAndLearnerBreakout,
 } from '../../models/cohort_breakout';
 import {
   createScheduledMeeting, deleteMeetingFromZoom,
   updateVideoMeeting, updateCohortMeeting,
 } from '../../models/video_meeting';
 import { createSandbox } from '../../models/code_sandbox';
-import { BreakoutTemplate, createBreakoutsInMilestone } from '../../models/breakout_template';
+import {
+  BreakoutTemplate,
+  createBreakoutsInMilestone,
+  createTypeBreakoutsInMilestone,
+} from '../../models/breakout_template';
 import { Topic } from '../../models/topic';
 import { CohortMilestone } from '../../models/cohort_milestone';
 import { getLiveCohorts, Cohort } from '../../models/cohort';
@@ -62,8 +66,8 @@ export const getLiveCohortsBreakouts = (req, res) => {
         {
           model: Topic,
           attributes: [],
-          include: [Milestone]
-        }
+          include: [Milestone],
+        },
         ],
         raw: true,
       })
@@ -265,6 +269,17 @@ export const getBreakoutsForCohortMilestone = async (req, res) => {
   });
 };
 
+export const createBreakoutsOfType = (req, res) => {
+  let {
+    cohort_id, cohort_program_id, cohort_duration, type,
+  } = req.body;
+  createTypeBreakoutsInMilestone(cohort_id, cohort_program_id,
+    cohort_duration, type).then((data) => {
+    res.status(201).json({ data });
+  })
+    .catch(err => res.status(500).send({ err }));
+};
+
 export const createBreakouts = (req, res) => {
   let {
     cohort_id, cohort_program_id, cohort_duration,
@@ -320,6 +335,7 @@ export const calculateAfterDays = (previousTime, afterDays) => {
 };
 
 export const updateMilestoneByDays = async (cohortId, updateByDays) => {
+  let currentDateTime = new Date();
   await CohortMilestone.findAll({
     where: {
       cohort_id: cohortId,
@@ -335,14 +351,17 @@ export const updateMilestoneByDays = async (cohortId, updateByDays) => {
         updateByDays);
       console.debug(`Previous meeting time ${cohortMilestone.release_time}`);
       console.debug(`Updated meeting time ${updatedReleaseTime}`);
-      CohortMilestone.update({
-        release_time: updatedReleaseTime,
-        review_scheduled: updatedReviewScheduled,
-      }, {
-        where: {
-          id: cohortMilestone.id,
-        },
-      });
+
+      if (updatedReviewScheduled > currentDateTime) {
+        CohortMilestone.update({
+          release_time: updatedReleaseTime,
+          review_scheduled: updatedReviewScheduled,
+        }, {
+          where: {
+            id: cohortMilestone.id,
+          },
+        });
+      }
     }));
   });
   await CohortBreakout
@@ -356,15 +375,17 @@ export const updateMilestoneByDays = async (cohortId, updateByDays) => {
     ).then(cohortBreakouts => Promise.all(cohortBreakouts.map(cohortBreakout => {
       let updatedScheduledTime = calculateAfterDays(cohortBreakout.time_scheduled,
         updateByDays);
-      let zoomMeetingId = cohortBreakout.details.zoom.id;
-      // Update breakout time and Zoom meeting
-      CohortBreakout.update({
-        time_scheduled: updatedScheduledTime,
-      }, {
-        where: {
-          id: cohortBreakout.id,
-        },
-      }).then(() => updateVideoMeeting(zoomMeetingId, updatedScheduledTime));
+      if (updatedScheduledTime > currentDateTime) {
+        let zoomMeetingId = cohortBreakout.details.zoom.id;
+        // Update breakout time and Zoom meeting
+        CohortBreakout.update({
+          time_scheduled: updatedScheduledTime,
+        }, {
+          where: {
+            id: cohortBreakout.id,
+          },
+        }).then(() => updateVideoMeeting(zoomMeetingId, updatedScheduledTime));
+      }
     })));
   return { message: 'Update Milestones and breakouts' };
 };
