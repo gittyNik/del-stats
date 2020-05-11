@@ -34,15 +34,6 @@ const {
 
 const router = Express.Router();
 
-
-/**
- * @api {patch} /cohorts/movelearner move learner to a new cohort
- * @apiHeader {String} authorization JWT Token.
- * @apiName changeLearnerBreakout
- * @apiGroup Cohort
- */
-router.patch('/movelearner', moveLearnertoDifferentCohortEndpoint);
-
 /**
  * @api {get} /cohorts Get all cohorts
  * @apiHeader {String} authorization JWT Token.
@@ -92,7 +83,7 @@ router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR]));
  * @apiName changeLearnerBreakout
  * @apiGroup Cohort
  */
-// router.patch('/movelearner', moveLearnertoDifferentCohortEndpoint);
+router.patch('/movelearner', moveLearnertoDifferentCohortEndpoint);
 
 /**
  * @api {patch} /cohorts/breakout Schedule a Breakout for Cohort
