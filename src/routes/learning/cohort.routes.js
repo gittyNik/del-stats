@@ -17,6 +17,7 @@ import {
   updateZoomMeeting,
   updateCohortBreakout,
   updateMilestonesBreakoutTimelines,
+  createBreakoutsOfType,
 } from '../../controllers/learning/breakout.controller';
 import {
   allowSuperAdminOnly,
@@ -26,7 +27,9 @@ import {
 } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
-const { ADMIN, SUPERADMIN, CATALYST, EDUCATOR } = USER_ROLES
+const {
+  ADMIN, SUPERADMIN, CATALYST, EDUCATOR,
+} = USER_ROLES;
 
 const router = Express.Router();
 
@@ -123,6 +126,16 @@ router.patch('/:id/milestones', updateMilestonesBreakoutTimelines);
  */
 router.post('/schedule', createBreakouts);
 
+
+/**
+ * @api {patch} /cohorts/schedule Schedule Breakouts for Cohorts
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ScheduleBreakouts
+ * @apiGroup Cohort
+ */
+router.post('/schedule-breakout-type', createBreakoutsOfType);
+
+
 /**
  * @api {patch} /cohorts/:id/breakout Schedule a Single Breakout for Cohort with Learners Breakouts
  * @apiHeader {String} authorization JWT Token.
@@ -139,14 +152,6 @@ router.post('/:id/breakout', createSingleBreakout);
  */
 router.patch('/breakout/:id', updateCohortBreakout);
 
-
-/**
- * @api {patch} /cohorts/breakout/:id Update Cohort Breakout Time
- * @apiHeader {String} authorization JWT Token.
- * @apiName UpdateBreakout
- * @apiGroup CohortBreakout
- */
-router.patch('/breakout/:id', updateCohortBreakout);
 
 /**
  * @api {delete} /cohorts/:id Delete a cohort
