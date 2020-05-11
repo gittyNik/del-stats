@@ -10,6 +10,7 @@ import {
   beginCohort,
   getCohortByLearnerId,
   createUpdateCohortBreakout,
+  moveLearnertoDifferentCohortEndpoint
 } from '../../controllers/learning/cohort.controller';
 import {
   createBreakouts,
@@ -32,6 +33,15 @@ const {
 } = USER_ROLES;
 
 const router = Express.Router();
+
+
+/**
+ * @api {patch} /cohorts/movelearner move learner to a new cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName changeLearnerBreakout
+ * @apiGroup Cohort
+ */
+router.patch('/movelearner', moveLearnertoDifferentCohortEndpoint);
 
 /**
  * @api {get} /cohorts Get all cohorts
@@ -74,6 +84,15 @@ router.get('/:year/:location/:name', getCohortByName);
 router.get('/user/:id', getCohortByLearnerId);
 
 router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR]));
+
+
+/**
+ * @api {patch} /cohorts/movelearner move learner to a new cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName changeLearnerBreakout
+ * @apiGroup Cohort
+ */
+// router.patch('/movelearner', moveLearnertoDifferentCohortEndpoint);
 
 /**
  * @api {patch} /cohorts/breakout Schedule a Breakout for Cohort
