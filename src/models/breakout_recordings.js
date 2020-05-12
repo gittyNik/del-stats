@@ -2,7 +2,7 @@ import AWS from 'aws-sdk';
 import Sequelize from 'sequelize';
 import db from '../database';
 
-const privateKey = process.env.CLOUDFRONT_KEY;
+const privateKey = process.env.CLOUDFRONT_KEY.replace(/\\n/g, '\n');
 const publicKey = process.env.PUBLIC_KEY;
 
 export const BreakoutRecordings = db.define('breakout_recordings', {
