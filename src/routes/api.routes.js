@@ -23,7 +23,6 @@ import {
 } from "../controllers/api.controller";
 
 const router = Express.Router();
-router.use("/learning", learningRouter);
 
 // All routes
 router.use(browserAccessControl);
@@ -36,10 +35,10 @@ router.use("/doc", devOnly, Express.static("./doc"));
 router.use("/firewall", firewallRouter);
 
 // Fully private routes
-// router.use(authenticate);
+router.use(authenticate);
 router.use("/career", careerRouter);
 router.use("/community", communityRouter);
-// router.use("/learning", learningRouter);
+router.use("/learning", learningRouter);
 router.use("/toolset", toolsetRouter);
 router.use("/admin", adminRouter);
 router.use("/profile", profileRouter);
