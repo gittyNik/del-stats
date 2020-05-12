@@ -112,7 +112,7 @@ export const getReleaseTimeFromTopic = (topic_id, cohort_id) => Topic.findByPk(t
 
 export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => Promise.all(
   breakoutTemplates.map(async (breakoutTemplate) => {
-  // console.log('Unpack breakoutTemplate: ');
+    // console.log('Unpack breakoutTemplate: ');
     try {
       let extra = await getReleaseTimeFromTopic(breakoutTemplate.topic_id[0], cohort_id);
       // console.log('extra:', extra);
@@ -211,13 +211,13 @@ export const createTypeBreakoutsInMilestone = (cohort_id, program_id,
     where: {
       program_id,
       cohort_duration,
-      [Sequelize.Op.and]: Sequelize.literal(`details->"$.type"=${type}`),
+      [Sequelize.Op.and]: Sequelize.literal(`details->>'type'='${type}'`),
     },
     raw: true,
   },
 ).then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
   .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
-  .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates, cohort_id))
+  .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates, cohort_id, false, true))
   .then(createdBreakouts => {
     console.log('Breakouts created for Cohort');
     // console.log(createdBreakouts);
