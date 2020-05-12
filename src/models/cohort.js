@@ -257,15 +257,16 @@ export const moveLearnertoDifferentCohort = async (
     let breakouts = await createLearnerBreakouts(learner_id, future_cohort_id);
     let learnerChallenges = await getChallengesByUserId(learner_id);
     for (let i=0; i<learnerChallenges.length; i++) {
-      await deleteGithubRepository(learnerChallenges[i].repo);
+      if(learnerChallenges[i].repo){
+        await deleteGithubRepository(learnerChallenges[i].repo);
+      }
     }
     await deleteLearnerChallengesByLearnerId(learner_id);
     // TODO: add function for slack channel change
     // await moveLearnerToNewSlackTeam(learner_id, current_cohort_id, future_cohort_id);
     // return breakouts;
-    return learnerChallenges;
+    return {breakouts, learnerChallenges};
   } catch (err) {
-    console.log(err);
     return err;
   }
 };
