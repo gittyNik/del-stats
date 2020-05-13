@@ -13,6 +13,7 @@ import {
   createGithubRepositoryFromTemplate
 } from "../integrations/github/controllers";
 import { getGithubConnecionByUserId } from "./social_connection";
+import moment from "moment";
 
 const { contains } = Sequelize.Op;
 
@@ -217,9 +218,9 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
   }
 };
 
-export const createMilestoneTeams = cohort_milestone_id =>
+export const createMilestoneTeams = (cohort_milestone_id, release_time) =>
   findTeamsByCohortMilestoneId(cohort_milestone_id).then(teams => {
-    if (teams.length !== 0) {
+    if (teams.length !== 0 || moment().isAfter(moment(release_time))) {
       return teams;
     } else {
       return CohortMilestone.findByPk(cohort_milestone_id)

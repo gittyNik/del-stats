@@ -2,10 +2,19 @@ import Express from 'express';
 import {
   getAllMilestones, createMilestone, updateMilestone, deleteMilestone,
 } from '../../controllers/learning/milestone.controller';
-import { getCohortMilestonesByUserId } from '../../controllers/learning/cohort_milestone.controller';
+import { getCohortMilestonesByUserId, getCohortMilestoneWithDetails } from '../../controllers/learning/cohort_milestone.controller';
 // import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
+
+/**
+ * @api {get} /learning/content/milestones/:milestone_id Get Content Milestone
+ * @apiDescription get Content Milestone
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetContentMilestone
+ * @apiGroup ContentMilestone
+ */
+router.get('/:milestone_id', getCohortMilestoneWithDetails);
 
 /**
  * @api {get} /learning/content/milestones Get all Content Milestones
@@ -16,7 +25,7 @@ const router = Express.Router();
  */
 router.get('/', getAllMilestones);
 
-router.get('/:user_id', getCohortMilestonesByUserId);
+router.get('/user/:user_id', getCohortMilestonesByUserId);
 
 /**
  * @api {post} /learning/content/milestones/ Add Content Milestone
