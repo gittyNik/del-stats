@@ -10,41 +10,41 @@ import {
   repositoryPresentOrNot,
   isRepositoryCollaborator,
   createRepositoryifnotPresentFromTemplate,
-  provideAccessToRepoIfNot
+  provideAccessToRepoIfNot,
 } from "../integrations/github/controllers";
 export const LearnerChallenge = db.define("learner_challenges", {
   id: {
     type: Sequelize.UUID,
-    primaryKey: true
+    primaryKey: true,
   },
   challenge_id: {
     type: Sequelize.UUID,
-    references: { model: "challenges", key: "id" }
+    references: { model: "challenges", key: "id" },
   },
   learner_id: {
     type: Sequelize.UUID,
-    references: { model: "users", key: "id" }
+    references: { model: "users", key: "id" },
   },
   repo: Sequelize.STRING,
   learner_feedback: Sequelize.TEXT,
   review: Sequelize.TEXT,
   reviewed_by: {
     type: Sequelize.UUID,
-    references: { model: "users", key: "id" }
-  }
+    references: { model: "users", key: "id" },
+  },
 });
 
 export default LearnerChallenge;
 
-export const latestChallengeInCohort = async cohort_id => {
+export const latestChallengeInCohort = async (cohort_id) => {
   let ch = await getCohortFromId(cohort_id);
   return LearnerChallenge.findAll({
     order: [[Sequelize.col("created_at"), Sequelize.literal("DESC")]],
     where: {
-      learner_id: { [Sequelize.Op.in]: ch.learners }
+      learner_id: { [Sequelize.Op.in]: ch.learners },
     },
-  raw: true
-  }).then(challenges => challenges[0]);
+    raw: true,
+  }).then((challenges) => challenges[0]);
 };
 
 export const learnerChallengesFindOrCreate = async (
@@ -55,8 +55,8 @@ export const learnerChallengesFindOrCreate = async (
     let challenge = await LearnerChallenge.findOne({
       where: {
         challenge_id,
-        learner_id
-      }
+        learner_id,
+      },
     });
 
     if (challenge === null) {
@@ -79,11 +79,11 @@ export const learnerChallengesFindOrCreate = async (
         id: uuid(),
         challenge_id,
         learner_id,
-        repo: repo_name
+        repo: repo_name,
       });
       return {
         challenge: chl,
-        repo_link: `https://github.com/${process.env.SOAL_LEARNER_ORG}/${repo_name}`
+        repo_link: `https://github.com/${process.env.SOAL_LEARNER_ORG}/${repo_name}`,
       };
     } else {
       // // Create repository for Challenge
@@ -110,7 +110,7 @@ export const learnerChallengesFindOrCreate = async (
 
       return {
         challenge,
-        repo_link: `https://github.com/${process.env.SOAL_LEARNER_ORG}/${challenge.repo}`
+        repo_link: `https://github.com/${process.env.SOAL_LEARNER_ORG}/${challenge.repo}`,
       };
     }
   } catch (err) {
@@ -118,12 +118,19 @@ export const learnerChallengesFindOrCreate = async (
   }
 };
 
-export const getChallengesByUserId = learner_id =>
+export const getChallengesByUserId = (learner_id) =>
   LearnerChallenge.findAll(
     {
       where: {
-        learner_id
-      }
+        learner_id,
+      },
     },
     { raw: true }
   );
+
+export const deleteLearnerChallengesByLearnerId = (learner_id) =>
+  LearnerChallenge.destroy({
+    where: {
+      learner_id,
+    },
+  });

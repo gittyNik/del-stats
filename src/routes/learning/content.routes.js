@@ -1,5 +1,5 @@
 import Express from 'express';
-import breakoutRouter from './content_breakout.routes';
+import breakoutRouter from './content_breakouts.routes';
 import challengeRouter from './content_challenge.routes';
 import milestoneRouter from './content_milestone.routes';
 import resourceRouter from './content_resource.routes';

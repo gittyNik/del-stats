@@ -3,7 +3,8 @@ import {
 	createTeam,
 	getTeamIdByName,
 	isEducator,
-	toSentenceCase
+	toSentenceCase,
+	moveLearnerToNewGithubTeam
 } from "./teams.controller.js";
 import { sendInvitesToNewMembers } from "./orgs.controller.js";
 import {
@@ -14,7 +15,8 @@ import {
 	isRepositoryCollaborator,
 	createGithubRepository,
 	createRepositoryifnotPresentFromTemplate,
-	provideAccessToRepoIfNot
+	provideAccessToRepoIfNot,
+	deleteGithubRepository
 } from "./repository.controller.js";
 import {
 	getAllAuthoredCommits,
@@ -484,5 +486,7 @@ export {
 	numberOfLinesInEachMilestone,
 	weeklyCommitActivityData,
 	userAndTeamCommitsDayWise,
-	allStats
+	allStats,
+	moveLearnerToNewGithubTeam,
+	deleteGithubRepository
 };

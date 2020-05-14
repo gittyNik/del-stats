@@ -1,15 +1,36 @@
 import Express from 'express';
 import {
-  getCohortByName, getCohorts, getCohort, createCohort, updateCohort,
-  getUpcomingCohorts, deleteCohort, beginCohort, getCohortByLearnerId,
+  getCohortByName,
+  getCohorts,
+  getCohort,
+  createCohort,
+  updateCohort,
+  getUpcomingCohorts,
+  deleteCohort,
+  beginCohort,
+  getCohortByLearnerId,
   createUpdateCohortBreakout,
+  moveLearnertoDifferentCohortEndpoint
 } from '../../controllers/learning/cohort.controller';
 import {
-  createBreakouts, createSingleBreakout,
-  updateZoomMeeting, updateCohortBreakout,
+  createBreakouts,
+  createSingleBreakout,
+  updateZoomMeeting,
+  updateCohortBreakout,
   updateMilestonesBreakoutTimelines,
+  createBreakoutsOfType,
 } from '../../controllers/learning/breakout.controller';
-import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
+import {
+  allowSuperAdminOnly,
+  allowEducatorsOnly,
+  allowCatalystOnly,
+  allowMultipleRoles,
+} from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
+
+const {
+  ADMIN, SUPERADMIN, CATALYST, EDUCATOR,
+} = USER_ROLES;
 
 const router = Express.Router();
 
@@ -52,6 +73,25 @@ router.get('/:year/:location/:name', getCohortByName);
  * @apiGroup Cohort
  */
 router.get('/user/:id', getCohortByLearnerId);
+
+router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR]));
+
+
+/**
+ * @api {patch} /cohorts/movelearner move learner to a new cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName changeLearnerBreakout
+ * @apiGroup Cohort
+ */
+router.patch('/movelearner', moveLearnertoDifferentCohortEndpoint);
+
+/**
+ * @api {patch} /cohorts/breakout Schedule a Breakout for Cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ScheduleBreakouts
+ * @apiGroup Cohort
+ */
+router.post('/breakout', createUpdateCohortBreakout);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowSuperAdminOnly);
@@ -96,6 +136,16 @@ router.patch('/:id/milestones', updateMilestonesBreakoutTimelines);
  */
 router.post('/schedule', createBreakouts);
 
+
+/**
+ * @api {patch} /cohorts/schedule Schedule Breakouts for Cohorts
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ScheduleBreakouts
+ * @apiGroup Cohort
+ */
+router.post('/schedule-breakout-type', createBreakoutsOfType);
+
+
 /**
  * @api {patch} /cohorts/:id/breakout Schedule a Single Breakout for Cohort with Learners Breakouts
  * @apiHeader {String} authorization JWT Token.
@@ -105,21 +155,13 @@ router.post('/schedule', createBreakouts);
 router.post('/:id/breakout', createSingleBreakout);
 
 /**
- * @api {patch} /cohorts/breakout Schedule a Breakout for Cohort
- * @apiHeader {String} authorization JWT Token.
- * @apiName ScheduleBreakouts
- * @apiGroup Cohort
- */
-router.post('/breakout', createUpdateCohortBreakout);
-
-
-/**
  * @api {patch} /cohorts/breakout/:id Update Cohort Breakout Time
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateBreakout
  * @apiGroup CohortBreakout
  */
 router.patch('/breakout/:id', updateCohortBreakout);
+
 
 /**
  * @api {delete} /cohorts/:id Delete a cohort

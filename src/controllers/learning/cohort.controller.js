@@ -1,15 +1,20 @@
 import {
-  Cohort, getFutureCohorts, getCohortLearnerDetails,
-  getCohortLearnerDetailsByName, beginCohortWithId,
+  Cohort,
+  getFutureCohorts,
+  getCohortLearnerDetails,
+  getCohortLearnerDetailsByName,
+  beginCohortWithId,
   getCohortFromLearnerId,
-} from '../../models/cohort';
-import { createOrUpdateCohortBreakout } from '../../models/cohort_breakout';
-import { USER_ROLES } from '../../models/user';
+} from "../../models/cohort";
+import { createOrUpdateCohortBreakout } from "../../models/cohort_breakout";
+import { moveLearnertoDifferentCohort } from "../../models/cohort";
+import { User } from "../../models/user";
+import { USER_ROLES } from "../../models/user";
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
-    .then(data => res.json({ data }))
-    .catch(err => res.status(500).send(err));
+    .then((data) => res.json({ data }))
+    .catch((err) => res.status(500).send(err));
 };
 
 export const getCohortByName = (req, res) => {
@@ -18,7 +23,8 @@ export const getCohortByName = (req, res) => {
   getCohortLearnerDetailsByName({ name, location, year })
     .then((cohorts) => {
       res.json({ cohorts });
-    }).catch((e) => {
+    })
+    .catch((e) => {
       console.error(e);
       res.sendStatus(404);
     });
@@ -33,32 +39,33 @@ export const getCohort = (req, res) => {
 };
 
 export const createCohort = (req, res) => {
-  let {
-    name, location, program, start_date,
-  } = req.body;
+  let { name, location, program, start_date } = req.body;
   start_date = new Date(+start_date);
   Cohort.create({
-    name, location, program, start_date,
+    name,
+    location,
+    program,
+    start_date,
   })
     .then((data) => {
       res.status(201).json({ data });
     })
-    .catch(err => res.status(500).send({ err }));
+    .catch((err) => res.status(500).send({ err }));
 };
 
 export const updateCohort = (req, res) => {
   const { location, program, start_date } = req.body;
   const { id } = req.params;
   Cohort.update({ location, program, start_date }, { where: { id } })
-    .then(data => res.json({ data }))
-    .catch(err => res.status(500).send(err));
+    .then((data) => res.json({ data }))
+    .catch((err) => res.status(500).send(err));
 };
 
 export const deleteCohort = (req, res) => {
   const { id } = req.params;
   Cohort.destroy({ where: { id } })
     .then(() => res.status(204))
-    .catch(err => res.status(500).send(err));
+    .catch((err) => res.status(500).send(err));
 };
 
 export const getUpcomingCohorts = (req, res) => {
@@ -70,25 +77,20 @@ export const getUpcomingCohorts = (req, res) => {
 };
 
 export const createUpdateCohortBreakout = (req, res) => {
-  let {
-    cohort_id,
-    topic_id,
-    time_scheduled,
-    catalyst_id
-  } = req.body;
-  const {
-    id: user_id,
-    role
-  } = req.jwtData.user;
+  let { cohort_id, topic_id, time_scheduled, catalyst_id } = req.body;
+  const { id: user_id, role } = req.jwtData.user;
   if (user_id === catalyst_id || role === USER_ROLES.SUPERADMIN) {
-    createOrUpdateCohortBreakout(topic_id, cohort_id, time_scheduled).then((data) => {
+    createOrUpdateCohortBreakout(topic_id, cohort_id, time_scheduled)
+      .then((data) => {
         res.status(201).json({
-          data
+          data,
         });
       })
-      .catch(err => res.status(500).send({
-        err
-      }));
+      .catch((err) =>
+        res.status(500).send({
+          err,
+        })
+      );
   } else {
     res.status(403).send("You do not have access to this data!");
   }
@@ -98,10 +100,10 @@ export const beginCohort = (req, res) => {
   const { id } = req.params;
 
   beginCohortWithId(id)
-    .then(cohort => {
+    .then((cohort) => {
       res.send(cohort);
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       res.sendStatus(404);
     });
@@ -119,19 +121,29 @@ export const beginMilestone = () => {
 // create teams for each milestone
 
 export const getCohortByLearnerId = (req, res) => {
-  const {
-    id
-  } = req.params;
+  const { id } = req.params;
 
   getCohortFromLearnerId(id)
-    .then(cohort => {
+    .then((cohort) => {
       res.send({
         text: "Cohort Details",
-        data: cohort
-      })
+        data: cohort,
+      });
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       res.sendStatus(404);
-    })
+    });
+};
+
+export const moveLearnertoDifferentCohortEndpoint = async (req, res) => {
+  const { learner_id, current_cohort_id, future_cohort_id } = req.body;
+  let bk = await moveLearnertoDifferentCohort(
+    learner_id,
+    current_cohort_id,
+    future_cohort_id
+  );
+  res.send({
+    data: bk,
+  });
 };

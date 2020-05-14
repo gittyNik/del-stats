@@ -8,16 +8,16 @@ const getAllReposPageWise = (per_page = 100, page = 1) =>
 		.listForOrg({
 			org,
 			per_page,
-			page
+			page,
 		})
-		.then(repos => repos.data);
+		.then((repos) => repos.data);
 
 export const getAllRepos = async () =>
 	await getNumberOfPages("repos").then(async ({ pages }) => {
 		let repos = [];
 		for (let i = 1; i <= pages; i++) {
 			let mems = await getAllReposPageWise(100, i);
-			mems.map(mem => repos.push(mem));
+			mems.map((mem) => repos.push(mem));
 		}
 		return repos;
 	});
@@ -32,11 +32,11 @@ const getAllRepositoryCollaboratorsPageWise = (
 			owner: org,
 			repo,
 			per_page,
-			page
+			page,
 		})
-		.then(collaboraters => collaboraters.data);
+		.then((collaboraters) => collaboraters.data);
 
-const getAllRepositoryCollaborators = async repo =>
+const getAllRepositoryCollaborators = async (repo) =>
 	await getNumberOfPages("repoCollaborators", repo).then(
 		async ({ pages }) => {
 			let collaboraters = [];
@@ -46,7 +46,7 @@ const getAllRepositoryCollaborators = async repo =>
 					100,
 					i
 				);
-				mems.map(mem => collaboraters.push(mem));
+				mems.map((mem) => collaboraters.push(mem));
 			}
 			return collaboraters;
 		}
@@ -59,13 +59,19 @@ const getAllRepositoryCollaborators = async repo =>
 // 		username
 // 	});
 
-export const createGithubRepository = repo =>
+export const createGithubRepository = (repo) =>
 	octokit.repos.createInOrg({
 		org,
 		name: repo,
-		license_template: "mit"
+		license_template: "mit",
 	});
 
+export const deleteGithubRepository = (repo) =>
+	octokit.repos.delete({
+		owner: org,
+		repo,
+	});
+	
 export const createGithubRepositoryFromTemplate = async (
 	template_repo_name,
 	repo,
@@ -74,7 +80,7 @@ export const createGithubRepositoryFromTemplate = async (
 	const params = {
 		owner: org,
 		name: repo,
-		description
+		description,
 	};
 	return request
 		.post(
@@ -83,29 +89,29 @@ export const createGithubRepositoryFromTemplate = async (
 		.send(params)
 		.set("accept", "application/vnd.github.baptiste-preview+json")
 		.set("authorization", `token ${process.env.GITHUB_ACCESS_TOKEN}`)
-		.then(data => JSON.parse(data.text));
+		.then((data) => JSON.parse(data.text));
 };
 
-export const repositoryPresentOrNot = name =>
+export const repositoryPresentOrNot = (name) =>
 	getAllRepos()
-		.then(repos => _.filter(repos, repo => repo.name === name))
-		.then(repo => (repo.length > 0 ? true : false));
+		.then((repos) => _.filter(repos, (repo) => repo.name === name))
+		.then((repo) => (repo.length > 0 ? true : false));
 
 export const isRepositoryCollaborator = async (login, repo) =>
 	getAllRepositoryCollaborators(repo)
-		.then(collaboraters =>
+		.then((collaboraters) =>
 			_.filter(
 				collaboraters,
-				collaborater => collaborater.login === login
+				(collaborater) => collaborater.login === login
 			)
 		)
-		.then(collaborater => (collaborater.length > 0 ? true : false));
+		.then((collaborater) => (collaborater.length > 0 ? true : false));
 
 export const addCollaboratorToRepository = async (collaborater, repo) =>
 	octokit.repos.addCollaborator({
 		owner: org,
 		repo,
-		username: collaborater
+		username: collaborater,
 	});
 
 export const createRepositoryifnotPresentFromTemplate = async (

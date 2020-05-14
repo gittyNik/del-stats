@@ -1,16 +1,13 @@
 import Express from 'express';
 import {
-  getBreakouts,
-  createBreakout,
-  updateBreakout,
-  deleteBreakout,
+  getBreakouts, createBreakout, updateBreakout, deleteBreakout, getLiveCohortsBreakouts,
 } from '../../controllers/learning/breakout.controller';
 // import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
 
 /**
- * @api {get} /learning/content/breakouts Get all Content Breakouts
+ * @api {get} /learning/content/breakouts/cohort Get all Content Breakouts
  * @apiDescription get all Content Breakouts
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetContentBreakouts
@@ -19,7 +16,16 @@ const router = Express.Router();
 router.get('/', getBreakouts);
 
 /**
- * @api {post} /learning/content/breakouts/ Add Content Breakout
+ * @api {get} /learning/content/breakouts/cohort Get all live cohorts Content Breakouts
+ * @apiDescription get all live cohorts Content Breakouts
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetLiveCohortsContentBreakouts
+ * @apiGroup ContentBreakouts
+ */
+router.get('/live_cohorts', getLiveCohortsBreakouts);
+
+/**
+ * @api {post} /learning/content/breakouts/cohort Add Content Breakout
  * @apiDescription Add a Content Breakout
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddContentBreakout
@@ -35,7 +41,7 @@ router.get('/', getBreakouts);
  * @apiParam {String} location location of the Breakout
  * @apiParam {String} catalyst_id Id of the Catalyst
  * @apiParam {String="scheduled","started","cancelled",
- *  "aborted","running"} status Status of Breakout
+ *  "aborted","running","completed"} status Status of Breakout
  * @apiParam {String} catalyst_notes Catalyst Note
  * @apiParam {String} catalyst_feedback Feedback by Catalyst
  * @apiParam {Number} attendance_count Total attendence for the Breakout
@@ -43,14 +49,14 @@ router.get('/', getBreakouts);
 router.post('/', createBreakout);
 
 /**
- * @api {patch} /learning/content/breakouts/:id  Update Content Breakout
+ * @api {patch} /learning/content/breakouts/cohort/:id  Update Content Breakout
  * @apiDescription Update a Content Breakout
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateContentBreakout
  * @apiGroup ContentBreakout
  *
  * @apiParam {String="lecture","codealong","questionhour",
- *  "activity","groupdiscussion"} type Type of Breakout
+*  "activity","groupdiscussion"} type Type of Breakout
  * @apiParam {String} domain Domain of the Breakout
  * @apiParam {String} topic_id Id of the topic for Breakout
  * @apiParam {String} cohort_id Id of the Cohort
@@ -59,7 +65,7 @@ router.post('/', createBreakout);
  * @apiParam {String} location location of the Breakout
  * @apiParam {String} catalyst_id Id of the Catalyst
  * @apiParam {String="scheduled","started",
- * "cancelled","aborted","running"} status Status of Breakout
+ * "cancelled","aborted","running","completed"} status Status of Breakout
  * @apiParam {String} catalyst_notes Catalyst Note
  * @apiParam {String} catalyst_feedback Feedback by Catalyst
  * @apiParam {Number} attendance_count Total attendence for the Breakout
@@ -67,7 +73,7 @@ router.post('/', createBreakout);
 router.patch('/:id', updateBreakout);
 
 /**
- * @api {delete} /learning/content/breakouts/:id Delete Content Breakout
+ * @api {delete} /learning/content/breakouts/cohort/:id Delete Content Breakout
  * @apiDescription Delete a Content Breakout
  * @apiHeader {String} authorization JWT Token.
  * @apiName DeleteContentBreakout

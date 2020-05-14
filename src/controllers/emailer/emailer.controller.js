@@ -35,11 +35,14 @@ export const sendEmail = async (from_name, to_users, subject,
   html_path, auth, email_attachments) => {
   // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
-    service: auth.email_client,
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
+      type: 'OAuth2',
       user: auth.client_email,
-      // TODO: Need to encode-decode password in transit
-      pass: auth.client_password,
+      serviceClient: process.env.G_CLIENT,
+      privateKey: process.env.PG_KEY.replace(/\\n/g, '\n'),
     },
   });
 

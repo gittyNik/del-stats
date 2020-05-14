@@ -19,6 +19,7 @@ export const Documents = db.define('documents', {
   },
   user_id: {
     type: Sequelize.UUID,
+    unique: true,
     references: { model: 'users', key: 'id' },
   },
   is_verified: {

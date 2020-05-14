@@ -84,39 +84,34 @@ export const BreakoutTemplate = db.define('breakout_templates', {
   },
 });
 
-export const getReleaseTimeFromTopic = (topic_id, cohort_id) =>
-  Topic.findByPk(topic_id, {
-    attributes: ['milestone_id'],
+export const getReleaseTimeFromTopic = (topic_id, cohort_id) => Topic.findByPk(topic_id, {
+  attributes: ['milestone_id'],
+  raw: true,
+})
+  .then(topic => CohortMilestone.findOne({
+    attributes: ['id', 'release_time'],
+    where: {
+      cohort_id,
+      milestone_id: topic.milestone_id,
+    },
     raw: true,
   })
-    .then(topic =>
-      CohortMilestone.findOne({
-        attributes: ['id', 'release_time'],
-        where: {
-          cohort_id,
-          milestone_id: topic.milestone_id,
-        },
-        raw: true,
-      })
-        .then(cohortMilestone => {
-          return {
-            cohort_milestone_id: cohortMilestone.id,
-            release_time: cohortMilestone.release_time,
-          }
-        })
-        .catch(err => {
-          console.error(`Failed to find Cohort Milestone for the topic: ${topic}`);
-          console.error(err);
-          return null;
-        })
-    ).catch(err => {
-      console.error(`Failed to find topic for ${topic_id}`);
+    .then(cohortMilestone => ({
+      cohort_milestone_id: cohortMilestone.id,
+      release_time: cohortMilestone.release_time,
+    }))
+    .catch(err => {
+      console.error(`Failed to find Cohort Milestone for the topic: ${topic}`);
       console.error(err);
       return null;
-    });
+    })).catch(err => {
+    console.error(`Failed to find topic for ${topic_id}`);
+    console.error(err);
+    return null;
+  });
 
-export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => {
-  return Promise.all(breakoutTemplates.map(async (breakoutTemplate) => {
+export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => Promise.all(
+  breakoutTemplates.map(async (breakoutTemplate) => {
     // console.log('Unpack breakoutTemplate: ');
     try {
       let extra = await getReleaseTimeFromTopic(breakoutTemplate.topic_id[0], cohort_id);
@@ -126,8 +121,8 @@ export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => {
       console.log('error in update Breakout Template', err);
       return null;
     }
-  }));
-};
+  }),
+);
 
 
 function changeTimezone(date, ianatz) {
@@ -162,8 +157,8 @@ export const calculateBreakoutTime = (eachBreakoutTemp) => {
   return { ...eachBreakoutTemp, ...breakoutSchedule };
 };
 
-export const scheduling = (updatedBreakout) => {
-  return Promise.all(updatedBreakout.map(async (eachBreakout) => {
+export const scheduling = (updatedBreakout) => Promise.all(
+  updatedBreakout.map(async (eachBreakout) => {
     try {
       let updateBreakout = await calculateBreakoutTime(eachBreakout);
       return updateBreakout;
@@ -171,8 +166,8 @@ export const scheduling = (updatedBreakout) => {
       console.log('error in calculating Breakout Time', err);
       return null;
     }
-  }));
-};
+  }),
+);
 
 const createLearnerBreakouts = async (cohortBreakouts, cohort_id) => {
   // Create Learner breakouts based on Cohort Milestone breakouts
@@ -198,6 +193,31 @@ export const createBreakoutsInMilestone = (cohort_id, program_id,
 ).then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
   .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
   .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates, cohort_id))
+  .then(createdBreakouts => {
+    console.log('Breakouts created for Cohort');
+    // console.log(createdBreakouts);
+    return createLearnerBreakouts(createdBreakouts, cohort_id);
+    // return (createdBreakouts);
+  });
+
+
+// Create Breakouts of Specific type
+export const createTypeBreakoutsInMilestone = (cohort_id, program_id,
+  cohort_duration, type) => BreakoutTemplate.findAll(
+  {
+    attributes: ['id', 'name', 'topic_id', 'details',
+      'duration', 'time_scheduled', 'after_days',
+      'primary_catalyst', 'level'],
+    where: {
+      program_id,
+      cohort_duration,
+      [Sequelize.Op.and]: Sequelize.literal(`details->>'type'='${type}'`),
+    },
+    raw: true,
+  },
+).then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
+  .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
+  .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates, cohort_id, false, true))
   .then(createdBreakouts => {
     console.log('Breakouts created for Cohort');
     // console.log(createdBreakouts);

@@ -1,12 +1,17 @@
-import Sequelize from 'sequelize';
+import Sequelize from "sequelize";
 // import { Program } from './program';
-import { Application } from './application';
-import { User, USER_ROLES } from './user';
-import db from '../database';
-import { createCohortMilestones, CohortMilestone } from './cohort_milestone';
+import { Application } from "./application";
+import { User, USER_ROLES } from "./user";
+import db from "../database";
+import { createCohortMilestones, CohortMilestone } from "./cohort_milestone";
+import { getChallengesByUserId, deleteLearnerChallengesByLearnerId } from "./learner_challenge";
 // import { CohortBreakout } from "./cohort_breakout";
 // import { BreakoutTemplate, CreateBreakoutsInMilestone } from './breakout_template';
-import { createBreakoutsInMilestone } from './breakout_template';
+import uuid from "uuid/v4";
+import { createBreakoutsInMilestone } from "./breakout_template";
+import { removeLearnerBreakouts, createLearnerBreakouts } from "./learner_breakout";
+import { moveLearnerToNewGithubTeam, deleteGithubRepository }from "../integrations/github/controllers";
+
 
 
 export const Cohort = db.define('cohorts', {
@@ -19,12 +24,12 @@ export const Cohort = db.define('cohorts', {
   learners: Sequelize.ARRAY(Sequelize.UUID),
   program_id: {
     type: Sequelize.STRING,
-    references: { model: 'programs', key: 'id' },
+    references: { model: "programs", key: "id" },
   },
   start_date: Sequelize.DATE,
   learning_ops_manager: {
     type: Sequelize.UUID,
-    references: { model: 'users', key: 'id' },
+    references: { model: "users", key: "id" },
   },
   duration: Sequelize.INTEGER,
 });
@@ -48,14 +53,15 @@ export const getCohortsStartingToday = () => {
   });
 };
 
-export const getLiveCohorts = () => Cohort.findAll({
-  where: {
-    learners: Sequelize.literal(`learners<>\'{}\'`),
-  },
-  order: [['start_date', 'DESC']],
-  limit: 10,
-  raw: true,
-});
+export const getLiveCohorts = () =>
+  Cohort.findAll({
+    where: {
+      learners: Sequelize.literal(`learners<>\'{}\'`),
+    },
+    order: [["start_date", "DESC"]],
+    limit: 10,
+    raw: true,
+  });
 
 export const getFutureCohorts = () => {
   const tonight = new Date();
@@ -71,13 +77,15 @@ export const getFutureCohorts = () => {
   });
 };
 
-const populateCohortsWithLearners = cohorts => {
-  const learnerGetters = cohorts.map(cohort => User.findAll({
-    where: { id: { [Sequelize.Op.in]: cohort.learners } },
-  }).then(learners => {
-    cohort.learnerDetails = learners;
-    return cohort;
-  }));
+const populateCohortsWithLearners = (cohorts) => {
+  const learnerGetters = cohorts.map((cohort) =>
+    User.findAll({
+      where: { id: { [Sequelize.Op.in]: cohort.learners } },
+    }).then((learners) => {
+      cohort.learnerDetails = learners;
+      return cohort;
+    })
+  );
   return Promise.all(learnerGetters);
 };
 
@@ -96,73 +104,83 @@ export const getCohortLearnerDetailsByName = ({ name, location, year }) => {
   }).then(populateCohortsWithLearners);
 };
 
-export const getCohortLearnerDetails = id => Cohort.findByPk(id, { raw: true })
-  .then(cohort => populateCohortsWithLearners([cohort]));
+export const getCohortLearnerDetails = (id) =>
+  Cohort.findByPk(id, { raw: true }).then((cohort) =>
+    populateCohortsWithLearners([cohort])
+  );
 
-
-export const getLearnerDetailsForCohorts = ids => Cohort.findAll({
-  where: {
-    id: ids,
-  },
-  attributes: ['learners'],
-}).then(cohorts => populateCohortsWithLearners(cohorts));
+export const getLearnerDetailsForCohorts = (ids) =>
+  Cohort.findAll({
+    where: {
+      id: ids,
+    },
+    attributes: ["learners"],
+  }).then((cohorts) => populateCohortsWithLearners(cohorts));
 
 // TODO: change this to cohort_joined later
-export const updateCohortLearners = id => Application.findAll({
-  where: { cohort_joining: id, status: 'joined' },
-}).then(applications => {
-  const learners = applications.map(a => a.user_id);
-  return db
-    .transaction(transaction => Promise.all([
-      Cohort.update(
-        { learners },
-        {
-          where: { id },
-          returning: true,
-          raw: true,
-          transaction,
-        },
-      ).then(rows => rows[1][0]),
-      Application.update(
-        { status: 'archieved' },
-        {
-          where: {
-            user_id: { [Sequelize.Op.in]: learners },
-          },
-          transaction,
-        },
-      ),
-      User.update(
-        { role: USER_ROLES.LEARNER },
-        {
-          where: {
-            id: { [Sequelize.Op.in]: learners },
-          },
-          transaction,
-        },
-      ),
-    ])).then(([cohort]) => cohort);
-});
-
-export const beginCohortWithId = cohort_id => Promise.all([
-  updateCohortLearners(cohort_id),
-  createCohortMilestones(cohort_id),
-])
-  .then(([cohort, milestones]) => {
-    createBreakoutsInMilestone(cohort_id, cohort.program_id, cohort.duration)
-      .then(allBreakouts => {
-        console.log(`All breakouts scheduled for the cohort ${cohort_id} `);
-      });
-    // console.log(milestones);
-    cohort.milestones = milestones;
-    return cohort;
-  })
-  .catch(err => {
-    console.log(err);
-    return null;
+export const updateCohortLearners = (id) =>
+  Application.findAll({
+    where: { cohort_joining: id, status: "joined" },
+  }).then((applications) => {
+    const learners = applications.map((a) => a.user_id);
+    return db
+      .transaction((transaction) =>
+        Promise.all([
+          Cohort.update(
+            { learners },
+            {
+              where: { id },
+              returning: true,
+              raw: true,
+              transaction,
+            }
+          ).then((rows) => rows[1][0]),
+          Application.update(
+            { status: "archieved" },
+            {
+              where: {
+                user_id: { [Sequelize.Op.in]: learners },
+              },
+              transaction,
+            }
+          ),
+          User.update(
+            { role: USER_ROLES.LEARNER },
+            {
+              where: {
+                id: { [Sequelize.Op.in]: learners },
+              },
+              transaction,
+            }
+          ),
+        ])
+      )
+      .then(([cohort]) => cohort);
   });
 
-export const getUpcomingCohort = date => {
+export const beginCohortWithId = (cohort_id) =>
+  Promise.all([
+    updateCohortLearners(cohort_id),
+    createCohortMilestones(cohort_id),
+  ])
+    .then(([cohort, milestones]) => {
+      createBreakoutsInMilestone(
+        cohort_id,
+        cohort.program_id,
+        cohort.duration
+      ).then((allBreakouts) => {
+        console.log(`All breakouts scheduled for the cohort ${cohort_id} `);
+      });
+      // console.log(milestones);
+      cohort.milestones = milestones;
+      return cohort;
+    })
+    .catch((err) => {
+      console.log(err);
+      return null;
+    });
+
+export const getUpcomingCohort = (date) => {
   const tonight = date || new Date();
   tonight.setHours(23);
   tonight.setMinutes(59);
@@ -176,12 +194,79 @@ export const getUpcomingCohort = date => {
 };
 
 // Replace by findByPK
-export const getCohortFromId = id => Cohort.findOne({ where: { id } }).then(cohort => cohort);
+export const getCohortFromId = (id) =>
+  Cohort.findOne({ where: { id } }).then((cohort) => cohort);
 
-export const getCohortFromLearnerId = user_id => Application.findOne({
-  where: {
-    user_id,
-  },
-})
-  .then(data => data.cohort_joining)
-  .then(getCohortFromId);
+export const getCohortFromLearnerId = (user_id) =>
+  Application.findOne({
+    where: {
+      user_id,
+    },
+  })
+    .then((data) => data.cohort_joining)
+    .then(getCohortFromId);
+
+const removeLearnerFromCohort = async (learner_id, cohort_id) => {
+  let cohort = await getCohortFromId(cohort_id);
+  cohort = cohort.learners;
+  cohort = cohort.filter((learner) => learner !== learner_id);
+  return Cohort.update(
+    {
+      learners: cohort,
+    },
+    {
+      where: {
+        id: cohort_id,
+      },
+      returning: true,
+    }
+  );
+};
+
+const addLearnerToCohort = async (learner_id, cohort_id) => {
+  let cohort = await getCohortFromId(cohort_id);
+  cohort = cohort.learners;
+  cohort.push(learner_id);
+  return Cohort.update(
+    {
+      learners: cohort,
+    },
+    {
+      where: {
+        id: cohort_id,
+      },
+      returning: true,
+    }
+  );
+};
+
+export const moveLearnertoDifferentCohort = async (
+  learner_id,
+  current_cohort_id,
+  future_cohort_id
+) => {
+  try {
+    await removeLearnerFromCohort(learner_id, current_cohort_id);
+    await addLearnerToCohort(learner_id, future_cohort_id);
+    await moveLearnerToNewGithubTeam(
+      learner_id,
+      current_cohort_id,
+      future_cohort_id
+    );
+    await removeLearnerBreakouts(learner_id);
+    let breakouts = await createLearnerBreakouts(learner_id, future_cohort_id);
+    let learnerChallenges = await getChallengesByUserId(learner_id);
+    for (let i=0; i<learnerChallenges.length; i++) {
+      if(learnerChallenges[i].repo){
+        await deleteGithubRepository(learnerChallenges[i].repo);
+      }
+    }
+    await deleteLearnerChallengesByLearnerId(learner_id);
+    // TODO: add function for slack channel change
+    // await moveLearnerToNewSlackTeam(learner_id, current_cohort_id, future_cohort_id);
+    // return breakouts;
+    return {breakouts, learnerChallenges};
+  } catch (err) {
+    return err;
+  }
+};

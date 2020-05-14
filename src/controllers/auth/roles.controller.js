@@ -26,6 +26,14 @@ const allowRole = (role, errorMessage = ERRMSG) => (req, res, next) => {
   }
 };
 
+export const allowMultipleRoles = (roles,  errorMessage = ERRMSG) => (req, res, next) => {
+  if(req.jwtData.user && roles.includes(req.jwtData.user.role)) {
+    next();
+  } else {
+    res.status(403).send(errorMessage);
+  }
+}
+
 export const allowSuperAdminOnly = allowRole(
   USER_ROLES.SUPERADMIN,
   'You do not have superadmin privileges!',
@@ -33,4 +41,5 @@ export const allowSuperAdminOnly = allowRole(
 export const allowLearnersOnly = allowRole(USER_ROLES.LEARNER);
 export const allowAdminsOnly = allowRole(USER_ROLES.ADMIN);
 export const allowEducatorsOnly = allowRole(USER_ROLES.EDUCATOR);
+export const allowCatalystOnly = allowRole(USER_ROLES.CATALYST);
 export const allowEnablersOnly = allowRole(USER_ROLES.ENABLER);
