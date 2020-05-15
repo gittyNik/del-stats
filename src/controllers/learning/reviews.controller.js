@@ -12,7 +12,7 @@ export const getAllReviewsAPI = (req, res) => {
 };
 
 export const getReviewsByStatusAPI = (req, res) => {
-  const { status } = req.body;
+  const { status } = req.params;
   getReviewsByStatus(status).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
@@ -24,7 +24,7 @@ export const getReviewsByUserIdAPI = (req, res) => {
 };
 
 export const getReviewsByIdAPI = (req, res) => {
-  const { review_id } = req.body;
+  const { review_id } = req.params;
   getReviewsById(review_id).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };

@@ -9,7 +9,6 @@ export const Rubrics = db.define('rubrics', {
   },
   created_at: {
     type: Sequelize.DATE,
-    defaultValue: Sequelize.literal('NOW()'),
   },
   updated_at: {
     type: Sequelize.DATE,
@@ -43,5 +42,25 @@ export const getReviewsByMilestone = (milestone_id, program) => Rubrics.findAll(
 
 
 export const getRubricsById = id => Rubrics.findOne(
+  { where: { id } },
+);
+
+export const createRubrics = () => (milestone_id, rubric_name,
+  program, rubric_parameters) => Rubrics.create(
+  {
+    milestone_id,
+    rubric_name,
+    program,
+    rubric_parameters,
+    created_at: Sequelize.literal('NOW()'),
+  },
+);
+
+export const updateRubrics = (id, rubric_parameters) => Rubrics.update({
+  rubric_parameters,
+}, { where: { id } });
+
+
+export const deleteRubric = (id) => Rubrics.delete(
   { where: { id } },
 );
