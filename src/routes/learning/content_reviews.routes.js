@@ -3,6 +3,7 @@ import {
   getAllReviewsAPI, getReviewsByIdAPI, getReviewsByStatusAPI,
   getReviewsByTeamAPI, getReviewsByUserIdAPI,
   createReview, addReviewsForTeamAPI,
+  createReviewScheduleAPI,
 } from '../../controllers/learning/reviews.controller';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 // import { apiNotReady } from '../../controllers/api.controller';
@@ -56,6 +57,15 @@ router.get('/review/users', getReviewsByUserIdAPI);
  * @apiGroup Reviews
  */
 router.get('/status/:id', getReviewsByStatusAPI);
+
+/**
+ * @api {get} /learning/content/reviews/status/:id/ Get Reviews by status
+ * @apiDescription get Reviews by status
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetReviewsByStatus
+ * @apiGroup Reviews
+ */
+router.post('/schedule', createReviewScheduleAPI);
 
 /**
  * @api {post} /learning/content/reviews/ Add Team Reviews

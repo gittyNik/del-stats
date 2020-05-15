@@ -21,6 +21,7 @@ export const EVENT_STATUS = [
   'aborted',
   'running',
   'completed',
+  'review-shared',
 ];
 export const BREAKOUT_TYPE = [
   'lecture',
@@ -28,6 +29,7 @@ export const BREAKOUT_TYPE = [
   'questionhour',
   'activity',
   'groupdiscussion',
+  'reviews',
 ];
 
 export const CohortBreakout = db.define('cohort_breakouts', {

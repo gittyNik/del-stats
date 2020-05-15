@@ -53,7 +53,7 @@ export const CohortMilestone = db.define('cohort_milestones', {
   },
 });
 
-const { lte, gt } = Sequelize.Op;
+const { lte, gt, between } = Sequelize.Op;
 
 export const getDataForMilestoneName = id => CohortMilestone.findOne({
   where: {
@@ -80,7 +80,7 @@ CohortMilestone.prototype.getUsers = function getCurrentUsers() {
 
 const populateTeamsWithLearners = teams => {
   const learnerGetters = teams.map(team => User.findAll({
-    where: { id: { [Sequelize.Op.in]: team.learners } }
+    where: { id: { [Sequelize.Op.in]: team.learners } },
   }).then(learners => {
     team.learners = learners;
     return team;
@@ -235,6 +235,22 @@ export const getCurrentMilestoneOfCohortDelta = (cohort_id) => {
     });
 };
 
+export const getLiveMilestones = async (cohort_id) => {
+  const now = Sequelize.literal('NOW()');
+  let nextSevenDays = new Date();
+  nextSevenDays.setDate(nextSevenDays.getDate() + 7);
+  return CohortMilestone.findOne({
+    order: Sequelize.col('release_time'),
+    where: {
+      release_time: { [lte]: now },
+      review_scheduled: { between: [now, nextSevenDays] },
+      cohort_id,
+    },
+    include: [Cohort, Milestone],
+    raw: true,
+  });
+};
+
 export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
   const now = Sequelize.literal('NOW()');
   return CohortMilestone.findOne({
@@ -261,7 +277,7 @@ export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
       .then(([topics, programTopics, teams,
         // UNCOMMENT THIS ONCE THE STATS ARE READY
         // stats,
-         breakouts]) => {  // add breakouts
+        breakouts]) => { // add breakouts
         milestone.topics = topics;
         milestone.programTopics = programTopics;
         milestone.teams = teams;
@@ -278,6 +294,7 @@ function* calculateReleaseTime(cohort_start, pending, cohort_duration, cohort_pr
   const DAY_MSEC = 86400000;
   let milestone_duration = 0;
   const start = new Date(cohort_start);
+  let end;
   if (cohort_duration === 16) {
     milestone_duration = 7;
   } else {
@@ -288,18 +305,19 @@ function* calculateReleaseTime(cohort_start, pending, cohort_duration, cohort_pr
     // Calculate first Saturday 00:00:00
     start.setDate(cohort_start.getDate() + (((1 + 7 - cohort_start.getDay()) % 7)) - 2);
     // Calculate Monday 23:59:59
-    var end = new Date(+start + DAY_MSEC * 2.99999);
+    end = new Date(+start + DAY_MSEC * 2.99999);
   } else {
     // Calculate first Monday 00:00:00
     start.setDate(cohort_start.getDate() + ((1 + 7 - cohort_start.getDay()) % 7));
     // Calculate Tuesday 23:59:59
-    var end = new Date(+start + DAY_MSEC * 1.99999);
+    end = new Date(+start + DAY_MSEC * 1.99999);
   }
 
   while (pending--) {
     if (pending === 0) {
       // Calculate next friday
-      end.setDate(start.getDate() + ((5 + milestone_duration - cohort_start.getDay()) % milestone_duration));
+      end.setDate(start.getDate() + (
+        (5 + milestone_duration - cohort_start.getDay()) % milestone_duration));
     }
     yield { start, end };
     start.setTime(+end + 1000);
@@ -309,7 +327,7 @@ function* calculateReleaseTime(cohort_start, pending, cohort_duration, cohort_pr
 
 export const createCohortMilestones = cohort_id => Cohort.findByPk(cohort_id, {
   include: [Program],
-  raw: true
+  raw: true,
 }).then(cohort => {
   const milestones = cohort['program.milestones'];
   const cohort_duration = cohort.duration;
