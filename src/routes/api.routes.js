@@ -41,7 +41,7 @@ router.use('/admin', adminRouter);
 router.use('/profile', profileRouter);
 
 // Calendar
-router.use('/calendar', calendarRouter)
+router.use('/calendar', calendarRouter);
 
 /**
  * @api {get} / Get sample response

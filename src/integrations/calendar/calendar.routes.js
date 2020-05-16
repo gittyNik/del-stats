@@ -1,6 +1,8 @@
 import Express from 'express';
-import { getAllCalendarEvents, createCalendarEvent, 
-    scheduleCalendarEventForLearner } from './calendar.controller';
+import {
+  getAllCalendarEvents, createCalendarEvent,
+  scheduleCalendarEventForLearner,
+} from './calendar.controller';
 
 const router = Express.Router();
 
@@ -21,7 +23,7 @@ router.get('/', getAllCalendarEvents);
  * @apiName GetCalendarEvent
  * @apiGroup CalendarEvent
  */
-//router.get('/:id', getEvent);
+// router.get('/:id', getEvent);
 
 /**
  * @api {post} /calendar Add Calendar Event
@@ -53,7 +55,7 @@ router.post('/learner', scheduleCalendarEventForLearner);
  * @apiParam {String} description Description of the topic
  * @apiParam {String} milestone_id UUID of the Milestone
  */
-//router.patch('/:id', updateTopic);
+// router.patch('/:id', updateTopic);
 
 /**
  * @api {delete} /calendar/:id  Delete Calendar Event
@@ -62,6 +64,6 @@ router.post('/learner', scheduleCalendarEventForLearner);
  * @apiName DeleteCalendarEvent
  * @apiGroup CalendarEvent
  */
-//router.delete('/:id', deleteOne);
+// router.delete('/:id', deleteOne);
 
 export default router;

@@ -3,7 +3,7 @@ import uuid from 'uuid/v4';
 import { getSoalToken } from '../../util/token';
 import { getUserFromEmails } from '../../models/user';
 import { SocialConnection, PROVIDERS } from '../../models/social_connection';
-import { getGoogleAccountFromCode } from '../../util/calendar-util';
+import { getGoogleAccountFromCode, urlGoogle, getTokensFromCode } from '../../util/calendar-util';
 
 const getGithubAccessToken = (code) => {
   const params = {
@@ -20,7 +20,7 @@ const getGithubAccessToken = (code) => {
 };
 
 const fetchProfileFromGithub = ({ githubToken, expiry }) => (
-// TODO: reject if expired
+  // TODO: reject if expired
 
   // fetching profile details from github
   request.get(`https://api.github.com/user?${githubToken}`)
@@ -92,8 +92,8 @@ export const linkWithGithub = (req, res) => {
     })
     .then(addGithubProfile)
     .then((userProfile) => { // {user, socialConnection}
-    // TODO: Do any user updates here.
-    // e.g. add avatar_url from github to user profile
+      // TODO: Do any user updates here.
+      // e.g. add avatar_url from github to user profile
       const {
         provider, username, email, profile,
       } = userProfile.socialConnection;
@@ -125,8 +125,8 @@ export const signinWithGithub = (req, res) => {
   getGithubAccessToken(code)
     .then(fetchProfileFromGithub)
     .then(({ profile, githubToken, expiry }) => (
-    // If no user's email is not found with github emails,
-    // then authentication error should be sent as resopnse
+      // If no user's email is not found with github emails,
+      // then authentication error should be sent as resopnse
       getUserFromEmails(profile.emails)
         .then((user) => {
           if (user === null) { return Promise.reject('NO_EMAIL'); }
@@ -197,18 +197,18 @@ export const linkGoogleCalendar = (req, res) => {
     .then((err, user_profile) => {
       // If no user's email is not found with github emails,
       // then authentication error should be sent as resopnse
-        if (err){
-          return err
-        } else {
-          getUserFromEmails([user_profile.email])
+      if (err) {
+        return err
+      } else {
+        getUserFromEmails([user_profile.email])
           .then((user) => {
             if (user === null) { return Promise.reject('NO_EMAIL'); }
             return {
               profile, googleToken, expiry, user,
             };
           })
-        }
-      })
+      }
+    })
     .then(({ profile, googleToken, expiry }) => {
       // If the current user's email is not found with github emails,
       // then authentication error should be sent as resopnse
@@ -227,8 +227,8 @@ export const linkGoogleCalendar = (req, res) => {
     })
     .then(addGoogleProfile)
     .then((userProfile) => { // {user, socialConnection}
-    // TODO: Do any user updates here.
-    // e.g. add avatar_url from github to user profile
+      // TODO: Do any user updates here.
+      // e.g. add avatar_url from github to user profile
       const {
         provider, username, email, profile,
       } = userProfile.socialConnection;
@@ -249,7 +249,7 @@ export const linkGoogleCalendar = (req, res) => {
     });
 };
 
-// A non authenticated route to signin with github
+// A non authenticated route to signin with google
 // TODO: should handle 2 cases
 // 1. We already have profile and get the user from there
 // 2. We don't have profile, ask for otp authentication
@@ -259,18 +259,18 @@ export const signinWithGoogleCalendar = (req, res) => {
 
   getGoogleAccountFromCode(code)
     .then((err, user_profile) => {
-    // If no user's email is not found with github emails,
-    // then authentication error should be sent as resopnse
-      if (err){
+      // If no user's email is not found with google,
+      // then authentication error should be sent as resopnse
+      if (err) {
         return err
       } else {
         getUserFromEmails([user_profile.email])
-        .then((user) => {
-          if (user === null) { return Promise.reject('NO_EMAIL'); }
-          return {
-            profile, googleToken, expiry, user,
-          };
-        })
+          .then((user) => {
+            if (user === null) { return Promise.reject('NO_EMAIL'); }
+            return {
+              profile, googleToken, expiry, user,
+            };
+          })
       }
     })
     .then(addGoogleProfile)
@@ -292,4 +292,78 @@ export const signinWithGoogleCalendar = (req, res) => {
         res.status(500).send('Authentication Failed');
       }
     });
+};
+
+// checks if google proiver is present in social connection
+// sends redirect url if not found.
+export const checkGoogleOrSendRedirectUrl = async (req, res) => {
+  const { userId } = req.jwtData;
+  // console.log(req.jwtData);
+  const result = await SocialConnection.findOne({
+    where: {
+      user_id: userId,
+      provider: PROVIDERS.GOOGLE,
+    },
+  })
+    .then((socialConnection) => {
+      if (socialConnection) {
+        return {
+          text: 'Google access Token exists',
+          data: {
+            redirectUrl: false,
+          },
+        };
+      }
+      return {
+        text: 'Google access Token doesnt exist',
+        data: {
+          redirectUrl: urlGoogle(),
+        },
+      };
+    })
+    .catch(err => {
+      console.error(err);
+      return {
+        text: 'Error checking google access Token',
+        data: {
+          error: 'Error checking google access Token',
+        },
+      };
+    });
+  res.send(result);
+};
+
+export const handleGoogleCallback = async (req, res) => {
+  const { code, error } = req.query;
+  const { WEB_SERVER } = process.env;
+  console.log(code);
+  if (code) {
+    const data = await getTokensFromCode(code);
+    // console.log('Final Data displayed in the handleGoogleCallback');
+    console.log(data);
+    // console.log('individual data');
+    // console.log(data.tokens.refresh_token);
+    // console.log(data.profile.email);
+    const user = await getUserFromEmails([data.profile.email])
+      .then(user0 => user0.toJSON())
+      .catch(err => console.log(err));
+    if (user) {
+      const { profile } = data;
+      const googleToken = data.tokens.access_token;
+      const expiry = data.expiry_date;
+      profile.tokens = data.tokens;
+      const dataSC = await addGoogleProfile({
+        profile,
+        googleToken,
+        expiry,
+        user,
+      });
+      console.log(dataSC.socialConnection);
+      res.redirect(`${WEB_SERVER}/learning/lr/dashboard`);
+    }
+  } else {
+    console.log(error);
+    // console.log(code);
+    res.redirect(`${WEB_SERVER}/learning/lr/dashboard`);
+  }
 };
