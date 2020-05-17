@@ -19,20 +19,21 @@ export const allowLearnerWithId = learnerId => (req, res, next) => {
 };
 
 const allowRole = (role, errorMessage = ERRMSG) => (req, res, next) => {
-  if (req.jwtData.user && req.jwtData.user.role === role) {
+  if ((req.jwtData.user && req.jwtData.user.role === role)
+    || (role === USER_ROLES.SUPERADMIN)) {
     next();
   } else {
     res.status(403).send(errorMessage);
   }
 };
 
-export const allowMultipleRoles = (roles,  errorMessage = ERRMSG) => (req, res, next) => {
-  if(req.jwtData.user && roles.includes(req.jwtData.user.role)) {
+export const allowMultipleRoles = (roles, errorMessage = ERRMSG) => (req, res, next) => {
+  if (req.jwtData.user && roles.includes(req.jwtData.user.role)) {
     next();
   } else {
     res.status(403).send(errorMessage);
   }
-}
+};
 
 export const allowSuperAdminOnly = allowRole(
   USER_ROLES.SUPERADMIN,

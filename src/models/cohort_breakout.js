@@ -76,6 +76,7 @@ export const CohortBreakout = db.define('cohort_breakouts', {
     type: Sequelize.DATE,
     defaultValue: Sequelize.literal('NOW()'),
   },
+  team_feedback: Sequelize.JSON,
 });
 
 export const scheduleBreakoutLecture = (
@@ -251,7 +252,8 @@ export const BreakoutWithOptions = (breakoutObject) => {
   let {
     topic_id, cohort_id, breakout_template_id, time_scheduled,
     duration, location, catalyst_id, details,
-    isVideoMeeting, isCodeSandbox, topic_name, cohortName,
+    isVideoMeeting, isCodeSandbox, cohortName,
+    type, team_feedback, catalyst_notes,
   } = breakoutObject;
 
   let time = time_scheduled.toLocaleString().split(' ').join('T');
@@ -279,7 +281,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
         return createNewBreakout(
           breakout_template_id, topic_id, cohort_id,
           time_scheduled, duration, location,
-          catalyst_id, details,
+          catalyst_id, details, type, team_feedback, catalyst_notes,
         )
           .then(data =>
             // console.log('Breakout created with codesandbox and videoMeeting');
@@ -293,7 +295,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
       return createNewBreakout(
         breakout_template_id, topic_id, cohort_id,
         time_scheduled, duration, location,
-        catalyst_id, details,
+        catalyst_id, details, type, team_feedback, catalyst_notes,
       ).then(data => {
         console.log('Breakout created with code sandbox only', data);
         return data;
@@ -306,7 +308,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
         return createNewBreakout(
           breakout_template_id, topic_id, cohort_id,
           time_scheduled, duration, location,
-          catalyst_id, details,
+          catalyst_id, details, type, team_feedback, catalyst_notes,
         )
           .then(data => {
             console.log('Breakout and video meeting created Created', data);
@@ -317,7 +319,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
     return createNewBreakout(
       breakout_template_id, topic_id, cohort_id,
       time_scheduled, duration, location,
-      catalyst_id, details,
+      catalyst_id, details, type, team_feedback, catalyst_notes,
     )
       .then(data => {
         console.log('Breakout created without video meeting created Created', data);

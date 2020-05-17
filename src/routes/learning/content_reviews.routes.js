@@ -4,6 +4,7 @@ import {
   getReviewsByTeamAPI, getReviewsByUserIdAPI,
   createReview, addReviewsForTeamAPI,
   createReviewScheduleAPI,
+  getUserAndTeamReviewsAPI,
 } from '../../controllers/learning/reviews.controller';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 // import { apiNotReady } from '../../controllers/api.controller';
@@ -41,13 +42,22 @@ router.get('/:id', getReviewsByTeamAPI);
 router.get('/review/:id', getReviewsByIdAPI);
 
 /**
- * @api {get} /learning/content/reviews/users/ Get review for users
+ * @api {get} /learning/content/reviews/user/ Get review for user
  * @apiDescription get review for user
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetReviewsForUser
  * @apiGroup Reviews
  */
-router.get('/review/users', getReviewsByUserIdAPI);
+router.get('/user/:id', getReviewsByUserIdAPI);
+
+/**
+ * @api {get} /learning/content/reviews/user/team Get review for users
+ * @apiDescription get review for user
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetReviewsForUser
+ * @apiGroup Reviews
+ */
+router.get('/user/team/:id', getUserAndTeamReviewsAPI);
 
 /**
  * @api {get} /learning/content/reviews/status/:id/ Get Reviews by status

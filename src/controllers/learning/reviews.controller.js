@@ -4,6 +4,7 @@ import {
   updateStatusForTeam, createReviewEntry,
   addReviewsForTeam, getReviewsByTeam,
   createReviewSchedule,
+  getUserAndTeamReviews,
 } from '../../models/reviews';
 
 export const getAllReviewsAPI = (req, res) => {
@@ -17,9 +18,17 @@ export const getReviewsByStatusAPI = (req, res) => {
     .catch(err => res.status(500).send(err));
 };
 
+// Get reviews for a user
 export const getReviewsByUserIdAPI = (req, res) => {
   const { user_id } = req.body;
   getReviewsByUserId(user_id).then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
+
+// Get reviews for a user and Team user for that user
+export const getUserAndTeamReviewsAPI = (req, res) => {
+  const { user_id } = req.body;
+  getUserAndTeamReviews(user_id).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 

@@ -5,6 +5,7 @@ import milestoneRouter from './content_milestone.routes';
 import resourceRouter from './content_resource.routes';
 import topicRouter from './content_topic.routes';
 import reviewsRouter from './content_reviews.routes';
+import rubricsRouter from './content_rubrics.routes';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
@@ -19,5 +20,6 @@ router.use('/challenges', challengeRouter);
 router.use('/milestones', milestoneRouter);
 router.use('/topics', topicRouter);
 router.use('/reviews', reviewsRouter);
+router.use('/rubrics', rubricsRouter);
 
 export default router;

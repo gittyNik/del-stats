@@ -235,16 +235,17 @@ export const getCurrentMilestoneOfCohortDelta = (cohort_id) => {
     });
 };
 
-export const getLiveMilestones = async (cohort_id) => {
+export const getLiveMilestones = () => {
   const now = Sequelize.literal('NOW()');
   let nextSevenDays = new Date();
   nextSevenDays.setDate(nextSevenDays.getDate() + 7);
-  return CohortMilestone.findOne({
-    order: Sequelize.col('release_time'),
+  return CohortMilestone.findAll({
+    order: [
+      [Cohort, 'duration', 'ASC'],
+    ],
     where: {
       release_time: { [lte]: now },
-      review_scheduled: { between: [now, nextSevenDays] },
-      cohort_id,
+      review_scheduled: { [between]: [now, nextSevenDays] },
     },
     include: [Cohort, Milestone],
     raw: true,
