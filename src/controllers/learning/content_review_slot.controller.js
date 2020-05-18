@@ -27,24 +27,25 @@ export const getReviewSlotsByProgramAPI = (req, res) => {
 
 export const createReviewSlotsAPI = (req, res) => {
   const {
-    milestone_id,
-    rubric_name,
-    program,
-    rubric_parameters,
+    cohort_duration, program,
+    review_day, time_scheduled,
+    reviewer, week, review_duration,
   } = req.body;
 
-  createReviewSlots(milestone_id, rubric_name,
-    program, rubric_parameters).then((data) => { res.json(data); })
+  createReviewSlots(cohort_duration, program,
+    review_day, time_scheduled, reviewer, week,
+    review_duration).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
 export const updateReviewSlotsAPI = (req, res) => {
   const {
-    rubric_parameters,
+    review_day, time_scheduled, reviewer, week, review_duration,
   } = req.body;
   const { id } = req.params;
 
-  updateReviewSlots(id, rubric_parameters).then((data) => { res.json(data); })
+  updateReviewSlots(id, review_day,
+    time_scheduled, reviewer, week, review_duration).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 

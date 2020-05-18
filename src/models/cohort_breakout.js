@@ -225,17 +225,22 @@ export const createNewBreakout = (
   location,
   catalyst_id,
   details,
+  type = 'lecture',
+  team_feedback = null,
+  catalyst_notes = null,
   attendance_count = null,
   domain = null,
-  catalyst_notes = null,
   catalyst_feedback = null,
 ) => {
+  if (typeof topic_id !== 'undefined' && topic_id.length > 0) {
+    topic_id = topic_id[0];
+  }
   console.log(`${time_scheduled} ${duration} ${location}`);
   return CohortBreakout.create({
     id: uuid(),
     breakout_template_id,
     domain,
-    topic_id: topic_id[0],
+    topic_id,
     cohort_id,
     time_scheduled,
     duration,
@@ -245,6 +250,8 @@ export const createNewBreakout = (
     attendance_count,
     catalyst_feedback,
     details,
+    type,
+    team_feedback,
   });
 };
 

@@ -34,7 +34,7 @@ export const LearnerBreakout = db.define('learner_breakouts', {
     type: Sequelize.DATE,
     defaultValue: Sequelize.literal('NOW()'),
   },
-  learner_review: Sequelize.JSON,
+  review_feedback: Sequelize.JSON,
 });
 
 export const createLearnerBreakoutsForCohortMilestones = (

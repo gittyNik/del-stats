@@ -15,7 +15,7 @@ const router = Express.Router();
 router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR]));
 
 /**
- * @api {get} /learning/content/rubrics Get all ReviewSlots
+ * @api {get} /learning/content/review-slots Get all ReviewSlots
  * @apiDescription get all ReviewSlots
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetReviewSlots
@@ -24,8 +24,8 @@ router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR]));
 router.get('/', getAllReviewSlotsAPI);
 
 /**
- * @api {get} /learning/content/rubrics/:id Get rubrics by ID
- * @apiDescription get  rubrics by ID
+ * @api {get} /learning/content/review-slots/:id Get review-slots by ID
+ * @apiDescription get  review-slots by ID
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetReviewSlots
  * @apiGroup ReviewSlots
@@ -33,8 +33,8 @@ router.get('/', getAllReviewSlotsAPI);
 router.get('/:id', getReviewSlotsByIdAPI);
 
 /**
- * @api {get} /learning/content/rubrics/program/:program Get rubrics by program
- * @apiDescription get rubrics by id
+ * @api {get} /learning/content/review-slots/program/:program Get review-slots by program
+ * @apiDescription get review-slots by id
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetReviewSlots
  * @apiGroup ReviewSlots
@@ -47,7 +47,7 @@ router.use(allowAdminsOnly);
 
 
 /**
- * @api {post} /learning/content/rubrics/ Add ReviewSlots
+ * @api {post} /learning/content/review-slots/ Add ReviewSlots
  * @apiDescription Add a ReviewSlot
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddReviewSlot
@@ -61,7 +61,7 @@ router.use(allowAdminsOnly);
 router.post('/', createReviewSlotsAPI);
 
 /**
- * @api {patch} /learning/content/rubrics/:id  Update ReviewSlots
+ * @api {patch} /learning/content/review-slots/:id  Update ReviewSlots
  * @apiDescription Update a ReviewSlot
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateReviewSlot
@@ -73,7 +73,7 @@ router.post('/', createReviewSlotsAPI);
 router.patch('/:id', updateReviewSlotsAPI);
 
 /**
- * @api {delete} /learning/content/rubrics/:id Delete ReviewSlot
+ * @api {delete} /learning/content/review-slots/:id Delete ReviewSlot
  * @apiDescription Delete a Content ReviewSlot
  * @apiHeader {String} authorization JWT Token.
  * @apiName DeleteReviewSlot

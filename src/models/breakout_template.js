@@ -125,7 +125,7 @@ export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => Promise
 );
 
 
-function changeTimezone(date, ianatz) {
+export const changeTimezone = (date, ianatz) => {
   // suppose the date is 02:30 UTC
   let invdate = new Date(date.toLocaleString('en-US', {
     timeZone: ianatz,
@@ -137,7 +137,7 @@ function changeTimezone(date, ianatz) {
 
   // so 08:00pm in India is 02:30 UTC
   return new Date(date.getTime() + diff);
-}
+};
 
 
 export const calculateBreakoutTime = (eachBreakoutTemp) => {

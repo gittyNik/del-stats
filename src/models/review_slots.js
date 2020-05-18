@@ -32,14 +32,27 @@ export const ReviewSlots = db.define('review_slots', {
   reviewer: {
     type: Sequelize.UUID,
     references: { model: 'users', key: 'id' },
-    allowNull: false,
+    allowNull: true,
+  },
+  week: {
+    type: Sequelize.INTEGER,
+    defaultValue: 1,
+  },
+  review_duration: {
+    type: Sequelize.INTEGER,
   },
 });
 
 export const getAllReviewSlots = () => ReviewSlots.findAll({});
 
 export const getReviewSlotsByProgram = (program) => ReviewSlots.findAll(
-  { where: { program } },
+  {
+    order: [
+      ['cohort_duration', 'ASC'],
+      ['time_scheduled', 'ASC'],
+    ],
+    where: { program },
+  },
 );
 
 export const getReviewSlotsByProgramDuration = (program, cohort_duration) => ReviewSlots.findAll(
@@ -51,19 +64,22 @@ export const getReviewSlotsById = id => ReviewSlots.findOne(
 );
 
 export const createReviewSlots = (cohort_duration, program,
-  review_day, time_scheduled, reviewer) => ReviewSlots.create(
+  review_day, time_scheduled, reviewer, week, review_duration) => ReviewSlots.create(
   {
     cohort_duration,
     review_day,
     program,
     time_scheduled,
-    created_at: Date.now(),
     reviewer,
+    week,
+    review_duration,
+    created_at: Sequelize.literal('NOW()'),
   },
 );
 
-export const updateReviewSlots = (id, review_day, time_scheduled, reviewer) => ReviewSlots.update({
-  review_day, time_scheduled, reviewer,
+export const updateReviewSlots = (id, review_day,
+  time_scheduled, reviewer, week, review_duration) => ReviewSlots.update({
+  review_day, time_scheduled, reviewer, week, review_duration,
 }, { where: { id } });
 
 

@@ -46,19 +46,13 @@ export const getReviewsByTeamAPI = (req, res) => {
 
 export const createReview = (req, res) => {
   const {
-    id,
-    milestone_name,
-    status,
-    scheduled_at,
-    call_details,
-    zoom_url,
+    id, cohort_id,
+    time_scheduled, duration, details, cohortName, team_feedback,
+    catalyst_notes, catalyst_id,
   } = req.body;
-  createReviewEntry(id,
-    milestone_name,
-    status,
-    scheduled_at,
-    call_details,
-    zoom_url).then((data) => { res.json(data); })
+  createReviewEntry(id, cohort_id,
+    time_scheduled, duration, details, cohortName, team_feedback,
+    catalyst_notes, catalyst_id).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
@@ -85,7 +79,7 @@ export const updateStatusForTeamAPI = (req, res) => {
 
 
 export const createReviewScheduleAPI = (req, res) => {
-  const { reviewSlots } = req.body;
-  createReviewSchedule(reviewSlots).then((data) => { res.json(data); })
+  const { program } = req.body;
+  createReviewSchedule(program).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };

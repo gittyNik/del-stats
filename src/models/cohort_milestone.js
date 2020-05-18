@@ -304,7 +304,7 @@ function* calculateReleaseTime(cohort_start, pending, cohort_duration, cohort_pr
   start.setHours(0, 0, 0, 0);
   if (cohort_duration === 26) {
     // Calculate first Saturday 00:00:00
-    start.setDate(cohort_start.getDate() + (((1 + 7 - cohort_start.getDay()) % 7)) - 2);
+    start.setDate(cohort_start.getDate() + ((6 + 7 - cohort_start.getDay()) % 7));
     // Calculate Monday 23:59:59
     end = new Date(+start + DAY_MSEC * 2.99999);
   } else {
