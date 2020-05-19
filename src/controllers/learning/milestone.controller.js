@@ -2,7 +2,12 @@ import uuid from 'uuid/v4';
 import { Topic } from '../../models/topic';
 import { deleteMilestoneTeams, createMilestoneTeams, Team } from '../../models/team';
 import { Resource } from '../../models/resource';
-import { Milestone } from '../../models/milestone';
+import {
+  Milestone,
+  createMilestones,
+  updateMilestones,
+  deleteMilestones,
+} from '../../models/milestone';
 
 export const getAllMilestones = (req, res) => {
   Milestone.findAll({})
@@ -135,15 +140,15 @@ export const generateMilestoneTeams = (req, res) => {
   createMilestoneTeams(milestone_id)
     .then(data => {
       res.send({
-        text: "Milestone Team",
-        data
-      })
+        text: 'Milestone Team',
+        data,
+      });
     })
     .catch(err => {
       console.error(err);
       res.sendStatus(500);
     });
-}
+};
 
 export const getMilestoneTeams = (req, res) => {
   Team.findAll({
@@ -174,46 +179,30 @@ export const resetMilestoneTeams = (req, res) => {
 export const createMilestone = (req, res) => {
   const {
     name, prerequisite_milestones,
-    learning_competencies, guidelines, problem_statement,
+    problem_statement, learning_competencies, releases, starter_repo,
   } = req.body;
 
-  Milestone.create({
-    id: uuid(),
-    name,
-    prerequisite_milestones,
-    problem_statement,
-    learning_competencies,
-    guidelines,
-  })
+  createMilestones(name, prerequisite_milestones,
+    problem_statement, learning_competencies, releases, starter_repo)
     .then((data) => { res.json(data); })
     .catch(err => console.log(err));
 };
 
 export const updateMilestone = (req, res) => {
   const {
-    name, prerequisite_milestones,
-    learning_competencies, guidelines, problem_statement,
+    name, prerequisite_milestones, starter_repo, user_id,
+    learning_competencies, releases, guidelines, problem_statement,
   } = req.body;
+  const { id } = req.params;
 
-  Milestone.update({
-    name,
-    prerequisite_milestones,
-    problem_statement,
-    learning_competencies,
-    guidelines,
-  }, {
-    where: { id: req.params.id },
-  })
+  updateMilestones(id,
+    name, problem_statement, starter_repo, user_id,
+    releases, learning_competencies, prerequisite_milestones, guidelines)
     .then(() => { res.send('Milestone Updated'); })
     .catch(err => console.log(err));
 };
 
 export const deleteMilestone = (req, res) => {
-  Milestone.destroy({
-    where: {
-      id: req.params.id,
-    },
-  })
-    .then(() => { res.send('Deleted milestone '); })
+  deleteMilestones().then(() => { res.send('Deleted milestone '); })
     .catch(err => res.status(500).send(err));
 };

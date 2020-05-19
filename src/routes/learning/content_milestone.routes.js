@@ -3,10 +3,16 @@ import {
   getAllMilestones, createMilestone, updateMilestone, deleteMilestone,
 } from '../../controllers/learning/milestone.controller';
 import { getCohortMilestonesByUserId } from '../../controllers/learning/cohort_milestone.controller';
-// import { apiNotReady } from '../../controllers/api.controller';
+import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
 
 const router = Express.Router();
 
+const {
+  ADMIN, CATALYST, EDUCATOR,
+} = USER_ROLES;
+
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
 /**
  * @api {get} /learning/content/milestones Get all Content Milestones
  * @apiDescription get all Content Milestones
@@ -17,6 +23,9 @@ const router = Express.Router();
 router.get('/', getAllMilestones);
 
 router.get('/:user_id', getCohortMilestonesByUserId);
+
+// Restrict modifications for any applicant to the cohorts
+router.use(allowAdminsOnly);
 
 /**
  * @api {post} /learning/content/milestones/ Add Content Milestone
@@ -56,7 +65,5 @@ router.patch('/:id', updateMilestone);
  * @apiGroup ContentMilestone
  */
 router.delete('/:id', deleteMilestone);
-
-
 
 export default router;

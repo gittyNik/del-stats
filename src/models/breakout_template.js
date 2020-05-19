@@ -1,8 +1,8 @@
 import Sequelize from 'sequelize';
-// import uuid from 'uuid/v4';
+import uuid from 'uuid/v4';
 import db from '../database';
-import { Topic, getTopicById } from './topic';
-import { CohortMilestone, getMilestoneStartDate } from './cohort_milestone';
+import { Topic } from './topic';
+import { CohortMilestone } from './cohort_milestone';
 import { createCohortBreakouts } from './cohort_breakout';
 import { createLearnerBreakoutsForCohortMilestones } from './learner_breakout';
 
@@ -224,3 +224,85 @@ export const createTypeBreakoutsInMilestone = (cohort_id, program_id,
     return createLearnerBreakouts(createdBreakouts, cohort_id);
     // return (createdBreakouts);
   });
+
+export const getAllBreakoutTemplates = () => BreakoutTemplate.findAll({});
+
+export const getBreakoutTemplateById = id => BreakoutTemplate.findByPk(id);
+
+export const createBreakoutTemplate = (name, topic_id,
+  mandatory,
+  level,
+  primary_catalyst,
+  secondary_catalysts,
+  details,
+  duration,
+  time_scheduled,
+  after_days,
+  updated_by,
+  cohort_duration,
+  program_id,
+  user_id) => BreakoutTemplate.create(
+  {
+    id: uuid(),
+    name,
+    topic_id,
+    mandatory,
+    level,
+    primary_catalyst,
+    secondary_catalysts,
+    details,
+    duration,
+    time_scheduled,
+    after_days,
+    updated_by,
+    cohort_duration,
+    program_id,
+    user_id,
+  },
+);
+
+export const updateBreakoutTemplate = (id,
+  name,
+  topic_id,
+  mandatory,
+  level,
+  primary_catalyst,
+  secondary_catalysts,
+  details,
+  duration,
+  time_scheduled,
+  after_days,
+  user_id,
+  cohort_duration,
+  program_id) => BreakoutTemplate.findOne({
+  where: {
+    id,
+  },
+})
+  .then((milestone) => {
+    milestone.updated_by.push(user_id);
+    milestone.update({
+      updated_by: milestone.updated_by,
+      name,
+      topic_id,
+      mandatory,
+      level,
+      primary_catalyst,
+      secondary_catalysts,
+      details,
+      duration,
+      time_scheduled,
+      after_days,
+      cohort_duration,
+      program_id,
+    }, {
+      where: {
+        id,
+      },
+    });
+  });
+
+
+export const deleteBreakoutTemplate = (id) => BreakoutTemplate.destroy(
+  { where: { id } },
+);
