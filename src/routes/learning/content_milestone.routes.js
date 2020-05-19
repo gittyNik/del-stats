@@ -2,7 +2,10 @@ import Express from 'express';
 import {
   getAllMilestones, createMilestone, updateMilestone, deleteMilestone,
 } from '../../controllers/learning/milestone.controller';
-import { getCohortMilestonesByUserId } from '../../controllers/learning/cohort_milestone.controller';
+import {
+  getCohortMilestonesByUserId,
+  getCohortMilestoneWithDetails,
+} from '../../controllers/learning/cohort_milestone.controller';
 import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
@@ -14,6 +17,15 @@ const {
 
 router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
 /**
+ * @api {get} /learning/content/milestones/:milestone_id Get Content Milestone
+ * @apiDescription get Content Milestone
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetContentMilestone
+ * @apiGroup ContentMilestone
+ */
+router.get('/:milestone_id', getCohortMilestoneWithDetails);
+
+/**
  * @api {get} /learning/content/milestones Get all Content Milestones
  * @apiDescription get all Content Milestones
  * @apiHeader {String} authorization JWT Token.
@@ -22,7 +34,7 @@ router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
  */
 router.get('/', getAllMilestones);
 
-router.get('/:user_id', getCohortMilestonesByUserId);
+router.get('/user/:user_id', getCohortMilestonesByUserId);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowAdminsOnly);

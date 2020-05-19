@@ -251,14 +251,50 @@ export const getLiveMilestones = () => {
     raw: true,
   });
 };
+export const populateMilestone = async (milestone) => {
+  if (!milestone) return milestone;
+  const {
+    cohort_id,
+    milestone_id,
+    id,
+    release_time,
+  } = milestone;
+  return Promise.all([
+    findTopicsForCohortAndMilestone(cohort_id, milestone_id),
+    findTopicsForCohortAndMilestone(cohort_id),
+    createMilestoneTeams(id, release_time),
+    findBreakoutsForMilestone(cohort_id, milestone_id),
+  ])
+    .then(populateTeamsWithLearnersWrapper)
+    // UNCOMMENT THIS ONCE THE STATS ARE READY
+    // .then(populateLearnerStats(user_id, cohort_id, milestone.id))
+    .then(([topics, programTopics, teams,
+      // UNCOMMENT THIS ONCE THE STATS ARE READY
+      // stats,
+      breakouts,
+    ]) => { // add breakouts
+      milestone.topics = topics;
+      milestone.programTopics = programTopics;
+      milestone.teams = teams;
+      // UNCOMMENT THIS ONCE THE STATS ARE READY
+      // milestone.stats = stats;
+      milestone.breakouts = breakouts;
+      //  milestone.breakouts = milestones;
+      return milestone;
+    });
+};
 
 export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
   const now = Sequelize.literal('NOW()');
   return CohortMilestone.findOne({
     order: Sequelize.col('release_time'),
     where: {
-      release_time: { [lte]: now },
-      review_scheduled: { [gt]: now },
+      release_time: {
+        [lte]: now,
+      },
+      review_scheduled: {
+        [gt]: now,
+      },
       cohort_id,
     },
     include: [Cohort, Milestone],
@@ -290,6 +326,14 @@ export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
       });
   });
 };
+
+export const getCohortMilestoneById = (milestone_id) => CohortMilestone.findOne({
+  where: {
+    id: milestone_id,
+  },
+  include: [Cohort, Milestone],
+  raw: true,
+}).then(milestone => populateMilestone(milestone));
 
 function* calculateReleaseTime(cohort_start, pending, cohort_duration, cohort_program) {
   const DAY_MSEC = 86400000;

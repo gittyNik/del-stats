@@ -2,6 +2,7 @@ import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import _ from 'lodash';
 import faker from 'faker';
+import moment from 'moment';
 import db from '../database';
 import { CohortMilestone, getDataForMilestoneName } from './cohort_milestone';
 import { getProfile } from './user';
@@ -11,6 +12,7 @@ import {
   createGithubRepositoryFromTemplate,
 } from '../integrations/github/controllers';
 import { getGithubConnecionByUserId } from './social_connection';
+
 
 const { contains } = Sequelize.Op;
 
@@ -126,7 +128,7 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
       let msName = `${baseMilestoneName}_${i + 1}`;
       msName = toGithubFormat(msName);
       let repo = await createGithubRepositoryFromTemplate(starter_repo, msName);
-      var team = teams[i];
+      let team = teams[i];
       for (let j = 0; j < team.length; j++) {
         msName = repo.name;
 
@@ -173,15 +175,17 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
   )}_${new Date(data.cohort.start_date).getFullYear()}`;
   let { starter_repo } = data.milestone;
   let teams = splitTeams(m);
+  // TODO: change for loop for proper use of await @Nik
   for (let i = 0; i < teams.length; i++) {
     let msName = `${baseMilestoneName}_${i + 1}`;
     msName = toGithubFormat(msName);
     let repo = await createGithubRepositoryFromTemplate(starter_repo, msName);
-    var team = teams[i];
+    let team = teams[i];
     for (let j = 0; j < team.length; j++) {
       msName = repo.name;
       let u = await getGithubConnecionByUserId(team[j]);
       if (!u) {
+        // TODO: Remove continue
         continue;
       }
       u = u.username;
@@ -220,17 +224,16 @@ const findTeamsByCohortMilestoneId = cohort_milestone_id => Team.findAll(
   { raw: true },
 );
 
-export const createMilestoneTeams = cohort_milestone_id => findTeamsByCohortMilestoneId(
-  cohort_milestone_id,
-).then(cteams => {
-  if (cteams.length !== 0) {
-    return cteams;
+export const createMilestoneTeams = (cohort_milestone_id,
+  release_time) => findTeamsByCohortMilestoneId(cohort_milestone_id).then(teams => {
+  if (teams.length !== 0 || moment().isAfter(moment(release_time))) {
+    return teams;
   }
   return CohortMilestone.findByPk(cohort_milestone_id)
     .then(m => m.getUsers())
     .then(splitFrontEndAndBackEnd(cohort_milestone_id))
-    .then(tteams => Team.bulkCreate(
-      tteams.map(({ team, repo }) => ({
+    .then(teamsCohort => Team.bulkCreate(
+      teamsCohort.map(({ team, repo }) => ({
         id: uuid(),
         name: faker.commerce.productName(),
         cohort_milestone_id,
@@ -246,7 +249,6 @@ export const getTeamsbyCohortMilestoneId = cohort_milestone_id => Team.findAll(
   },
   { raw: true },
 );
-
 
 export const getLearnerTeamOfMilestone = (user_id, cohort_milestone_id) => Team.findAll({
   where: {
