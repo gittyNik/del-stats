@@ -344,9 +344,13 @@ export const createCohortBreakouts = (breakoutTemplateList,
     console.log(cohort.location);
     let BreakoutObjects = breakoutTemplateList.map((breakoutTemplate) => {
       let {
-        id, name, topic_id, duration, primary_catalyst,
+        id, name, topic_id, duration, primary_catalyst, secondary_catalyst,
         breakout_schedule, details,
       } = breakoutTemplate;
+
+      secondary_catalyst.push(primary_catalyst);
+      let catalyst = secondary_catalyst[Math.floor(Math.random() * secondary_catalyst.length)];
+
       let breakoutObject = {
         topic_id,
         cohort_id,
@@ -354,7 +358,7 @@ export const createCohortBreakouts = (breakoutTemplateList,
         time_scheduled: breakout_schedule,
         duration,
         location: cohort.location,
-        catalyst_id: primary_catalyst,
+        catalyst_id: catalyst,
         details,
         topic_name: name,
         isVideoMeeting: videoMeet,

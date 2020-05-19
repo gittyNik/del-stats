@@ -7,7 +7,7 @@ import topicRouter from './content_topic.routes';
 import reviewsRouter from './content_reviews.routes';
 import rubricsRouter from './content_rubrics.routes';
 import reviewsSlotsRouter from './content_review_slots.routes';
-import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
+// import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
 

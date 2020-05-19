@@ -1,10 +1,18 @@
 import Express from 'express';
-import { getLearnerBreakouts, getUpcomingBreakouts, createLearnerBreakout, getLearnerBreakoutsByBreakoutId, markAttendance } from '../../controllers/learning/learner_breakout.controller';
+import {
+  getLearnerBreakouts,
+  getUpcomingBreakouts,
+  createLearnerBreakout,
+  getLearnerBreakoutsByBreakoutId,
+  markAttendance,
+} from '../../controllers/learning/learner_breakout.controller';
 import { getAllCohortBreakouts, getBreakoutsForCohortMilestone } from '../../controllers/learning/breakout.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
-const { ADMIN, SUPERADMIN, CATALYST, EDUCATOR } = USER_ROLES
+const {
+  ADMIN, SUPERADMIN, CATALYST, EDUCATOR,
+} = USER_ROLES;
 
 const router = Express.Router();
 
@@ -18,7 +26,8 @@ const router = Express.Router();
 router.get('/', getLearnerBreakouts);
 
 /**
- * @api {get} /learning/ops/breakouts/cohort_breakout/:cohort_breakout_id Get all learner breakouts for cohort breakout
+ * @api {get} /learning/ops/breakouts/cohort_breakout/:cohort_breakout_id Get all learner
+ * breakouts for cohort breakout
  * @apiDescription get all learner breakouts for cohort breakout
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetBreakouts
@@ -60,7 +69,8 @@ router.post('/', createLearnerBreakout);
 router.get('/:cohort_id/all', getAllCohortBreakouts);
 
 /**
- * @api {get} /learning/ops/breakouts/:cohort_id/:milestone_id/all Get all breakouts in Cohort Milestone.
+ * @api {get} /learning/ops/breakouts/:cohort_id/:milestone_id/all Get all breakouts
+ *  in Cohort Milestone.
  * @apiDescription get all Cohort Breakouts scheduled in a milestone in cohort.
  * @apiHeader GetBreakouts
  * @apiGroup Breakouts

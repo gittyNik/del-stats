@@ -2,13 +2,23 @@ import Express from 'express';
 import {
   create, update, deleteOne, getAllByMilestone as getMilestoneResources,
   getAllMilestones, getMilestone, getTeam, getMilestoneTeams, resetMilestoneTeams,
-  generateMilestoneTeams
+  generateMilestoneTeams,
 } from '../../controllers/learning/milestone.controller';
 import { getCohortLiveMilestone, getAllCohortMilestones } from '../../controllers/learning/cohort_milestone.controller';
-import { apiNotReady } from '../../controllers/api.controller';
+import {
+  allowMultipleRoles,
+  allowAdminsOnly,
+} from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
 
+const {
+  ADMIN, CATALYST, EDUCATOR,
+} = USER_ROLES;
 
 const router = Express.Router();
+
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
+
 
 /**
  * @api {get} /learning/activity/milestones/:milestone_id/teams Get milestone teams
@@ -74,6 +84,19 @@ router.get('/:milestone_id', getMilestone);
 router.get('/:milestone_id/resources', getMilestoneResources);
 
 /**
+ * @api {get} /learning/activity/milestones/:milestone_id Get milestone by Id
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetMilestoneById
+ * @apiGroup TEP Milestone
+ */
+router.get('/cohort/:cohort_id', getAllCohortMilestones);
+
+router.get('/cohort/:cohort_id/live', getCohortLiveMilestone);
+
+// Restrict modifications for any applicant to the cohorts
+router.use(allowAdminsOnly);
+
+/**
  * @api {post} learning/activity/milestones Add a TEP Milestone
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddNewMilestone
@@ -108,14 +131,5 @@ router.delete('/:milestone_id', deleteOne);
  * @apiGroup TEP Milestone
  */
 
-/**
- * @api {get} /learning/activity/milestones/:milestone_id Get milestone by Id
- * @apiHeader {String} authorization JWT Token.
- * @apiName GetMilestoneById
- * @apiGroup TEP Milestone
- */
-router.get('/cohort/:cohort_id', getAllCohortMilestones);
-
-router.get('/cohort/:cohort_id/live', getCohortLiveMilestone);
 
 export default router;

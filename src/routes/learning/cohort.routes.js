@@ -10,7 +10,7 @@ import {
   beginCohort,
   getCohortByLearnerId,
   createUpdateCohortBreakout,
-  moveLearnertoDifferentCohortEndpoint
+  moveLearnertoDifferentCohortEndpoint,
 } from '../../controllers/learning/cohort.controller';
 import {
   createBreakouts,
@@ -22,8 +22,6 @@ import {
 } from '../../controllers/learning/breakout.controller';
 import {
   allowSuperAdminOnly,
-  allowEducatorsOnly,
-  allowCatalystOnly,
   allowMultipleRoles,
 } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';

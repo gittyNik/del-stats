@@ -7,7 +7,16 @@ import {
   deleteBreakoutTemplateAPI,
 } from '../../controllers/learning/breakout_template.controller';
 
+import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
+
+const {
+  ADMIN, CATALYST, EDUCATOR,
+} = USER_ROLES;
+
 const router = Express.Router();
+
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
 
 /**
  * @api {get} /learning/content/breakouts/templates Get all Content Breakouts templates
@@ -28,6 +37,9 @@ router.get('/', getAllBreakoutTemplatesAPI);
  * @apiName GetContentBreakouts
  */
 router.get('/:id', getBreakoutTemplateByIdAPI);
+
+// Restrict modifications for any applicant to the cohorts
+router.use(allowAdminsOnly);
 
 /**
  * @api {post} /learning/content/breakouts/templates/ Insert Breakout recording

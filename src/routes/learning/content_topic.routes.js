@@ -3,9 +3,16 @@ import {
   getAllResourcesByTopic, create, getAllTopics,
   getTopic, deleteOne, updateTopic,
 } from '../../controllers/learning/topic.controller';
-// import { apiNotReady } from '../../controllers/api.controller';
+import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
+
+const {
+  ADMIN, CATALYST, EDUCATOR,
+} = USER_ROLES;
 
 const router = Express.Router();
+
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
 
 /**
  * @api {get} /learning/content/topics Get all Content Topics
@@ -33,6 +40,9 @@ router.get('/:id', getTopic);
  * @apiGroup ContentTopicResources
  */
 router.get('/:id/resources', getAllResourcesByTopic);
+
+// Restrict modifications for any applicant to the cohorts
+router.use(allowAdminsOnly);
 
 /**
  * @api {post} /learning/content/topics Add Content Topic

@@ -6,13 +6,19 @@ import {
   createReviewScheduleAPI,
   getUserAndTeamReviewsAPI,
 } from '../../controllers/learning/reviews.controller';
-import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
-// import { apiNotReady } from '../../controllers/api.controller';
+import {
+  allowMultipleRoles,
+  allowAdminsOnly,
+} from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
+
+const {
+  ADMIN, CATALYST, EDUCATOR,
+} = USER_ROLES;
 
 const router = Express.Router();
 
-// Restrict modifications for any applicant to the cohorts
-router.use(allowSuperAdminOnly);
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
 
 /**
  * @api {get} /learning/content/reviews Get all Reviews
@@ -67,6 +73,9 @@ router.get('/user/team/:id', getUserAndTeamReviewsAPI);
  * @apiGroup Reviews
  */
 router.get('/status/:id', getReviewsByStatusAPI);
+
+// Restrict modifications for any applicant to the cohorts
+router.use(allowAdminsOnly);
 
 /**
  * @api {get} /learning/content/reviews/status/:id/ Get Reviews by status
