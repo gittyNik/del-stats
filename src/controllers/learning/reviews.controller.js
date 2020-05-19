@@ -33,8 +33,8 @@ export const getUserAndTeamReviewsAPI = (req, res) => {
 };
 
 export const getReviewsByIdAPI = (req, res) => {
-  const { review_id } = req.params;
-  getReviewsById(review_id).then((data) => { res.json(data); })
+  const { id } = req.params;
+  getReviewsById(id).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 

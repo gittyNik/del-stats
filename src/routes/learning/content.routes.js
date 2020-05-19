@@ -20,7 +20,6 @@ router.use('/breakouts', breakoutRouter);
 router.use('/challenges', challengeRouter);
 router.use('/milestones', milestoneRouter);
 router.use('/topics', topicRouter);
-router.use('/reviews', reviewsRouter);
 router.use('/review-slots', reviewsSlotsRouter);
 router.use('/rubrics', rubricsRouter);
 

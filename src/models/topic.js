@@ -1,4 +1,5 @@
 import Sequelize from 'sequelize';
+import uuid from 'uuid';
 import db from '../database';
 
 export const Topic = db.define('topics', {
@@ -30,13 +31,59 @@ export const Topic = db.define('topics', {
     defaultValue: true,
   },
   domain: Sequelize.ENUM('generic', 'tech', 'mindset', 'dsa'),
+  created_at: {
+    type: Sequelize.DATE,
+  },
+  updated_at: {
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.literal('NOW()'),
+  },
 });
 
-export const getTopicById = topic_id  => Topic.findByPk(topic_id, {
+export const getTopicById = topic_id => Topic.findByPk(topic_id, {
   attributes: ['milestone_id'],
   raw: true,
 });
 
+export const getTopics = () => Topic.findAll({});
+
+
+export const getTopicsByMilestone = (milestone_id, program) => Topic.findAll(
+  { where: { milestone_id, program } },
+);
+
+export const createTopic = (title, description,
+  program, milestone_id, optional, domain) => Topic.create(
+  {
+    id: uuid(),
+    title,
+    description,
+    program,
+    milestone_id,
+    optional,
+    domain,
+    created_at: Date.now(),
+  },
+);
+
+export const updateATopic = (id, title,
+  description,
+  program,
+  milestone_id,
+  optional,
+  domain) => Topic.update({
+  title,
+  description,
+  program,
+  milestone_id,
+  optional,
+  domain,
+}, { where: { id } });
+
+
+export const deleteTopic = (id) => Topic.destroy(
+  { where: { id } },
+);
 
 
 export default Topic;
