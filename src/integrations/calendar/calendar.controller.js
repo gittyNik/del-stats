@@ -31,7 +31,7 @@ export const getAllCalendarEvents = async (req, res) => {
         // displayPicture: req.session.user.displayPicture,
         id: req.jwtData.user.id,
         email: req.jwtData.user.email,
-        events,
+        events: (events) || 'No events created.',
       };
       console.log(data);
       res.json(data);

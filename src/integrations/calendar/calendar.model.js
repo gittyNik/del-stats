@@ -17,8 +17,9 @@ export const listEvents = function (auth, cb) {
     if (err) return console.log('The API returned an error: ' + err);
     const events = res.data.items;
     if (events.length) {
-      cb(events)
+      cb(events);
     } else {
+      cb(false);
       console.log('No upcoming events found.');
     }
   });
