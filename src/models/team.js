@@ -14,6 +14,7 @@ import {
 import { getGithubConnecionByUserId } from './social_connection';
 
 
+
 const { contains } = Sequelize.Op;
 
 export const Team = db.define('milestone_learner_teams', {

@@ -9,6 +9,7 @@ import {
 import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
+
 const router = Express.Router();
 
 const {
@@ -16,6 +17,15 @@ const {
 } = USER_ROLES;
 
 router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER]));
+/**
+ * @api {get} /learning/content/milestones/:milestone_id Get Content Milestone
+ * @apiDescription get Content Milestone
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetContentMilestone
+ * @apiGroup ContentMilestone
+ */
+router.get('/:milestone_id', getCohortMilestoneWithDetails);
+
 /**
  * @api {get} /learning/content/milestones/:milestone_id Get Content Milestone
  * @apiDescription get Content Milestone

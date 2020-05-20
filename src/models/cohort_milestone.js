@@ -235,6 +235,7 @@ export const getCurrentMilestoneOfCohortDelta = (cohort_id) => {
     });
 };
 
+
 export const getLiveMilestones = () => {
   const now = Sequelize.literal('NOW()');
   let nextSevenDays = new Date();
@@ -251,6 +252,7 @@ export const getLiveMilestones = () => {
     raw: true,
   });
 };
+
 export const populateMilestone = async (milestone) => {
   if (!milestone) return milestone;
   const {
@@ -334,6 +336,7 @@ export const getCohortMilestoneById = (milestone_id) => CohortMilestone.findOne(
   include: [Cohort, Milestone],
   raw: true,
 }).then(milestone => populateMilestone(milestone));
+
 
 function* calculateReleaseTime(cohort_start, pending, cohort_duration, cohort_program) {
   const DAY_MSEC = 86400000;
