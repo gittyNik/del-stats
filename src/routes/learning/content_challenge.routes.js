@@ -2,8 +2,19 @@ import Express from 'express';
 import {
   getChallenges, createChallenge, updateChallenge, deleteChallenge,
 } from '../../controllers/learning/challenge.controller';
+import {
+  allowMultipleRoles,
+  allowAdminsOnly,
+} from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
+
+const {
+  ADMIN, CATALYST, EDUCATOR,
+} = USER_ROLES;
 
 const router = Express.Router();
+
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
 
 /**
  * @api {get} /learning/content/challenges Get all Content Challenges
@@ -13,6 +24,9 @@ const router = Express.Router();
  * @apiGroup ContentChallenges
  */
 router.get('/', getChallenges);
+
+// Restrict modifications for any applicant to the cohorts
+router.use(allowAdminsOnly);
 
 /**
  * @api {post} /learning/content/challenges/ Add Content Challenge

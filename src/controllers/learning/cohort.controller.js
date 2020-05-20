@@ -5,11 +5,12 @@ import {
   getCohortLearnerDetailsByName,
   beginCohortWithId,
   getCohortFromLearnerId,
-} from "../../models/cohort";
-import { createOrUpdateCohortBreakout } from "../../models/cohort_breakout";
-import { moveLearnertoDifferentCohort } from "../../models/cohort";
-import { User } from "../../models/user";
-import { USER_ROLES } from "../../models/user";
+  moveLearnertoDifferentCohort,
+} from '../../models/cohort';
+import { createOrUpdateCohortBreakout } from '../../models/cohort_breakout';
+
+import { USER_ROLES } from '../../models/user';
+
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
@@ -39,7 +40,9 @@ export const getCohort = (req, res) => {
 };
 
 export const createCohort = (req, res) => {
-  let { name, location, program, start_date } = req.body;
+  let {
+    name, location, program, start_date,
+  } = req.body;
   start_date = new Date(+start_date);
   Cohort.create({
     name,
@@ -77,7 +80,9 @@ export const getUpcomingCohorts = (req, res) => {
 };
 
 export const createUpdateCohortBreakout = (req, res) => {
-  let { cohort_id, topic_id, time_scheduled, catalyst_id } = req.body;
+  let {
+    cohort_id, topic_id, time_scheduled, catalyst_id,
+  } = req.body;
   const { id: user_id, role } = req.jwtData.user;
   if (user_id === catalyst_id || role === USER_ROLES.SUPERADMIN) {
     createOrUpdateCohortBreakout(topic_id, cohort_id, time_scheduled)
@@ -86,13 +91,11 @@ export const createUpdateCohortBreakout = (req, res) => {
           data,
         });
       })
-      .catch((err) =>
-        res.status(500).send({
-          err,
-        })
-      );
+      .catch((err) => res.status(500).send({
+        err,
+      }));
   } else {
-    res.status(403).send("You do not have access to this data!");
+    res.status(403).send('You do not have access to this data!');
   }
 };
 
@@ -126,7 +129,7 @@ export const getCohortByLearnerId = (req, res) => {
   getCohortFromLearnerId(id)
     .then((cohort) => {
       res.send({
-        text: "Cohort Details",
+        text: 'Cohort Details',
         data: cohort,
       });
     })
@@ -141,7 +144,7 @@ export const moveLearnertoDifferentCohortEndpoint = async (req, res) => {
   let bk = await moveLearnertoDifferentCohort(
     learner_id,
     current_cohort_id,
-    future_cohort_id
+    future_cohort_id,
   );
   res.send({
     data: bk,

@@ -21,6 +21,7 @@ export const EVENT_STATUS = [
   'aborted',
   'running',
   'completed',
+  'review-shared',
 ];
 export const BREAKOUT_TYPE = [
   'lecture',
@@ -28,6 +29,7 @@ export const BREAKOUT_TYPE = [
   'questionhour',
   'activity',
   'groupdiscussion',
+  'reviews',
 ];
 
 export const CohortBreakout = db.define('cohort_breakouts', {
@@ -74,6 +76,7 @@ export const CohortBreakout = db.define('cohort_breakouts', {
     type: Sequelize.DATE,
     defaultValue: Sequelize.literal('NOW()'),
   },
+  team_feedback: Sequelize.JSON,
 });
 
 export const scheduleBreakoutLecture = (
@@ -222,17 +225,22 @@ export const createNewBreakout = (
   location,
   catalyst_id,
   details,
+  type = 'lecture',
+  team_feedback = null,
+  catalyst_notes = null,
   attendance_count = null,
   domain = null,
-  catalyst_notes = null,
   catalyst_feedback = null,
 ) => {
+  if (typeof topic_id !== 'undefined' && topic_id.length > 0) {
+    topic_id = topic_id[0];
+  }
   console.log(`${time_scheduled} ${duration} ${location}`);
   return CohortBreakout.create({
     id: uuid(),
     breakout_template_id,
     domain,
-    topic_id: topic_id[0],
+    topic_id,
     cohort_id,
     time_scheduled,
     duration,
@@ -242,6 +250,8 @@ export const createNewBreakout = (
     attendance_count,
     catalyst_feedback,
     details,
+    type,
+    team_feedback,
   });
 };
 
@@ -249,7 +259,8 @@ export const BreakoutWithOptions = (breakoutObject) => {
   let {
     topic_id, cohort_id, breakout_template_id, time_scheduled,
     duration, location, catalyst_id, details,
-    isVideoMeeting, isCodeSandbox, topic_name, cohortName,
+    isVideoMeeting, isCodeSandbox, cohortName,
+    type, team_feedback, catalyst_notes,
   } = breakoutObject;
 
   let time = time_scheduled.toLocaleString().split(' ').join('T');
@@ -277,7 +288,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
         return createNewBreakout(
           breakout_template_id, topic_id, cohort_id,
           time_scheduled, duration, location,
-          catalyst_id, details,
+          catalyst_id, details, type, team_feedback, catalyst_notes,
         )
           .then(data =>
             // console.log('Breakout created with codesandbox and videoMeeting');
@@ -291,7 +302,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
       return createNewBreakout(
         breakout_template_id, topic_id, cohort_id,
         time_scheduled, duration, location,
-        catalyst_id, details,
+        catalyst_id, details, type, team_feedback, catalyst_notes,
       ).then(data => {
         console.log('Breakout created with code sandbox only', data);
         return data;
@@ -304,7 +315,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
         return createNewBreakout(
           breakout_template_id, topic_id, cohort_id,
           time_scheduled, duration, location,
-          catalyst_id, details,
+          catalyst_id, details, type, team_feedback, catalyst_notes,
         )
           .then(data => {
             console.log('Breakout and video meeting created Created', data);
@@ -315,7 +326,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
     return createNewBreakout(
       breakout_template_id, topic_id, cohort_id,
       time_scheduled, duration, location,
-      catalyst_id, details,
+      catalyst_id, details, type, team_feedback, catalyst_notes,
     )
       .then(data => {
         console.log('Breakout created without video meeting created Created', data);
@@ -333,9 +344,13 @@ export const createCohortBreakouts = (breakoutTemplateList,
     console.log(cohort.location);
     let BreakoutObjects = breakoutTemplateList.map((breakoutTemplate) => {
       let {
-        id, name, topic_id, duration, primary_catalyst,
+        id, name, topic_id, duration, primary_catalyst, secondary_catalyst,
         breakout_schedule, details,
       } = breakoutTemplate;
+
+      secondary_catalyst.push(primary_catalyst);
+      let catalyst = secondary_catalyst[Math.floor(Math.random() * secondary_catalyst.length)];
+
       let breakoutObject = {
         topic_id,
         cohort_id,
@@ -343,7 +358,7 @@ export const createCohortBreakouts = (breakoutTemplateList,
         time_scheduled: breakout_schedule,
         duration,
         location: cohort.location,
-        catalyst_id: primary_catalyst,
+        catalyst_id: catalyst,
         details,
         topic_name: name,
         isVideoMeeting: videoMeet,

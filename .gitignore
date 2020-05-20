@@ -5,9 +5,6 @@ api-build
 .DS_Store
 temp
 tmp
-.eslint.json
-.eslintrc
-.eslintrc.json
 .idea/
 .vscode/
 connectToDB.sh

@@ -7,4 +7,3 @@ const router = Express.Router();
 router.post('/:id', createChallenge);
 
 export default router;
-

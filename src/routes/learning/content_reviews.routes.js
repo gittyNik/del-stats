@@ -3,14 +3,22 @@ import {
   getAllReviewsAPI, getReviewsByIdAPI, getReviewsByStatusAPI,
   getReviewsByTeamAPI, getReviewsByUserIdAPI,
   createReview, addReviewsForTeamAPI,
+  createReviewScheduleAPI,
+  getUserAndTeamReviewsAPI,
 } from '../../controllers/learning/reviews.controller';
-import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
-// import { apiNotReady } from '../../controllers/api.controller';
+import {
+  allowMultipleRoles,
+  allowAdminsOnly,
+} from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
+
+const {
+  ADMIN, CATALYST, EDUCATOR,
+} = USER_ROLES;
 
 const router = Express.Router();
 
-// Restrict modifications for any applicant to the cohorts
-router.use(allowSuperAdminOnly);
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
 
 /**
  * @api {get} /learning/content/reviews Get all Reviews
@@ -40,13 +48,22 @@ router.get('/:id', getReviewsByTeamAPI);
 router.get('/review/:id', getReviewsByIdAPI);
 
 /**
- * @api {get} /learning/content/reviews/users/ Get review for users
+ * @api {get} /learning/content/reviews/user/ Get review for user
  * @apiDescription get review for user
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetReviewsForUser
  * @apiGroup Reviews
  */
-router.get('/review/users', getReviewsByUserIdAPI);
+router.get('/user/:id', getReviewsByUserIdAPI);
+
+/**
+ * @api {get} /learning/content/reviews/user/team Get review for users
+ * @apiDescription get review for user
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetReviewsForUser
+ * @apiGroup Reviews
+ */
+router.get('/user/team/:id', getUserAndTeamReviewsAPI);
 
 /**
  * @api {get} /learning/content/reviews/status/:id/ Get Reviews by status
@@ -56,6 +73,18 @@ router.get('/review/users', getReviewsByUserIdAPI);
  * @apiGroup Reviews
  */
 router.get('/status/:id', getReviewsByStatusAPI);
+
+// Restrict modifications for any applicant to the cohorts
+router.use(allowAdminsOnly);
+
+/**
+ * @api {get} /learning/content/reviews/status/:id/ Get Reviews by status
+ * @apiDescription get Reviews by status
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetReviewsByStatus
+ * @apiGroup Reviews
+ */
+router.post('/schedule', createReviewScheduleAPI);
 
 /**
  * @api {post} /learning/content/reviews/ Add Team Reviews

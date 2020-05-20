@@ -2,9 +2,16 @@ import Express from 'express';
 import {
   getBreakouts, createBreakout, updateBreakout, deleteBreakout, getLiveCohortsBreakouts,
 } from '../../controllers/learning/breakout.controller';
-// import { apiNotReady } from '../../controllers/api.controller';
+import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
+
+const {
+  ADMIN, CATALYST, EDUCATOR,
+} = USER_ROLES;
 
 const router = Express.Router();
+
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
 
 /**
  * @api {get} /learning/content/breakouts/cohort Get all Content Breakouts
@@ -23,6 +30,9 @@ router.get('/', getBreakouts);
  * @apiGroup ContentBreakouts
  */
 router.get('/live_cohorts', getLiveCohortsBreakouts);
+
+// Restrict modifications for any applicant to the cohorts
+router.use(allowAdminsOnly);
 
 /**
  * @api {post} /learning/content/breakouts/cohort Add Content Breakout

@@ -2,11 +2,20 @@ import Express from 'express';
 import {
   getAllMilestones, createMilestone, updateMilestone, deleteMilestone,
 } from '../../controllers/learning/milestone.controller';
-import { getCohortMilestonesByUserId, getCohortMilestoneWithDetails } from '../../controllers/learning/cohort_milestone.controller';
-// import { apiNotReady } from '../../controllers/api.controller';
+import {
+  getCohortMilestonesByUserId,
+  getCohortMilestoneWithDetails,
+} from '../../controllers/learning/cohort_milestone.controller';
+import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
 
 const router = Express.Router();
 
+const {
+  ADMIN, CATALYST, EDUCATOR, LEARNER,
+} = USER_ROLES;
+
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER]));
 /**
  * @api {get} /learning/content/milestones/:milestone_id Get Content Milestone
  * @apiDescription get Content Milestone
@@ -26,6 +35,9 @@ router.get('/:milestone_id', getCohortMilestoneWithDetails);
 router.get('/', getAllMilestones);
 
 router.get('/user/:user_id', getCohortMilestonesByUserId);
+
+// Restrict modifications for any applicant to the cohorts
+router.use(allowAdminsOnly);
 
 /**
  * @api {post} /learning/content/milestones/ Add Content Milestone
@@ -65,7 +77,5 @@ router.patch('/:id', updateMilestone);
  * @apiGroup ContentMilestone
  */
 router.delete('/:id', deleteMilestone);
-
-
 
 export default router;

@@ -1,6 +1,6 @@
 import { footerBlock, dividerBlock, emptyNoteBlock } from './common';
 
-const buildLiveCohorts = (cohorts) => {
+export const buildLiveCohorts = (cohorts) => {
   const blocks = [
     {
       type: 'section',

@@ -1,6 +1,10 @@
 import {
-  getAllReviews, getReviewsById, getReviewsByStatus, getReviewsByUserId,
-  updateStatusForTeam, createReviewEntry, addReviewsForTeam, getReviewsByTeam,
+  getAllReviews, getReviewsById,
+  getReviewsByStatus, getReviewsByUserId,
+  updateStatusForTeam, createReviewEntry,
+  addReviewsForTeam, getReviewsByTeam,
+  createReviewSchedule,
+  getUserAndTeamReviews,
 } from '../../models/reviews';
 
 export const getAllReviewsAPI = (req, res) => {
@@ -9,20 +13,28 @@ export const getAllReviewsAPI = (req, res) => {
 };
 
 export const getReviewsByStatusAPI = (req, res) => {
-  const { status } = req.body;
+  const { status } = req.params;
   getReviewsByStatus(status).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
+// Get reviews for a user
 export const getReviewsByUserIdAPI = (req, res) => {
   const { user_id } = req.body;
   getReviewsByUserId(user_id).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
+// Get reviews for a user and Team user for that user
+export const getUserAndTeamReviewsAPI = (req, res) => {
+  const { user_id } = req.body;
+  getUserAndTeamReviews(user_id).then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
+
 export const getReviewsByIdAPI = (req, res) => {
-  const { review_id } = req.body;
-  getReviewsById(review_id).then((data) => { res.json(data); })
+  const { id } = req.params;
+  getReviewsById(id).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
@@ -34,19 +46,13 @@ export const getReviewsByTeamAPI = (req, res) => {
 
 export const createReview = (req, res) => {
   const {
-    id,
-    milestone_name,
-    status,
-    scheduled_at,
-    call_details,
-    zoom_url,
+    id, cohort_id,
+    time_scheduled, duration, details, cohortName, team_feedback,
+    catalyst_notes, catalyst_id,
   } = req.body;
-  createReviewEntry(id,
-    milestone_name,
-    status,
-    scheduled_at,
-    call_details,
-    zoom_url).then((data) => { res.json(data); })
+  createReviewEntry(id, cohort_id,
+    time_scheduled, duration, details, cohortName, team_feedback,
+    catalyst_notes, catalyst_id).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
@@ -68,5 +74,12 @@ export const updateStatusForTeamAPI = (req, res) => {
   } = req.body;
   const { id } = req.params;
   updateStatusForTeam(id, status).then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
+
+
+export const createReviewScheduleAPI = (req, res) => {
+  const { program } = req.body;
+  createReviewSchedule(program).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };

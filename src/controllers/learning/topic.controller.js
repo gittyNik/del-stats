@@ -1,16 +1,14 @@
-import uuid from 'uuid/v4';
-import { Topic } from '../../models/topic';
+import {
+  Topic, createTopic, deleteTopic, updateATopic,
+  getTopics, getTopicById,
+} from '../../models/topic';
 import { Resource } from '../../models/resource';
 
 export const create = (req, res) => {
-  const { title, description, milestone_id } = req.body;
-  Topic.create({
-    id: uuid(),
-    program: 'tep',
-    title,
-    description,
-    milestone_id,
-  })
+  const {
+    title, description, milestone_id, program, optional, domain,
+  } = req.body;
+  createTopic(title, description, milestone_id, program, optional, domain)
     .then((tepTopic) => {
       res.send({
         data: tepTopic,
@@ -33,46 +31,45 @@ export const getAllResourcesByTopic = (req, res) => {
 };
 
 export const getAllTopics = (req, res) => {
-  Topic.findAll({})
+  getTopics()
     .then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
 export const getTopic = (req, res) => {
-  Topic.findAll({
-    where: {
-      id: req.params.id,
-    },
-  })
+  const { id } = req.params.id;
+
+  getTopicById(id)
     .then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
 
 export const deleteOne = (req, res) => {
-  Topic.destroy({
-    where: {
-      id: req.params.id,
-    },
-  })
+  const { id } = req.params.id;
+
+  deleteTopic(id)
     .then(() => { res.send('Deleted Topic'); })
     .catch(err => res.status(500).send(err));
 };
 
 export const updateTopic = (req, res) => {
   const {
-    title, description, program, milestone_id,
-  } = req.body;
-  Topic.update({
     title,
     description,
     program,
     milestone_id,
-  }, {
-    where: {
-      id: req.params.id,
-    },
-  })
+    optional,
+    domain,
+  } = req.body;
+  updateATopic(
+    title,
+    description,
+    program,
+    milestone_id,
+    optional,
+    domain,
+  )
     .then(() => {
       res.send('Topic Updated');
     })
