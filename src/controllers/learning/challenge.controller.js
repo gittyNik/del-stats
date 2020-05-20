@@ -1,5 +1,7 @@
 import uuid from 'uuid/v4';
-import { Challenge } from '../../models/challenge';
+import {
+  Challenge, createAChallenge, updateAChallenge, deleteAChallenge,
+} from '../../models/challenge';
 import { LearnerChallenge } from '../../models/learner_challenge';
 
 export const getChallenges = (req, res) => {
@@ -17,14 +19,13 @@ export const createChallenge = (req, res) => {
     difficulty, size,
   } = req.body;
 
-  Challenge.create({
-    id: uuid(),
+  createAChallenge(
     topic_id,
     description,
     starter_repo,
     difficulty,
     size,
-  })
+  )
     .then((data) => {
       console.log(data);
       res.send('Challenge created.');
@@ -41,15 +42,14 @@ export const updateChallenge = (req, res) => {
     difficulty, size,
   } = req.body;
   const { id } = req.params;
-  Challenge.update({
+  updateAChallenge(
+    id,
     topic_id,
     description,
     starter_repo,
     difficulty,
     size,
-  }, {
-    where: { id },
-  })
+  )
     .then(() => { res.send('Challenge Updated'); })
     .catch(err => {
       console.error(err);
@@ -60,11 +60,7 @@ export const updateChallenge = (req, res) => {
 
 export const deleteChallenge = (req, res) => {
   const { id } = req.params;
-  Challenge.destroy({
-    where: {
-      id,
-    },
-  })
+  deleteAChallenge(id)
     .then(() => res.send('Deleted Challenge'))
     .catch(err => {
       console.error(err);
