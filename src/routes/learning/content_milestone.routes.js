@@ -12,10 +12,10 @@ import { USER_ROLES } from '../../models/user';
 const router = Express.Router();
 
 const {
-  ADMIN, CATALYST, EDUCATOR,
+  ADMIN, CATALYST, EDUCATOR, LEARNER,
 } = USER_ROLES;
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER]));
 /**
  * @api {get} /learning/content/milestones/:milestone_id Get Content Milestone
  * @apiDescription get Content Milestone
