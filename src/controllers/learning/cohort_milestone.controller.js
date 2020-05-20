@@ -3,7 +3,7 @@ import {
   getCurrentCohortMilestones,
   getCurrentMilestoneOfCohort,
   getCohortMilestones,
-  getCohortMilestoneById
+  getCohortMilestoneById,
 } from '../../models/cohort_milestone';
 
 export const getUpcomingReviews = (req, res) => {
@@ -61,14 +61,15 @@ export const getCohortMilestonesByUserId = async (req, res) => {
 export const getCohortMilestoneWithDetails = (req, res) => {
   const { milestone_id } = req.params;
   getCohortMilestoneById(milestone_id)
-  .then(milestone => {
-    res.json({
-      text: 'GET Milestone',
-      data: milestone,
+    .then(milestone => {
+      res.json({
+        text: 'GET Milestone',
+        data: milestone,
+      });
+    })
+    .catch(e => {
+      console.error(e);
+      res.sendStatus(500);
     });
-  })
-  .catch(e => {
-    console.error(e);
-    res.sendStatus(500);
-  });
-}
+};
+

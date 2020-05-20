@@ -42,7 +42,7 @@ export const sendEmail = async (from_name, to_users, subject,
       type: 'OAuth2',
       user: auth.client_email,
       serviceClient: process.env.G_CLIENT,
-      privateKey: process.env.PG_KEY,
+      privateKey: process.env.PG_KEY.replace(/\\n/g, '\n'),
     },
   });
 

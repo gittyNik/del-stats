@@ -25,7 +25,9 @@ import {
   searchTaggedResources,
   getTopicResource,
 } from '../../controllers/learning/content_resource.controller';
+
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
+
 const router = Express.Router();
 
 /**
@@ -63,7 +65,7 @@ router.post('/:resource_id/visits', logResourceVisit);
 router.patch(
   '/:resource_id/reports/:report_id/resolve',
   allowSuperAdminOnly,
-  resolveReport
+  resolveReport,
 );
 
 /**

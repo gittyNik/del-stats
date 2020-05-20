@@ -3,8 +3,16 @@ import {
   getAllRecordingsAPI, getRecordingsByCatalystAPI, getRecordingsByIdAPI,
   createRecording, updateRecordingsAPI, getVideoUrl,
 } from '../../controllers/learning/breakout_recording.controller';
+import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
+
+const {
+  ADMIN, CATALYST, EDUCATOR,
+} = USER_ROLES;
 
 const router = Express.Router();
+
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
 
 /**
  * @api {get} /learning/content/breakouts/recordings Get all Content Breakouts recordings
@@ -40,6 +48,19 @@ router.get('/:id', getRecordingsByIdAPI);
 router.get('/:id/video', getVideoUrl);
 
 /**
+ * @api {get} /learning/content/breakouts/recordings/catalyst/:id
+ * Get all Content Breakouts recordings for Catalyst
+ * @apiDescription get all Content Breakouts recordings
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetContentBreakouts
+ * @apiGroup ContentBreakoutsRecordings
+ */
+router.get('/catalyst/:id', getRecordingsByCatalystAPI);
+
+// Restrict modifications for any applicant to the cohorts
+router.use(allowAdminsOnly);
+
+/**
  * @api {post} /learning/content/breakouts/recordings/ Insert Breakout recording
  * @apiDescription get all Content Breakouts recordings
  * @apiHeader {String} authorization JWT Token.
@@ -63,15 +84,5 @@ router.post('/', createRecording);
  * @apiParam {recording_details} recording details
  */
 router.patch('/:id', updateRecordingsAPI);
-
-/**
- * @api {get} /learning/content/breakouts/recordings/catalyst/:id
- * Get all Content Breakouts recordings for Catalyst
- * @apiDescription get all Content Breakouts recordings
- * @apiHeader {String} authorization JWT Token.
- * @apiName GetContentBreakouts
- * @apiGroup ContentBreakoutsRecordings
- */
-router.get('/catalyst/:id', getRecordingsByCatalystAPI);
 
 export default router;

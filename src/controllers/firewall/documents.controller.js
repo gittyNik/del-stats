@@ -125,7 +125,8 @@ export const EsignRequest = (req, res) => {
       attributes: ['name', 'email', 'profile'],
     },
   ).then(userDetails => {
-    if ((_.isEmpty(userDetails)) && (_.isEmpty(userDetails.profile)) && ('personal_details' in userDetails.profile)) {
+    if ((_.isEmpty(userDetails)) && (_.isEmpty(userDetails.profile))
+      && ('personal_details' in userDetails.profile)) {
       template_values.learner_email = userDetails.email;
       template_values.learner_name = userDetails.name;
       template_values.learner_address = userDetails.profile.personal_details.learner_address;

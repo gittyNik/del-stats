@@ -1,88 +1,82 @@
-import Sequelize from "sequelize";
-import uuid from "uuid/v4";
-import db from "../database";
+import Sequelize from 'sequelize';
+import uuid from 'uuid/v4';
+import db from '../database';
 
 const { DEFAULT_USER } = process.env;
 
 export const USER_ROLES = Object.freeze({
-  LEARNER: "learner",
-  EDUCATOR: "educator",
-  ENABLER: "enabler",
-  CATALYST: "catalyst",
-  ADMIN: "admin",
-  GUEST: "guest",
-  SUPERADMIN: "superadmin"
+  LEARNER: 'learner',
+  EDUCATOR: 'educator',
+  ENABLER: 'enabler',
+  CATALYST: 'catalyst',
+  ADMIN: 'admin',
+  GUEST: 'guest',
+  SUPERADMIN: 'superadmin',
 });
 
 export const User = db.define(
-  "users",
+  'users',
   {
     name: Sequelize.STRING,
     email: Sequelize.STRING,
     phone: Sequelize.STRING,
     role: Sequelize.STRING,
     location: Sequelize.STRING,
-    profile: Sequelize.JSON // profile: {key: {value, source, details}}
+    profile: Sequelize.JSON, // profile: {key: {value, source, details}}
   },
-  {}
+  {},
 );
 
-export const getProfile = id =>
-  User.findOne(
-    {
-      where: {
-        id
-      }
-    },
-    { raw: true }
-  );
-
-export const getUserFromEmails = emails =>
-  User.findOne(
-    {
-      where: {
-        email: { [Sequelize.Op.in]: emails }
-      }
-    },
-    { raw: true }
-  );
-
-export const getOrCreateUser = phone =>
-  User.findOrCreate({
+export const getProfile = id => User.findOne(
+  {
     where: {
-      phone
+      id,
     },
-    defaults: {
-      id: uuid(),
-      role: USER_ROLES.GUEST
-    }
-  });
+  },
+  { raw: true },
+);
 
-export const createUser = user =>
-  User.create({
+export const getUserFromEmails = emails => User.findOne(
+  {
+    where: {
+      email: { [Sequelize.Op.in]: emails },
+    },
+  },
+  { raw: true },
+);
+
+export const getOrCreateUser = phone => User.findOrCreate({
+  where: {
+    phone,
+  },
+  defaults: {
     id: uuid(),
     role: USER_ROLES.GUEST,
-    ...user
-  });
+  },
+});
 
-export const getUserFromPhone = phone =>
-  User.findOne(
-    {
-      where: {
-        phone
-      }
-    },
-    { raw: true }
-  );
+export const createUser = user => User.create({
+  id: uuid(),
+  role: USER_ROLES.GUEST,
+  ...user,
+});
 
-export const createSuperAdmin = () =>
-  User.findOrCreate({
+export const getUserFromPhone = phone => User.findOne(
+  {
     where: {
-      email: DEFAULT_USER,
-      role: USER_ROLES.SUPERADMIN
+      phone,
     },
-    raw: true,
-    defaults: {
-      id: uuid()
-    }
-  });
+  },
+  { raw: true },
+);
+
+export const createSuperAdmin = () => User.findOrCreate({
+  where: {
+    email: DEFAULT_USER,
+    role: USER_ROLES.SUPERADMIN,
+  },
+  raw: true,
+  defaults: {
+    id: uuid(),
+  },
+});
