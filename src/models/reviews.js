@@ -154,7 +154,7 @@ export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
   // different Cohort duration
   let skipSlots = 0;
   let subtractDeleteIndex = 0;
-  getTeamsbyCohortMilestoneId(
+  return getTeamsbyCohortMilestoneId(
     milestonecohort.id,
   ).then(learnerTeams => {
     learnerTeams.map((eachTeam, teamIndex) => {
@@ -176,6 +176,12 @@ export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
         id,
         learners,
       } = eachTeam;
+
+      let teamArrayId = github_repo_link.split('_');
+      let teamId = teamArrayId[teamArrayId.length - 1];
+
+      let topics = `Review for ${cohortName} Team: ${teamId}`;
+
       github_repo_link = GITHUB_BASE + github_repo_link;
 
       let details = {
@@ -188,6 +194,7 @@ export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
         cohortLocation,
         programId,
         cohortDuration,
+        topics,
       };
 
       // Assign only full-time slots to full-time reviews
@@ -233,9 +240,9 @@ export const createReviewSchedule = (program) => getReviewSlotsByProgram(program
   .then(reviewSlots => {
     let slotsForReview = reviewSlots;
     getLiveMilestones()
-      .then(deadlineMilestones => deadlineMilestones.map(
-        (cohortMilestone) => createTeamReviewBreakout(
+      .then(async (deadlineMilestones) => Promise.all(deadlineMilestones.map(
+        async (cohortMilestone) => createTeamReviewBreakout(
           slotsForReview, cohortMilestone,
         ),
-      ));
+      )));
   });
