@@ -18,7 +18,19 @@ export const updateProfile = (req, res) => {
     email, firstName, lastName, name, location, profile, hubspot
   } = req.body;
   const { gender, birthDate } = profile;
-  const { knowAboutSOALFrom, occupationBeforeSOAL, program, format, preferredCampus, cohortStartDate } = hubspot;
+  const {
+    knowAboutSOALFrom,
+    occupationBeforeSOAL,
+    program,
+    format,
+    preferredCampus,
+    cohortStartDate,
+    equippedWithLaptop,
+    comfortableWithEnglish,
+    stableInternetConnectivity,
+    exclusivelyAvailableForProgram,
+    availableForJob
+  } = hubspot;
   createOrUpdateContact({
     email, 
     phone,
@@ -28,7 +40,12 @@ export const updateProfile = (req, res) => {
     gender,
     knowAboutSOALFrom,
     occupationBeforeSOAL,
-    birthDate
+    birthDate,
+    equippedWithLaptop,
+    comfortableWithEnglish,
+    stableInternetConnectivity,
+    exclusivelyAvailableForProgram,
+    availableForJob
   }).then(result => {
     createDeal({
       name,

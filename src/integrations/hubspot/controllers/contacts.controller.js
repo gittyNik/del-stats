@@ -33,6 +33,16 @@ const getPropertyName = name => {
       return "campaign_source_data_1";
     case "utm_campaign":
       return "campaign_source_data_2";
+    case "equippedWithLaptop":
+      return "equipped_with_laptop_";
+    case "comfortableWithEnglish":
+      return "comfortable_with_english";
+    case "stableInternetConnectivity":
+      return "stable_internet_connectivity";
+    case "exclusivelyAvailableForProgram":
+      return "exclusively_available_for_program";
+    case "availableForJob":
+      return "available_for_job";
     default:
       return null;
   }
