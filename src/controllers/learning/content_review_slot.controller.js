@@ -30,22 +30,25 @@ export const createReviewSlotsAPI = (req, res) => {
     cohort_duration, program,
     review_day, time_scheduled,
     reviewer, week, review_duration,
+    slot_order,
   } = req.body;
 
   createReviewSlots(cohort_duration, program,
     review_day, time_scheduled, reviewer, week,
-    review_duration).then((data) => { res.json(data); })
+    review_duration, slot_order).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
 export const updateReviewSlotsAPI = (req, res) => {
   const {
     review_day, time_scheduled, reviewer, week, review_duration,
+    slot_order,
   } = req.body;
   const { id } = req.params;
 
   updateReviewSlots(id, review_day,
-    time_scheduled, reviewer, week, review_duration).then((data) => { res.json(data); })
+    time_scheduled, reviewer, week,
+    review_duration, slot_order).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 

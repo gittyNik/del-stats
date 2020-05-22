@@ -41,6 +41,9 @@ export const ReviewSlots = db.define('review_slots', {
   review_duration: {
     type: Sequelize.INTEGER,
   },
+  slot_order: {
+    type: Sequelize.INTEGER,
+  },
 });
 
 export const getAllReviewSlots = () => ReviewSlots.findAll({});
@@ -49,6 +52,7 @@ export const getReviewSlotsByProgram = (program) => ReviewSlots.findAll(
   {
     order: [
       ['cohort_duration', 'ASC'],
+      ['slot_order', 'ASC'],
       ['time_scheduled', 'ASC'],
     ],
     where: { program },
@@ -64,7 +68,8 @@ export const getReviewSlotsById = id => ReviewSlots.findOne(
 );
 
 export const createReviewSlots = (cohort_duration, program,
-  review_day, time_scheduled, reviewer, week, review_duration) => ReviewSlots.create(
+  review_day, time_scheduled, reviewer, week, review_duration,
+  slot_order) => ReviewSlots.create(
   {
     cohort_duration,
     review_day,
@@ -73,13 +78,20 @@ export const createReviewSlots = (cohort_duration, program,
     reviewer,
     week,
     review_duration,
+    slot_order,
     created_at: Sequelize.literal('NOW()'),
   },
 );
 
 export const updateReviewSlots = (id, review_day,
-  time_scheduled, reviewer, week, review_duration) => ReviewSlots.update({
-  review_day, time_scheduled, reviewer, week, review_duration,
+  time_scheduled, reviewer, week, review_duration,
+  slot_order) => ReviewSlots.update({
+  review_day,
+  time_scheduled,
+  reviewer,
+  week,
+  review_duration,
+  slot_order,
 }, { where: { id } });
 
 

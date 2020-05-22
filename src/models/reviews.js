@@ -22,6 +22,9 @@ const WEEK_VALUES = {
 
 export const getAllReviews = () => CohortBreakout.findAll({
   where: { type: 'reviews' },
+  order: [
+    ['time_scheduled', 'ASC'],
+  ],
 });
 
 export const getReviewsById = id => CohortBreakout.findOne(
@@ -30,6 +33,9 @@ export const getReviewsById = id => CohortBreakout.findOne(
       id,
       type: 'reviews',
     },
+    order: [
+      ['time_scheduled', 'ASC'],
+    ],
   },
 ).then(reviews => reviews);
 
@@ -39,6 +45,9 @@ export const getReviewsByTeam = milestone_team_id => CohortBreakout.findOne(
       type: 'reviews',
       [Sequelize.Op.and]: Sequelize.literal(`details->>'milestone_team_id'='${milestone_team_id}'`),
     },
+    order: [
+      ['time_scheduled', 'ASC'],
+    ],
   },
 );
 
@@ -48,6 +57,9 @@ export const getReviewsByStatus = status => CohortBreakout.findAll(
       status,
       type: 'reviews',
     },
+    order: [
+      ['time_scheduled', 'ASC'],
+    ],
     raw: true,
   },
 );
@@ -58,6 +70,9 @@ export const getReviewsByUserId = learner_id => LearnerBreakout.findAll(
       learner_id,
       [Sequelize.Op.and]: Sequelize.literal("learner_review->>'type'='reviews'"),
     },
+    order: [
+      ['time_scheduled', 'ASC'],
+    ],
     raw: true,
   },
 );
@@ -68,6 +83,9 @@ export const getUserAndTeamReviews = (learner_id) => LearnerBreakout.findAll(
       learner_id,
       [Sequelize.Op.and]: Sequelize.literal("learner_review->>'type'='reviews'"),
     },
+    order: [
+      ['time_scheduled', 'ASC'],
+    ],
     raw: true,
   },
 ).then(learnerReviews => learnerReviews.map(learnerReview => CohortBreakout.findOne(
@@ -156,93 +174,92 @@ export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
   let subtractDeleteIndex = 0;
   return getTeamsbyCohortMilestoneId(
     milestonecohort.id,
-  ).then(learnerTeams => {
-    learnerTeams.map((eachTeam, teamIndex) => {
-      let {
-        cohort_id,
-        'cohort.name': cohortName,
-        'milestone.name': milestoneName,
-        'milestone.id': milestoneId,
-        'milestone.starter_repo': milestoneRepo,
-        'cohort.location': cohortLocation,
-        'cohort.program_id': programId,
-        'cohort.duration': cohortDuration,
-      } = milestonecohort;
+  ).then(learnerTeams => learnerTeams.forEach((eachTeam, teamIndex) => {
+    let {
+      cohort_id,
+      'cohort.name': cohortName,
+      'milestone.name': milestoneName,
+      'milestone.id': milestoneId,
+      'milestone.starter_repo': milestoneRepo,
+      'cohort.location': cohortLocation,
+      'cohort.program_id': programId,
+      'cohort.duration': cohortDuration,
+    } = milestonecohort;
 
-      milestoneRepo = GITHUB_BASE + milestoneRepo;
-      let {
-        cohort_milestone_id,
-        github_repo_link,
-        id,
-        learners,
-      } = eachTeam;
+    milestoneRepo = GITHUB_BASE + milestoneRepo;
+    let {
+      cohort_milestone_id,
+      github_repo_link,
+      id,
+      learners,
+    } = eachTeam;
 
-      let teamArrayId = github_repo_link.split('_');
-      let teamId = teamArrayId[teamArrayId.length - 1];
+    let teamArrayId = github_repo_link.split('_');
+    let teamId = teamArrayId[teamArrayId.length - 1];
 
-      let topics = `Review for ${cohortName} Team: ${teamId}`;
+    let topics = `Review for ${cohortName} Team: ${teamId}`;
 
-      github_repo_link = GITHUB_BASE + github_repo_link;
+    github_repo_link = GITHUB_BASE + github_repo_link;
 
-      let details = {
-        cohort_milestone_id,
-        github_repo_link,
-        milestoneName,
-        cohortName,
-        milestoneId,
-        milestoneRepo,
-        cohortLocation,
-        programId,
-        cohortDuration,
-        topics,
-      };
+    let details = {
+      cohort_milestone_id,
+      github_repo_link,
+      milestoneName,
+      cohortName,
+      milestoneId,
+      milestoneRepo,
+      cohortLocation,
+      programId,
+      cohortDuration,
+      topics,
+      teamId,
+    };
 
-      // Assign only full-time slots to full-time reviews
-      // vice versa for part-time
-      // full-time will start first bo order by
-      // if full time has extra slots left, skip those
-      // reviewSlots is directly modified, so works with map
-      // also reduced index by the elements being removed
-      let indexForReview = teamIndex + skipSlots - subtractDeleteIndex;
-      while (cohortDuration !== reviewSlots[indexForReview].cohort_duration) {
-        skipSlots += 1;
-      }
-      let reviewForTeam = reviewSlots[indexForReview];
-      // Remove review that gets assigned
-      reviewSlots.splice(indexForReview, 1);
-      subtractDeleteIndex += 1;
+    // Assign only full-time slots to full-time reviews
+    // vice versa for part-time
+    // full-time will start first bo order by
+    // if full time has extra slots left, skip those
+    // reviewSlots is directly modified, so works with map
+    // also reduced index by the elements being removed
+    let indexForReview = teamIndex + skipSlots - subtractDeleteIndex;
+    while (cohortDuration !== reviewSlots[indexForReview].cohort_duration) {
+      skipSlots += 1;
+    }
+    let reviewForTeam = reviewSlots[indexForReview];
+    // Remove review that gets assigned
+    reviewSlots.splice(indexForReview, 1);
+    subtractDeleteIndex += 1;
 
-      let timeSlot = calculateReviewTime(milestonecohort.review_scheduled, reviewForTeam);
-      let { review_duration } = reviewForTeam;
-      return createReviewEntry(
-        id,
-        cohort_id,
-        timeSlot,
-        review_duration,
-        details,
-        cohortName,
-      ).then(createReviewBreakout => {
-        let cohort_breakout_id = createReviewBreakout.id;
-        let review_feedback = { type: 'review' };
-        learners.map(learner_id => LearnerBreakout.create({
-          id: uuid(),
-          review_feedback,
-          cohort_breakout_id,
-          learner_id,
-        }));
-        return createReviewBreakout;
-      });
+    let timeSlot = calculateReviewTime(milestonecohort.review_scheduled, reviewForTeam);
+    let { review_duration } = reviewForTeam;
+    return createReviewEntry(
+      id,
+      cohort_id,
+      timeSlot,
+      review_duration,
+      details,
+      cohortName,
+    ).then(createReviewBreakout => {
+      let cohort_breakout_id = createReviewBreakout.id;
+      let review_feedback = { type: 'review' };
+      learners.map(learner_id => LearnerBreakout.create({
+        id: uuid(),
+        review_feedback,
+        cohort_breakout_id,
+        learner_id,
+      }));
+      return createReviewBreakout;
     });
-  });
+  }));
 };
 
 export const createReviewSchedule = (program) => getReviewSlotsByProgram(program)
   .then(reviewSlots => {
     let slotsForReview = reviewSlots;
-    getLiveMilestones()
-      .then(async (deadlineMilestones) => Promise.all(deadlineMilestones.map(
-        async (cohortMilestone) => createTeamReviewBreakout(
+    return getLiveMilestones()
+      .then((deadlineMilestones) => deadlineMilestones.forEach(
+        cohortMilestone => createTeamReviewBreakout(
           slotsForReview, cohortMilestone,
         ),
-      )));
+      ));
   });

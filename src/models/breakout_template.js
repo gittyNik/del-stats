@@ -186,7 +186,7 @@ export const createBreakoutsInMilestone = (cohort_id, program_id,
   {
     attributes: ['id', 'name', 'topic_id', 'details',
       'duration', 'time_scheduled', 'after_days',
-      'primary_catalyst', 'level'],
+      'primary_catalyst', 'level', 'secondary_catalysts'],
     where: { program_id, cohort_duration },
     raw: true,
   },
@@ -207,7 +207,7 @@ export const createTypeBreakoutsInMilestone = (cohort_id, program_id,
   {
     attributes: ['id', 'name', 'topic_id', 'details',
       'duration', 'time_scheduled', 'after_days',
-      'primary_catalyst', 'level'],
+      'primary_catalyst', 'level', 'secondary_catalysts'],
     where: {
       program_id,
       cohort_duration,
