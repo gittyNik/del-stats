@@ -72,4 +72,3 @@ export const getCohortMilestoneWithDetails = (req, res) => {
       res.sendStatus(500);
     });
 };
-

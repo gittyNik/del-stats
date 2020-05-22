@@ -318,7 +318,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
           catalyst_id, details, type, team_feedback, catalyst_notes,
         )
           .then(data => {
-            console.log('Breakout and video meeting created Created', data);
+            console.log('Breakout and video meeting created Created');
             return data;
           });
       });
@@ -341,15 +341,14 @@ export const createCohortBreakouts = (breakoutTemplateList,
   raw: true,
 })
   .then((cohort) => {
-    console.log(cohort.location);
     let BreakoutObjects = breakoutTemplateList.map((breakoutTemplate) => {
       let {
-        id, name, topic_id, duration, primary_catalyst, secondary_catalyst,
+        id, name, topic_id, duration, primary_catalyst, secondary_catalysts,
         breakout_schedule, details,
       } = breakoutTemplate;
 
-      secondary_catalyst.push(primary_catalyst);
-      let catalyst = secondary_catalyst[Math.floor(Math.random() * secondary_catalyst.length)];
+      secondary_catalysts.push(primary_catalyst);
+      let catalyst = secondary_catalysts[Math.floor(Math.random() * secondary_catalysts.length)];
 
       let breakoutObject = {
         topic_id,

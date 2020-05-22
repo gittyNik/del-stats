@@ -88,11 +88,13 @@ router.get('/status/:id', getReviewsByStatusAPI);
 router.use(allowAdminsOnly);
 
 /**
- * @api {get} /learning/ops/reviews/status/:id/ Get Reviews by status
- * @apiDescription get Reviews by status
+ * @api {post} /learning/ops/reviews/schedule Schedule Reviews
+ * @apiDescription schedule Reviews by status
  * @apiHeader {String} authorization JWT Token.
- * @apiName GetReviewsByStatus
+ * @apiName ScheduleReviews
  * @apiGroup Reviews
+ *
+ * @apiParam {String} Program name
  */
 router.post('/schedule', createReviewScheduleAPI);
 

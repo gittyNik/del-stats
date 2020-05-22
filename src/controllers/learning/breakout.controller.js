@@ -115,7 +115,7 @@ export const createBreakout = (req, res) => {
           catalyst_feedback, attendance_count, details,
         )
           .then(data => {
-            console.log(data);
+            // console.log(data);
             res.send('Breakout Created with codesandbox and videomeeting.');
           })
           .catch(err => {
@@ -166,7 +166,7 @@ export const createBreakout = (req, res) => {
           catalyst_feedback, attendance_count, details,
         )
           .then(data => {
-            console.log(data);
+            // console.log(data);
             res.send('Breakout and video meeting created Created');
           })
           .catch(err => {
