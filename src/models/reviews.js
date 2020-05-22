@@ -116,6 +116,7 @@ export const createReviewEntry = (milestone_team_id, cohort_id,
     location: 'Online',
     cohortName,
     type: 'reviews',
+    topic_id: ['760fd87b-b5af-409a-b4ba-2f7351ef82cd'], // Topic id for Deep dives
   };
   return BreakoutWithOptions(reviewDetails);
 };
