@@ -53,13 +53,13 @@ export const getTopicsByMilestone = (milestone_id, program) => Topic.findAll(
 );
 
 export const createTopic = (title, description,
-  program, milestone_id, optional, domain) => Topic.create(
+  milestone_id, program, optional, domain) => Topic.create(
   {
     id: uuid(),
     title,
     description,
-    program,
     milestone_id,
+    program,
     optional,
     domain,
     created_at: Date.now(),
