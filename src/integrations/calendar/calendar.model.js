@@ -4,27 +4,24 @@ import { CohortBreakout } from '../../models/cohort_breakout';
 
 const { google } = require('googleapis');
 
-
-export const listEvents = function (auth, cb) {
+export const listEvents = (auth) => {
   const calendar = google.calendar({ version: 'v3', auth });
-  calendar.events.list({
+  return calendar.events.list({
     calendarId: 'primary',
     timeMin: (new Date()).toISOString(),
     maxResults: 10,
     singleEvents: true,
     orderBy: 'startTime',
-  }, (err, res) => {
-    if (err) return console.log('The API returned an error: ' + err);
-    const events = res.data.items;
-    if (events.length) {
-      cb(events);
-    } else {
-      cb(false);
-      console.log('No upcoming events found.');
-    }
-  });
-}
-
+  })
+    .then(res => {
+      const events = res.data.items;
+      return (events.length > 0) ? events : false;
+    })
+    .catch(err => {
+      console.error(err);
+      return false;
+    });
+};
 // var event = {
 //     'summary': 'Sample Event',
 //     'location': 'School of Accelerated learning',
@@ -59,7 +56,7 @@ export const eventCreator = (summary, start = null, end = null, duration = 30, r
     start = (new Date()).toISOString()
   }
   if (end == null) {
-    var d = new Date(start.valueOf()); d.setMinutes(d.getMinutes() + duration);
+    let d = new Date(start.valueOf()); d.setMinutes(d.getMinutes() + duration);
     end = d.toISOString()
   }
   if (reminders == null) {
@@ -71,7 +68,7 @@ export const eventCreator = (summary, start = null, end = null, duration = 30, r
       ],
     }
   }
-  var event = {
+  let event = {
     'summary': summary,
     'location': location,
     'description': description,
@@ -87,7 +84,7 @@ export const eventCreator = (summary, start = null, end = null, duration = 30, r
     'attendees': attendees,
     'reminders': reminders,
   };
-  return event
+  return event;
 };
 
 export const createEvents = function (auth, event_details, cb) {
@@ -105,7 +102,17 @@ export const createEvents = function (auth, event_details, cb) {
     }
     cb(event.htmlLink);
   });
-}
+};
+
+export const createEvent = async (auth, event_details) => {
+  const calendar = google.calendar({ version: 'v3', auth });
+  const {
+    summary, location, description, start, end,
+    duration, recurrence, attendees, reminders
+  } = event_details;
+
+
+};
 
 export const getCohortSchedule = (cohortBreakoutId) =>
   CohortBreakout.findOne({

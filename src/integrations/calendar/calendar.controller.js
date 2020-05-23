@@ -6,7 +6,6 @@ const { google } = require('googleapis');
 
 export const getAllCalendarEvents = async (req, res) => {
   const { userId } = req.jwtData;
-  console.log(req.jwtData);
   // get oauth2 client
   const oauth2Client = new google.auth.OAuth2(
     googleConfig.clientId,
@@ -14,8 +13,8 @@ export const getAllCalendarEvents = async (req, res) => {
     googleConfig.redirect,
   );
   const tokens = await getGoogleTokens(userId);
-  console.log(tokens);
   if (tokens === null) {
+    console.error(`unble to get tokens for userID: ${userId}`);
     res.sendStatus(500);
   }
   oauth2Client.setCredentials({
@@ -23,32 +22,47 @@ export const getAllCalendarEvents = async (req, res) => {
   });
   // get calendar events by passing oauth2 client
   if (oauth2Client) {
-    listEvents(oauth2Client, (events) => {
-      console.log('events: ', events);
-
-      const data = {
-        name: req.jwtData.user.name,
-        // displayPicture: req.session.user.displayPicture,
-        id: req.jwtData.user.id,
-        email: req.jwtData.user.email,
-        events: (events) || 'No events created.',
-      };
-      console.log(data);
-      res.json(data);
-    });
+    listEvents(oauth2Client)
+      .then(events => {
+        // console.log(events);
+        const data = {
+          name: req.jwtData.user.name,
+          id: req.jwtData.user.id,
+          email: req.jwtData.user.email,
+          events: events || 'No events created.',
+        };
+        res.json(data);
+      })
+      .catch(err => {
+        console.error(err);
+        res.send(500);
+      });
   } else {
+    const err_msg = `Failed to get Oauth2 credentail for ${userId}`;
+    console.error(err_msg);
     res.sendStatus(500);
   }
 };
 
 
-export const createCalendarEvent = (req, res) => {
+export const createCalendarEvent = async (req, res) => {
+  const { userId } = req.jwtData;
   // get oauth2 client
-  const oauth2Client = new google.auth.OAuth2();
-  const event_details = req.body.event;
+  const oauth2Client = new google.auth.OAuth2(
+    googleConfig.clientId,
+    googleConfig.clientSecret,
+    googleConfig.redirect,
+  );
+  const tokens = await getGoogleTokens(userId);
+  // console.log(tokens);
+  if (tokens === null) {
+    console.error(`unble to get tokens for userID: ${userId}`);
+    res.sendStatus(500);
+  }
   oauth2Client.setCredentials({
-    access_token: req.session.user.accessToken
+    refresh_token: tokens.refresh_token,
   });
+  const event_details = req.body.event;
 
   // create calendar events by passing oauth2 client
   createEvents(oauth2Client, event_details, (event_link) => {
