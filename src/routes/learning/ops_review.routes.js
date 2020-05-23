@@ -6,6 +6,8 @@ import {
   createReview, addReviewsForTeamAPI,
   createReviewScheduleAPI,
   getUserAndTeamReviewsAPI,
+  updateReviewForLearnerAPI,
+  updateTeamReviewAPI,
 } from '../../controllers/learning/reviews.controller';
 import {
   allowMultipleRoles,
@@ -113,6 +115,35 @@ router.post('/schedule', createReviewScheduleAPI);
  * @apiParam {String} zoom_url join url for Zoom call
  */
 router.post('/', createReview);
+
+/**
+ * @api {patch} /learning/ops/reviews/:id  Update Team Reviews
+ * @apiDescription Update a Team Review
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UpdateTeamReview
+ * @apiGroup Reviews
+ *
+ * @apiParam {String} cohort_breakout_id Cohort breakout ID
+ * @apiParam {String} team_feedback Array of Learner feedbacks
+ * @apiParam {String} team_feedback Team Feedbackx
+ * @apiParam {String} attendance_count Attendance count of learners
+ * @apiParam {String} catalyst_notes Team notes by Reviewer
+ */
+router.patch('/:id', updateTeamReviewAPI);
+
+/**
+ * @api {patch} /learning/ops/reviews/:id/:learner_id  Update Team Reviews
+ * @apiDescription Update a Learner Review
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UpdateLearnerReview
+ * @apiGroup Reviews
+ *
+ * @apiParam {String} id Cohort breakout ID
+ * @apiParam {String} learner_id Learner ID
+ * @apiParam {String} review_feedback Object of rubric key and score
+ * @apiParam {String} learner_feedback Notes by Reviewer for Learner
+ */
+router.patch('/:id/:learner_id', updateReviewForLearnerAPI);
 
 /**
  * @api {patch} /learning/ops/reviews/:id  Update Team Reviews
