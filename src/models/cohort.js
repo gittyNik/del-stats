@@ -150,7 +150,7 @@ export const updateCohortLearners = (id) => Application.findAll({
     .then(([cohort]) => cohort);
 });
 
-export const beginCohortWithId = (cohort_id, type = 'program') => Promise.all([
+export const beginCohortWithId = (cohort_id) => Promise.all([
   updateCohortLearners(cohort_id),
   createCohortMilestones(cohort_id),
 ])
@@ -159,7 +159,7 @@ export const beginCohortWithId = (cohort_id, type = 'program') => Promise.all([
       cohort_id,
       cohort.program_id,
       cohort.duration,
-      type,
+      cohort.program_id,
     ).then((allBreakouts) => {
       console.log(`All breakouts scheduled for the cohort ${cohort_id} `);
     });
