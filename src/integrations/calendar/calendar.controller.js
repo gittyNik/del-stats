@@ -1,4 +1,4 @@
-import { listEvents, createEvents } from './calendar.model';
+import { listEvents, createEvent } from './calendar.model';
 import { getGoogleTokens } from '../../models/social_connection';
 import { googleConfig } from '../../util/calendar-util';
 
@@ -25,13 +25,17 @@ export const getAllCalendarEvents = async (req, res) => {
     listEvents(oauth2Client)
       .then(events => {
         // console.log(events);
-        const data = {
-          name: req.jwtData.user.name,
-          id: req.jwtData.user.id,
-          email: req.jwtData.user.email,
-          events: events || 'No events created.',
-        };
-        res.json(data);
+        if (events) {
+          const data = {
+            name: req.jwtData.user.name,
+            id: req.jwtData.user.id,
+            email: req.jwtData.user.email,
+            events: events || 'No upcoming events.',
+          };
+          res.json(data);
+        } else {
+          res.sendStatus(500);
+        }
       })
       .catch(err => {
         console.error(err);
@@ -47,6 +51,8 @@ export const getAllCalendarEvents = async (req, res) => {
 
 export const createCalendarEvent = async (req, res) => {
   const { userId } = req.jwtData;
+  const event_details = req.body.event;
+  // console.log(req.jwtData);
   // get oauth2 client
   const oauth2Client = new google.auth.OAuth2(
     googleConfig.clientId,
@@ -62,42 +68,42 @@ export const createCalendarEvent = async (req, res) => {
   oauth2Client.setCredentials({
     refresh_token: tokens.refresh_token,
   });
-  const event_details = req.body.event;
 
-  // create calendar events by passing oauth2 client
-  createEvents(oauth2Client, event_details, (event_link) => {
-
-    const data = {
-      name: req.session.user.name,
-      displayPicture: req.session.user.displayPicture,
-      id: req.session.user.id,
-      email: req.session.user.email,
-      event_link: event_link
-    }
-    res.send(data);
-  });
+  createEvent(oauth2Client, event_details)
+    .then(event_link => {
+      const data = {
+        name: req.jwtData.user.name,
+        id: req.jwtData.user.id,
+        email: req.jwtData.user.email,
+        event_link,
+      };
+      res.send(data);
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
 };
 
 
-export const scheduleCalendarEventForLearner = (req, res) => {
-  // get oauth2 client
-  const oauth2Client = new google.auth.OAuth2();
-  const user_id = req.body.user_id;
-  oauth2Client.setCredentials({
-    access_token: req.session.user.accessToken
-  });
+// export const scheduleCalendarEventForLearner = (req, res) => {
+//   // get oauth2 client
+//   const oauth2Client = new google.auth.OAuth2();
+//   const user_id = req.body.user_id;
+//   oauth2Client.setCredentials({
+//     access_token: req.session.user.accessToken
+//   });
 
-  // create calendar events by passing oauth2 client
-  scheduleLearnerBreakoutEvents(oauth2Client, user_id, (events) => {
+//   // create calendar events by passing oauth2 client
+//   scheduleLearnerBreakoutEvents(oauth2Client, user_id, (events) => {
 
-    const data = {
-      name: req.session.user.name,
-      displayPicture: req.session.user.displayPicture,
-      id: req.session.user.id,
-      email: req.session.user.email,
-      events: events
-    }
-    res.send(data);
-  });
-};
-
+//     const data = {
+//       name: req.session.user.name,
+//       displayPicture: req.session.user.displayPicture,
+//       id: req.session.user.id,
+//       email: req.session.user.email,
+//       events: events
+//     }
+//     res.send(data);
+//   });
+// };

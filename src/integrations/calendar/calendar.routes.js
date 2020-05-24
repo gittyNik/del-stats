@@ -42,7 +42,7 @@ router.post('/', createCalendarEvent);
  * @apiGroup CalendarEvent
 
  */
-router.post('/learner', scheduleCalendarEventForLearner);
+// router.post('/learner', scheduleCalendarEventForLearner);
 
 /**
  * @api {patch} /calendar/:id  Update Calendar Event

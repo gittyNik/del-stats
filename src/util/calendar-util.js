@@ -3,6 +3,33 @@ const { getGoogleTokens } = require('../models/social_connection');
 
 require('dotenv').config();
 
+// parameter -> d is new Date().toISOString()
+function rfc3339(d) {
+  function pad(n) {
+    return n < 10 ? `0${n}` : n;
+  }
+  function timezoneOffset(offset) {
+    let sign;
+    if (offset === 0) {
+      return 'Z';
+    }
+    sign = (offset > 0) ? '-' : '+';
+    offset = Math.abs(offset);
+    return `${sign + pad(Math.floor(offset / 60))}:${pad(offset % 60)}`;
+  }
+  let data = [
+    `${d.getFullYear()}-`,
+    `${pad(d.getMonth() + 1)}-`,
+    `${pad(d.getDate())}T`,
+    `${pad(d.getHours())}:`,
+    `${pad(d.getMinutes())}:`,
+    `${pad(d.getSeconds())}`,
+    `${timezoneOffset(d.getTimezoneOffset())}`,
+  ];
+  return data.join('');
+}
+
+
 // google app config
 const googleConfig = {
   clientId: process.env.GOOGLE_CLIENT_ID,
@@ -46,32 +73,32 @@ module.exports.urlGoogle = () => {
 // get oauth2 api
 function getOAuth2(auth) {
   return google.oauth2({
-    auth: auth,
+    auth,
     version: 'v2',
   });
 }
 
-module.exports.getGoogleAccountFromCode = async (code, cb) => {
-  const auth = createConnection();
-  const { tokens } = await auth.getToken(code);
-  auth.setCredentials(tokens);
-  const user = await getOAuth2(auth);
-  user.userinfo.get((err, res) => {
-    if (err) {
-      cb(err);
-    } else {
-      const userProfile = {
-        id: res.data.id,
-        accessToken: tokens.access_token,
-        name: res.data.name,
-        displayPicture: res.data.picture,
-        email: res.data.email
-      }
-      cb(null, userProfile);
-    }
-  })
+// module.exports.getGoogleAccountFromCode = async (code, cb) => {
+//   const auth = createConnection();
+//   const { tokens } = await auth.getToken(code);
+//   auth.setCredentials(tokens);
+//   const user = await getOAuth2(auth);
+//   user.userinfo.get((err, res) => {
+//     if (err) {
+//       cb(err);
+//     } else {
+//       const userProfile = {
+//         id: res.data.id,
+//         accessToken: tokens.access_token,
+//         name: res.data.name,
+//         displayPicture: res.data.picture,
+//         email: res.data.email
+//       }
+//       cb(null, userProfile);
+//     }
+//   })
 
-};
+// };
 
 
 module.exports.getTokensFromCode = async (code) => {
@@ -89,7 +116,7 @@ module.exports.getTokensFromCode = async (code) => {
   data0.profile = googleProfile.data;
   // oauth2Client.on('tokens', (tokens) => {
   //   if (tokens.refresh_token) {
-  //     // store the refresh_token in my database!
+  //     // store the refresh_token in the database!
   //     data.refreshToken = tokens.refresh_token;
   //     console.log(tokens.refresh_token);
   //   }
@@ -114,3 +141,4 @@ module.exports.getRefreshedClient = async (user_id) => {
 };
 
 module.exports.googleConfig = googleConfig;
+module.exports.rfc3339 = rfc3339;
