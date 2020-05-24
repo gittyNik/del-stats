@@ -9,7 +9,7 @@ import {
 } from './learner_challenge';
 // import { CohortBreakout } from "./cohort_breakout";
 // import { BreakoutTemplate, CreateBreakoutsInMilestone } from './breakout_template';
-import { createBreakoutsInMilestone } from './breakout_template';
+import { createTypeBreakoutsInMilestone } from './breakout_template';
 import { removeLearnerBreakouts, createLearnerBreakouts } from './learner_breakout';
 import { moveLearnerToNewGithubTeam, deleteGithubRepository } from '../integrations/github/controllers';
 
@@ -150,15 +150,16 @@ export const updateCohortLearners = (id) => Application.findAll({
     .then(([cohort]) => cohort);
 });
 
-export const beginCohortWithId = (cohort_id) => Promise.all([
+export const beginCohortWithId = (cohort_id, type = 'program') => Promise.all([
   updateCohortLearners(cohort_id),
   createCohortMilestones(cohort_id),
 ])
   .then(([cohort, milestones]) => {
-    createBreakoutsInMilestone(
+    createTypeBreakoutsInMilestone(
       cohort_id,
       cohort.program_id,
       cohort.duration,
+      type,
     ).then((allBreakouts) => {
       console.log(`All breakouts scheduled for the cohort ${cohort_id} `);
     });

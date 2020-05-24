@@ -271,6 +271,18 @@ export const BreakoutWithOptions = (breakoutObject) => {
     isVideoMeeting = false;
   }
 
+  if (details.sandbox === undefined) {
+    isCodeSandbox = false;
+  } else {
+    isCodeSandbox = true;
+  }
+
+  if ((time === undefined) && (duration === undefined)) {
+    isVideoMeeting = false;
+  } else {
+    isVideoMeeting = true;
+  }
+
   let zoomTopic = `Cohort ${cohortName} - Breakout \n\n Topics: \n ${details.topics} \n\n ${location}`;
   let agenda = `Cohort ${cohortName} \n\n Breakout is scheduled for the topics \n "${details.topics}" at ${time_scheduled} for ${duration} hours `;
 
