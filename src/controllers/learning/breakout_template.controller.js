@@ -30,7 +30,6 @@ export const createBreakoutTemplateAPI = (req, res) => {
     duration,
     time_scheduled,
     after_days,
-    updated_by,
     cohort_duration,
     program_id,
   } = req.body;
@@ -46,7 +45,6 @@ export const createBreakoutTemplateAPI = (req, res) => {
     duration,
     time_scheduled,
     after_days,
-    updated_by,
     cohort_duration,
     program_id,
     user_id).then((data) => { res.json(data); })
