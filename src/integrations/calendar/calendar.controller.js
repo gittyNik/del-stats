@@ -25,17 +25,14 @@ export const getAllCalendarEvents = async (req, res) => {
     listEvents(oauth2Client)
       .then(events => {
         // console.log(events);
-        if (events) {
-          const data = {
-            name: req.jwtData.user.name,
-            id: req.jwtData.user.id,
-            email: req.jwtData.user.email,
-            events: events || 'No upcoming events.',
-          };
-          res.json(data);
-        } else {
-          res.sendStatus(500);
-        }
+
+        const data = {
+          name: req.jwtData.user.name,
+          id: req.jwtData.user.id,
+          email: req.jwtData.user.email,
+          events: events || 'No upcoming events.',
+        };
+        res.json(data);
       })
       .catch(err => {
         console.error(err);
