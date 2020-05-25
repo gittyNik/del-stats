@@ -78,29 +78,6 @@ function getOAuth2(auth) {
   });
 }
 
-// module.exports.getGoogleAccountFromCode = async (code, cb) => {
-//   const auth = createConnection();
-//   const { tokens } = await auth.getToken(code);
-//   auth.setCredentials(tokens);
-//   const user = await getOAuth2(auth);
-//   user.userinfo.get((err, res) => {
-//     if (err) {
-//       cb(err);
-//     } else {
-//       const userProfile = {
-//         id: res.data.id,
-//         accessToken: tokens.access_token,
-//         name: res.data.name,
-//         displayPicture: res.data.picture,
-//         email: res.data.email
-//       }
-//       cb(null, userProfile);
-//     }
-//   })
-
-// };
-
-
 module.exports.getTokensFromCode = async (code) => {
   const oauth2Client = createConnection();
   const data0 = {};

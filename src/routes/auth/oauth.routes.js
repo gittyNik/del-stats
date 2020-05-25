@@ -1,7 +1,7 @@
 import Express from 'express';
 import {
-  signinWithGithub, linkWithGithub, signinWithGoogleCalendar,
-  linkGoogleCalendar, checkGoogleOrSendRedirectUrl, handleGoogleCallback
+  signinWithGithub, linkWithGithub,
+  checkGoogleOrSendRedirectUrl, handleGoogleCallback,
 } from '../../controllers/auth/oauth.controller';
 import authenticate from '../../controllers/auth/auth.controller';
 
@@ -38,18 +38,7 @@ router.post('/github/link', authenticate, linkWithGithub);
 router.get('/google-calendar/signin', handleGoogleCallback);
 
 /**
- * @api {post} /auth/oauth/google-calendar/link Link google calendar account
- * @apiHeader {String} authorization JWT Token
- * @apiName LinkGoogleCalendar
- * @apiDescription This is used when a signed-in user attempts to attach google calendar account
- * @apiGroup SocialConnection
- * @apiParam {String} code Authentication code provided by Google calendar after login
- */
-router.post('/google-calendar/link', authenticate, linkGoogleCalendar);
-
-
-/**
- * @api {get} /auth/oauth/google/redirect-url SignIn to google account
+ * @api {get} /auth/oauth/google/redirect-url get google redirect-url to SignIn
  * @apiHeader {String} authorization JWT Token
  * @apiName GetGoogleRedirectUrl
  * @apiDescription Returns a google-redirect-url to signin if no google social connection is found.
