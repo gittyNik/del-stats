@@ -1,12 +1,13 @@
-const { google } = require('googleapis');
-const { getGoogleTokens } = require('../models/social_connection');
+import { google } from 'googleapis';
+import dotenv from 'dotenv'
+import { getGoogleTokens } from '../models/social_connection';
 
-require('dotenv').config();
 
+dotenv.config();
 const timeZone = 'Asia/Kolkata';
 
 // parameter -> d is new Date().toISOString()
-function rfc3339(d) {
+export const rfc3339 = (d) => {
   function pad(n) {
     return n < 10 ? `0${n}` : n;
   }
@@ -29,11 +30,10 @@ function rfc3339(d) {
     `${timezoneOffset(d.getTimezoneOffset())}`,
   ];
   return data.join('');
-}
-
+};
 
 // google app config
-const googleConfig = {
+export const googleConfig = {
   clientId: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   redirect: process.env.REDIRECT_URL,
@@ -66,7 +66,7 @@ function getConnectionUrl(auth) {
 
 
 // get auth url
-module.exports.urlGoogle = () => {
+export const urlGoogle = () => {
   const auth = createConnection();
   const url = getConnectionUrl(auth);
   return url;
@@ -80,7 +80,7 @@ function getOAuth2(auth) {
   });
 }
 
-module.exports.getTokensFromCode = async (code) => {
+export const getTokensFromCode = async (code) => {
   const oauth2Client = createConnection();
   const data0 = {};
   const { tokens } = await oauth2Client.getToken(code);
@@ -107,7 +107,7 @@ module.exports.getTokensFromCode = async (code) => {
 
 // Once the client has a refresh token, access tokens will be
 // acquired and refreshed automatically in the next call to the API.
-module.exports.getGoogleOauthOfUser = async (user_id) => {
+export const getGoogleOauthOfUser = async (user_id) => {
   const tokens = await getGoogleTokens(user_id);
   if (tokens) {
     const oauth2Client = createConnection();
@@ -119,7 +119,7 @@ module.exports.getGoogleOauthOfUser = async (user_id) => {
   return null;
 };
 
-module.exports.convertToEventBody = (summary, start_time, end_time, description, location) => {
+export const convertToEventBody = (summary, start_time, end_time, description, location) => {
   let event_data = {
     summary,
     start: {
@@ -142,6 +142,3 @@ module.exports.convertToEventBody = (summary, start_time, end_time, description,
   };
   return event_data;
 };
-
-module.exports.googleConfig = googleConfig;
-module.exports.rfc3339 = rfc3339;
