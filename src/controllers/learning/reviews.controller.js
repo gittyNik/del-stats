@@ -5,6 +5,8 @@ import {
   addReviewsForTeam, getReviewsByTeam,
   createReviewSchedule,
   getUserAndTeamReviews,
+  updateReviewForLearner,
+  updateTeamReview,
 } from '../../models/reviews';
 
 export const getAllReviewsAPI = (req, res) => {
@@ -81,5 +83,36 @@ export const updateStatusForTeamAPI = (req, res) => {
 export const createReviewScheduleAPI = (req, res) => {
   const { program } = req.body;
   createReviewSchedule(program).then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
+
+export const updateReviewForLearnerAPI = (req, res) => {
+  const {
+    review_feedback,
+    learner_feedback,
+  } = req.body;
+
+  const {
+    learner_id, id,
+  } = req.params;
+
+  updateReviewForLearner(review_feedback, learner_id, id,
+    learner_feedback).then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
+
+export const updateTeamReviewAPI = (req, res) => {
+  const {
+    team_feedback,
+    attendance_count,
+    catalyst_notes,
+  } = req.body;
+
+  const { id } = req.params;
+
+  updateTeamReview(id,
+    team_feedback,
+    attendance_count,
+    catalyst_notes).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };

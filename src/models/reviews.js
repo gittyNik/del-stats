@@ -98,6 +98,39 @@ export const getUserAndTeamReviews = (learner_id) => LearnerBreakout.findAll(
   },
 )));
 
+export const updateTeamReview = (
+  cohort_breakout_id,
+  team_feedback,
+  attendance_count,
+  catalyst_notes,
+) => CohortBreakout.update({
+  team_feedback,
+  attendance_count,
+  catalyst_notes,
+}, {
+  where: {
+    id: cohort_breakout_id,
+  },
+  returning: true,
+  raw: true,
+});
+
+export const updateReviewForLearner = (
+  review_feedback, learner_id, cohort_breakout_id,
+  learner_feedback,
+) => LearnerBreakout.update({
+  review_feedback,
+  learner_feedback,
+  attendance: true,
+}, {
+  where: {
+    cohort_breakout_id,
+    learner_id,
+  },
+  returning: true,
+  raw: true,
+});
+
 
 export const createReviewEntry = (milestone_team_id, cohort_id,
   time_scheduled, duration, details, cohortName, team_feedback,
