@@ -3,6 +3,8 @@ const { getGoogleTokens } = require('../models/social_connection');
 
 require('dotenv').config();
 
+const timeZone = 'Asia/Kolkata';
+
 // parameter -> d is new Date().toISOString()
 function rfc3339(d) {
   function pad(n) {
@@ -105,7 +107,7 @@ module.exports.getTokensFromCode = async (code) => {
 
 // Once the client has a refresh token, access tokens will be
 // acquired and refreshed automatically in the next call to the API.
-module.exports.getRefreshedClient = async (user_id) => {
+module.exports.getGoogleOauthOfUser = async (user_id) => {
   const tokens = await getGoogleTokens(user_id);
   if (tokens) {
     const oauth2Client = createConnection();
@@ -115,6 +117,30 @@ module.exports.getRefreshedClient = async (user_id) => {
     return oauth2Client;
   }
   return null;
+};
+
+module.exports.convertToEventBody = (summary, start_time, end_time, description, location) => {
+  let event_data = {
+    summary,
+    start: {
+      dateTime: rfc3339(new Date(start_time)),
+      timeZone,
+    },
+    end: {
+      dateTime: rfc3339(new Date(end_time)),
+      timeZone,
+    },
+    location: location || 'School of Accelerated learning',
+    description,
+    reminders: {
+      useDefault: false,
+      overrides: [
+        { method: 'email', minutes: 24 * 60 },
+        { method: 'popup', minutes: 10 },
+      ],
+    },
+  };
+  return event_data;
 };
 
 module.exports.googleConfig = googleConfig;
