@@ -337,52 +337,52 @@ export const BreakoutWithOptions = (breakoutObject) => {
 
 export const createCohortBreakouts = (breakoutTemplateList,
   cohort_id, codeSandbox = true, videoMeet = true) => Cohort.findByPk(cohort_id, {
-  attributes: ['location', 'name'],
-  raw: true,
-})
-  .then((cohort) => {
-    let BreakoutObjects = breakoutTemplateList.map((breakoutTemplate) => {
-      let {
-        id, name, topic_id, duration, primary_catalyst, secondary_catalysts,
-        breakout_schedule, details,
-      } = breakoutTemplate;
+    attributes: ['location', 'name'],
+    raw: true,
+  })
+    .then((cohort) => {
+      let BreakoutObjects = breakoutTemplateList.map((breakoutTemplate) => {
+        let {
+          id, name, topic_id, duration, primary_catalyst, secondary_catalysts,
+          breakout_schedule, details,
+        } = breakoutTemplate;
 
-      secondary_catalysts.push(primary_catalyst);
-      let catalyst = secondary_catalysts[Math.floor(Math.random() * secondary_catalysts.length)];
+        secondary_catalysts.push(primary_catalyst);
+        let catalyst = secondary_catalysts[Math.floor(Math.random() * secondary_catalysts.length)];
 
-      let breakoutObject = {
-        topic_id,
-        cohort_id,
-        breakout_template_id: id,
-        time_scheduled: breakout_schedule,
-        duration,
-        location: cohort.location,
-        catalyst_id: catalyst,
-        details,
-        topic_name: name,
-        isVideoMeeting: videoMeet,
-        isCodeSandbox: codeSandbox,
-        cohortName: cohort.name,
-      };
-      return breakoutObject;
-      // end of map
+        let breakoutObject = {
+          topic_id,
+          cohort_id,
+          breakout_template_id: id,
+          time_scheduled: breakout_schedule,
+          duration,
+          location: cohort.location,
+          catalyst_id: catalyst,
+          details,
+          topic_name: name,
+          isVideoMeeting: videoMeet,
+          isCodeSandbox: codeSandbox,
+          cohortName: cohort.name,
+        };
+        return breakoutObject;
+        // end of map
+      });
+      return BreakoutObjects;
+      // end of first then.
+    })
+    .then(async (breakoutsWithCohortName) => {
+      let breakouts = [];
+      for (let i = 0; i < breakoutsWithCohortName.length; i++) {
+        let breakout = BreakoutWithOptions(breakoutsWithCohortName[i]);
+        breakouts.push(breakout);
+      }
+      console.log('<----- BREAKOUT OBJECT -------->', breakouts.length);
+      return Promise.all(breakouts);
+    })
+    .catch(err => {
+      console.error('Failed to location for a cohort', err);
+      return null;
     });
-    return BreakoutObjects;
-    // end of first then.
-  })
-  .then(async (breakoutsWithCohortName) => {
-    let breakouts = [];
-    for (let i = 0; i < breakoutsWithCohortName.length; i++) {
-      let breakout = BreakoutWithOptions(breakoutsWithCohortName[i]);
-      breakouts.push(breakout);
-    }
-    console.log('<----- BREAKOUT OBJECT -------->', breakouts.length);
-    return Promise.all(breakouts);
-  })
-  .catch(err => {
-    console.error('Failed to location for a cohort', err);
-    return null;
-  });
 
 export const getAllBreakoutsInCohort = (cohort_id) => CohortBreakout.findAll({
   where: {
@@ -458,3 +458,48 @@ export const getCohortBreakoutsByCohortId = (cohort_id) => CohortBreakout.findAl
     cohort_id,
   },
 });
+
+export const getCalendarDetailsOfCohortBreakout = async (id) => {
+  const cohort_breakout = await CohortBreakout.findOne({
+    where: {
+      id,
+    },
+    raw: true,
+  });
+  console.log(cohort_breakout);
+  const {
+    type, domain, breakout_template_id,
+    time_scheduled, duration, location, status,
+  } = cohort_breakout;
+
+  const breakoutTemplate = await BreakoutTemplate.findOne({
+    where: { id: breakout_template_id },
+    raw: true,
+  });
+  // console.log(breakoutTemplate);
+  const { name, topic_id: topic_ids } = breakoutTemplate;
+
+  const topics = await Promise.all(topic_ids.map(async topic_id => {
+    const topic = await Topic.findOne({
+      attributes: ['title'],
+      where: { id: topic_id },
+      raw: true,
+    });
+    return topic.title;
+  }));
+  // console.log(topics);
+  // let summary = `${name.toUpperCase()}-${domain} BO`;
+  let summary = `${name.toUpperCase()} BO`;
+  let description = `Topics:
+  ${topics.join('\n ')}
+  `;
+
+  return ({
+    summary,
+    time_scheduled, // done.
+    duration, // done/
+    location, // done.
+    status, // done.
+    description,
+  });
+};
