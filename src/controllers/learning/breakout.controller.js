@@ -42,6 +42,14 @@ const populateTopics = async breakouts => {
       });
       breakout.topics = breakoutTopics;
     }
+    if (breakout.type === 'reviews') {
+      breakout['topic.milestone.id'] = breakout.details.milestoneId;
+      breakout['topic.milestone.name'] = breakout.details.milestoneName;
+      breakout['topic.milestone.problem_statement'] = breakout.details.milestoneProblemStatement;
+      breakout['topic.milestone.learning_competencies'] = breakout.details.milestoneLearningComp;
+      breakout['topic.milestone.starter_repo'] = breakout.details.milestoneRepo;
+      breakout['topic.milestone.releases'] = breakout.details.milestoneReleases;
+    }
     return breakout;
   });
   return breakouts;

@@ -81,6 +81,8 @@ export const learnerChallengesFindOrCreate = async (
         challenge_id,
         learner_id,
         repo: repo_name,
+        created_at: Date.now(),
+        updated_at: Date.now(),
       });
       return {
         challenge: chl,
