@@ -472,13 +472,14 @@ export const getCohortBreakoutsByCohortId = (cohort_id) => CohortBreakout.findAl
 });
 
 export const getCalendarDetailsOfCohortBreakout = async (id) => {
+  const MINUTEINMILLISECONDS = 1000 * 60;
   const cohort_breakout = await CohortBreakout.findOne({
     where: {
       id,
     },
     raw: true,
   });
-  console.log(cohort_breakout);
+  // console.log(cohort_breakout);
   const {
     type, domain, breakout_template_id,
     time_scheduled, duration, location, status,
@@ -505,13 +506,13 @@ export const getCalendarDetailsOfCohortBreakout = async (id) => {
   let description = `Topics:
   ${topics.join('\n ')}
   `;
-
+  // convert milliseconds into minutes 360000 -> 60 minutes;
   return ({
     summary,
-    time_scheduled, // done.
-    duration, // done/
-    location, // done.
-    status, // done.
+    start: time_scheduled,
+    duration: duration / MINUTEINMILLISECONDS,
+    location,
+    status,
     description,
   });
 };
