@@ -14,7 +14,6 @@ import {
 import { getGithubConnecionByUserId } from './social_connection';
 
 
-
 const { contains } = Sequelize.Op;
 
 export const Team = db.define('milestone_learner_teams', {
@@ -97,8 +96,8 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
   }
   if (
     m[0].profile !== null
-    && 'stack' in m[0].profile
-    && 'stack' in m[0].profile !== null
+    && m[0].profile.hasOwnProperty('stack')
+    && m[0].profile.hasOwnProperty('stack') !== null
   ) {
     let frontendUsers = [];
     let backendUsers = [];
@@ -124,21 +123,21 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
         ? 'Hyderabad'
         : data.cohort.location,
     )}_${new Date(data.cohort.start_date).getFullYear()}`;
-    let { starter_repo } = data.milestone;
+    let { starter_repo } = data.milestone.starter_repo;
     for (let i = 0; i < teams.length; i++) {
       let msName = `${baseMilestoneName}_${i + 1}`;
       msName = toGithubFormat(msName);
       let repo = await createGithubRepositoryFromTemplate(starter_repo, msName);
       let team = teams[i];
       for (let j = 0; j < team.length; j++) {
-        msName = repo.name;
+        msName = repo.data.name;
 
         let u = await getGithubConnecionByUserId(team[j]);
         if (!u) {
           continue;
         }
         u = u.username;
-        let col = await addCollaboratorToRepository(u, repo.name);
+        let col = await addCollaboratorToRepository(u, repo.data.name);
         // return {id: user, username: u.username}
       }
 
@@ -174,7 +173,7 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
       ? 'Hyderabad'
       : data.cohort.location,
   )}_${new Date(data.cohort.start_date).getFullYear()}`;
-  let { starter_repo } = data.milestone;
+  let { starter_repo } = data.milestone.starter_repo;
   let teams = splitTeams(m);
   // TODO: change for loop for proper use of await @Nik
   for (let i = 0; i < teams.length; i++) {
@@ -183,14 +182,14 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
     let repo = await createGithubRepositoryFromTemplate(starter_repo, msName);
     let team = teams[i];
     for (let j = 0; j < team.length; j++) {
-      msName = repo.name;
+      msName = repo.data.name;
       let u = await getGithubConnecionByUserId(team[j]);
       if (!u) {
         // TODO: Remove continue
         continue;
       }
       u = u.username;
-      let col = await addCollaboratorToRepository(u, repo.name);
+      let col = await addCollaboratorToRepository(u, repo.data.name);
       // return {id: user, username: u.username}
     }
 
@@ -225,16 +224,17 @@ const findTeamsByCohortMilestoneId = cohort_milestone_id => Team.findAll(
   { raw: true },
 );
 
-export const createMilestoneTeams = (cohort_milestone_id,
-  release_time) => findTeamsByCohortMilestoneId(cohort_milestone_id).then(teams => {
-  if (teams.length !== 0 || moment().isAfter(moment(release_time))) {
+export const createMilestoneTeams = cohort_milestone_id => findTeamsByCohortMilestoneId(
+  cohort_milestone_id,
+).then(teams => {
+  if (teams.length !== 0) {
     return teams;
   }
   return CohortMilestone.findByPk(cohort_milestone_id)
     .then(m => m.getUsers())
     .then(splitFrontEndAndBackEnd(cohort_milestone_id))
-    .then(teamsCohort => Team.bulkCreate(
-      teamsCohort.map(({ team, repo }) => ({
+    .then(cteams => Team.bulkCreate(
+      cteams.map(({ team, repo }) => ({
         id: uuid(),
         name: faker.commerce.productName(),
         cohort_milestone_id,
