@@ -6,6 +6,7 @@ import { getTeamsbyCohortMilestoneId } from './team';
 import { LearnerBreakout } from './learner_breakout';
 import { getReviewSlotsByProgram } from './review_slots';
 import { changeTimezone } from './breakout_template';
+import { User } from './user';
 
 const GITHUB_BASE = process.env.GITHUB_TEAM_BASE;
 
@@ -19,13 +20,28 @@ const WEEK_VALUES = {
   sunday: 7,
 };
 
+const { gte } = Sequelize.Op;
+
+CohortBreakout.hasMany(LearnerBreakout, { foreignKey: 'cohort_breakout_id' });
+
+LearnerBreakout.belongsTo(User, { foreignKey: 'learner_id' });
+
 // TODO: Filter by date, only 7 days
-export const getAllReviews = () => CohortBreakout.findAll({
-  where: { type: 'reviews' },
+export const getAllReviews = (after_date = '') => CohortBreakout.findAll({
+  where: {
+    type: 'reviews',
+    time_scheduled: { [gte]: after_date },
+  },
   order: [
     ['time_scheduled', 'ASC'],
   ],
-  include: [LearnerBreakout],
+  include: [{
+    model: LearnerBreakout,
+    include: [{
+      model: User,
+      attributes: ['name'],
+    }],
+  }],
 });
 
 export const getReviewsById = id => CohortBreakout.findOne(
@@ -37,7 +53,13 @@ export const getReviewsById = id => CohortBreakout.findOne(
     order: [
       ['time_scheduled', 'ASC'],
     ],
-    include: [LearnerBreakout],
+    include: [{
+      model: LearnerBreakout,
+      include: [{
+        model: User,
+        attributes: ['name'],
+      }],
+    }],
   },
 ).then(reviews => reviews);
 
@@ -50,7 +72,13 @@ export const getReviewsByTeam = milestone_team_id => CohortBreakout.findOne(
     order: [
       ['time_scheduled', 'ASC'],
     ],
-    include: [LearnerBreakout],
+    include: [{
+      model: LearnerBreakout,
+      include: [{
+        model: User,
+        attributes: ['name'],
+      }],
+    }],
   },
 );
 
@@ -63,7 +91,13 @@ export const getReviewsByStatus = status => CohortBreakout.findAll(
     order: [
       ['time_scheduled', 'ASC'],
     ],
-    include: [LearnerBreakout],
+    include: [{
+      model: LearnerBreakout,
+      include: [{
+        model: User,
+        attributes: ['name'],
+      }],
+    }],
     raw: true,
   },
 );
@@ -77,7 +111,6 @@ export const getReviewsByUserId = learner_id => LearnerBreakout.findAll(
     order: [
       ['time_scheduled', 'ASC'],
     ],
-    include: [LearnerBreakout],
     raw: true,
   },
 );
@@ -91,7 +124,6 @@ export const getUserAndTeamReviews = (learner_id) => LearnerBreakout.findAll(
     order: [
       ['time_scheduled', 'ASC'],
     ],
-    include: [LearnerBreakout],
     raw: true,
   },
 );
