@@ -173,7 +173,7 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
       ? 'Hyderabad'
       : data.cohort.location,
   )}_${new Date(data.cohort.start_date).getFullYear()}`;
-  let { starter_repo } = data.milestone.starter_repo;
+  let { starter_repo } = data.milestone;
   let teams = splitTeams(m);
   // TODO: change for loop for proper use of await @Nik
   for (let i = 0; i < teams.length; i++) {
