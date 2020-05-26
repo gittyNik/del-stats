@@ -426,7 +426,7 @@ export const getAllBreakoutsInCohortMilestone = (cohort_id, milestone_id) => Top
         raw: true,
       })
         .then(data => {
-          console.log('SINGLE BREAKOUT', data);
+          console.log('SINGLE BREAKOUT');
           return data;
         })
         .catch(err => {
