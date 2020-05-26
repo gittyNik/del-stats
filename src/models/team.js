@@ -183,14 +183,14 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
     let team = teams[i];
     for (let j = 0; j < team.length; j++) {
       console.log(repo);
-      msName = repo.data.name;
+      msName = repo.name;
       let u = await getGithubConnecionByUserId(team[j]);
       if (!u) {
         // TODO: Remove continue
         continue;
       }
       u = u.username;
-      let col = await addCollaboratorToRepository(u, repo.data.name);
+      let col = await addCollaboratorToRepository(u, repo.name);
       // return {id: user, username: u.username}
     }
 
