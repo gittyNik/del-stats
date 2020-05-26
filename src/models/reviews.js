@@ -19,12 +19,13 @@ const WEEK_VALUES = {
   sunday: 7,
 };
 
-
+// TODO: Filter by date, only 7 days
 export const getAllReviews = () => CohortBreakout.findAll({
   where: { type: 'reviews' },
   order: [
     ['time_scheduled', 'ASC'],
   ],
+  include: [LearnerBreakout],
 });
 
 export const getReviewsById = id => CohortBreakout.findOne(
@@ -36,6 +37,7 @@ export const getReviewsById = id => CohortBreakout.findOne(
     order: [
       ['time_scheduled', 'ASC'],
     ],
+    include: [LearnerBreakout],
   },
 ).then(reviews => reviews);
 
@@ -48,6 +50,7 @@ export const getReviewsByTeam = milestone_team_id => CohortBreakout.findOne(
     order: [
       ['time_scheduled', 'ASC'],
     ],
+    include: [LearnerBreakout],
   },
 );
 
@@ -60,6 +63,7 @@ export const getReviewsByStatus = status => CohortBreakout.findAll(
     order: [
       ['time_scheduled', 'ASC'],
     ],
+    include: [LearnerBreakout],
     raw: true,
   },
 );
@@ -73,6 +77,7 @@ export const getReviewsByUserId = learner_id => LearnerBreakout.findAll(
     order: [
       ['time_scheduled', 'ASC'],
     ],
+    include: [LearnerBreakout],
     raw: true,
   },
 );
@@ -86,17 +91,10 @@ export const getUserAndTeamReviews = (learner_id) => LearnerBreakout.findAll(
     order: [
       ['time_scheduled', 'ASC'],
     ],
+    include: [LearnerBreakout],
     raw: true,
   },
-).then(learnerReviews => learnerReviews.map(learnerReview => CohortBreakout.findOne(
-  {
-    where: {
-      type: 'reviews',
-      id: learnerReview.cohort_breakout_id,
-    },
-    raw: true,
-  },
-)));
+);
 
 export const updateTeamReview = (
   cohort_breakout_id,
