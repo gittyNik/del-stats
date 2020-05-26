@@ -26,8 +26,8 @@ CohortBreakout.hasMany(LearnerBreakout, { foreignKey: 'cohort_breakout_id' });
 
 LearnerBreakout.belongsTo(User, { foreignKey: 'learner_id' });
 
-// TODO: Filter by date, only 7 days
-export const getAllReviews = (after_date = '') => CohortBreakout.findAll({
+// Start date to get all reviews - 2020-04-20
+export const getAllReviews = (after_date = '2020-04-20 00:00:00+00') => CohortBreakout.findAll({
   where: {
     type: 'reviews',
     time_scheduled: { [gte]: after_date },
@@ -245,6 +245,9 @@ export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
       'milestone.name': milestoneName,
       'milestone.id': milestoneId,
       'milestone.starter_repo': milestoneRepo,
+      'milestone.learning_competencies': milestoneLearningComp,
+      'milestone.problem_statement': milestoneProblemStatement,
+      'milestone.releases': milestoneReleases,
       'cohort.location': cohortLocation,
       'cohort.program_id': programId,
       'cohort.duration': cohortDuration,
@@ -277,6 +280,9 @@ export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
       cohortDuration,
       topics,
       teamId,
+      milestoneLearningComp,
+      milestoneProblemStatement,
+      milestoneReleases,
     };
 
     // Assign only full-time slots to full-time reviews
