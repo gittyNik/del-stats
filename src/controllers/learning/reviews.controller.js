@@ -10,7 +10,9 @@ import {
 } from '../../models/reviews';
 
 export const getAllReviewsAPI = (req, res) => {
-  getAllReviews().then((data) => { res.json(data); })
+  const { review_date } = req.query;
+
+  getAllReviews(review_date).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 

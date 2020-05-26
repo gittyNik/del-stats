@@ -53,6 +53,8 @@ export const getCohortsStartingToday = () => {
   });
 };
 
+// TODO: Has a limit of 10 cohorts
+// Need to add status in Cohort table and show only live
 export const getLiveCohorts = () => Cohort.findAll({
   where: {
     learners: Sequelize.literal('learners<>\'{}\''),
