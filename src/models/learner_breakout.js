@@ -40,19 +40,25 @@ export const LearnerBreakout = db.define('learner_breakouts', {
 });
 
 LearnerBreakout.addHook('afterCreate', 'createCalendarEvent', async (learner_breakout, options) => {
-  learner_breakout = learner_breakout.get({ plain: true });
+  const learner_breakout_raw = learner_breakout.get({ plain: true });
   // console.log(learner_breakout);
-  const { cohort_breakout_id, learner_id } = learner_breakout;
+  const { cohort_breakout_id, learner_id } = learner_breakout_raw;
   try {
     const event_body = await getCalendarDetailsOfCohortBreakout(cohort_breakout_id);
     // console.log(event_body);
-    const oauth2 = await getGoogleOauthOfUser(learner_breakout.learner_id);
+    const oauth2 = await getGoogleOauthOfUser(learner_id);
     const calendarEvent = await createEvent(oauth2, event_body);
-    console.log('Calendar Event created.');
-    console.log(calendarEvent); // todo: store event id for future updates.
+
+    learner_breakout.review_feedback = { calendarEvent };
   } catch (err) {
     console.error(err);
   }
+});
+
+LearnerBreakout.addHook('afterUpdate', 'updateCalendarEvent', async (learner_breakout, options) => {
+  console.log('Learner Breakout updated');
+  console.log(learner_breakout.get({ plain: true }));
+  // todo: update calendar event.
 });
 
 export const createLearnerBreakoutsForCohortMilestones = (
