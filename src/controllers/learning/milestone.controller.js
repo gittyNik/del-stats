@@ -190,9 +190,10 @@ export const createMilestone = (req, res) => {
 
 export const updateMilestone = (req, res) => {
   const {
-    name, prerequisite_milestones, starter_repo, user_id,
+    name, prerequisite_milestones, starter_repo,
     learning_competencies, releases, guidelines, problem_statement,
   } = req.body;
+  const user_id = req.jwtData.user.id;
   const { id } = req.params;
 
   updateMilestones(id,
