@@ -1,6 +1,6 @@
-import { listEvents, createEvent } from './calendar.model';
+import { listEvents, createEvent, updateEvent, deleteEvent } from './calendar.model';
 import { getGoogleTokens } from '../../models/social_connection';
-import { googleConfig } from '../../util/calendar-util';
+import { googleConfig, getGoogleOauthOfUser } from '../../util/calendar-util';
 
 const { google } = require('googleapis');
 
@@ -82,7 +82,38 @@ export const createCalendarEvent = async (req, res) => {
     });
 };
 
+export const updateCalendarEvent = async (req, res) => {
+  const { userId } = req.jwtData;
+  const event_details = req.body.event;
+  const { eventId } = req.params;
 
+  const oauth2Client = await getGoogleOauthOfUser(userId);
+  updateEvent(oauth2Client, eventId, event_details)
+    .then(event_data => {
+      res.send(event_data);
+    })
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+};
+
+
+export const deleteOneEvent = async (req, res) => {
+  const { userId } = req.jwtData;
+  const { eventId } = req.params;
+
+  const oauth2Client = await getGoogleOauthOfUser(userId);
+  deleteEvent(oauth2Client, eventId)
+    .then(event_data => {
+      console.log(event_data);
+      res.send(event_data);
+    })
+    .catch(err => {
+      console.error(err);
+      res.send(500);
+    });
+};
 // export const scheduleCalendarEventForLearner = (req, res) => {
 //   // get oauth2 client
 //   const oauth2Client = new google.auth.OAuth2();

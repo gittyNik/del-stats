@@ -1,7 +1,8 @@
 import Express from 'express';
 import {
   getAllCalendarEvents, createCalendarEvent,
-  scheduleCalendarEventForLearner,
+  scheduleCalendarEventForLearner, updateCalendarEvent,
+  deleteOneEvent,
 } from './calendar.controller';
 
 const router = Express.Router();
@@ -51,11 +52,9 @@ router.post('/', createCalendarEvent);
  * @apiName UpdateCalendarEvent
  * @apiGroup CalendarEvent
  *
- * @apiParam {String} title title of the topic
- * @apiParam {String} description Description of the topic
- * @apiParam {String} milestone_id UUID of the Milestone
+ * @apiParam {String} eventId google calendar event Id
  */
-// router.patch('/:id', updateTopic);
+router.patch('/:eventId', updateCalendarEvent);
 
 /**
  * @api {delete} /calendar/:id  Delete Calendar Event
@@ -64,6 +63,6 @@ router.post('/', createCalendarEvent);
  * @apiName DeleteCalendarEvent
  * @apiGroup CalendarEvent
  */
-// router.delete('/:id', deleteOne);
+router.delete('/:eventId', deleteOneEvent);
 
 export default router;
