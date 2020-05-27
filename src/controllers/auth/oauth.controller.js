@@ -1,5 +1,6 @@
 import request from 'superagent';
 import uuid from 'uuid/v4';
+import dotenv from 'dotenv';
 import { getSoalToken } from '../../util/token';
 import { getUserFromEmails, USER_ROLES } from '../../models/user';
 import { SocialConnection, PROVIDERS } from '../../models/social_connection';
@@ -11,6 +12,8 @@ import {
   isEducator
 } from '../../integrations/github/controllers';
 import { urlGoogle, getTokensFromCode } from '../../util/calendar-util';
+
+dotenv.config();
 
 const getGithubAccessToken = code => {
   const params = {
@@ -126,7 +129,6 @@ const sendOrgInvites = async ({ userProfile, teamName }) => {
 export const linkWithGithub = (req, res) => {
   const { user } = req.jwtData;
   const { code } = req.body;
-
   getGithubAccessToken(code)
     .then(fetchProfileFromGithub)
     .then(({ profile, githubToken, expiry }) => {
@@ -305,6 +307,7 @@ export const checkGoogleOrSendRedirectUrl = async (req, res) => {
 
 export const handleGoogleCallback = async (req, res) => {
   const { code, error } = req.query;
+  const { WEB_SERVER } = process.env;
   console.log(code);
   if (code) {
     const data = await getTokensFromCode(code);
@@ -328,10 +331,10 @@ export const handleGoogleCallback = async (req, res) => {
         user,
       });
       console.log(dataSC.socialConnection);
-      res.sendStatus(200);
+      res.redirect(WEB_SERVER);
     }
   } else {
     console.error(error);
-    res.sendStatus(200);
+    res.redirect(WEB_SERVER);
   }
 };
