@@ -67,13 +67,17 @@ export const createMilestones = (name, prerequisite_milestones,
 
 export const updateMilestones = (id,
   name, problem_statement, starter_repo, user_id,
-  releases, learning_competencies, prerequisite_milestones, guidelines) => Milestone.find({
+  releases, learning_competencies, prerequisite_milestones, guidelines) => Milestone.findOne({
   where: {
     id,
   },
 })
   .then((milestone) => {
-    milestone.updated_by.push(user_id);
+    if (milestone.updated_by !== null) {
+      milestone.updated_by.push(user_id);
+    } else {
+      milestone.updated_by = [user_id];
+    }
     milestone.update({
       name,
       updated_by: milestone.updated_by,
