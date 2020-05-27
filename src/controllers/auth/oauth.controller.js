@@ -1,15 +1,16 @@
-import request from "superagent";
-import uuid from "uuid/v4";
-import { getSoalToken } from "../../util/token";	
-import { getUserFromEmails, USER_ROLES } from "../../models/user";	
-import { SocialConnection, PROVIDERS } from "../../models/social_connection";	
-import { getCohortFromLearnerId } from "../../models/cohort";
+import request from 'superagent';
+import uuid from 'uuid/v4';
+import { getSoalToken } from '../../util/token';
+import { getUserFromEmails, USER_ROLES } from '../../models/user';
+import { SocialConnection, PROVIDERS } from '../../models/social_connection';
+import { getCohortFromLearnerId } from '../../models/cohort';
 import {
   createTeam,
   getTeamIdByName,
   sendInvitesToNewMembers,
   isEducator
-} from "../../integrations/github/controllers";
+} from '../../integrations/github/controllers';
+import { urlGoogle, getTokensFromCode } from '../../util/calendar-util';
 
 const getGithubAccessToken = code => {
   const params = {
@@ -228,4 +229,109 @@ export const signinWithGithub = (req, res) => {
         res.status(500).send("Authentication Failed");
       }
     });
+};
+
+// fetch profile and add it to social_connections
+const addGoogleProfile = ({
+  profile, googleToken, expiry, user,
+}) => {
+  const where = {
+    user_id: user.id,
+    provider: PROVIDERS.GOOGLE,
+  };
+
+  // Insert if the provider is not connected, update if already connected
+  return SocialConnection.findOne({ where })
+    .then((socialConnection) => {
+      const updateValues = {
+        profile,
+        expiry,
+        access_token: googleToken,
+        updated_at: new Date(),
+      };
+
+      const newValues = {
+        id: uuid(),
+        email: user.email,
+        username: profile.login,
+        created_at: new Date(),
+      };
+
+      if (socialConnection) { return socialConnection.update(updateValues); }
+      return SocialConnection.create({ ...where, ...newValues, ...updateValues });
+    })
+    .then(socialConnection => ({ user, socialConnection }));
+};
+
+
+// checks if google proiver is present in social connection
+// sends redirect url if not found.
+export const checkGoogleOrSendRedirectUrl = async (req, res) => {
+  const { userId } = req.jwtData;
+  // console.log(req.jwtData);
+  const result = await SocialConnection.findOne({
+    where: {
+      user_id: userId,
+      provider: PROVIDERS.GOOGLE,
+    },
+  })
+    .then((socialConnection) => {
+      if (socialConnection) {
+        return {
+          text: 'Google access Token exists',
+          data: {
+            redirectUrl: false,
+          },
+        };
+      }
+      return {
+        text: 'Google access Token doesnt exist',
+        data: {
+          redirectUrl: urlGoogle(),
+        },
+      };
+    })
+    .catch(err => {
+      console.error(err);
+      return {
+        text: 'Error checking google access Token',
+        data: {
+          error: 'Error checking google access Token',
+        },
+      };
+    });
+  res.send(result);
+};
+
+export const handleGoogleCallback = async (req, res) => {
+  const { code, error } = req.query;
+  console.log(code);
+  if (code) {
+    const data = await getTokensFromCode(code);
+    // console.log('Final Data displayed in the handleGoogleCallback');
+    console.log(data);
+    // console.log('individual data');
+    // console.log(data.tokens.refresh_token);
+    // console.log(data.profile.email);
+    const user = await getUserFromEmails([data.profile.email])
+      .then(user0 => user0.toJSON())
+      .catch(err => console.log(err));
+    if (user) {
+      const { profile } = data;
+      const googleToken = data.tokens.access_token;
+      const expiry = data.expiry_date;
+      profile.tokens = data.tokens;
+      const dataSC = await addGoogleProfile({
+        profile,
+        googleToken,
+        expiry,
+        user,
+      });
+      console.log(dataSC.socialConnection);
+      res.sendStatus(200);
+    }
+  } else {
+    console.error(error);
+    res.sendStatus(200);
+  }
 };

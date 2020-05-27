@@ -12,6 +12,8 @@ import authRouter from './auth';
 import adminRouter from './admin.routes';
 import profileRouter from './community/profile.routes';
 
+import calendarRouter from '../integrations/calendar/calendar.routes'
+
 import authenticate from '../controllers/auth/auth.controller';
 import { allowSuperAdminOnly } from '../controllers/auth/roles.controller';
 import {
@@ -43,6 +45,9 @@ router.use('/toolset', toolsetRouter);
 router.use('/admin', adminRouter);
 router.use('/profile', profileRouter);
 router.use('/email', emailer);
+
+// Calendar
+router.use('/calendar', calendarRouter);
 
 /**
  * @api {get} / Get sample response
