@@ -48,14 +48,17 @@ export const ReviewSlots = db.define('review_slots', {
 
 export const getAllReviewSlots = () => ReviewSlots.findAll({});
 
-export const getReviewSlotsByProgram = (program) => ReviewSlots.findAll(
+export const getReviewSlotsByProgram = (program, cohort_duration) => ReviewSlots.findAll(
   {
     order: [
       ['cohort_duration', 'ASC'],
       ['slot_order', 'ASC'],
       ['time_scheduled', 'ASC'],
     ],
-    where: { program },
+    where: {
+      program,
+      cohort_duration,
+    },
   },
 );
 
