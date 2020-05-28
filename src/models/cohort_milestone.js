@@ -235,8 +235,8 @@ export const getCurrentMilestoneOfCohortDelta = (cohort_id) => {
     });
 };
 
-
-export const getLiveMilestones = () => {
+// TODO: Add filters here for Milestone and see if it solves bug
+export const getLiveMilestones = (program, cohort_duration) => {
   const now = Sequelize.literal('NOW()');
   let nextSevenDays = new Date();
   nextSevenDays.setDate(nextSevenDays.getDate() + 7);
@@ -247,6 +247,8 @@ export const getLiveMilestones = () => {
     where: {
       release_time: { [lte]: now },
       review_scheduled: { [between]: [now, nextSevenDays] },
+      '$cohort.program_id$': program,
+      '$cohort.duration$': cohort_duration,
     },
     include: [Cohort, Milestone],
     raw: true,

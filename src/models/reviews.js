@@ -323,10 +323,11 @@ export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
   }));
 };
 
-export const createReviewSchedule = (program) => getReviewSlotsByProgram(program)
+export const createReviewSchedule = (program, cohort_duration) => getReviewSlotsByProgram(program,
+  cohort_duration)
   .then(reviewSlots => {
     let slotsForReview = reviewSlots;
-    return getLiveMilestones()
+    return getLiveMilestones(program, cohort_duration)
       .then((deadlineMilestones) => deadlineMilestones.forEach(
         cohortMilestone => createTeamReviewBreakout(
           slotsForReview, cohortMilestone,

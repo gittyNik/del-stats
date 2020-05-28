@@ -98,6 +98,7 @@ export const createScheduledMeeting = (topic, start_time, millisecs_duration, ag
     agenda,
     settings: MEETING_SETTINGS,
   };
+  console.log('trying to create meeting');
 
   return (request
     .post(`${ZOOM_BASE_URL}users/${ZOOM_USER}/meetings`) // todo: need to assign delta user to zoom user
@@ -233,7 +234,7 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
       const {
         participants,
         total_records,
-        next_page_token
+        next_page_token,
       } = data.body;
       console.log(`Fetched data for Zoom Meeting: ${meeting_id}`);
       return markIndividualAttendance(
@@ -257,12 +258,11 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
           };
         });
     })
-    .catch(err => {
+    .catch(err =>
       // console.log(err);
-      return {
+      ({
         text: `Failed to get breakout details from Zoom ${cohort_breakout_id}`,
-      };
-    })
+      }))
   );
 };
 
@@ -299,7 +299,7 @@ export const updateCohortMeeting = async (cohort_breakout_id, updatedTime) => {
     data.cohort_breakout = await CohortBreakout
       .update(
         { time_scheduled: updatedTime },
-        { returning: true, where: { id: cohort_breakout_id } }
+        { returning: true, where: { id: cohort_breakout_id } },
       )
       .then(([rowsUpdated, updatedCB]) => {
         // console.log(rowsUpdated);
