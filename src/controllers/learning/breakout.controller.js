@@ -250,6 +250,12 @@ export const getAllCohortBreakouts = (req, res) => {
     raw: true,
   })
     .then(breakouts => {
+      breakouts.map(breakout => {
+        if (breakout.type === 'reviews') {
+          breakout['topic.milestone_id'] = breakout.details.milestoneId;
+        }
+        return breakout;
+      });
       res.json({
         text: 'List of all breakouts scheduled in this cohort',
         data: breakouts,
