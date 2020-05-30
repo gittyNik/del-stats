@@ -2,8 +2,27 @@ import db from '../src/database';
 import uuid from 'uuid/v4';
 import { getCalendarDetailsOfCohortBreakout } from '../src/models/cohort_breakout'
 import { getGoogleOauthOfUser, googleConfig } from '../src/util/calendar-util';
-import { LearnerBreakout, } from '../src/models/learner_breakout';
+import { LearnerBreakout, createCalendarEventsForLearner } from '../src/models/learner_breakout';
 
+
+const createLearnerBreakout = (cohort_breakout_id, learner_id) => {
+  return LearnerBreakout
+    .create({
+      id: uuid(),
+      cohort_breakout_id,
+      learner_id,
+      attendance: false,
+    })
+    .then(data => data.get({ plain: true }))
+    .then(data => {
+      console.log(data);
+      return data;
+    })
+    .catch(err => {
+      console.error(err);
+      return undefined;
+    });
+}
 
 describe('Learner Breakout related tests', () => {
   beforeAll(() => {
@@ -67,5 +86,18 @@ describe('Learner Breakout related tests', () => {
     expect(learnerBreakout).toBeDefined();
 
   });
+
+  test('create learner Breakouts for all the cohort Breakouts', async () => {
+    expect(1 + 2).toBe(3);
+  });
+
+  test.only('Create calendar event for a learner Breakout', async () => {
+
+    const learner_id = '1253d564-b0a9-45b0-a54b-0b3f53febeab';
+    const res = await createCalendarEventsForLearner(learner_id);
+    console.log(res);
+    expect(res).toBeDefined();
+
+  })
 
 });
