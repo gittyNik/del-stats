@@ -286,9 +286,10 @@ export const getBreakoutsForCohortMilestone = async (req, res) => {
 export const createBreakoutsOfType = (req, res) => {
   let {
     cohort_id, cohort_program_id, cohort_duration, type,
+    code_sandbox, video_meet,
   } = req.body;
   createTypeBreakoutsInMilestone(cohort_id, cohort_program_id,
-    cohort_duration, type).then((data) => {
+    cohort_duration, type, code_sandbox, video_meet).then((data) => {
     res.status(201).json({ data });
   })
     .catch(err => res.status(500).send({ err }));

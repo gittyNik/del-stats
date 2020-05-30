@@ -148,24 +148,25 @@ export const autoTagUrls = (url) => request
 export const createResource = (url, level, owner, tagged, title = '',
   description = '', source = 'slack', type = 'article', details = {},
   thumbnail = '', program = 'tep') => Resource.create(
-    {
-      id: uuid(),
-      url,
-      type,
-      level,
-      owner,
-      title,
-      description,
-      source,
-      details,
-      tagged,
-      program,
-      thumbnail,
-    },
-  );
+  {
+    id: uuid(),
+    url,
+    type,
+    level,
+    owner,
+    title,
+    description,
+    source,
+    details,
+    tagged,
+    program,
+    thumbnail,
+  },
+);
 
 
 export const createFromSlackAttachment = async (attachment, owner) => {
+  console.log(attachment);
   const url = attachment.original_url;
   try {
     const data = await autoTagUrls(url);
