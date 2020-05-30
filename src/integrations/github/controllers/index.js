@@ -30,7 +30,6 @@ import {
 import {
   getTeamsbyCohortMilestoneId,
   createMilestoneTeams,
-  getLearnerTeamOfMilestone,
   getAllLearnerTeamsByUserId,
 } from '../../../models/team';
 import { getCohortFromId } from '../../../models/cohort';
@@ -44,29 +43,30 @@ import {
   contributersInRepository,
   weeklyCommitActivityData,
 } from './stats.controller';
-import { getCohortMilestonesByCohortId } from '../../../models/cohort_milestone';
 import { getProfile, getUserFromEmails } from '../../../models/user';
 
 
 // Returns latest commit object of given user {{username}} in repository {{repo_name}}
 const getRecentCommit = async (req, res) => {
   const { username, repo_name } = req.params;
-  getRecentCommitByUser(username, repo_name)
+  const user_id = req.jwtData.user.id;
+  getRecentCommitByUser(username, repo_name, user_id)
     .then(data => res.send({ data }))
     .catch(err => res.status(500).send(err));
 };
 
-const getLatestCommitInCohort = async cohort_milestone_id => {
+const getLatestCommitInCohort = async (cohort_milestone_id, socialConnection) => {
   let commits = [];
-  let teams = await getTeamsbyCohortMilestoneId(cohort_milestone_id);
+  let teams = await getTeamsbyCohortMilestoneId(cohort_milestone_id, socialConnection);
   teams = teams.map(team => team.github_repo_link);
   for (let i = 0; i < teams.length; i++) {
-    let commit = await getRecentCommitInRepository(teams[i]);
+    let commit = getRecentCommitInRepository(teams[i], socialConnection);
     if (!commit.hasOwnProperty('sha')) {
       continue;
     }
     commits.push(commit);
   }
+  Promise.all(commits);
   let latestCommit;
   if (commits.length === 0) {
     latestCommit = {};
@@ -90,7 +90,8 @@ const getLatestCommitInCohort = async cohort_milestone_id => {
 const getRecentCommitInCohort = async (req, res) => {
   try {
     const { cohort_milestone_id } = req.params;
-    const latestCommit = await getLatestCommitInCohort(cohort_milestone_id);
+    const user_id = req.jwtData.user.id;
+    const latestCommit = await getLatestCommitInCohort(cohort_milestone_id, user_id);
     res.send({ data: latestCommit });
   } catch (err) {
     res.status(500).send(err);
@@ -110,14 +111,14 @@ const createChallenge = async (req, res) => {
 };
 
 const getTotalTeamAndUserCommitsCount = async (
-  user_id,
+  socialConnection,
   milestone_repo_name,
 ) => {
-  const socialConnection = await getGithubConnecionByUserId(user_id);
-  const teamCommits = await getAllCommits(milestone_repo_name);
+  const teamCommits = await getAllCommits(milestone_repo_name, socialConnection);
   const userCommits = await getAllAuthoredCommits(
     milestone_repo_name,
     socialConnection.username,
+    socialConnection,
   );
   return {
     teamCommits: teamCommits.length,
@@ -144,7 +145,7 @@ const getTotalTeamAndUserCommits = async (req, res) => {
 const getTotalUserCommitsPastWeek = async (req, res) => {
   const { milestone_repo_name } = req.params;
   const user_id = req.jwtData.user.id;
-  contributersInRepository(milestone_repo_name)
+  contributersInRepository(milestone_repo_name, user_id)
     .then(async data => {
       let socialConnection = await getGithubConnecionByUserId(user_id);
       let commits = 0;
@@ -173,6 +174,7 @@ const numberOfAttemptedChallenges = async (req, res) => {
 };
 
 const getTotalCohortCommits = async (req, res) => {
+  const user_id = req.jwtData.user.id;
   try {
     const { cohort_milestone_id } = req.params;
     let teams = await getTeamsbyCohortMilestoneId(cohort_milestone_id);
@@ -292,7 +294,7 @@ const commitsDayWise = (date, commits) => {
   return final;
 };
 
-const userAndTeamCommitsDayWise = async (learners, repo) => {
+const userAndTeamCommitsDayWise = async (learners, repo, socialConnections) => {
   let ret = [];
   let now = Date.now();
   let twoWeeks = 13 * 24 * 60 * 60 * 1000;
@@ -301,6 +303,7 @@ const userAndTeamCommitsDayWise = async (learners, repo) => {
     repo,
     new Date(twoWeeks).toISOString(),
     new Date(Date.now()).toISOString(),
+    socialConnections,
   );
   for (let i = 0; i < learners.length; i++) {
     let user = learners[i];
@@ -316,7 +319,7 @@ const userAndTeamCommitsDayWise = async (learners, repo) => {
         repo,
         new Date(twoWeeks).toISOString(),
         new Date(Date.now()).toISOString(),
-        socialConnection.username,
+        socialConnection,
       );
       ret.push({
         user_id: user.id,

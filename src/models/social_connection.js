@@ -33,8 +33,8 @@ export const authSlack = (username, team) =>
   SocialConnection.findOne({
     where: {
       provider: `slack_${team}`,
-      username
-    }
+      username,
+    },
   }).then(social_connection => {
     if (social_connection === null) {
       return Promise.reject('User not found!');
@@ -61,3 +61,33 @@ export const getGoogleTokens = (user_id) => SocialConnection.findOne({
     console.error(err);
     return null;
   });
+
+export const getSocialConnecionByUserId = (user_id, provider) => SocialConnection.findOne({
+  where: {
+    user_id,
+    provider,
+  },
+});
+
+// zoom <-> user details
+export const getSocialConnecionByUsername = (username, provider) => SocialConnection.findOne({
+  where: {
+    provider,
+    username,
+  },
+});
+
+export const getGithubConnecionByUserId = (user_id) => SocialConnection.findOne({
+  where: {
+    user_id,
+    provider: PROVIDERS.GITHUB,
+  },
+});
+
+// zoom <-> user details
+export const getGithubConnecionByGitUsername = (username) => SocialConnection.findOne({
+  where: {
+    provider: PROVIDERS.GITHUB,
+    username,
+  },
+});

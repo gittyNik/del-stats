@@ -160,7 +160,7 @@ const populateLearnerStats = (
 
   let lastWeek = [];
   let lastWeekCommitsInRepoDayWise = await weeklyCommitActivityData(
-    Teams[0].github_repo_link,
+    Teams[0].github_repo_link, socialConnection,
   );
   if (typeof lastWeekCommitsInRepoDayWise[51] !== 'undefined') {
     let dayId = new Date(Date.now()).getDay();
@@ -175,14 +175,16 @@ const populateLearnerStats = (
   let u = await userAndTeamCommitsDayWise(
     Teams[0].learners,
     Teams[0].github_repo_link,
+    socialConnection,
   );
-  const latestCohortCommit = await getLatestCommitInCohort(cohort_milestone_id);
+  const latestCohortCommit = await getLatestCommitInCohort(cohort_milestone_id, socialConnection);
   const latestCommitByUser = await getRecentCommitByUser(
     socialConnection.username,
     Teams[0].github_repo_link,
+    socialConnection,
   );
   const teamAndUserCommits = await getTotalTeamAndUserCommitsCount(
-    user_id,
+    socialConnection,
     Teams[0].github_repo_link,
   );
 
@@ -255,7 +257,7 @@ export const getLiveMilestones = (program, cohort_duration) => {
   });
 };
 
-export const populateMilestone = async (milestone) => {
+export const populateMilestone = async (milestone, user_id) => {
   if (!milestone) return milestone;
   const {
     cohort_id,
@@ -271,17 +273,17 @@ export const populateMilestone = async (milestone) => {
   ])
     .then(populateTeamsWithLearnersWrapper)
     // UNCOMMENT THIS ONCE THE STATS ARE READY
-    // .then(populateLearnerStats(user_id, cohort_id, milestone.id))
+    .then(populateLearnerStats(user_id, cohort_id, milestone.id))
     .then(([topics, programTopics, teams,
       // UNCOMMENT THIS ONCE THE STATS ARE READY
-      // stats,
+      stats,
       breakouts,
     ]) => { // add breakouts
       milestone.topics = topics;
       milestone.programTopics = programTopics;
       milestone.teams = teams;
       // UNCOMMENT THIS ONCE THE STATS ARE READY
-      // milestone.stats = stats;
+      milestone.stats = stats;
       milestone.breakouts = breakouts;
       //  milestone.breakouts = milestones;
       return milestone;
@@ -331,13 +333,13 @@ export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
   });
 };
 
-export const getCohortMilestoneById = (milestone_id) => CohortMilestone.findOne({
+export const getCohortMilestoneById = (milestone_id, user_id) => CohortMilestone.findOne({
   where: {
     id: milestone_id,
   },
   include: [Cohort, Milestone],
   raw: true,
-}).then(milestone => populateMilestone(milestone));
+}).then(milestone => populateMilestone(milestone, user_id));
 
 
 function* calculateReleaseTime(cohort_start, pending, cohort_duration, cohort_program) {

@@ -349,52 +349,52 @@ export const BreakoutWithOptions = (breakoutObject) => {
 
 export const createCohortBreakouts = (breakoutTemplateList,
   cohort_id, codeSandbox = true, videoMeet = true) => Cohort.findByPk(cohort_id, {
-    attributes: ['location', 'name'],
-    raw: true,
-  })
-    .then((cohort) => {
-      let BreakoutObjects = breakoutTemplateList.map((breakoutTemplate) => {
-        let {
-          id, name, topic_id, duration, primary_catalyst, secondary_catalysts,
-          breakout_schedule, details,
-        } = breakoutTemplate;
+  attributes: ['location', 'name'],
+  raw: true,
+})
+  .then((cohort) => {
+    let BreakoutObjects = breakoutTemplateList.map((breakoutTemplate) => {
+      let {
+        id, name, topic_id, duration, primary_catalyst, secondary_catalysts,
+        breakout_schedule, details,
+      } = breakoutTemplate;
 
-        secondary_catalysts.push(primary_catalyst);
-        let catalyst = secondary_catalysts[Math.floor(Math.random() * secondary_catalysts.length)];
+      secondary_catalysts.push(primary_catalyst);
+      let catalyst = secondary_catalysts[Math.floor(Math.random() * secondary_catalysts.length)];
 
-        let breakoutObject = {
-          topic_id,
-          cohort_id,
-          breakout_template_id: id,
-          time_scheduled: breakout_schedule,
-          duration,
-          location: cohort.location,
-          catalyst_id: catalyst,
-          details,
-          topic_name: name,
-          isVideoMeeting: videoMeet,
-          isCodeSandbox: codeSandbox,
-          cohortName: cohort.name,
-        };
-        return breakoutObject;
-        // end of map
-      });
-      return BreakoutObjects;
-      // end of first then.
-    })
-    .then(async (breakoutsWithCohortName) => {
-      let breakouts = [];
-      for (let i = 0; i < breakoutsWithCohortName.length; i++) {
-        let breakout = BreakoutWithOptions(breakoutsWithCohortName[i]);
-        breakouts.push(breakout);
-      }
-      console.log('<----- BREAKOUT OBJECT -------->', breakouts.length);
-      return Promise.all(breakouts);
-    })
-    .catch(err => {
-      console.error('Failed to location for a cohort', err);
-      return null;
+      let breakoutObject = {
+        topic_id,
+        cohort_id,
+        breakout_template_id: id,
+        time_scheduled: breakout_schedule,
+        duration,
+        location: cohort.location,
+        catalyst_id: catalyst,
+        details,
+        topic_name: name,
+        isVideoMeeting: videoMeet,
+        isCodeSandbox: codeSandbox,
+        cohortName: cohort.name,
+      };
+      return breakoutObject;
+      // end of map
     });
+    return BreakoutObjects;
+    // end of first then.
+  })
+  .then(async (breakoutsWithCohortName) => {
+    let breakouts = [];
+    for (let i = 0; i < breakoutsWithCohortName.length; i++) {
+      let breakout = BreakoutWithOptions(breakoutsWithCohortName[i]);
+      breakouts.push(breakout);
+    }
+    console.log('<----- BREAKOUT OBJECT -------->', breakouts.length);
+    return Promise.all(breakouts);
+  })
+  .catch(err => {
+    console.error('Failed to location for a cohort', err);
+    return null;
+  });
 
 export const getAllBreakoutsInCohort = (cohort_id) => CohortBreakout.findAll({
   where: {

@@ -1,5 +1,7 @@
 import queryString from 'query-string';
-import { octokit, org } from './git.auth.controller';
+import { Octokit } from '@octokit/rest';
+import { org } from './git.auth.controller';
+import { getAccessTokenPerUser } from './stats.controller';
 
 const relInLinks = link => {
   let linkRegex = /\<([^>]+)/g;
@@ -24,9 +26,14 @@ const relInLinks = link => {
   ).page;
 };
 
-export const getNumberOfPages = (of, team = null) => {
+export const getNumberOfPages = async (of, team = null, socialConnection) => {
+  let access_token = getAccessTokenPerUser(socialConnection);
+  let newOctokit = new Octokit({
+    auth: access_token,
+  });
+
   if (of === 'repoCollaborators') {
-    return octokit.repos
+    return newOctokit.repos
       .listCollaborators({
         owner: org,
         repo: team,
@@ -39,7 +46,7 @@ export const getNumberOfPages = (of, team = null) => {
           : 1,
       }));
   } if (of === 'authoredCommits') {
-    return octokit.repos
+    return newOctokit.repos
       .listCommits({
         owner: org,
         repo: team.repository_name,
@@ -53,7 +60,7 @@ export const getNumberOfPages = (of, team = null) => {
           : 1,
       }));
   } if (of === 'allCommits') {
-    return octokit.repos
+    return newOctokit.repos
       .listCommits({
         owner: org,
         repo: team,
@@ -66,7 +73,7 @@ export const getNumberOfPages = (of, team = null) => {
           : 1,
       }));
   } if (of === 'teams') {
-    return octokit.teams
+    return newOctokit.teams
       .list({
         org,
         per_page: 100,
@@ -78,7 +85,7 @@ export const getNumberOfPages = (of, team = null) => {
           : 1,
       }));
   } if (of === 'repos') {
-    return octokit.repos
+    return newOctokit.repos
       .listForOrg({
         org,
         per_page: 100,
@@ -90,7 +97,7 @@ export const getNumberOfPages = (of, team = null) => {
           : 1,
       }));
   } if (of === 'teamMembers') {
-    return octokit.teams
+    return newOctokit.teams
       .listMembersInOrg({
         org,
         team_slug: team,
@@ -103,7 +110,7 @@ export const getNumberOfPages = (of, team = null) => {
           : 1,
       }));
   } if (of === 'orgs') {
-    return octokit.orgs
+    return newOctokit.orgs
       .listMembers({
         org,
         role: 'all',
