@@ -203,7 +203,7 @@ export const createBreakoutsInMilestone = (cohort_id, program_id,
 
 // Create Breakouts of Specific type
 export const createTypeBreakoutsInMilestone = (cohort_id, program_id,
-  cohort_duration, type) => BreakoutTemplate.findAll(
+  cohort_duration, type, codeSandBox = false, videoMeet = true) => BreakoutTemplate.findAll(
   {
     attributes: ['id', 'name', 'topic_id', 'details',
       'duration', 'time_scheduled', 'after_days',
@@ -217,7 +217,8 @@ export const createTypeBreakoutsInMilestone = (cohort_id, program_id,
   },
 ).then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
   .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
-  .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates, cohort_id, false, true))
+  .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates,
+    cohort_id, codeSandBox, videoMeet))
   .then(createdBreakouts => {
     console.log('Breakouts created for Cohort');
     // console.log(createdBreakouts);
