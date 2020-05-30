@@ -41,17 +41,14 @@ export const createEvent = async (auth, event_details) => {
       calendarId: 'primary',
       resource: event,
     })
-    .then(_event => {
-      // console.log(_event.data);
-      return _event.data;
-    })
     .then(_event => ({
-      id: _event.id,
-      htmlLink: _event.htmlLink,
+      id: _event.data.id,
+      htmlLink: _event.data.htmlLink,
     }))
     .catch(err => {
       console.error(err);
-      return false;
+      // return new Error('Failed to create a calendar event');
+      return null;
     });
 };
 
