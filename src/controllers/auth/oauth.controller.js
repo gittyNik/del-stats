@@ -317,8 +317,16 @@ export const handleGoogleCallback = async (req, res) => {
     // console.log(data.tokens.refresh_token);
     // console.log(data.profile.email);
     const user = await getUserFromEmails([data.profile.email])
-      .then(user0 => user0.toJSON())
-      .catch(err => console.log(err));
+      .then(user0 => {
+        console.log(user0);
+        return user0.toJSON();
+      })
+      .catch(err => {
+        console.error(err);
+        res.json({
+          error: 'Unable to find the user with the given email',
+        });
+      });
     if (user) {
       const { profile } = data;
       const googleToken = data.tokens.access_token;
@@ -330,11 +338,16 @@ export const handleGoogleCallback = async (req, res) => {
         expiry,
         user,
       });
-      console.log(dataSC.socialConnection);
-      res.redirect(WEB_SERVER);
+      console.log(dataSC.user);
+      res.json({
+        text: 'Google authentication successfull',
+        data: dataSC.user,
+      });
     }
   } else {
     console.error(error);
-    res.redirect(WEB_SERVER);
+    res.json({
+      error: 'Failed to authenticate Google',
+    });
   }
 };
