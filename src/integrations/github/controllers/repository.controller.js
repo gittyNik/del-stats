@@ -62,6 +62,7 @@ export const createGithubRepository = (repo) => octokit.repos.createInOrg({
   org,
   name: repo,
   license_template: 'mit',
+  private: true,
 });
 
 export const deleteGithubRepository = (repo) => octokit.repos.delete({
@@ -78,6 +79,7 @@ export const createGithubRepositoryFromTemplate = async (
     owner: org,
     name: repo,
     description,
+    private: true,
   };
   return request
     .post(
