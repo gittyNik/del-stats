@@ -158,6 +158,9 @@ export const learnerAttendance = async (participant, catalyst_id,
   //   attentivenessScore = attentiveness_threshold;
   // }
   let attendanceCount = 0;
+  if (!user_email) {
+    return 0;
+  }
   return SocialConnection.findOne({
     attributes: ['user_id'],
     where: {
@@ -181,7 +184,6 @@ export const learnerAttendance = async (participant, catalyst_id,
         },
       });
     } catch (err) {
-      console.error(err);
       if (attendance) {
         attendanceCount -= 1;
       }
@@ -243,9 +245,10 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
       )
         .then(attendanceCountArray => {
           const attendanceCount = attendanceCountArray.reduce(add);
-          console.log('Attendance Count.', attendanceCountArray);
+          console.log('Attendance Count.', attendanceCount);
           return CohortBreakout.update({
             attendance_count: attendanceCount,
+            update_at: Date.now(),
           }, {
             where: {
               id: cohort_breakout_id,

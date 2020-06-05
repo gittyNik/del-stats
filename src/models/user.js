@@ -12,6 +12,7 @@ export const USER_ROLES = Object.freeze({
   ADMIN: 'admin',
   GUEST: 'guest',
   SUPERADMIN: 'superadmin',
+  REVIEWER: 'reviewer',
 });
 
 export const User = db.define(

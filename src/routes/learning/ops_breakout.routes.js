@@ -12,7 +12,7 @@ import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, SUPERADMIN, CATALYST, EDUCATOR,
+  ADMIN, SUPERADMIN, CATALYST, EDUCATOR, REVIEWER,
 } = USER_ROLES;
 
 const router = Express.Router();
@@ -63,7 +63,7 @@ router.get('/:cohort_id/all', getAllCohortBreakouts);
  */
 router.get('/:cohort_id/:milestone_id/all', getBreakoutsForCohortMilestone);
 
-router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR, REVIEWER]));
 
 /**
  * @api {post} /learning/ops/breakouts Submit a Breakout

@@ -16,7 +16,7 @@ import {
 import { Topic } from '../../models/topic';
 import { CohortMilestone } from '../../models/cohort_milestone';
 import { getLiveCohorts, Cohort } from '../../models/cohort';
-import { User } from '../../models/user';
+import { User, USER_ROLES } from '../../models/user';
 import { Milestone } from '../../models/milestone';
 
 export const getBreakouts = (req, res) => {
@@ -59,12 +59,16 @@ export const getLiveCohortsBreakouts = (req, res) => {
   getLiveCohorts()
     .then(cohorts => {
       const cohortIds = cohorts.map(c => c.id);
-      return CohortBreakout.findAll({
-        where: {
-          cohort_id: {
-            [Sequelize.Op.in]: cohortIds,
-          },
+      let where = {
+        cohort_id: {
+          [Sequelize.Op.in]: cohortIds,
         },
+      };
+      if (req.jwtData.user.role === USER_ROLES.REVIEWER) {
+        where.type = 'reviews';
+      }
+      return CohortBreakout.findAll({
+        where,
         include: [{
           model: User,
           as: 'catalyst',

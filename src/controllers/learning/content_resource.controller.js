@@ -1,6 +1,8 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
-import { Resource, getResourcesByTag, getResourceByUrl, createResource, autoTagUrls, searchResources, getResourceByTopic } from '../../models/resource';
+import {
+  Resource, getResourcesByTag, getResourceByUrl, createResource, autoTagUrls, searchResources, getResourceByTopic,
+} from '../../models/resource';
 import { ResourceComment } from '../../models/resource_comment';
 import { ResourceReport } from '../../models/resource_report';
 import { ResourceVote } from '../../models/resource_vote';
@@ -162,27 +164,28 @@ export const create = (req, res) => {
         res.send({ data });
       } else {
         autoTagUrls(url)
-        .then(response_data => {
+          .then(response_data => {
             const level = 'beginner';
             const owner = req.jwtData.user.id;
-            const type = 'article'; //TODO : Add other types to enum
+            const type = 'article'; // TODO : Add other types to enum
             const source = 'web';
-            const { data } = response_data.body;
-            const { predicted_tag_ids, description, title, thumbnail_url } = data;
-            createResource(url, level, owner, predicted_tag_ids, title, description, source, type, data, thumbnail_url).then(resource_added => {
+            const {
+              predicted_tag_ids, description, title, thumbnail_url,
+            } = response_data.body.data;
+            createResource(url, level, owner, predicted_tag_ids,
+              title, description, source, type, data, thumbnail_url).then(resource_added => {
               res.send({ resource_added });
             })
-            .catch(err => {
-              console.error(err);
-              res.sendStatus(500);
-            });
-        })
-        .catch(err => {
-          console.error(err);
-          res.sendStatus(500);
-        });
+              .catch(err => {
+                console.error(err);
+                res.sendStatus(500);
+              });
+          })
+          .catch(err => {
+            console.error(err);
+            res.sendStatus(500);
+          });
       }
-      
     })
     .catch(err => {
       console.error(err);

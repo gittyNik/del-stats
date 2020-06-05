@@ -166,12 +166,14 @@ export const createResource = (url, level, owner, tagged, title = '',
 
 
 export const createFromSlackAttachment = async (attachment, owner) => {
-  console.log(attachment);
   const url = attachment.original_url;
   try {
     const data = await autoTagUrls(url);
+    console.log(data);
     const { predicted_tag_ids } = data.body.data;
-    return createResource(attachment.original_url || attachment.app_unfurl_url, 'article', 'beginner', owner, attachment.title, attachment.text, 'slack', { slack: attachment }, predicted_tag_ids);
+    return createResource(attachment.original_url || attachment.app_unfurl_url,
+      'beginner', owner, predicted_tag_ids, attachment.title, attachment.text,
+      'slack', 'article', { slack: attachment }, attachment.thumb_url, 'tep');
   } catch (err) {
     console.error(err);
     return { message: 'Failed to add url' };
