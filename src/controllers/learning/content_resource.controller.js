@@ -169,10 +169,9 @@ export const create = (req, res) => {
             const owner = req.jwtData.user.id;
             const type = 'article'; // TODO : Add other types to enum
             const source = 'web';
-            const { tagged_data } = response_data.body;
             const {
               predicted_tag_ids, description, title, thumbnail_url,
-            } = tagged_data;
+            } = response_data.body.data;
             createResource(url, level, owner, predicted_tag_ids,
               title, description, source, type, data, thumbnail_url).then(resource_added => {
               res.send({ resource_added });
