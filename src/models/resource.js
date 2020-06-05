@@ -170,6 +170,7 @@ export const createFromSlackAttachment = async (attachment, owner) => {
   const url = attachment.original_url;
   try {
     const data = await autoTagUrls(url);
+    console.log(data);
     const { predicted_tag_ids } = data.body.data;
     return createResource(attachment.original_url || attachment.app_unfurl_url, 'article', 'beginner', owner, attachment.title, attachment.text, 'slack', { slack: attachment }, predicted_tag_ids);
   } catch (err) {

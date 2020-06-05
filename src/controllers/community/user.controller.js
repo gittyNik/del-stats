@@ -4,7 +4,9 @@ import { User, USER_ROLES } from '../../models/user';
 import { createOrUpdateContact } from '../../integrations/hubspot/controllers/contacts.controller';
 import { createDeal, associateDealWithContact } from '../../integrations/hubspot/controllers/deals.controller';
 
-const { CATALYST, EDUCATOR, ADMIN, SUPERADMIN } = USER_ROLES
+const {
+  CATALYST, EDUCATOR, ADMIN, SUPERADMIN,
+} = USER_ROLES;
 
 export const getProfile = (req, res) => {
   res.json({ user: req.jwtData.user });
@@ -15,7 +17,7 @@ export const updateUser = apiNotReady;
 export const updateProfile = (req, res) => {
   const { id, phone } = req.jwtData.user;
   const {
-    email, firstName, lastName, name, location, profile, hubspot
+    email, firstName, lastName, name, location, profile, hubspot,
   } = req.body;
   const { gender, birthDate } = profile;
   const {
@@ -29,13 +31,13 @@ export const updateProfile = (req, res) => {
     comfortableWithEnglish,
     stableInternetConnectivity,
     exclusivelyAvailableForProgram,
-    availableForJob
+    availableForJob,
   } = hubspot;
   createOrUpdateContact({
-    email, 
+    email,
     phone,
-    firstName, 
-    lastName, 
+    firstName,
+    lastName,
     location,
     gender,
     knowAboutSOALFrom,
@@ -45,7 +47,7 @@ export const updateProfile = (req, res) => {
     comfortableWithEnglish,
     stableInternetConnectivity,
     exclusivelyAvailableForProgram,
-    availableForJob
+    availableForJob,
   }).then(result => {
     createDeal({
       name,
@@ -55,57 +57,57 @@ export const updateProfile = (req, res) => {
       format,
       preferredCampus,
       cohortStartDate,
-      applicantStatus: "Applicant"
+      applicantStatus: 'Applicant',
     })
-    .then(deal => { 
-      const dealId = deal.dealId;
-      const contactId = result.vid;
-      associateDealWithContact(dealId, contactId)
-      .then(() => {
-        profile.hubspotDealId = dealId;
-        User.update({
-          email, name, location, profile,
-        }, {
-          where: { id },
-          returning: true,
-          raw: true,
-        })
-          .then(result => result[1][0])
-          .then(data => {
-            res.send({
-              data,
-              text: 'Update success',
-            });
-          })
-          .catch(err => {
-            console.log(err);
-            res.sendStatus(500);
+      .then(deal => {
+        const { dealId } = deal;
+        const contactId = result.vid;
+        associateDealWithContact(dealId, contactId)
+          .then(() => {
+            profile.hubspotDealId = dealId;
+            User.update({
+              email, name, location, profile,
+            }, {
+              where: { id },
+              returning: true,
+              raw: true,
+            })
+              .then(result => result[1][0])
+              .then(data => {
+                res.send({
+                  data,
+                  text: 'Update success',
+                });
+              })
+              .catch(err => {
+                console.log(err);
+                res.sendStatus(500);
+              });
           });
-      })
-    }).catch(err => {
-      console.log(err);
-      res.sendStatus(500);
-    })
+      }).catch(err => {
+        console.log(err);
+        res.sendStatus(500);
+      });
   }).catch(err => {
     console.error(err);
     res.sendStatus(500);
-  })
+  });
 };
 
 export const getEducators = (req, res) => {
   User.findAll({
     where: {
       role: {
-        [Sequelize.Op.in]: [CATALYST, EDUCATOR, ADMIN, SUPERADMIN]
-      }
-    }
+        [Sequelize.Op.in]: [CATALYST, EDUCATOR, ADMIN, SUPERADMIN],
+      },
+    },
   }).then(data => {
     res.json({
-      text: "Teaching users",
-      data
-    })
+      text: 'Teaching users',
+      data,
+    });
   }).catch(err => {
     console.error(err);
     res.sendStatus(500);
-  })
-}
+  });
+};

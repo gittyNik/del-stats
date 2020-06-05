@@ -69,3 +69,20 @@ export const getGithubConnecionByUserId = user_id => SocialConnection.findOne({
     provider: PROVIDERS.GITHUB,
   },
 });
+
+// zoom <-> user details
+export const getGithubConnecionByGitUsername = (username) => SocialConnection.findOne({
+  where: {
+    provider: PROVIDERS.GITHUB,
+    username,
+  },
+});
+
+export const getUserIdByEmail = (emails) => SocialConnection.findOne(
+  {
+    where: {
+      email: { [Sequelize.Op.in]: emails },
+    },
+  },
+  { raw: true },
+);
