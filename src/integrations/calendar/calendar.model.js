@@ -22,7 +22,7 @@ export const listEvents = (auth) => {
 };
 
 
-export const createEvent = async (auth, event_details) => {
+export const createEvent = (auth, event_details) => {
   const calendar = google.calendar({ version: 'v3', auth });
   let {
     summary, location, start, end, description,
