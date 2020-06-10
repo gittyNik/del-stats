@@ -257,26 +257,32 @@ export const dummyCreateCalendarEvents2 = async (learnerId) => {
     if (item.learnerBreakout) {
       createEvent(oauth, item.eventBody)
         .then(event => {
+          console.log(event);
           item.eventDetails = event;
           res_data.push(item);
           return item;
         })
-        .then(_item => {
-          return LearnerBreakout
-            .update({
-              review_feeback: _item.eventDetails,
-            }, {
-              where: {
-                cohort_breakout_id: _item.learnerBreakout.id,
-                learner_id: _item.learnerBreakout.id,
-              },
-            });
-        })
+        .then(_item => LearnerBreakout
+          .update({
+            review_feeback: _item.eventDetails,
+          }, {
+            where: {
+              cohort_breakout_id: _item.learnerBreakout.id,
+              learner_id: _item.learnerBreakout.id,
+            },
+          })
+          .then(() => {
+            callback();
+          })
+          .catch(err => {
+            callback(err);
+          }))
         .catch(err => {
           callback(err);
         });
+    } else {
+      callback();
     }
-    callback();
   })
     .then(() => {
       console.log(res_data);
