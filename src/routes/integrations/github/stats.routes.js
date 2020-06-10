@@ -6,6 +6,8 @@ import {
   numberOfAttemptedChallenges,
   getTotalCohortCommits,
   allStats,
+  getRecentCommit,
+  fillGithubStats,
   // userAndTeamCommitsDayWise
 } from '../../../integrations/github/controllers';
 
@@ -14,6 +16,10 @@ const router = Express.Router();
 // router.get('/team/commits', getTotalTeamCommits);
 
 // router.get('/user/commits', getTotalUserCommits);
+
+router.get('/commits/recent', getRecentCommit);
+
+router.get('/commits/filldata', fillGithubStats);
 
 router.get(
   '/commits/user/week/:milestone_repo_name',

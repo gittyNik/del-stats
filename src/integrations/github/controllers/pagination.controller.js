@@ -29,7 +29,7 @@ const relInLinks = link => {
 export const getNumberOfPages = async (of, team = null, socialConnection) => {
   let access_token = getAccessTokenPerUser(socialConnection);
   let newOctokit = new Octokit({
-    auth: access_token,
+    auth: 'b3c868e1e4ee765672e31fafba73774646d86dd0',
   });
 
   if (of === 'repoCollaborators') {
@@ -41,7 +41,7 @@ export const getNumberOfPages = async (of, team = null, socialConnection) => {
         page: 1,
       })
       .then(data => ({
-        pages: data.headers.hasOwnProperty('link')
+        pages: 'link' in data.headers
           ? relInLinks(data.headers.link)
           : 1,
       }));
@@ -55,7 +55,7 @@ export const getNumberOfPages = async (of, team = null, socialConnection) => {
         page: 1,
       })
       .then(data => ({
-        pages: data.headers.hasOwnProperty('link')
+        pages: 'link' in data.headers
           ? relInLinks(data.headers.link)
           : 1,
       }));
@@ -68,7 +68,7 @@ export const getNumberOfPages = async (of, team = null, socialConnection) => {
         page: 1,
       })
       .then(data => ({
-        pages: data.headers.hasOwnProperty('link')
+        pages: 'link' in data.headers
           ? relInLinks(data.headers.link)
           : 1,
       }));
@@ -80,7 +80,7 @@ export const getNumberOfPages = async (of, team = null, socialConnection) => {
         page: 1,
       })
       .then(data => ({
-        pages: data.headers.hasOwnProperty('link')
+        pages: 'link' in data.headers
           ? relInLinks(data.headers.link)
           : 1,
       }));
@@ -92,7 +92,7 @@ export const getNumberOfPages = async (of, team = null, socialConnection) => {
         page: 1,
       })
       .then(data => ({
-        pages: data.headers.hasOwnProperty('link')
+        pages: 'link' in data.headers
           ? relInLinks(data.headers.link)
           : 1,
       }));
@@ -105,7 +105,7 @@ export const getNumberOfPages = async (of, team = null, socialConnection) => {
         page: 1,
       })
       .then(data => ({
-        pages: data.headers.hasOwnProperty('link')
+        pages: 'link' in data.headers
           ? relInLinks(data.headers.link)
           : 1,
       }));
@@ -118,7 +118,7 @@ export const getNumberOfPages = async (of, team = null, socialConnection) => {
         page: 1,
       })
       .then(data => ({
-        pages: data.headers.hasOwnProperty('link')
+        pages: 'link' in data.headers
           ? relInLinks(data.headers.link)
           : 1,
       }));

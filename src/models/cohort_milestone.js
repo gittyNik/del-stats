@@ -53,6 +53,9 @@ export const CohortMilestone = db.define('cohort_milestones', {
   },
 });
 
+// Team.belongsTo(CohortMilestone, { foreignKey: 'cohort_milestone_id' });
+CohortMilestone.hasMany(Team, { foreignKey: 'cohort_milestone_id' });
+
 const { lte, gt, between } = Sequelize.Op;
 
 export const getDataForMilestoneName = id => CohortMilestone.findOne({
@@ -98,6 +101,16 @@ export const getMilestoneTeams = milestone_id => Team.findAll({
 export const getCohortMilestones = cohort_id => CohortMilestone.findAll({
   where: { cohort_id },
   include: [Milestone],
+});
+
+export const getCohortMilestoneTeams = cohort_id => CohortMilestone.findAll({
+  where: { cohort_id },
+  attributes: ['id'],
+  include: [{
+    model: Team,
+    foreignKey: 'cohort_milestone_id',
+    attributes: ['learners', 'github_repo_link'],
+  }],
 });
 
 export const getCohortMilestoneBylearnerId = learner_id => Cohort.findOne({

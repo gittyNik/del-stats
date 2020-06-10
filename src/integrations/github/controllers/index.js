@@ -22,7 +22,7 @@ import {
 import {
   getAllAuthoredCommits,
   getAllCommits,
-  getRecentCommitByUser,
+  getAllCommitsByUser,
   getRecentCommitInRepository,
   getCommitsBetweenDates,
   getAuthoredCommitsBetweenDates,
@@ -30,9 +30,10 @@ import {
 import {
   getTeamsbyCohortMilestoneId,
   createMilestoneTeams,
+  getLearnerTeamOfMilestone,
   getAllLearnerTeamsByUserId,
 } from '../../../models/team';
-import { getCohortFromId } from '../../../models/cohort';
+import { getCohortFromId, getCohortMilestones } from '../../../models/cohort';
 import { getGithubConnecionByUserId } from '../../../models/social_connection';
 import {
   learnerChallengesFindOrCreate,
@@ -43,30 +44,34 @@ import {
   contributersInRepository,
   weeklyCommitActivityData,
 } from './stats.controller';
+import {
+  getCohortMilestonesByCohortId,
+  getCohortMilestoneTeams,
+} from '../../../models/cohort_milestone';
 import { getProfile, getUserFromEmails } from '../../../models/user';
 
 
 // Returns latest commit object of given user {{username}} in repository {{repo_name}}
 const getRecentCommit = async (req, res) => {
-  const { username, repo_name } = req.params;
+  const { repo_name } = req.query;
   const user_id = req.jwtData.user.id;
-  getRecentCommitByUser(username, repo_name, user_id)
+  let socialConnection = await getGithubConnecionByUserId(user_id);
+  getAllCommits(repo_name, socialConnection)
     .then(data => res.send({ data }))
     .catch(err => res.status(500).send(err));
 };
 
-const getLatestCommitInCohort = async (cohort_milestone_id, socialConnection) => {
+const getLatestCommitInCohort = async cohort_milestone_id => {
   let commits = [];
-  let teams = await getTeamsbyCohortMilestoneId(cohort_milestone_id, socialConnection);
+  let teams = await getTeamsbyCohortMilestoneId(cohort_milestone_id);
   teams = teams.map(team => team.github_repo_link);
   for (let i = 0; i < teams.length; i++) {
-    let commit = getRecentCommitInRepository(teams[i], socialConnection);
+    let commit = await getRecentCommitInRepository(teams[i]);
     if (!commit.hasOwnProperty('sha')) {
       continue;
     }
     commits.push(commit);
   }
-  Promise.all(commits);
   let latestCommit;
   if (commits.length === 0) {
     latestCommit = {};
@@ -90,8 +95,7 @@ const getLatestCommitInCohort = async (cohort_milestone_id, socialConnection) =>
 const getRecentCommitInCohort = async (req, res) => {
   try {
     const { cohort_milestone_id } = req.params;
-    const user_id = req.jwtData.user.id;
-    const latestCommit = await getLatestCommitInCohort(cohort_milestone_id, user_id);
+    const latestCommit = await getLatestCommitInCohort(cohort_milestone_id);
     res.send({ data: latestCommit });
   } catch (err) {
     res.status(500).send(err);
@@ -111,14 +115,14 @@ const createChallenge = async (req, res) => {
 };
 
 const getTotalTeamAndUserCommitsCount = async (
-  socialConnection,
+  user_id,
   milestone_repo_name,
 ) => {
-  const teamCommits = await getAllCommits(milestone_repo_name, socialConnection);
+  const socialConnection = await getGithubConnecionByUserId(user_id);
+  const teamCommits = await getAllCommits(milestone_repo_name);
   const userCommits = await getAllAuthoredCommits(
     milestone_repo_name,
     socialConnection.username,
-    socialConnection,
   );
   return {
     teamCommits: teamCommits.length,
@@ -145,7 +149,7 @@ const getTotalTeamAndUserCommits = async (req, res) => {
 const getTotalUserCommitsPastWeek = async (req, res) => {
   const { milestone_repo_name } = req.params;
   const user_id = req.jwtData.user.id;
-  contributersInRepository(milestone_repo_name, user_id)
+  contributersInRepository(milestone_repo_name)
     .then(async data => {
       let socialConnection = await getGithubConnecionByUserId(user_id);
       let commits = 0;
@@ -174,7 +178,6 @@ const numberOfAttemptedChallenges = async (req, res) => {
 };
 
 const getTotalCohortCommits = async (req, res) => {
-  const user_id = req.jwtData.user.id;
   try {
     const { cohort_milestone_id } = req.params;
     let teams = await getTeamsbyCohortMilestoneId(cohort_milestone_id);
@@ -221,7 +224,7 @@ const numberOfLinesInEachMilestone = async (cohort_id, user_id, username) => {
     for (let i = 0; i < teams.length; i++) {
       let a = 0;
       let d = 0;
-      if (teams[i].hasOwnProperty('noOfLines')) {
+      if ('noOfLines' in teams[i]) {
         continue;
       }
       if (!_.isEmpty(teams[i].cont)) {
@@ -266,16 +269,15 @@ const commitsDayWise = (date, commits) => {
     let commit = commits[0];
     if (
       isoToDateString(commit.commit.committer.date)
-			!== dayWiseCommits[index].day
+      !== dayWiseCommits[index].day
     ) {
       index++;
     }
     dayWiseCommits[index] = {
       day: isoToDateString(commit.commit.committer.date),
-      commits:
-				dayWiseCommits[index] === undefined
-				  ? 1
-				  : dayWiseCommits[index].commits + 1,
+      commits: dayWiseCommits[index] === undefined
+        ? 1
+        : dayWiseCommits[index].commits + 1,
     };
     commits.pop();
   }
@@ -294,7 +296,7 @@ const commitsDayWise = (date, commits) => {
   return final;
 };
 
-const userAndTeamCommitsDayWise = async (learners, repo, socialConnections) => {
+const userAndTeamCommitsDayWise = async (learners, repo) => {
   let ret = [];
   let now = Date.now();
   let twoWeeks = 13 * 24 * 60 * 60 * 1000;
@@ -303,7 +305,6 @@ const userAndTeamCommitsDayWise = async (learners, repo, socialConnections) => {
     repo,
     new Date(twoWeeks).toISOString(),
     new Date(Date.now()).toISOString(),
-    socialConnections,
   );
   for (let i = 0; i < learners.length; i++) {
     let user = learners[i];
@@ -319,7 +320,7 @@ const userAndTeamCommitsDayWise = async (learners, repo, socialConnections) => {
         repo,
         new Date(twoWeeks).toISOString(),
         new Date(Date.now()).toISOString(),
-        socialConnection,
+        socialConnection.username,
       );
       ret.push({
         user_id: user.id,
@@ -332,6 +333,117 @@ const userAndTeamCommitsDayWise = async (learners, repo, socialConnections) => {
     userCommitsDayWise: ret,
     teamCommitsDayWise: commitsDayWise(twoWeeks, commits),
   };
+};
+
+export const getGithubStats = async (cohort_id, user_id) => {
+  // Fetch Cohort Milestone Teams
+  let cohortMilestones = await getCohortMilestoneTeams(cohort_id);
+
+  let allMilestoneCommitsPromises = await Promise.all(
+    cohortMilestones.map(async cohortMilestone => {
+      // For Every Cohort fetch Teams
+      const cohort_milestone_id = cohortMilestone.id;
+      let cohortMilestoneTeams = cohortMilestone.milestone_learner_teams;
+      let milestoneCommitPromises = [];
+      if (!(_.isEmpty(cohortMilestoneTeams))) {
+        milestoneCommitPromises = await Promise.all(cohortMilestoneTeams.map(async eachTeam => {
+          // For each team get Milestone repo
+          let github_repo = eachTeam.github_repo_link;
+          let teamLearners = eachTeam.learners;
+
+          // Get Github token for one learner and use it to get all commits
+          let userSocialConnection = await getGithubConnecionByUserId(user_id);
+
+          let contributorsRepo;
+          try {
+            contributorsRepo = await contributersInRepository(github_repo, userSocialConnection);
+          } catch (err) {
+            console.log(err);
+            contributorsRepo = [];
+          }
+
+          let learnerCommits = await Promise.all(teamLearners.map(async oneLearner => {
+            // Get Github token for one learner and use it to get all commits
+            let socialConnection = await getGithubConnecionByUserId(oneLearner);
+            let milestoneData;
+            if (_.isEmpty(socialConnection)) {
+              socialConnection = userSocialConnection;
+            }
+            // Fetch commits for entire repo
+            milestoneData = await getAllAuthoredCommits(
+              github_repo,
+              socialConnection.username,
+              socialConnection,
+            );
+
+            return { milestoneData, user_id: oneLearner };
+          }));
+          return { learnerCommits, cohort_milestone_id, contributorsRepo };
+        }));
+      }
+      return milestoneCommitPromises;
+    }),
+  );
+
+  return allMilestoneCommitsPromises;
+};
+
+export const fillGithubStats = async (req, res) => {
+  const { cohort_id } = req.query;
+  // const user_id = req.jwtData.user.id;
+  const user_id = '929ae71d-105b-4b0e-a6d4-cf28824e6392';
+
+  let allMilestoneCommitsPromises = await getGithubStats(cohort_id, user_id);
+  res.send(allMilestoneCommitsPromises);
+};
+
+export const getAllStats = async (req, res) => {
+  const { cohort_id, cohort_milestone_id } = req.params;
+  const user_id = req.jwtData.user.id;
+  let socialConnection = await getGithubConnecionByUserId(user_id);
+
+  if (socialConnection !== null) {
+    let cohortDetails = await getCohortMilestones(cohort_id);
+    let cohortLearner = cohortDetails.learners;
+
+    let LatestChallengeInCohort = await latestChallengeInCohort(
+      cohort_id,
+    );
+    let latChalUser;
+    if (LatestChallengeInCohort === undefined) {
+      LatestChallengeInCohort = 0;
+      latChalUser = 0;
+    } else {
+      latChalUser = await getProfile(LatestChallengeInCohort.learner_id);
+    }
+
+    res.send({
+      data: {
+        noOfCommitsLinesOfEachMS: first,
+        noOfCommitsLinesOfEachMSForUser: { a, user_id },
+        noOfCommitsAndLearnerDetails: third,
+        LatestChallengeInCohort: {
+          challenge: LatestChallengeInCohort,
+          user: latChalUser,
+          cohort: ch,
+        },
+        latestCommitInCohort: {
+          commit: latestCommitInCohort,
+          user: u,
+        },
+      },
+    });
+  } else {
+    res.send({
+      data: {
+        noOfCommitsLinesOfEachMS: 0,
+        noOfCommitsLinesOfEachMSForUser: 0,
+        noOfCommitsAndLearnerDetails: 0,
+        LatestChallengeInCohort: 0,
+        latestCommitInCohort: 0,
+      },
+    });
+  }
 };
 
 const allStats = async (req, res) => {
