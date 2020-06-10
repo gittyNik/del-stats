@@ -4,7 +4,9 @@ import { getCalendarDetailsOfCohortBreakout } from '../src/models/cohort_breakou
 import { getGoogleOauthOfUser, googleConfig, convertToEventBody, rfc3339 } from '../src/util/calendar-util';
 import {
   LearnerBreakout, createCalendarEventsForLearner,
-  dummyCreateCalendar
+  dummyCreateCalendar,
+  getPayloadForCalendar,
+  dummyCreateCalendarEvents2
 } from '../src/models/learner_breakout';
 import eachSeries from 'async/eachSeries'
 import faker from 'faker';
@@ -33,17 +35,18 @@ const learner_id = '1253d564-b0a9-45b0-a54b-0b3f53febeab';
 const cohort_breakouts = [
   'b3fd4a6c-b205-4cc2-86a1-73bc07fd95e6',
   '618256d2-737f-4342-8208-ceaaae51a070',
+  // '4a37e79c-0b7c-4fbb-9637-65d1f5b4e076',
   '83c0c81d-6068-480e-a007-4a732cb57e1c',
-  'f3fe1b8b-4e50-46c9-9b18-c361a9c7881f',
-  'a472d724-0903-421d-a002-f7cb7d457541',
-  '5b4b7d70-8a9a-4f61-b20d-cd0a64f57e5d',
-  'ec6b2519-3810-411d-b456-d2305612012b',
-  '281d6690-2864-47f0-a020-9b3b7b06046b',
-  'ad9fea5e-a398-4bbb-a512-eeec7796715f',
-  'ab86d98e-ae50-40f4-b1e0-7a53c52a4700',
+  // 'f3fe1b8b-4e50-46c9-9b18-c361a9c7881f',
+  // 'a472d724-0903-421d-a002-f7cb7d457541',
+  // '5b4b7d70-8a9a-4f61-b20d-cd0a64f57e5d',
+  // 'ec6b2519-3810-411d-b456-d2305612012b',
+  // '281d6690-2864-47f0-a020-9b3b7b06046b',
+  // 'ad9fea5e-a398-4bbb-a512-eeec7796715f',
+  // 'ab86d98e-ae50-40f4-b1e0-7a53c52a4700',
   '4a37e79c-0b7c-4fbb-9637-65d1f5b4e076',
-  'a0845b56-2dd0-4da0-ae37-7f90fb6e6715',
-  'c8624585-2c09-415e-8d09-968b405e6e26'
+  // 'a0845b56-2dd0-4da0-ae37-7f90fb6e6715',
+  // 'c8624585-2c09-415e-8d09-968b405e6e26'
 ];
 
 describe('Learner Breakout related tests', () => {
@@ -228,9 +231,10 @@ describe('Learner Breakout related tests', () => {
     expect(res).toBeDefined();
   });
 
-  test.only('testing async library', async () => {
+  test('testing async library', async () => {
 
     const res = await dummyCreateCalendar(cohort_breakouts, learner_id);
+    console.log(res);
     expect(res).toBeDefined();
   })
 
@@ -251,5 +255,17 @@ describe('Learner Breakout related tests', () => {
     expect(createdEvents.length).toBe(eventBodies.length);
   });
 
+  test('get Paylod for dummy createCalendar', async () => {
+    const payload = await getPayloadForCalendar(learner_id);
+    console.log(payload);
+    expect(payload).toBeDefined();
+  });
+
+  test.only('Create calendar event for a learner using async lib. X2', async () => {
+    const res = await dummyCreateCalendarEvents2(learner_id);
+    console.log(res);
+    expect(res).toBeDefined();
+
+  })
 });
 
