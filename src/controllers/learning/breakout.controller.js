@@ -103,8 +103,9 @@ export const createBreakout = (req, res) => {
     type, domain, topic_id,
     cohort_id, time_scheduled, duration,
     location, catalyst_id, attendance_count,
-    catalyst_notes, status, catalyst_feedback,
-    isVideoMeeting, isCodeSandbox,
+    catalyst_notes, catalyst_feedback,
+    isVideoMeeting, isCodeSandbox, breakout_template_id,
+    team_feedback,
   } = req.body;
   let time = time_scheduled.toLocaleString().split(' ').join('T');
   // console.group(time);
@@ -122,9 +123,10 @@ export const createBreakout = (req, res) => {
           videoMeeting_id: videoMeeting,
         };
         createNewBreakout(
-          type, domain, topic_id, cohort_id, time_scheduled, duration,
-          location, catalyst_id, status, catalyst_notes,
-          catalyst_feedback, attendance_count, details,
+          breakout_template_id, topic_id,
+          cohort_id, time_scheduled, duration, location,
+          catalyst_id, details, type, team_feedback,
+          catalyst_notes, attendance_count, domain, catalyst_feedback,
         )
           .then(data => {
             // console.log(data);
@@ -149,9 +151,10 @@ export const createBreakout = (req, res) => {
           sandbox_id: sandbox.data.sandbox_id,
         };
         createNewBreakout(
-          type, domain, topic_id, cohort_id, time_scheduled, duration,
-          location, catalyst_id, status, catalyst_notes,
-          catalyst_feedback, attendance_count, details,
+          breakout_template_id, topic_id,
+          cohort_id, time_scheduled, duration, location,
+          catalyst_id, details, type, team_feedback,
+          catalyst_notes, attendance_count, domain, catalyst_feedback,
         )
           .then(data => {
             console.log('Breakout created with code sandbox only', data);
@@ -172,11 +175,10 @@ export const createBreakout = (req, res) => {
         let details = {
           videoMeeting_id: videoMeeting,
         };
-        createNewBreakout(
-          type, domain, topic_id, cohort_id, time_scheduled, duration,
-          location, catalyst_id, status, catalyst_notes,
-          catalyst_feedback, attendance_count, details,
-        )
+        createNewBreakout(breakout_template_id, topic_id,
+          cohort_id, time_scheduled, duration, location,
+          catalyst_id, details, type, team_feedback,
+          catalyst_notes, attendance_count, domain, catalyst_feedback)
           .then(data => {
             // console.log(data);
             res.send('Breakout and video meeting created Created');
