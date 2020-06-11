@@ -2,7 +2,6 @@ import request from 'superagent';
 import uuid from 'uuid/v4';
 import dotenv from 'dotenv';
 import { getSoalToken } from '../../util/token';
-import { capitalize } from '../../util/utility';
 import { getUserFromEmails, USER_ROLES, getProfile } from '../../models/user';
 import { SocialConnection, PROVIDERS, getUserIdByEmail } from '../../models/social_connection';
 import { getCohortFromLearnerId } from '../../models/cohort';
@@ -38,15 +37,13 @@ const fetchProfileFromGithub = ({ githubToken, expiry }) =>
   // fetching profile details from github
   request
     .get(`https://api.github.com/user?${githubToken}`)
-    .then(profileResponse => {
+    .then(async profileResponse => {
       const profile = profileResponse.body;
       // fetching all emails from github
-      return request
-        .get(`https://api.github.com/user/emails?${githubToken}`)
-        .then(emailResponse => {
-          profile.emails = emailResponse.body.map(o => o.email);
-          return { profile, githubToken, expiry };
-        });
+      const emailResponse = await request
+        .get(`https://api.github.com/user/emails?${githubToken}`);
+      profile.emails = emailResponse.body.map(o => o.email);
+      return { profile, githubToken, expiry };
     });
 
 // fetch profile and add it to social_connections
@@ -98,7 +95,7 @@ const addTeamToExponentSoftware = async userProfile => {
     return { userProfile, teamName: 'Educators' };
   }
   if (userProfile.user.role === 'catalyst' || userProfile.user.role === 'reviewer') {
-    return { userProfile, teamName: capitalize(userProfile.user.role) };
+    return { userProfile, teamName: userProfile.user.role, excluded: true };
   }
   return getCohortFromLearnerId(userProfile.user.id)
     .then(wrapParentTeamId)
@@ -114,9 +111,12 @@ const addTeamToExponentSoftware = async userProfile => {
     .then(teamName => ({ userProfile, teamName }));
 };
 
-const sendOrgInvites = async ({ userProfile, teamName }) => {
+const sendOrgInvites = async ({ userProfile, teamName, isExcluded = false }) => {
   const isEdu = await isEducator(userProfile.socialConnection.username);
   if (isEdu) {
+    return userProfile;
+  }
+  if (isExcluded) {
     return userProfile;
   }
   return sendInvitesToNewMembers(
