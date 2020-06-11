@@ -66,6 +66,8 @@ export const getLiveCohortsBreakouts = (req, res) => {
       };
       if (req.jwtData.user.role === USER_ROLES.REVIEWER) {
         where.type = 'reviews';
+      } else if (req.jwtData.user.role === USER_ROLES.CATALYST) {
+        where.type = 'lecture';
       }
       return CohortBreakout.findAll({
         where,
