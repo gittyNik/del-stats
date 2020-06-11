@@ -308,52 +308,60 @@ export const checkGoogleOrSendRedirectUrl = async (req, res) => {
 
 export const handleGoogleCallback = async (req, res) => {
   const { code, error } = req.query;
-  if (code) {
-    const data = await getTokensFromCode(code);
-    const user = await getUserFromEmails([data.profile.email])
-      .then(user0 => user0.toJSON())
-      .catch(err => {
-        console.error(err);
-        res.json({
-          error: 'Unable to find the user with the given email',
-        });
-      });
-    if (user) {
-      const { profile } = data;
-      const googleToken = data.tokens.access_token;
-      const expiry = data.expiry_date;
-      profile.tokens = data.tokens;
-      try {
-        const dataSC = await addGoogleProfile({
-          profile,
-          googleToken,
-          expiry,
-          user,
-        });
-        console.log(dataSC.user);
-        // Create calendar events if user is learner
-        if (user.role === USER_ROLES.LEARNER) {
-          const calendarStats = await createCalendarEventsForLearner(user.id);
-          console.log(calendarStats);
+  try {
+    if (code) {
+      const data = await getTokensFromCode(code);
+      const user = await getUserFromEmails([data.profile.email])
+        .then(user0 => user0.toJSON())
+        .catch(err => {
+          console.error(err);
           res.json({
-            text: 'Breakout are successfully added to Google Calendar',
-            data: dataSC.user,
+            error: 'Unable to find the user with the given email',
           });
-        } else {
+        });
+      if (user) {
+        const { profile } = data;
+        const googleToken = data.tokens.access_token;
+        const expiry = data.expiry_date;
+        profile.tokens = data.tokens;
+        try {
+          const dataSC = await addGoogleProfile({
+            profile,
+            googleToken,
+            expiry,
+            user,
+          });
+          console.log(dataSC.user);
+          // Create calendar events if user is learner
+          if (user.role === USER_ROLES.LEARNER) {
+            const calendarStats = await createCalendarEventsForLearner(user.id);
+            console.log(calendarStats);
+            res.json({
+              text: 'Breakout are successfully added to Google Calendar',
+              data: dataSC.user,
+            });
+          } else {
+            res.json({
+              text: 'Google authentication successfull',
+              data: dataSC.user,
+            });
+          }
+        } catch (err) {
+          console.error(err);
           res.json({
-            text: 'Google authentication successfull',
-            data: dataSC.user,
+            error: 'Failed to authenticate Google',
           });
         }
-      } catch (err) {
-        console.error(err);
-        res.json({
-          error: 'Failed to authenticate Google',
-        });
       }
+    } else {
+      console.error(error);
+      res.json({
+        error: 'Failed to authenticate Google',
+      });
     }
-  } else {
-    console.error(error);
+  } catch (err) {
+    console.error('CHECK REDIRECT_URLS');
+    console.error(err);
     res.json({
       error: 'Failed to authenticate Google',
     });

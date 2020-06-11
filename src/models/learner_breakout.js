@@ -119,7 +119,7 @@ export const createLearnerBreakouts = (learner_id,
       })),
     ));
 
-export const createCalendarEventsForLearner = async (learner_id) => {
+export const dummyCreateCalendarEvents2 = async (learner_id) => {
   try {
     // console.log(learner_id);
     const oauth2 = await getGoogleOauthOfUser(learner_id);
@@ -257,10 +257,13 @@ export const updateReviewFeedback = async (learner_breakout_id, calendarDetails)
       console.error('Learner breakout doesnt exist');
       console.error(err);
     });
+  const review_feedback = learner_breakout.review_feeback ? learner_breakout.review_feedback : {};
+  review_feedback.calendarDetails = calendarDetails;
+
   // console.log(learner_breakout);
   const updatedLearnerBreakout = await LearnerBreakout
     .update({
-      review_feedback: { ...learner_breakout.review_feedback, calendarDetails },
+      review_feedback,
     }, {
       where: {
         id: learner_breakout_id,
@@ -271,7 +274,7 @@ export const updateReviewFeedback = async (learner_breakout_id, calendarDetails)
   return updatedLearnerBreakout;
 };
 
-export const dummyCreateCalendarEvents2 = async (learnerId) => {
+export const createCalendarEventsForLearner = async (learnerId) => {
   const payload = await getPayloadForCalendar(learnerId);
   const oauth = await getGoogleOauthOfUser(learnerId);
   const res_data = [];
@@ -286,7 +289,7 @@ export const dummyCreateCalendarEvents2 = async (learnerId) => {
         })
         .then(_item => updateReviewFeedback(_item.learnerBreakout.id, _item.eventDetails)
           .then((data) => {
-            console.log(data);
+            // console.log(data);
             callback();
           })
           .catch(err => {
