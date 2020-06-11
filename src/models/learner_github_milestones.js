@@ -13,6 +13,7 @@ export const LearnerGithubMilestones = db.define('learner_github_milestones', {
     allowNull: false,
     primaryKey: true,
     type: Sequelize.UUID,
+    default: Sequelize.UUIDV4,
   },
   user_id: {
     type: Sequelize.UUID,
@@ -22,13 +23,15 @@ export const LearnerGithubMilestones = db.define('learner_github_milestones', {
     type: Sequelize.UUID,
     references: { model: 'milestone_learner_teams' },
   },
+  cohort_milestone_id: {
+    type: Sequelize.UUID,
+  },
   number_of_lines: Sequelize.INTEGER,
+  commits: Sequelize.INTEGER,
   repository_commits: Sequelize.ARRAY(Sequelize.JSON),
 });
 
 LearnerGithubMilestones.belongsTo(User, { foreignKey: 'user_id' });
-
-Team.belongsTo(LearnerGithubMilestones, { foreignKey: 'team_id' });
 
 export const getAllLearnerGithubDataMilestone = (
   after_date = '2020-06-10 00:00:00+00',
@@ -97,10 +100,11 @@ export const getLearnerGithubDataByTeam = milestone_team_id => LearnerGithubMile
 );
 
 export const createOrUpdteLearnerGithubDataForMilestone = (user_id,
-  milestone_team_id, new_commit_count, new_commits) => LearnerGithubMilestones.findOne({
+  team_id, new_commit_count,
+  new_commits, cohort_milestone_id, commits_count) => LearnerGithubMilestones.findOne({
   where: {
     user_id,
-    milestone_team_id,
+    cohort_milestone_id,
   },
 })
   .then((learnerGithub) => {
@@ -108,21 +112,25 @@ export const createOrUpdteLearnerGithubDataForMilestone = (user_id,
       LearnerGithubMilestones.create({
         id: uuid(),
         user_id,
-        milestone_team_id,
-        new_commit_count,
-        new_commits,
+        team_id,
+        number_of_lines: new_commit_count,
+        repository_commits: new_commits,
+        cohort_milestone_id,
+        commits: commits_count,
         created_at: Date.now(),
       });
     }
-    let totalCommits = learnerGithub.number_of_lines + new_commit_count;
+    let totalLines = learnerGithub.number_of_lines + new_commit_count;
+    let commitsCount = learnerGithub.commits + commits_count;
     learnerGithub.repository_commits.push(new_commits);
     return learnerGithub.update({
-      number_of_lines: totalCommits,
+      number_of_lines: totalLines,
       repository_commits: learnerGithub.repository_commits,
+      commits: commitsCount,
     }, {
       where: {
         user_id,
-        team_id: milestone_team_id,
+        team_id,
       },
     });
   });

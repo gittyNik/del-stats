@@ -2,7 +2,7 @@ import request from 'superagent';
 import { org } from './git.auth.controller';
 
 export const getAccessTokenPerUser = (socialConnection) => {
-  try {
+  if (socialConnection) {
     const { access_token } = socialConnection;
     let accessRegex = /access_token=(\S+?)&/g;
 
@@ -10,9 +10,8 @@ export const getAccessTokenPerUser = (socialConnection) => {
     if (user_access_token[1] != null) {
       return user_access_token[1];
     }
-    throw new Error('Logged in User has no Github access token');
-  } catch (err) {
-    return null;
+  } else {
+    return process.env.GITHUB_ACCESS_TOKEN;
   }
 };
 

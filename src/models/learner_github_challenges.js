@@ -11,6 +11,7 @@ export const LearnerGithubChallenge = db.define('learner_github_challenges', {
     allowNull: false,
     primaryKey: true,
     type: Sequelize.UUID,
+    default: Sequelize.UUIDV4,
   },
   learner_challenge_id: {
     type: Sequelize.UUID,
@@ -92,7 +93,7 @@ export const getLearnerGithubDataByTeam = milestone_team_id => LearnerGithubChal
   },
 );
 
-export const createOrUpdteLearnerGithubDataForChallenge = (user_id,
+export const createOrUpdateLearnerGithubDataForChallenge = (user_id,
   milestone_team_id, new_commit_count, new_commits) => LearnerGithubChallenge.findOne({
   where: {
     user_id,
