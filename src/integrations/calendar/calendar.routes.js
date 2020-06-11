@@ -2,7 +2,7 @@ import Express from 'express';
 import {
   getAllCalendarEvents, createCalendarEvent,
   scheduleCalendarEventForLearner, updateCalendarEvent,
-  deleteOneEvent,
+  deleteOneEvent, createEventForLearner
 } from './calendar.controller';
 
 const router = Express.Router();
@@ -64,5 +64,8 @@ router.patch('/:eventId', updateCalendarEvent);
  * @apiGroup CalendarEvent
  */
 router.delete('/:eventId', deleteOneEvent);
+
+
+router.post('/createEvent', createEventForLearner);
 
 export default router;

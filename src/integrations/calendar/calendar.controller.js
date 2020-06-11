@@ -1,6 +1,7 @@
 import { listEvents, createEvent, updateEvent, deleteEvent } from './calendar.model';
 import { getGoogleTokens } from '../../models/social_connection';
 import { googleConfig, getGoogleOauthOfUser } from '../../util/calendar-util';
+import { dummyCreateCalendarEvents2 } from '../../models/learner_breakout';
 
 const { google } = require('googleapis');
 
@@ -135,3 +136,14 @@ export const deleteOneEvent = async (req, res) => {
 //     res.send(data);
 //   });
 // };
+
+
+export const createEventForLearner = async (req, res) => {
+  const { learner_id } = req.body;
+  const data = await dummyCreateCalendarEvents2(learner_id);
+  console.log(data);
+  res.json({
+    text: 'Create Calendar events for a leaner and updating LearnerBreakout',
+    data: 'success',
+  });
+};
