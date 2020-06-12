@@ -2,58 +2,58 @@ import request from 'superagent';
 import uuid from 'uuid/v4';
 import dotenv from 'dotenv';
 import { getSoalToken } from '../../util/token';
-import { getUserFromEmails, USER_ROLES } from '../../models/user';
-import { SocialConnection, PROVIDERS } from '../../models/social_connection';
+import { getUserFromEmails, USER_ROLES, getProfile } from '../../models/user';
+import { SocialConnection, PROVIDERS, getUserIdByEmail } from '../../models/social_connection';
 import { getCohortFromLearnerId } from '../../models/cohort';
 import {
   createTeam,
   getTeamIdByName,
   sendInvitesToNewMembers,
-  isEducator
+  isEducator,
 } from '../../integrations/github/controllers';
 import { urlGoogle, getTokensFromCode } from '../../util/calendar-util';
 import { createCalendarEventsForLearner } from '../../models/learner_breakout';
 
 dotenv.config();
 
-const getGithubAccessToken = code => {
+const getGithubAccessToken = async code => {
   const params = {
     client_id: process.env.GITHUB_CLIENT_ID,
     client_secret: process.env.GITHUB_CLIENT_SECRET,
-    code
+    code,
   };
 
   return request
-    .post("https://github.com/login/oauth/access_token")
+    .post('https://github.com/login/oauth/access_token')
     .send(params)
     .then(tokenResponse => ({
       githubToken: tokenResponse.text,
-      expiry: tokenResponse.expiry // TODO: need to check if this key is correct
+      expiry: tokenResponse.expiry, // TODO: need to check if this key is correct
     }));
 };
 
 const fetchProfileFromGithub = ({ githubToken, expiry }) =>
-  // TODO: reject if expired
+// TODO: reject if expired
 
   // fetching profile details from github
   request
     .get(`https://api.github.com/user?${githubToken}`)
-    .then(profileResponse => {
+    .then(async profileResponse => {
       const profile = profileResponse.body;
       // fetching all emails from github
-      return request
-        .get(`https://api.github.com/user/emails?${githubToken}`)
-        .then(emailResponse => {
-          profile.emails = emailResponse.body.map(o => o.email);
-          return { profile, githubToken, expiry };
-        });
+      const emailResponse = await request
+        .get(`https://api.github.com/user/emails?${githubToken}`);
+      profile.emails = emailResponse.body.map(o => o.email);
+      return { profile, githubToken, expiry };
     });
 
 // fetch profile and add it to social_connections
-const addGithubProfile = ({ profile, githubToken, expiry, user }) => {
+const addGithubProfile = ({
+  profile, githubToken, expiry, user,
+}) => {
   const where = {
     user_id: user.id,
-    provider: PROVIDERS.GITHUB
+    provider: PROVIDERS.GITHUB,
   };
 
   // Insert if the provider is not connected, update if already connected
@@ -63,14 +63,14 @@ const addGithubProfile = ({ profile, githubToken, expiry, user }) => {
         profile,
         expiry,
         access_token: githubToken,
-        updated_at: new Date()
+        updated_at: new Date(),
       };
 
       const newValues = {
         id: uuid(),
         email: user.email,
         username: profile.login,
-        created_at: new Date()
+        created_at: new Date(),
       };
 
       if (socialConnection) {
@@ -79,51 +79,52 @@ const addGithubProfile = ({ profile, githubToken, expiry, user }) => {
       return SocialConnection.create({
         ...where,
         ...newValues,
-        ...updateValues
+        ...updateValues,
       });
     })
     .then(socialConnection => ({ user, socialConnection }));
 };
 
-const wrapParentTeamId = cohort =>
-  getTeamIdByName("Learners").then(parent_team_id => ({
-    parent_team_id,
-    cohort
-  }));
+const wrapParentTeamId = cohort => getTeamIdByName('Learners').then(parent_team_id => ({
+  parent_team_id,
+  cohort,
+}));
 
 const addTeamToExponentSoftware = async userProfile => {
   const isEdu = await isEducator(userProfile.socialConnection.username);
   if (isEdu) {
-    return { userProfile, teamName: "Educators" };
-  } else {
-    return getCohortFromLearnerId(userProfile.user.id)
-      .then(wrapParentTeamId)
-      .then(({ parent_team_id, cohort }) =>
-        createTeam(
-          cohort.name,
-          cohort.program_id,
-          cohort.location === "T-hub, IIIT Hyderabad"
-            ? "Hyderabad"
-            : cohort.location,
-          cohort.start_date,
-          parent_team_id
-        )
-      )
-      .then(teamName => ({ userProfile, teamName }));
+    return { userProfile, teamName: 'Educators' };
   }
+  if (userProfile.user.role === 'catalyst' || userProfile.user.role === 'reviewer') {
+    return { userProfile, teamName: userProfile.user.role, excluded: true };
+  }
+  return getCohortFromLearnerId(userProfile.user.id)
+    .then(wrapParentTeamId)
+    .then(({ parent_team_id, cohort }) => createTeam(
+      cohort.name,
+      cohort.program_id,
+      cohort.location === 'T-hub, IIIT Hyderabad'
+        ? 'Hyderabad'
+        : cohort.location,
+      cohort.start_date,
+      parent_team_id,
+    ))
+    .then(teamName => ({ userProfile, teamName }));
 };
 
-const sendOrgInvites = async ({ userProfile, teamName }) => {
+const sendOrgInvites = async ({ userProfile, teamName, isExcluded = false }) => {
   const isEdu = await isEducator(userProfile.socialConnection.username);
   if (isEdu) {
     return userProfile;
-  } else {
-    return sendInvitesToNewMembers(
-      userProfile.socialConnection.email,
-      userProfile.socialConnection.username,
-      teamName
-    ).then(() => userProfile);
   }
+  if (isExcluded) {
+    return userProfile;
+  }
+  return sendInvitesToNewMembers(
+    userProfile.socialConnection.email,
+    userProfile.socialConnection.username,
+    teamName,
+  ).then(() => userProfile);
 };
 
 // An otp authenticated route to link github
@@ -140,7 +141,7 @@ export const linkWithGithub = (req, res) => {
           profile,
           githubToken,
           expiry,
-          user
+          user,
         };
       }
       if (user.email === null) {
@@ -149,10 +150,10 @@ export const linkWithGithub = (req, res) => {
           profile,
           githubToken,
           expiry,
-          user: { ...user, email: profile.emails[0] }
+          user: { ...user, email: profile.emails[0] },
         };
       }
-      return Promise.reject("INVALID_EMAIL");
+      return Promise.reject('INVALID_EMAIL');
     })
     .then(addGithubProfile)
     .then(userProfile => {
@@ -163,22 +164,22 @@ export const linkWithGithub = (req, res) => {
         provider,
         username,
         email,
-        profile
+        profile,
       } = userProfile.socialConnection;
       res.send({
         data: {
           provider,
           username,
           email,
-          profile
-        }
+          profile,
+        },
       });
     })
     .catch(err => {
       if (err.status === 401) {
         res.status(401).send(err.response.text);
-      } else if (err === "INVALID_EMAIL") {
-        res.status(401).send("Invalid email");
+      } else if (err === 'INVALID_EMAIL') {
+        res.status(401).send('Invalid email');
       } else {
         res.sendStatus(500);
       }
@@ -198,18 +199,24 @@ export const signinWithGithub = (req, res) => {
     .then(({ profile, githubToken, expiry }) =>
       // If no user's email is not found with github emails,
       // then authentication error should be sent as resopnse
-      getUserFromEmails(profile.emails).then(user => {
-        if (user === null || user.role === USER_ROLES.GUEST) {
-          return Promise.reject("NO_EMAIL");
-        }
-        return {
-          profile,
-          githubToken,
-          expiry,
-          user
-        };
-      })
-    )
+      getUserIdByEmail(profile.emails)
+        .then(socialConnection => {
+          if (socialConnection) {
+            return getProfile(socialConnection.user_id);
+          }
+          return getUserFromEmails(profile.emails);
+        })
+        .then(user => {
+          if (user === null || user.role === USER_ROLES.GUEST) {
+            return Promise.reject('NO_EMAIL');
+          }
+          return {
+            profile,
+            githubToken,
+            expiry,
+            user,
+          };
+        }))
     .then(addGithubProfile)
     .then(addTeamToExponentSoftware)
     .then(sendOrgInvites)
@@ -218,18 +225,19 @@ export const signinWithGithub = (req, res) => {
       res.send({
         user,
         soalToken: getSoalToken(user),
-        provider: PROVIDERS.GITHUB
+        provider: PROVIDERS.GITHUB,
       });
     })
     .catch(err => {
       if (err.status === 401) {
         res.status(401).send(err.response.text);
-      } else if (err === "NO_EMAIL") {
+      } else if (err === 'NO_EMAIL') {
         // TODO: if the user is not found with emails,
         // save the profile details in session and ask for otp authentication
-        res.status(404).send("No user found with email");
+        res.status(404).send('No user found with email');
       } else {
-        res.status(500).send("Authentication Failed");
+        console.error(`Sign in failed: ${err}`);
+        res.status(500).send('Authentication Failed');
       }
     });
 };

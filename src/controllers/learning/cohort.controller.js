@@ -85,7 +85,7 @@ export const createUpdateCohortBreakout = (req, res) => {
   } = req.body;
   const { id: user_id, role } = req.jwtData.user;
   if (user_id === catalyst_id || role === USER_ROLES.SUPERADMIN) {
-    createOrUpdateCohortBreakout(topic_id, cohort_id, time_scheduled)
+    createOrUpdateCohortBreakout(topic_id, cohort_id, time_scheduled, req.jwtData.user.name)
       .then((data) => {
         res.status(201).json({
           data,
