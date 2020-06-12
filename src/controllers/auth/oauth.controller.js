@@ -32,7 +32,7 @@ const getGithubAccessToken = async code => {
 };
 
 const fetchProfileFromGithub = ({ githubToken, expiry }) =>
-// TODO: reject if expired
+  // TODO: reject if expired
 
   // fetching profile details from github
   request
@@ -316,17 +316,14 @@ export const checkGoogleOrSendRedirectUrl = async (req, res) => {
 export const handleGoogleCallback = async (req, res) => {
   const { code, error } = req.query;
   const { WEB_SERVER } = process.env;
-  console.log(code);
+  // console.log(code);
   if (code) {
     const data = await getTokensFromCode(code);
-    // console.log('Final Data displayed in the handleGoogleCallback');
-    console.log(data);
-    // console.log('individual data');
     // console.log(data.tokens.refresh_token);
     // console.log(data.profile.email);
     const user = await getUserFromEmails([data.profile.email])
       .then(user0 => user0.toJSON())
-      .catch(err => console.log(err));
+      .catch(err => console.error(err));
     if (user) {
       const { profile } = data;
       const googleToken = data.tokens.access_token;
@@ -338,7 +335,7 @@ export const handleGoogleCallback = async (req, res) => {
         expiry,
         user,
       });
-      console.log(dataSC.socialConnection);
+      // console.log(dataSC.socialConnection);
       res.redirect(WEB_SERVER);
     }
   } else {
