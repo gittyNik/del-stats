@@ -182,7 +182,7 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
     let repo = await createGithubRepositoryFromTemplate(starter_repo, msName);
     let team = teams[i];
     for (let j = 0; j < team.length; j++) {
-      console.log(repo);
+      // console.log(repo);
       msName = repo.name;
       let u = await getGithubConnecionByUserId(team[j]);
       if (!u) {
