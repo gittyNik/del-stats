@@ -226,7 +226,7 @@ export const getCurrentMilestoneOfCohortDelta = (cohort_id) => {
         getOrCreateMilestoneTeams(id),
       ])
         .then(([topics, programTopics, teams]) => {
-          console.log(`Milestone topics: ${topics.length}, Program topics: ${programTopics.length}`);
+          // console.log(`Milestone topics: ${topics.length}, Program topics: ${programTopics.length}`);
           milestone.topics = topics;
           milestone.programTopics = programTopics;
           milestone.teams = teams;
