@@ -235,6 +235,7 @@ export const signinWithGithub = (req, res) => {
         // save the profile details in session and ask for otp authentication
         res.status(404).send('No user found with email');
       } else {
+        console.error(`Sign in failed: ${err}`);
         res.status(500).send('Authentication Failed');
       }
     });
