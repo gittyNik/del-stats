@@ -59,16 +59,15 @@ export const deleteMeetingFromZoom = (video_id) => {
     .set('Authorization', `Bearer ${zoom_token}`)
     .set('User-Agent', 'Zoom-api-Jwt-Request')
     .then(data => {
-      console.log(data);
       if (data.status === 204) {
-        console.log('Meeting successfully deleted');
+        // console.log('Meeting successfully deleted');
         return true;
       }
       console.error(`failed to delete Meeting ${video_id}`);
       return false;
     })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       return false;
     });
 };
@@ -98,7 +97,7 @@ export const createScheduledMeeting = (topic, start_time, millisecs_duration, ag
     agenda,
     settings: MEETING_SETTINGS,
   };
-  console.log('trying to create meeting');
+  // console.log('trying to create meeting');
 
   return (request
     .post(`${ZOOM_BASE_URL}users/${ZOOM_USER}/meetings`) // todo: need to assign delta user to zoom user
@@ -112,7 +111,7 @@ export const createScheduledMeeting = (topic, start_time, millisecs_duration, ag
         id, status,
         start_url, join_url, h323_password,
       } = data.body;
-      console.log(`ZOOM MEETING --> id: ${id}, status: ${status}, join_url: ${join_url}`);
+      // console.log(`ZOOM MEETING --> id: ${id}, status: ${status}, join_url: ${join_url}`);
       return VideoMeeting.create({
         id: uuid(),
         video_id: id,
@@ -121,7 +120,7 @@ export const createScheduledMeeting = (topic, start_time, millisecs_duration, ag
         duration,
       })
         .then(video => {
-          console.log('meeting updated in db.');
+          // console.log('meeting updated in db.');
           // console.log(video);
           return {
             id,
@@ -140,7 +139,7 @@ export const createScheduledMeeting = (topic, start_time, millisecs_duration, ag
         });
     })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       return {
         text: 'Failed to create meeting',
       };
@@ -188,9 +187,11 @@ export const learnerAttendance = async (participant, catalyst_id,
         attendanceCount -= 1;
       }
       if (err instanceof TypeError) {
-        console.log(`${user_email} not present in social connections`);
+        console.error(`${user_email} not present in social connections`);
+        console.error(err);
       } else {
-        console.log(`${user_email} does not have learner breakout ${cohort_breakout_id}`);
+        console.error(`${user_email} does not have learner breakout ${cohort_breakout_id}`);
+        console.error(err);
       }
     }
     return attendanceCount;
@@ -205,7 +206,7 @@ export const markIndividualAttendance = async (participants, catalyst_id,
         cohort_breakout_id, attentiveness_threshold, duration_threshold);
       return attendance_count;
     } catch (err) {
-      console.log('error in finding user', err);
+      console.error('error in finding user', err);
       return 0;
     }
   }));
@@ -224,7 +225,7 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
   cohort_breakout_id, attentiveness_threshold = 70, duration_threshold = 600) => {
   const { ZOOM_BASE_URL } = process.env;
   const page_size = 100;
-  console.log('Marking attendance for Cohort Breakout id', cohort_breakout_id);
+  // console.log('Marking attendance for Cohort Breakout id', cohort_breakout_id);
 
   return (request
     .get(`${ZOOM_BASE_URL}report/meetings/${meeting_id}/participants?page_size=${page_size}`) // todo: need to assign delta user to zoom user
@@ -238,14 +239,14 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
         total_records,
         next_page_token,
       } = data.body;
-      console.log(`Fetched data for Zoom Meeting: ${meeting_id}`);
+      // console.log(`Fetched data for Zoom Meeting: ${meeting_id}`);
       return markIndividualAttendance(
         participants, catalyst_id,
         cohort_breakout_id, attentiveness_threshold, duration_threshold,
       )
         .then(attendanceCountArray => {
           const attendanceCount = attendanceCountArray.reduce(add);
-          console.log('Attendance Count.', attendanceCount);
+          // console.log('Attendance Count.', attendanceCount);
           return CohortBreakout.update({
             attendance_count: attendanceCount,
             update_at: Date.now(),
@@ -305,9 +306,7 @@ export const updateCohortMeeting = async (cohort_breakout_id, updatedTime) => {
         { returning: true, where: { id: cohort_breakout_id } },
       )
       .then(([rowsUpdated, updatedCB]) => {
-        // console.log(rowsUpdated);
-        // console.log(updatedCB[0]);
-        console.log(`Cohort breakout ${cohort_breakout_id} updated to ${updatedTime}`);
+        // console.log(`Cohort breakout ${cohort_breakout_id} updated to ${updatedTime}`);
         return updatedCB[0].toJSON();
       })
       .catch((err) => {
