@@ -54,7 +54,7 @@ export const getGoogleTokens = (user_id) => SocialConnection.findOne({
       // console.log(sc);
       return sc.profile.tokens;
     }
-    console.log('no social connection found for this user');
+    console.error(`no social connection found for user id: ${user_id}`);
     return null;
   })
   .catch(err => {
