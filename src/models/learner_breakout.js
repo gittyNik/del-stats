@@ -1,10 +1,9 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
-// import pLimit from 'p-limit';
 import async from 'async';
 import db from '../database';
 import { Cohort, getCohortFromLearnerId } from './cohort';
-import { getScheduledCohortBreakoutsByCohortId, getCalendarDetailsOfCohortBreakout, CohortBreakout } from './cohort_breakout';
+import { getScheduledCohortBreakoutsByCohortId, getCalendarDetailsOfCohortBreakout, getCohortBreakoutsByCohortId } from './cohort_breakout';
 import { createEvent } from '../integrations/calendar/calendar.model';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 
@@ -119,101 +118,6 @@ export const createLearnerBreakouts = (learner_id,
       })),
     ));
 
-export const dummyCreateCalendarEvents2 = async (learner_id) => {
-  try {
-    // console.log(learner_id);
-    const oauth2 = await getGoogleOauthOfUser(learner_id);
-    // console.log(oauth2);
-    // todo:  for respawing learners where do we update the cohort?
-    const cohort_id = await getCohortFromLearnerId(learner_id)
-      .then(cohort => cohort.get({ plain: true }))
-      .then(cohort => cohort.id);
-    // console.log(cohort_id);
-
-    const cohort_breakouts = await getScheduledCohortBreakoutsByCohortId(cohort_id);
-    // console.log(cohort_breakouts);
-    // return cohort_breakouts;
-    const event_list = await Promise.all(cohort_breakouts.map(async cohort_breakout => {
-      const event_body = await getCalendarDetailsOfCohortBreakout(cohort_breakout.id);
-      // if learner breakout exists only then update the calendar.
-      // check if learner breakout exists for that cohort_breakout.
-      const lb = await LearnerBreakout
-        .findOne({
-          where: {
-            cohort_breakout_id: cohort_breakout.id,
-            learner_id,
-          },
-        })
-        .then(_lb => _lb.get({ plain: true }))
-        .catch(err => {
-          console.error(`No learner breakout for ${cohort_breakout.id}`);
-          console.error(err);
-          return false;
-        });
-      if (lb) {
-        const calendarEvent = await createEvent(oauth2, event_body);
-        console.log(calendarEvent);
-        const learner_breakout = await LearnerBreakout.update({
-          review_feedback: calendarEvent,
-        }, {
-          where: {
-            cohort_breakout_id: cohort_breakout.id,
-            learner_id,
-          },
-          returning: true,
-          raw: true,
-        });
-        console.log(learner_breakout);
-        return {
-          learner_breakout_id: learner_breakout.id,
-          cohort_breakout_id: cohort_breakout.id,
-          event_created: calendarEvent,
-          event_updated: learner_breakout.review_feedback,
-        };
-      }
-      return {
-        learner_breakout_id: 'Learner Breakout doesnt exist',
-        cohort_breakout_id: cohort_breakout.id,
-        evet_created: 'Learner Breakout doesnt exist',
-      };
-    }));
-    console.log(`${cohort_breakouts.length} Cohort_breakouts `);
-    console.log(`${event_list.length} Learner Breakouts updated with calendar events `);
-    console.log(event_list);
-    return `${event_list.length} out of ${cohort_breakouts.length} calendar events created`;
-  } catch (err) {
-    console.error(err);
-    // return new Error('Failed to create calendar events for learner');
-    return null;
-  }
-};
-
-export const dummyCreateCalendar = async (cohort_breakouts, learner_id) => {
-  const oauth = await getGoogleOauthOfUser(learner_id);
-  const event_bodies = await Promise.all(cohort_breakouts.map(async cb => {
-    const eb = await getCalendarDetailsOfCohortBreakout(cb);
-    return eb;
-  }));
-  // console.log(event_bodies);
-  const final_data = [];
-  return async.eachSeries(event_bodies, (item, callback) => {
-    createEvent(oauth, item)
-      .then(event => {
-        final_data.push(event);
-        callback();
-      })
-      .catch(err => {
-        callback(err);
-      });
-  })
-    .then(() => {
-      console.log(final_data);
-      return final_data;
-    })
-    .catch(err => {
-      console.error(err);
-    });
-};
 
 export const getPayloadForCalendar = async (learnerId) => {
   try {
@@ -296,21 +200,6 @@ export const createCalendarEventsForLearner = async (learnerId) => {
             console.error(err);
             callback(err);
           }))
-        // .then(_item => LearnerBreakout
-        //   .update({
-        //     review_feedback: _item.eventDetails,
-        //   }, {
-        //     where: {
-        //       cohort_breakout_id: _item.cohortBreakout.id,
-        //       learner_id: _item.learnerBreakout.id,
-        //     },
-        //   })
-        //   .then(() => {
-        //     callback();
-        //   })
-        //   .catch(err => {
-        //     callback(err);
-        //   }))
         .catch(err => {
           callback(err);
         });
@@ -326,33 +215,6 @@ export const createCalendarEventsForLearner = async (learnerId) => {
       console.error(err);
       return false;
     });
-};
-
-export const createCalendar = async (oauth, item) => {
-  let googleEvent = await createEvent(oauth, item.eventBody);
-  item.eventDetails = googleEvent;
-  let createdEvent = await LearnerBreakout.update({
-    review_feeback: item.eventDetails,
-  }, {
-    where: {
-      cohort_breakout_id: item.learnerBreakout.id,
-      learner_id: item.learnerBreakout.id,
-    },
-  });
-  return createdEvent;
-};
-
-export const dummyCreateCalendarEvents3 = async (learnerId) => {
-  const payload = await getPayloadForCalendar(learnerId);
-  const oauth = await getGoogleOauthOfUser(learnerId);
-  const limit = pLimit(4);
-  const googleCalendarEvents = await Promise.all(payload.map(async item => {
-    if (item.learnerBreakout) {
-      limit(() => createCalendar(oauth, item));
-    }
-    return [];
-  }));
-  return googleCalendarEvents;
 };
 
 export default LearnerBreakout;

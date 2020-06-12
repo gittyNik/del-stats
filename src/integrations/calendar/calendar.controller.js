@@ -1,7 +1,7 @@
 import { listEvents, createEvent, updateEvent, deleteEvent } from './calendar.model';
 import { getGoogleTokens } from '../../models/social_connection';
 import { googleConfig, getGoogleOauthOfUser } from '../../util/calendar-util';
-import { dummyCreateCalendarEvents2 } from '../../models/learner_breakout';
+import { createCalendarEventsForLearner } from '../../models/learner_breakout';
 
 const { google } = require('googleapis');
 
@@ -115,32 +115,10 @@ export const deleteOneEvent = async (req, res) => {
       res.send(500);
     });
 };
-// export const scheduleCalendarEventForLearner = (req, res) => {
-//   // get oauth2 client
-//   const oauth2Client = new google.auth.OAuth2();
-//   const user_id = req.body.user_id;
-//   oauth2Client.setCredentials({
-//     access_token: req.session.user.accessToken
-//   });
-
-//   // create calendar events by passing oauth2 client
-//   scheduleLearnerBreakoutEvents(oauth2Client, user_id, (events) => {
-
-//     const data = {
-//       name: req.session.user.name,
-//       displayPicture: req.session.user.displayPicture,
-//       id: req.session.user.id,
-//       email: req.session.user.email,
-//       events: events
-//     }
-//     res.send(data);
-//   });
-// };
-
 
 export const createEventForLearner = async (req, res) => {
   const { learner_id } = req.body;
-  const data = await dummyCreateCalendarEvents2(learner_id);
+  const data = await createCalendarEventsForLearner(learner_id);
   console.log(data);
   res.json({
     text: 'Create Calendar events for a leaner and updating LearnerBreakout',
