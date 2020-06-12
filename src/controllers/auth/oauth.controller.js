@@ -199,7 +199,12 @@ export const signinWithGithub = (req, res) => {
       // If no user's email is not found with github emails,
       // then authentication error should be sent as resopnse
       getUserIdByEmail(profile.emails)
-        .then(socialConnection => getProfile(socialConnection.user_id))
+        .then(socialConnection => {
+          if (socialConnection) {
+            return getProfile(socialConnection.user_id);
+          }
+          return getUserFromEmails(profile.emails);
+        })
         .then(user => {
           if (user === null || user.role === USER_ROLES.GUEST) {
             return Promise.reject('NO_EMAIL');
@@ -230,6 +235,7 @@ export const signinWithGithub = (req, res) => {
         // save the profile details in session and ask for otp authentication
         res.status(404).send('No user found with email');
       } else {
+        console.error(`Sign in failed: ${err}`);
         res.status(500).send('Authentication Failed');
       }
     });
