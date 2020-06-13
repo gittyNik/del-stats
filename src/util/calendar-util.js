@@ -1,5 +1,5 @@
 import { google } from 'googleapis';
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
 import { getGoogleTokens } from '../models/social_connection';
 
 
