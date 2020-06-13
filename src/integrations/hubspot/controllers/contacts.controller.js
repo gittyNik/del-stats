@@ -2,7 +2,7 @@ import hubspot from "./auth.controller";
 import moment from "moment";
 
 const getPropertyName = name => {
-  switch(name) {
+  switch (name) {
     case "firstName":
       return "firstname";
     case "lastName":
@@ -50,12 +50,12 @@ const getPropertyName = name => {
 
 const createProperties = data => {
   let properties = [];
-  for(let key in data) {
-    if(data[key] !== undefined) {
-      if(key === "birthDate") {
+  for (let key in data) {
+    if (data[key] !== undefined) {
+      if (key === "birthDate") {
         properties.push({
           property: getPropertyName(key),
-          value: moment.utc(data[key]).set({hour: 0, minute: 0, second: 0, millisecond: 0}).valueOf() 
+          value: moment.utc(data[key]).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).valueOf()
         })
       } else {
         properties.push({
@@ -84,7 +84,7 @@ export const getContact = (req, res) => {
       data: contact
     });
   }).catch(err => {
-    console.log(err);
+    console.error(err);
     res.sendStatus(500)
   })
 }
