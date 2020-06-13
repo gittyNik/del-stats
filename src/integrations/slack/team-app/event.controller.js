@@ -12,7 +12,7 @@ slackEvents.on('app_home_opened', (event) => {
 });
 
 slackEvents.on('error', (error) => {
-  console.log(error);
+  console.error(error);
 });
 
 export default slackEvents.expressMiddleware();

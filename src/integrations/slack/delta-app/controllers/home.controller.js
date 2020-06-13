@@ -11,7 +11,7 @@ const web = new WebClient(SLACK_DELTA_BOT_TOKEN);
 export const publishHome = user_id => getLiveCohorts()
   .then(composeHome)
   .then(view => {
-    console.log(JSON.stringify(view));
+    // console.log(JSON.stringify(view));
     web.views.publish({
       view,
       user_id,
@@ -24,7 +24,7 @@ export const publishWelcome = user_id => {
 
 // scopes: channels:manage
 export const createChannel = async (channel_name, user_ids) => {
-  console.log('channel Created. ', channel_name);
+  // console.log('channel Created. ', channel_name);
   let response = await request
     .post('https://slack.com/api/conversations.create')
     .set('content-type', 'application/json')
@@ -83,7 +83,7 @@ export const inviteToSlackSPE = async (emailList) => {
       console.error(response.body);
       return `${email}: Failed`;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return `Failed to send invite to ${email}`;
     }
   }));
