@@ -31,9 +31,8 @@ const getGithubAccessToken = async code => {
     }));
 };
 
+// TODO: reject if expired
 const fetchProfileFromGithub = ({ githubToken, expiry }) =>
-  // TODO: reject if expired
-
   // fetching profile details from github
   request
     .get(`https://api.github.com/user?${githubToken}`)

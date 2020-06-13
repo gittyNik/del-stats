@@ -13,17 +13,17 @@ export const getOne = (req, res) => {
 };
 
 export const create = (req, res) => {
-  console.log('In create Prompt');
+  // console.log('In create Prompt');
   const {
     name, duration, pings, type,
   } = req.body;
-  console.log(req);
+  // console.log(req);
   SocialConnection.create({
     name, duration, pings, type,
   })
     .then(data => res.status(201).json({ data }))
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.status(500).send(err);
     });
 };
