@@ -106,7 +106,7 @@ export const deleteOneEvent = async (req, res) => {
   const oauth2Client = await getGoogleOauthOfUser(userId);
   deleteEvent(oauth2Client, eventId)
     .then(event_data => {
-      console.log(event_data);
+      // console.log(event_data);
       res.send(event_data);
     })
     .catch(err => {
