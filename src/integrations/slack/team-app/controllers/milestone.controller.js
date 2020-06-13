@@ -20,7 +20,7 @@ export const showMilestoneDetails = (cohort_id, trigger_id) => {
         view,
         trigger_id,
       });
-    }).catch(err => console.log(err));
+    }).catch(err => console.error(err));
 };
 
 export const markMilestoneAsReviewed = (payload, respond) => {
@@ -28,7 +28,7 @@ export const markMilestoneAsReviewed = (payload, respond) => {
 
   markMilestoneReview(cohort_milestone_id)
     .then(({ milestoneId, cohortId }) => {
-      console.log('milestone review saved!', milestoneId);
+      // console.log('milestone review saved!', milestoneId);
       // respond({ text: 'Milestone review saved' });
       return Promise.all([
         Milestone.findByPk(milestoneId),
@@ -39,7 +39,7 @@ export const markMilestoneAsReviewed = (payload, respond) => {
           web.chat.postMessage(view);
         })
         .catch(err => {
-          console.log(err);
+          console.error(err);
           // respond({ text: 'Failed to save review' });
         });
     });
