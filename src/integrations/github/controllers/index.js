@@ -264,16 +264,16 @@ const commitsDayWise = (date, commits) => {
     let commit = commits[0];
     if (
       isoToDateString(commit.commit.committer.date)
-			!== dayWiseCommits[index].day
+      !== dayWiseCommits[index].day
     ) {
       index++;
     }
     dayWiseCommits[index] = {
       day: isoToDateString(commit.commit.committer.date),
       commits:
-				dayWiseCommits[index] === undefined
-				  ? 1
-				  : dayWiseCommits[index].commits + 1,
+        dayWiseCommits[index] === undefined
+          ? 1
+          : dayWiseCommits[index].commits + 1,
     };
     commits.pop();
   }
@@ -450,7 +450,7 @@ const allStats = async (req, res) => {
       });
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).send(err);
   }
 };
