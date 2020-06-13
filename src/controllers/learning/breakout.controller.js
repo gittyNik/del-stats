@@ -75,8 +75,8 @@ export const getLiveCohortsBreakouts = (req, res) => {
           model: User,
           as: 'catalyst',
         },
-        Cohort,
-        BreakoutTemplate,
+          Cohort,
+          BreakoutTemplate,
         {
           model: Topic,
           attributes: [],
@@ -118,8 +118,8 @@ export const createBreakout = (req, res) => {
       createScheduledMeeting(topic_id, time, duration),
     ])
       .then(([sandbox, videoMeeting]) => {
-        console.log('Sandbox Created');
-        console.log('VideoMeeting Created');
+        // console.log('Sandbox Created');
+        // console.log('VideoMeeting Created');
         let details = {
           sandbox_id: sandbox.data.sandbox_id,
           videoMeeting_id: videoMeeting,
@@ -141,7 +141,7 @@ export const createBreakout = (req, res) => {
           });
       })
       .catch(err => {
-        console.log('Failed to create Code Sanbdbox and Videomeeting', err);
+        console.error('Failed to create Code Sanbdbox and Videomeeting', err);
         res.status(500);
       });
   } else if (isCodeSandbox) {
@@ -159,7 +159,7 @@ export const createBreakout = (req, res) => {
           catalyst_notes, attendance_count, domain, catalyst_feedback,
         )
           .then(data => {
-            console.log('Breakout created with code sandbox only', data);
+            // console.log('Breakout created with code sandbox only', data);
             res.send('Breakout Created with codesandbox only.');
           })
           .catch(err => {
@@ -168,7 +168,7 @@ export const createBreakout = (req, res) => {
           });
       })
       .catch(err => {
-        console.log('Failed to create codesandbox', err);
+        console.error('Failed to create codesandbox', err);
         res.send(500);
       });
   } else if (isVideoMeeting) {
@@ -193,11 +193,11 @@ export const createBreakout = (req, res) => {
       })
       .catch(err => {
         // todo: Remove the scheduled meeting from zoom  and deltaDB - delete.
-        console.log(err);
+        console.error(err);
         res.send(500);
       });
   } else {
-    console.log(' No Codesandbox and Videomeeting');
+    console.error(' No Codesandbox and Videomeeting');
     res.send('Breakout created without the code-sandbox and video-meeting');
   }
 };
@@ -283,7 +283,7 @@ export const getBreakoutsForCohortMilestone = async (req, res) => {
   const { cohort_id, milestone_id } = req.params;
 
   let breakouts = await getAllBreakoutsInCohortMilestone(cohort_id, milestone_id);
-  console.log('RESPONSE: ', breakouts);
+  // console.log('RESPONSE: ', breakouts);
   breakouts = breakouts.filter(breakout => breakout != null);
   res.json({
     text: 'List of all breakouts in a cohort milestone',
@@ -298,8 +298,8 @@ export const createBreakoutsOfType = (req, res) => {
   } = req.body;
   createTypeBreakoutsInMilestone(cohort_id, cohort_program_id,
     cohort_duration, type, code_sandbox, video_meet).then((data) => {
-    res.status(201).json({ data });
-  })
+      res.status(201).json({ data });
+    })
     .catch(err => res.status(500).send({ err }));
 };
 
@@ -320,8 +320,8 @@ export const createSingleBreakout = (req, res) => {
   const { id: cohort_id } = req.params;
   createSingleBreakoutAndLearnerBreakout(cohort_id, topic_id,
     breakout_duration, time_scheduled, agenda).then((data) => {
-    res.status(201).json({ data });
-  })
+      res.status(201).json({ data });
+    })
     .catch(err => res.status(500).send({ err }));
 };
 
@@ -366,7 +366,7 @@ export const updateMilestoneByDays = async (cohortId, updateByDays) => {
     attributes: ['id', 'release_time', 'review_scheduled'],
     raw: true,
   }).then(cohortMilestones => {
-    console.log('Updating Milestone timings');
+    // console.log('Updating Milestone timings');
     Promise.all(cohortMilestones.map(cohortMilestone => {
       // Calculating Milestone start and end time
       let updatedReleaseTime = calculateAfterDays(cohortMilestone.release_time, updateByDays);
