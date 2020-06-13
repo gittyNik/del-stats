@@ -109,7 +109,7 @@ export const getCohortMilestoneTeams = cohort_id => CohortMilestone.findAll({
   include: [{
     model: Team,
     foreignKey: 'cohort_milestone_id',
-    attributes: ['learners', 'github_repo_link'],
+    attributes: ['learners', 'github_repo_link', 'id'],
   }],
 });
 

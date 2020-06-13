@@ -15,6 +15,9 @@ export const getAccessTokenPerUser = (socialConnection) => {
   }
 };
 
+// TODO: Replace with Octokit getContributorsStats
+// https://octokit.github.io/rest.js/v18#repos-get-contributors-stats
+
 export const contributersInRepository = async (repo, socialConnection) => {
   let access_token = getAccessTokenPerUser(
     socialConnection,

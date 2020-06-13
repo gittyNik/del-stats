@@ -129,6 +129,7 @@ export const getChallengesByUserId = (learner_id) => LearnerChallenge.findAll(
   { raw: true },
 );
 
+
 export const deleteLearnerChallengesByLearnerId = (learner_id) => LearnerChallenge.destroy({
   where: {
     learner_id,

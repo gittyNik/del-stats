@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 import db from '../database';
+import { User } from './user';
 
 export const PROVIDERS = Object.freeze({
   GITHUB: 'github',
@@ -82,6 +83,17 @@ export const getGithubConnecionByUserId = (user_id) => SocialConnection.findOne(
     user_id,
     provider: PROVIDERS.GITHUB,
   },
+});
+
+export const getGithubByUserId = (user_id) => SocialConnection.findOne({
+  where: {
+    user_id,
+    provider: PROVIDERS.GITHUB,
+  },
+  include: [{
+    model: User,
+    attributes: ['name'],
+  }],
 });
 
 // zoom <-> user details

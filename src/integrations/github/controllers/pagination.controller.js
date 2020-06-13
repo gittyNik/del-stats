@@ -26,10 +26,14 @@ const relInLinks = link => {
   ).page;
 };
 
-export const getNumberOfPages = async (of, team = null, socialConnection) => {
+// TODO: Incorrect use of pagination
+// Replace with https://octokit.github.io/rest.js/v18#pagination
+export const getNumberOfPages = async (of, team = null, socialConnection,
+  since = '2020-01-01T00:00:00Z',
+) => {
   let access_token = getAccessTokenPerUser(socialConnection);
   let newOctokit = new Octokit({
-    auth: 'b3c868e1e4ee765672e31fafba73774646d86dd0',
+    auth: access_token,
   });
 
   if (of === 'repoCollaborators') {
@@ -51,8 +55,9 @@ export const getNumberOfPages = async (of, team = null, socialConnection) => {
         owner: org,
         repo: team.repository_name,
         author: team.author,
-        per_page: 100,
+        per_page: 1,
         page: 1,
+        since,
       })
       .then(data => ({
         pages: 'link' in data.headers

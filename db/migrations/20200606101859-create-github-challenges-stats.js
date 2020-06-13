@@ -5,13 +5,13 @@ export function up(queryInterface, Sequelize) {
       allowNull: false,
       primaryKey: true,
       type: Sequelize.UUID,
+      default: Sequelize.UUIDV4,
     },
     learner_challenge_id: {
       type: Sequelize.UUID,
       references: { model: 'learner_challenges' },
     },
-    git_username: Sequelize.STRING,
-    repository_name: Sequelize.STRING,
+    number_of_lines: Sequelize.INTEGER,
     repository_commits: Sequelize.ARRAY(Sequelize.JSON),
     created_at: {
       type: Sequelize.DATE,
@@ -19,6 +19,9 @@ export function up(queryInterface, Sequelize) {
     updated_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.literal('NOW()'),
+    },
+    last_committed_at: {
+      type: Sequelize.DATE,
     },
   });
 }

@@ -56,7 +56,7 @@ export const getAllCommitsPageWise = async (
 ) => {
   let access_token = getAccessTokenPerUser(socialConnection);
   let newOctokit = new Octokit({
-    auth: 'b3c868e1e4ee765672e31fafba73774646d86dd0',
+    auth: access_token,
   });
 
   return newOctokit.repos
@@ -88,9 +88,12 @@ export const getAllAuthoredCommitsPageWise = async (
   author,
   per_page = 100,
   page = 1,
+  socialConnection,
+  since = '2020-01-01T00:00:00Z',
 ) => {
+  let access_token = getAccessTokenPerUser(socialConnection);
   let newOctokit = new Octokit({
-    auth: 'b3c868e1e4ee765672e31fafba73774646d86dd0',
+    auth: access_token,
   });
 
   return newOctokit.repos
@@ -100,19 +103,21 @@ export const getAllAuthoredCommitsPageWise = async (
       author,
       per_page,
       page,
+      since,
     })
     .then(data => data.data);
 };
 
+// Need to change since, default value start of Delta
 export const getAllAuthoredCommits = async (repository_name, author,
-  socialConnection) => getNumberOfPages(
+  socialConnection, since) => getNumberOfPages(
   'authoredCommits', { repository_name, author }, socialConnection,
 ).then(
   async ({ pages }) => {
     let commits = [];
     let mems = await Promise.all([...Array(pages)].map(page => getAllAuthoredCommitsPageWise(
       repository_name, author, 100,
-      page, socialConnection,
+      page, socialConnection, since,
     )));
     mems.map(mem => commits.push(mem));
     return commits;

@@ -5,6 +5,7 @@ export function up(queryInterface, Sequelize) {
       allowNull: false,
       primaryKey: true,
       type: Sequelize.UUID,
+      default: Sequelize.UUIDV4,
     },
     user_id: {
       type: Sequelize.UUID,
@@ -14,9 +15,11 @@ export function up(queryInterface, Sequelize) {
       type: Sequelize.UUID,
       references: { model: 'milestone_learner_teams' },
     },
-    git_username: Sequelize.STRING,
-    repository_name: Sequelize.STRING,
+    cohort_milestone_id: {
+      type: Sequelize.UUID,
+    },
     number_of_lines: Sequelize.INTEGER,
+    commits: Sequelize.INTEGER,
     repository_commits: Sequelize.ARRAY(Sequelize.JSON),
     created_at: {
       type: Sequelize.DATE,
@@ -24,6 +27,9 @@ export function up(queryInterface, Sequelize) {
     updated_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.literal('NOW()'),
+    },
+    last_committed_at: {
+      type: Sequelize.DATE,
     },
   });
 }
