@@ -33,7 +33,7 @@ const getGithubAccessToken = async code => {
 };
 
 const fetchProfileFromGithub = ({ githubToken, expiry }) =>
-// TODO: reject if expired
+  // TODO: reject if expired
 
   // fetching profile details from github
   request
@@ -196,27 +196,26 @@ export const signinWithGithub = (req, res) => {
 
   getGithubAccessToken(code)
     .then(fetchProfileFromGithub)
-    .then(({ profile, githubToken, expiry }) =>
-      // If no user's email is not found with github emails,
-      // then authentication error should be sent as resopnse
-      getUserIdByEmail(profile.emails)
-        .then(socialConnection => {
-          if (socialConnection) {
-            return getProfile(socialConnection.user_id);
-          }
-          return getUserFromEmails(profile.emails);
-        })
-        .then(user => {
-          if (user === null || user.role === USER_ROLES.GUEST) {
-            return Promise.reject('NO_EMAIL');
-          }
-          return {
-            profile,
-            githubToken,
-            expiry,
-            user,
-          };
-        }))
+    // If no user's email is not found with github emails,
+    // then authentication error should be sent as resopnse
+    .then(({ profile, githubToken, expiry }) => getUserIdByEmail(profile.emails)
+      .then(socialConnection => {
+        if (socialConnection) {
+          return getProfile(socialConnection.user_id);
+        }
+        return getUserFromEmails(profile.emails);
+      })
+      .then(user => {
+        if (user === null || user.role === USER_ROLES.GUEST) {
+          return Promise.reject('NO_EMAIL');
+        }
+        return {
+          profile,
+          githubToken,
+          expiry,
+          user,
+        };
+      }))
     .then(addGithubProfile)
     .then(addTeamToExponentSoftware)
     .then(sendOrgInvites)
@@ -323,6 +322,7 @@ export const handleGoogleCallback = async (req, res) => {
         .then(user0 => user0.toJSON())
         .catch(err => {
           console.error(err);
+          res.status(401);
           res.json({
             error: 'Unable to find the user with the given email',
           });
@@ -356,6 +356,7 @@ export const handleGoogleCallback = async (req, res) => {
           }
         } catch (err) {
           console.error(err);
+          res.status(403);
           res.json({
             error: 'Failed to authenticate Google',
           });
@@ -363,6 +364,7 @@ export const handleGoogleCallback = async (req, res) => {
       }
     } else {
       console.error(error);
+      res.status(403);
       res.json({
         error: 'Failed to authenticate Google',
       });
@@ -370,6 +372,7 @@ export const handleGoogleCallback = async (req, res) => {
   } catch (err) {
     console.error('CHECK REDIRECT_URLS');
     console.error(err);
+    res.status(403);
     res.json({
       error: 'Failed to authenticate Google',
     });

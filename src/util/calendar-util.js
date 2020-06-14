@@ -36,7 +36,7 @@ export const rfc3339 = (d) => {
 export const googleConfig = {
   clientId: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  redirect: process.env.REDIRECT_URL,
+  redirect: process.env.GOOGLE_REDIRECT_URL,
 };
 
 // scopes use for the application
