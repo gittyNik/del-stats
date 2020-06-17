@@ -12,6 +12,7 @@ import {
   isEducator,
 } from '../../integrations/github/controllers';
 import { urlGoogle, getTokensFromCode } from '../../util/calendar-util';
+import { createCalendarEventsForLearner } from '../../models/learner_breakout';
 
 dotenv.config();
 
@@ -32,7 +33,7 @@ const getGithubAccessToken = async code => {
 };
 
 const fetchProfileFromGithub = ({ githubToken, expiry }) =>
-// TODO: reject if expired
+  // TODO: reject if expired
 
   // fetching profile details from github
   request
@@ -195,27 +196,26 @@ export const signinWithGithub = (req, res) => {
 
   getGithubAccessToken(code)
     .then(fetchProfileFromGithub)
-    .then(({ profile, githubToken, expiry }) =>
-      // If no user's email is not found with github emails,
-      // then authentication error should be sent as resopnse
-      getUserIdByEmail(profile.emails)
-        .then(socialConnection => {
-          if (socialConnection) {
-            return getProfile(socialConnection.user_id);
-          }
-          return getUserFromEmails(profile.emails);
-        })
-        .then(user => {
-          if (user === null || user.role === USER_ROLES.GUEST) {
-            return Promise.reject('NO_EMAIL');
-          }
-          return {
-            profile,
-            githubToken,
-            expiry,
-            user,
-          };
-        }))
+    // If no user's email is not found with github emails,
+    // then authentication error should be sent as resopnse
+    .then(({ profile, githubToken, expiry }) => getUserIdByEmail(profile.emails)
+      .then(socialConnection => {
+        if (socialConnection) {
+          return getProfile(socialConnection.user_id);
+        }
+        return getUserFromEmails(profile.emails);
+      })
+      .then(user => {
+        if (user === null || user.role === USER_ROLES.GUEST) {
+          return Promise.reject('NO_EMAIL');
+        }
+        return {
+          profile,
+          githubToken,
+          expiry,
+          user,
+        };
+      }))
     .then(addGithubProfile)
     .then(addTeamToExponentSoftware)
     .then(sendOrgInvites)
@@ -315,34 +315,66 @@ export const checkGoogleOrSendRedirectUrl = async (req, res) => {
 
 export const handleGoogleCallback = async (req, res) => {
   const { code, error } = req.query;
-  const { WEB_SERVER } = process.env;
-  console.log(code);
-  if (code) {
-    const data = await getTokensFromCode(code);
-    // console.log('Final Data displayed in the handleGoogleCallback');
-    console.log(data);
-    // console.log('individual data');
-    // console.log(data.tokens.refresh_token);
-    // console.log(data.profile.email);
-    const user = await getUserFromEmails([data.profile.email])
-      .then(user0 => user0.toJSON())
-      .catch(err => console.log(err));
-    if (user) {
-      const { profile } = data;
-      const googleToken = data.tokens.access_token;
-      const expiry = data.expiry_date;
-      profile.tokens = data.tokens;
-      const dataSC = await addGoogleProfile({
-        profile,
-        googleToken,
-        expiry,
-        user,
+  try {
+    if (code) {
+      const data = await getTokensFromCode(code);
+      const user = await getUserFromEmails([data.profile.email])
+        .then(user0 => user0.toJSON())
+        .catch(err => {
+          console.error(err);
+          res.status(401);
+          res.json({
+            error: 'Unable to find the user with the given email',
+          });
+        });
+      if (user) {
+        const { profile } = data;
+        const googleToken = data.tokens.access_token;
+        const expiry = data.expiry_date;
+        profile.tokens = data.tokens;
+        try {
+          const dataSC = await addGoogleProfile({
+            profile,
+            googleToken,
+            expiry,
+            user,
+          });
+          console.log(dataSC.user);
+          // Create calendar events if user is learner
+          if (user.role === USER_ROLES.LEARNER) {
+            const calendarStats = await createCalendarEventsForLearner(user.id);
+            console.log(calendarStats);
+            res.json({
+              text: 'Breakout are successfully added to Google Calendar',
+              data: dataSC.user,
+            });
+          } else {
+            res.json({
+              text: 'Google authentication successfull',
+              data: dataSC.user,
+            });
+          }
+        } catch (err) {
+          console.error(err);
+          res.status(403);
+          res.json({
+            error: 'Failed to authenticate Google',
+          });
+        }
+      }
+    } else {
+      console.error(error);
+      res.status(403);
+      res.json({
+        error: 'Failed to authenticate Google',
       });
-      console.log(dataSC.socialConnection);
-      res.redirect(WEB_SERVER);
     }
-  } else {
-    console.error(error);
-    res.redirect(WEB_SERVER);
+  } catch (err) {
+    console.error('CHECK REDIRECT_URLS');
+    console.error(err);
+    res.status(403);
+    res.json({
+      error: 'Failed to authenticate Google',
+    });
   }
 };
