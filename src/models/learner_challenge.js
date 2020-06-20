@@ -134,9 +134,3 @@ export const deleteLearnerChallengesByLearnerId = (learner_id) => LearnerChallen
     learner_id,
   },
 });
-
-export const getLearnerChallengeCountByChallengeId = challenge_id => LearnerChallenge.count({
-  where :{
-    challenge_id,
-  }
-})
