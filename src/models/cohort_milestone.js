@@ -19,6 +19,7 @@ import {
 } from '../integrations/github/controllers';
 import { getGithubConnecionByUserId } from './social_connection';
 import { getResourceByTopic } from './resource';
+import { getLearnerChallengeCountByChallengeId } from './learner_challenge';
 
 
 export const CohortMilestone = db.define('cohort_milestones', {
@@ -134,7 +135,10 @@ export const findTopicsForCohortAndMilestone = (cohort_id, milestone_id = null) 
   ],
 }).then(async topics => {
   for (let i = 0; i < topics.length; i++) {
-    topics[i].challenges = await getChallengesByTopicId(topics[i].id);
+    topics[i].challenges = await getChallengesByTopicId(topics[i].id)
+    for (let j = 0; j < topics[i].challenges.length; j++) {
+      topics[i].challenges[j].dataValues.attemptedCount = await getLearnerChallengeCountByChallengeId(topics[i].challenges[j].id)
+    }
     topics[i].resources = await getResourceByTopic(topics[i].id);
   }
   return topics;
