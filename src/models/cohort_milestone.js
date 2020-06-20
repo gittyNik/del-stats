@@ -9,6 +9,7 @@ import { Milestone } from './milestone';
 import { Topic } from './topic';
 import { Team, createMilestoneTeams } from './team';
 import { User } from './user';
+import { LearnerChallenge } from './learner_challenge';
 import { getChallengesByTopicId } from './challenge';
 import { getRecentCommitByUser } from '../integrations/github/controllers/commits.controller';
 import {
@@ -19,7 +20,6 @@ import {
 } from '../integrations/github/controllers';
 import { getGithubConnecionByUserId } from './social_connection';
 import { getResourceByTopic } from './resource';
-import { getLearnerChallengeCountByChallengeId } from './learner_challenge';
 
 
 export const CohortMilestone = db.define('cohort_milestones', {
@@ -136,9 +136,16 @@ export const findTopicsForCohortAndMilestone = (cohort_id, milestone_id = null) 
 }).then(async topics => {
   for (let i = 0; i < topics.length; i++) {
     topics[i].challenges = await getChallengesByTopicId(topics[i].id)
-    for (let j = 0; j < topics[i].challenges.length; j++) {
-      topics[i].challenges[j].dataValues.attemptedCount = await getLearnerChallengeCountByChallengeId(topics[i].challenges[j].id)
-    }
+    Promise.all(topics[i].challenges.map((challenge, index) =>
+      LearnerChallenge.count({
+        where: {
+          challenge_id: challenge,
+        },
+        raw: true
+      }, ).then(count => {
+        topics[i].challenges[index].dataValues.attemptedCount = count;
+      })
+    ))
     topics[i].resources = await getResourceByTopic(topics[i].id);
   }
   return topics;
