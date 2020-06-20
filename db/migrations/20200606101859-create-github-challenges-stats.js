@@ -1,6 +1,6 @@
 
-export function up(queryInterface, Sequelize) {
-  return queryInterface.createTable('learner_github_challenges', {
+const migration = {
+  up: (queryInterface, Sequelize) => queryInterface.createTable('learner_github_challenges', {
     id: {
       allowNull: false,
       primaryKey: true,
@@ -11,7 +11,11 @@ export function up(queryInterface, Sequelize) {
       type: Sequelize.UUID,
       references: { model: 'learner_challenges' },
     },
+    cohort_milestone_id: {
+      type: Sequelize.UUID,
+    },
     number_of_lines: Sequelize.INTEGER,
+    commits: Sequelize.INTEGER,
     repository_commits: Sequelize.ARRAY(Sequelize.JSON),
     created_at: {
       type: Sequelize.DATE,
@@ -23,8 +27,8 @@ export function up(queryInterface, Sequelize) {
     last_committed_at: {
       type: Sequelize.DATE,
     },
-  });
-}
-export function down(queryInterface) {
-  return queryInterface.dropTable('learner_challenges_github_data');
-}
+  }),
+  down: queryInterface => queryInterface.dropTable('learner_github_challenges'),
+};
+
+export default migration;

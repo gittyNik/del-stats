@@ -6,8 +6,9 @@ import { User } from './user';
 import { Team } from './team';
 import { Cohort } from './cohort';
 import { SocialConnection, PROVIDERS } from './social_connection';
+import LearnerGithubChallenge from './learner_github_challenges';
 
-const { gte } = Sequelize.Op;
+const { gte, gt } = Sequelize.Op;
 
 export const LearnerGithubMilestones = db.define('learner_github_milestones', {
   id: {
@@ -35,7 +36,6 @@ export const LearnerGithubMilestones = db.define('learner_github_milestones', {
   },
 });
 
-LearnerGithubMilestones.belongsTo(User, { foreignKey: 'user_id' });
 
 export const getAllLearnerGithubDataMilestone = (
   after_date = '2020-06-10 00:00:00+00',
@@ -49,6 +49,7 @@ export const getAllLearnerGithubDataMilestone = (
   include: [
     {
       model: User,
+      foreignKey: 'user_id',
       include: [
         {
           model: SocialConnection,
@@ -61,22 +62,38 @@ export const getAllLearnerGithubDataMilestone = (
     }, Team],
 });
 
-export const getAllCohortGithubMilestoneData = cohort_id => LearnerGithubMilestones.findAll(
+export const getAllCohortGithubMilestoneData = user_id => LearnerGithubMilestones.findAll(
   {
+    where: {
+      user_id,
+    },
     include: [
       {
         model: User,
-        include: [
-          {
-            model: Cohort,
-            attributes: [],
-            through: { where: { id: cohort_id } },
-          }],
+        foreignKey: 'user_id',
         attributes: ['name'],
       },
     ],
+    raw: true,
   },
 );
+
+// export const getAllCohortGithubMilestoneData = cohort_id => LearnerGithubMilestones.findAll(
+//   {
+//     include: [
+//       {
+//         model: User,
+//         include: [
+//           {
+//             model: Cohort,
+//             attributes: [],
+//             through: { where: { id: cohort_id } },
+//           }],
+//         attributes: ['name'],
+//       },
+//     ],
+//   },
+// );
 
 export const getLastUpdatedMilestoneCommit = (user_id,
   cohort_milestone_id) => LearnerGithubMilestones.findOne({
@@ -88,28 +105,61 @@ export const getLastUpdatedMilestoneCommit = (user_id,
   order: [
     ['last_committed_at', 'DESC'],
   ],
+  raw: true,
 });
 
-export const getTotalLearnerCommitsForCohort = cohort_id => LearnerGithubMilestones.findAll({
+export const getLastUpdatedMilestoneCommitInCohort = (
+  cohort_milestone_id,
+) => LearnerGithubMilestones.findOne({
+  where: {
+    cohort_milestone_id,
+    commits: { [gt]: 0 },
+  },
+  order: [
+    ['last_committed_at', 'DESC'],
+  ],
+  raw: true,
+});
+
+// export const getTotalLearnerCommitsForCohort = cohort_id => LearnerGithubMilestones.findAll({
+//   attributes: [
+//     'user_id',
+//     [Sequelize.fn('sum', Sequelize.col('commits')), 'noOfCommits'],
+//     [Sequelize.fn('sum', Sequelize.col('number_of_lines')), 'noOfLines']],
+//   group: ['user_id'],
+//   include: [
+//     {
+//       model: User,
+//       include: [
+//         {
+//           model: Cohort,
+//           attributes: [],
+//           through: { where: { id: cohort_id } },
+//         }],
+//       attributes: ['name'],
+//     },
+//   ],
+//   raw: true,
+//   order: Sequelize.literal('total DESC'),
+// });
+
+export const getTotalLearnerCommitsForCohort = user_id => LearnerGithubMilestones.findAll({
   attributes: [
     'user_id',
-    [Sequelize.fn('sum', Sequelize.col('commits')), 'noOfCommits'],
-    [Sequelize.fn('sum', Sequelize.col('number_of_lines')), 'noOfLines']],
-  group: ['user_id'],
+    [Sequelize.fn('sum', Sequelize.col('commits')), 'nocommits'],
+    [Sequelize.fn('sum', Sequelize.col('number_of_lines')), 'nolines']],
+  group: ['user_id', 'user.name'],
+  where: {
+    user_id,
+  },
   include: [
     {
       model: User,
-      include: [
-        {
-          model: Cohort,
-          attributes: [],
-          through: { where: { id: cohort_id } },
-        }],
       attributes: ['name'],
     },
   ],
   raw: true,
-  order: Sequelize.literal('total DESC'),
+  order: Sequelize.literal('nocommits DESC'),
 });
 
 export const getAllLearnerGithubDataMilestoneById = id => LearnerGithubMilestones.findOne(
@@ -178,13 +228,12 @@ export const createOrUpdteLearnerGithubDataForMilestone = (user_id,
         last_committed_at,
       });
     }
-    let totalLines = learnerGithub.number_of_lines + new_commit_count;
-    let commitsCount = learnerGithub.commits + commits_count;
+
     learnerGithub.repository_commits.push(new_commits);
     return learnerGithub.update({
-      number_of_lines: totalLines,
+      number_of_lines: new_commit_count,
       repository_commits: learnerGithub.repository_commits,
-      commits: commitsCount,
+      commits: commits_count,
       last_committed_at,
     }, {
       where: {

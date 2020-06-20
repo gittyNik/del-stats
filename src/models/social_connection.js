@@ -16,7 +16,10 @@ export const SocialConnection = db.define(
       type: Sequelize.UUID,
       primaryKey: true,
     },
-    user_id: Sequelize.UUID,
+    user_id: {
+      type: Sequelize.UUID,
+      references: { model: 'users', key: 'id' },
+    },
     provider: Sequelize.STRING,
     username: Sequelize.STRING,
     email: Sequelize.STRING,
@@ -85,15 +88,20 @@ export const getGithubConnecionByUserId = (user_id) => SocialConnection.findOne(
   },
 });
 
+export const getGithubNameByUserId = (user_id) => SocialConnection.findOne({
+  where: {
+    user_id,
+    provider: PROVIDERS.GITHUB,
+  },
+  attributes: ['username'],
+  raw: true,
+});
+
 export const getGithubByUserId = (user_id) => SocialConnection.findOne({
   where: {
     user_id,
     provider: PROVIDERS.GITHUB,
   },
-  include: [{
-    model: User,
-    attributes: ['name'],
-  }],
 });
 
 // zoom <-> user details

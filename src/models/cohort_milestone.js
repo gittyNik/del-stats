@@ -53,8 +53,6 @@ export const CohortMilestone = db.define('cohort_milestones', {
   },
 });
 
-// Team.belongsTo(CohortMilestone, { foreignKey: 'cohort_milestone_id' });
-CohortMilestone.hasMany(Team, { foreignKey: 'cohort_milestone_id' });
 
 const { lte, gt, between } = Sequelize.Op;
 
@@ -427,3 +425,9 @@ export const markMilestoneReview = id => CohortMilestone.update(
     raw: true,
   },
 ).then(results => (results[1][0] ? results[1][0] : Promise.reject('Review could not be saved')));
+
+export const getCohortMilestone = (cohort_id, milestone_id) => CohortMilestone.findOne(
+  {
+    where: { cohort_id, milestone_id },
+  },
+);

@@ -1,6 +1,6 @@
 
-export function up(queryInterface, Sequelize) {
-  return queryInterface.createTable('learner_github_milestones', {
+const migration = {
+  up: (queryInterface, Sequelize) => queryInterface.createTable('learner_github_milestones', {
     id: {
       allowNull: false,
       primaryKey: true,
@@ -31,8 +31,8 @@ export function up(queryInterface, Sequelize) {
     last_committed_at: {
       type: Sequelize.DATE,
     },
-  });
-}
-export function down(queryInterface) {
-  return queryInterface.dropTable('learner_milestones_github_data');
-}
+  }),
+  down: queryInterface => queryInterface.dropTable('learner_github_milestones'),
+};
+
+export default migration;

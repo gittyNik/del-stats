@@ -34,6 +34,8 @@ import { Topic } from './topic';
 import { User } from './user';
 import connection from '../database';
 import { BreakoutTemplate } from './breakout_template';
+import { LearnerGithubMilestones } from './learner_github_milestones';
+import { LearnerGithubChallenge } from './learner_github_challenges';
 
 // TODO: describe all associations here
 
@@ -57,13 +59,39 @@ Topic.hasMany(CohortBreakout, { foreignKey: 'topic_id' });
 Topic.belongsTo(Milestone, { foreignKey: 'milestone_id' });
 
 CohortBreakout.belongsTo(BreakoutTemplate);
-CohortBreakout.belongsTo(User, { as: "catalyst", foreignKey: 'catalyst_id' });
+CohortBreakout.belongsTo(User, { as: 'catalyst', foreignKey: 'catalyst_id' });
 
-LearnerBreakout.belongsTo(User, { foreignKey: "learner_id" })
+LearnerBreakout.belongsTo(User, { foreignKey: 'learner_id' });
 
 LearnerChallenge.belongsTo(Challenge);
 
 Milestone.hasMany(Topic);
+
+CohortBreakout.hasMany(LearnerBreakout, { foreignKey: 'cohort_breakout_id' });
+
+LearnerBreakout.belongsTo(User, { foreignKey: 'learner_id' });
+
+LearnerGithubMilestones.belongsTo(User, { foreignKey: 'user_id' });
+User.hasMany(LearnerGithubMilestones);
+
+Team.belongsTo(CohortMilestone, { foreignKey: 'cohort_milestone_id' });
+CohortMilestone.hasMany(Team);
+
+CohortMilestone.belongsTo(Cohort, { foreignKey: 'cohort_id' });
+Cohort.hasMany(CohortMilestone);
+
+LearnerGithubChallenge.belongsTo(LearnerChallenge, { foreignKey: 'learner_challenge_id' });
+LearnerChallenge.hasMany(LearnerGithubChallenge);
+
+LearnerChallenge.belongsTo(User, { foreignKey: 'learner_id' });
+// User.hasMany(LearnerChallenge);
+
+// User.belongsTo(Cohort);
+// Cohort.hasMany(User, { foreignKey: 'learners' });
+// User.belongsTo(Cohort);
+
+// Cohort.hasMany(User, { foreignKey: '' });
+// User.belongsTo(Cohort);
 
 export default {
   Application,

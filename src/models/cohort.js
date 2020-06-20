@@ -34,8 +34,6 @@ export const Cohort = db.define('cohorts', {
   duration: Sequelize.INTEGER,
 });
 
-CohortMilestone.belongsTo(Cohort, { foreignKey: 'cohort_id' });
-
 export const getCohortsStartingToday = () => {
   const today = new Date();
   const tonight = new Date();

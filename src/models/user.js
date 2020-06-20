@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import db from '../database';
+import { LearnerGithubMilestones } from './learner_github_milestones';
 
 const { DEFAULT_USER } = process.env;
 
@@ -80,3 +81,5 @@ export const createSuperAdmin = () => User.findOrCreate({
     id: uuid(),
   },
 });
+
+module.exports = { User, USER_ROLES };
