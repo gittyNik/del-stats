@@ -20,6 +20,7 @@ import {
 } from '../integrations/github/controllers';
 import { getGithubConnecionByUserId } from './social_connection';
 import { getResourceByTopic } from './resource';
+import { getLearnerChallengeCountByChallengeId } from './learner_challenge';
 
 
 export const CohortMilestone = db.define('cohort_milestones', {
@@ -176,6 +177,7 @@ export const findTopicsForCohortAndMilestone = (cohort_id, milestone_id = null) 
   });
   return topic;
 })));
+
 
 const populateTeamsWithLearnersWrapper = async ([
   topics,
