@@ -96,8 +96,8 @@ export const getAllAuthoredCommitsPageWise = async (
   if (since === null) {
     since = '2020-01-01T00:00:00Z';
   }
-  // let access_token = getAccessTokenPerUser(socialConnection);
-  let access_token = process.env.GITHUB_ACCESS_TOKEN;
+  let access_token = getAccessTokenPerUser(socialConnection);
+  // let access_token = process.env.GITHUB_ACCESS_TOKEN;
   let newOctokit = new SOALOctokit({
     auth: access_token,
   });
