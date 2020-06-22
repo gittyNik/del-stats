@@ -1,4 +1,5 @@
 import Express from 'express';
+import { CodeGuruReviewer } from 'aws-sdk';
 import {
   getCohortByName,
   getCohorts,
@@ -28,6 +29,7 @@ import { USER_ROLES } from '../../models/user';
 
 const {
   ADMIN, SUPERADMIN, CATALYST, EDUCATOR,
+  REVIEWER,
 } = USER_ROLES;
 
 const router = Express.Router();
@@ -72,7 +74,7 @@ router.get('/:year/:location/:name', getCohortByName);
  */
 router.get('/user/:id', getCohortByLearnerId);
 
-router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR, REVIEWER]));
 
 
 /**

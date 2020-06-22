@@ -9,6 +9,7 @@ import { Milestone } from './milestone';
 import { Topic } from './topic';
 import { Team, createMilestoneTeams } from './team';
 import { User } from './user';
+import { LearnerChallenge } from './learner_challenge';
 import { getChallengesByTopicId } from './challenge';
 import { getRecentCommitByUser } from '../integrations/github/controllers/commits.controller';
 import {
@@ -143,13 +144,25 @@ export const findTopicsForCohortAndMilestone = (cohort_id, milestone_id = null) 
       required: false,
     },
   ],
-}).then(async topics => {
-  for (let i = 0; i < topics.length; i++) {
-    topics[i].challenges = await getChallengesByTopicId(topics[i].id);
-    topics[i].resources = await getResourceByTopic(topics[i].id);
-  }
-  return topics;
-});
+}).then(topics => Promise.all(topics.map(topic => {
+  getChallengesByTopicId(topic.id).then(challenges => {
+    topic.challenges = challenges;
+    Promise.all(challenges.map((challenge, index) =>
+      LearnerChallenge.count({
+        where: {
+          challenge_id: challenge.id,
+        },
+        raw: true
+      }).then(count => {
+        topic.challenges[index].dataValues.attemptedCount = count;
+      })
+    ))
+  })
+  getResourceByTopic(topic.id).then(resources => {
+    topic.resources = resources;
+  });
+  return topic;
+})));
 
 const populateTeamsWithLearnersWrapper = async ([
   topics,

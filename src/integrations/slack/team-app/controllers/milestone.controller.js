@@ -45,6 +45,32 @@ export const markMilestoneAsReviewed = (payload, respond) => {
     });
 };
 
+export const showCompletedBreakoutOnSlack = (topic_id, cohort_id, username) => Promise.all([
+  Topic.findByPk(topic_id),
+  Cohort.findByPk(cohort_id),
+])
+  .then(([topic, cohort]) => web.chat.postMessage({
+    text: `Breakout on ${topic.title} is done for ${cohort.name}`,
+    blocks: [
+      {
+        type: 'context',
+        elements: [{
+          type: 'mrkdwn',
+          text: `${cohort.name}-${cohort.start_date.getFullYear()} @${cohort.location}`,
+        }],
+      },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `Breakout on *${topic.title}* is done (marked by @${username})`,
+        },
+      },
+    ],
+    channel: 'clockwork',
+  })
+    .catch(err => console.log(err)));
+
 export const markTopicAsFinished = (topic_id, cohort_id, username) => {
   const sendMessageToSlack = Promise.all([
     Topic.findByPk(topic_id),

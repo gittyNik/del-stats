@@ -11,6 +11,7 @@ import {
 import { Topic } from './topic';
 import { BreakoutTemplate } from './breakout_template';
 import { createLearnerBreakoutsForCohortMilestones } from './learner_breakout';
+import { showCompletedBreakoutOnSlack } from '../integrations/slack/team-app/controllers/milestone.controller';
 
 // import sandbox from 'bullmq/dist/classes/sandbox';
 
@@ -141,6 +142,7 @@ export const markZoomAttendance = (cohort_breakout_details) => {
 export const markComplete = (topic_id, cohort_id) => CohortBreakout.update(
   {
     status: 'completed',
+    updated_at: Date.now(),
   },
   {
     where: { topic_id, cohort_id },
@@ -194,6 +196,7 @@ export const createOrUpdateCohortBreakout = (
   cohort_topic_id,
   cohort_id,
   time_scheduled,
+  name = '',
 ) => Cohort.findOne({
   attributes: ['duration', 'program_id'],
   where: {
@@ -213,7 +216,7 @@ export const createOrUpdateCohortBreakout = (
     cohort_topic_id,
     cohort_id,
     time_scheduled,
-  ));
+  )).then(showCompletedBreakoutOnSlack(cohort_topic_id, cohort_id, name));
 });
 
 export const createNewBreakout = (
@@ -469,6 +472,14 @@ export const getCohortBreakoutsByCohortId = (cohort_id) => CohortBreakout.findAl
   where: {
     cohort_id,
   },
+});
+
+export const getScheduledCohortBreakoutsByCohortId = (cohort_id) => CohortBreakout.findAll({
+  where: {
+    cohort_id,
+    status: 'scheduled',
+  },
+  raw: true,
 });
 
 export const getCalendarDetailsOfCohortBreakout = async (id) => {

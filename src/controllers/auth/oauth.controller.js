@@ -2,8 +2,8 @@ import request from 'superagent';
 import uuid from 'uuid/v4';
 import dotenv from 'dotenv';
 import { getSoalToken } from '../../util/token';
-import { getUserFromEmails, USER_ROLES } from '../../models/user';
-import { SocialConnection, PROVIDERS } from '../../models/social_connection';
+import { getUserFromEmails, USER_ROLES, getProfile } from '../../models/user';
+import { SocialConnection, PROVIDERS, getUserIdByEmail } from '../../models/social_connection';
 import { getCohortFromLearnerId } from '../../models/cohort';
 import {
   createTeam,
@@ -12,10 +12,11 @@ import {
   isEducator,
 } from '../../integrations/github/controllers';
 import { urlGoogle, getTokensFromCode } from '../../util/calendar-util';
+import { createCalendarEventsForLearner } from '../../models/learner_breakout';
 
 dotenv.config();
 
-const getGithubAccessToken = code => {
+const getGithubAccessToken = async code => {
   const params = {
     client_id: process.env.GITHUB_CLIENT_ID,
     client_secret: process.env.GITHUB_CLIENT_SECRET,
@@ -37,15 +38,13 @@ const fetchProfileFromGithub = ({ githubToken, expiry }) =>
   // fetching profile details from github
   request
     .get(`https://api.github.com/user?${githubToken}`)
-    .then(profileResponse => {
+    .then(async profileResponse => {
       const profile = profileResponse.body;
       // fetching all emails from github
-      return request
-        .get(`https://api.github.com/user/emails?${githubToken}`)
-        .then(emailResponse => {
-          profile.emails = emailResponse.body.map(o => o.email);
-          return { profile, githubToken, expiry };
-        });
+      const emailResponse = await request
+        .get(`https://api.github.com/user/emails?${githubToken}`);
+      profile.emails = emailResponse.body.map(o => o.email);
+      return { profile, githubToken, expiry };
     });
 
 // fetch profile and add it to social_connections
@@ -96,6 +95,9 @@ const addTeamToExponentSoftware = async userProfile => {
   if (isEdu) {
     return { userProfile, teamName: 'Educators' };
   }
+  if (userProfile.user.role === 'catalyst' || userProfile.user.role === 'reviewer') {
+    return { userProfile, teamName: userProfile.user.role, excluded: true };
+  }
   return getCohortFromLearnerId(userProfile.user.id)
     .then(wrapParentTeamId)
     .then(({ parent_team_id, cohort }) => createTeam(
@@ -110,9 +112,12 @@ const addTeamToExponentSoftware = async userProfile => {
     .then(teamName => ({ userProfile, teamName }));
 };
 
-const sendOrgInvites = async ({ userProfile, teamName }) => {
+const sendOrgInvites = async ({ userProfile, teamName, isExcluded = false }) => {
   const isEdu = await isEducator(userProfile.socialConnection.username);
   if (isEdu) {
+    return userProfile;
+  }
+  if (isExcluded) {
     return userProfile;
   }
   return sendInvitesToNewMembers(
@@ -193,7 +198,15 @@ export const signinWithGithub = (req, res) => {
   // then authentication error should be sent as resopnse
   getGithubAccessToken(code)
     .then(fetchProfileFromGithub)
-    .then(({ profile, githubToken, expiry }) => getUserFromEmails(profile.emails)
+    // If no user's email is not found with github emails,
+    // then authentication error should be sent as resopnse
+    .then(({ profile, githubToken, expiry }) => getUserIdByEmail(profile.emails)
+      .then(socialConnection => {
+        if (socialConnection) {
+          return getProfile(socialConnection.user_id);
+        }
+        return getUserFromEmails(profile.emails);
+      })
       .then(user => {
         if (user === null || user.role === USER_ROLES.GUEST) {
           return Promise.reject('NO_EMAIL');
@@ -224,6 +237,7 @@ export const signinWithGithub = (req, res) => {
         // save the profile details in session and ask for otp authentication
         res.status(404).send('No user found with email');
       } else {
+        console.error(`Sign in failed: ${err}`);
         res.status(500).send('Authentication Failed');
       }
     });
@@ -303,34 +317,66 @@ export const checkGoogleOrSendRedirectUrl = async (req, res) => {
 
 export const handleGoogleCallback = async (req, res) => {
   const { code, error } = req.query;
-  const { WEB_SERVER } = process.env;
-  console.log(code);
-  if (code) {
-    const data = await getTokensFromCode(code);
-    // console.log('Final Data displayed in the handleGoogleCallback');
-    console.log(data);
-    // console.log('individual data');
-    // console.log(data.tokens.refresh_token);
-    // console.log(data.profile.email);
-    const user = await getUserFromEmails([data.profile.email])
-      .then(user0 => user0.toJSON())
-      .catch(err => console.log(err));
-    if (user) {
-      const { profile } = data;
-      const googleToken = data.tokens.access_token;
-      const expiry = data.expiry_date;
-      profile.tokens = data.tokens;
-      const dataSC = await addGoogleProfile({
-        profile,
-        googleToken,
-        expiry,
-        user,
+  try {
+    if (code) {
+      const data = await getTokensFromCode(code);
+      const user = await getUserFromEmails([data.profile.email])
+        .then(user0 => user0.toJSON())
+        .catch(err => {
+          console.error(err);
+          res.status(401);
+          res.json({
+            error: 'Unable to find the user with the given email',
+          });
+        });
+      if (user) {
+        const { profile } = data;
+        const googleToken = data.tokens.access_token;
+        const expiry = data.expiry_date;
+        profile.tokens = data.tokens;
+        try {
+          const dataSC = await addGoogleProfile({
+            profile,
+            googleToken,
+            expiry,
+            user,
+          });
+          console.log(dataSC.user);
+          // Create calendar events if user is learner
+          if (user.role === USER_ROLES.LEARNER) {
+            const calendarStats = await createCalendarEventsForLearner(user.id);
+            console.log(calendarStats);
+            res.json({
+              text: 'Breakout are successfully added to Google Calendar',
+              data: dataSC.user,
+            });
+          } else {
+            res.json({
+              text: 'Google authentication successfull',
+              data: dataSC.user,
+            });
+          }
+        } catch (err) {
+          console.error(err);
+          res.status(403);
+          res.json({
+            error: 'Failed to authenticate Google',
+          });
+        }
+      }
+    } else {
+      console.error(error);
+      res.status(403);
+      res.json({
+        error: 'Failed to authenticate Google',
       });
-      console.log(dataSC.socialConnection);
-      res.redirect(WEB_SERVER);
     }
-  } else {
-    console.error(error);
-    res.redirect(WEB_SERVER);
+  } catch (err) {
+    console.error('CHECK REDIRECT_URLS');
+    console.error(err);
+    res.status(403);
+    res.json({
+      error: 'Failed to authenticate Google',
+    });
   }
 };

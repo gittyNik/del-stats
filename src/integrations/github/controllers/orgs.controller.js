@@ -18,11 +18,9 @@ const getOrgMembersPageWise = (role = 'all', per_page = 100, page = 1) => octoki
 
 const getOrgMembers = async () => getNumberOfPages('orgs').then(async ({ pages }) => {
   let members = [];
-  for (let i = 1; i <= pages; i++) {
-    let mems = getOrgMembersPageWise('all', 100, i);
-    members.push(mems);
-  }
-  return Promise.all(members);
+  let mems = await Promise.all([...Array(pages)].map(page => getOrgMembersPageWise('all', 100, page)));
+  mems.map(mem => members.push(mem));
+  return members;
 });
 
 export const isMember = async login => {
