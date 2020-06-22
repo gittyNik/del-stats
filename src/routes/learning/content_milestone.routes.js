@@ -26,14 +26,6 @@ router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER]));
  */
 router.get('/:milestone_id', getCohortMilestoneWithDetails);
 
-/**
- * @api {get} /learning/content/milestones/:milestone_id Get Content Milestone
- * @apiDescription get Content Milestone
- * @apiHeader {String} authorization JWT Token.
- * @apiName GetContentMilestone
- * @apiGroup ContentMilestone
- */
-router.get('/:milestone_id', getCohortMilestoneWithDetails);
 
 /**
  * @api {get} /learning/content/milestones Get all Content Milestones

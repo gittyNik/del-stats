@@ -1,5 +1,7 @@
 import queryString from 'query-string';
-import { octokit, org } from './git.auth.controller';
+import { Octokit } from '@octokit/rest';
+import { org } from './git.auth.controller';
+import { getAccessTokenPerUser } from './stats.controller';
 
 const relInLinks = link => {
   let linkRegex = /\<([^>]+)/g;
@@ -24,97 +26,115 @@ const relInLinks = link => {
   ).page;
 };
 
-export const getNumberOfPages = (of, team = null) => {
-  if (of === 'repoCollaborators') {
-    return octokit.repos
-      .listCollaborators({
-        owner: org,
-        repo: team,
-        per_page: 100,
-        page: 1,
-      })
-      .then(data => ({
-        pages: data.headers.hasOwnProperty('link')
-          ? relInLinks(data.headers.link)
-          : 1,
-      }));
-  } if (of === 'authoredCommits') {
-    return octokit.repos
-      .listCommits({
-        owner: org,
-        repo: team.repository_name,
-        author: team.author,
-        per_page: 100,
-        page: 1,
-      })
-      .then(data => ({
-        pages: data.headers.hasOwnProperty('link')
-          ? relInLinks(data.headers.link)
-          : 1,
-      }));
-  } if (of === 'allCommits') {
-    return octokit.repos
-      .listCommits({
-        owner: org,
-        repo: team,
-        per_page: 100,
-        page: 1,
-      })
-      .then(data => ({
-        pages: data.headers.hasOwnProperty('link')
-          ? relInLinks(data.headers.link)
-          : 1,
-      }));
-  } if (of === 'teams') {
-    return octokit.teams
-      .list({
-        org,
-        per_page: 100,
-        page: 1,
-      })
-      .then(data => ({
-        pages: data.headers.hasOwnProperty('link')
-          ? relInLinks(data.headers.link)
-          : 1,
-      }));
-  } if (of === 'repos') {
-    return octokit.repos
-      .listForOrg({
-        org,
-        per_page: 100,
-        page: 1,
-      })
-      .then(data => ({
-        pages: data.headers.hasOwnProperty('link')
-          ? relInLinks(data.headers.link)
-          : 1,
-      }));
-  } if (of === 'teamMembers') {
-    return octokit.teams
-      .listMembersInOrg({
-        org,
-        team_slug: team,
-        per_page: 100,
-        page: 1,
-      })
-      .then(data => ({
-        pages: data.headers.hasOwnProperty('link')
-          ? relInLinks(data.headers.link)
-          : 1,
-      }));
-  } if (of === 'orgs') {
-    return octokit.orgs
-      .listMembers({
-        org,
-        role: 'all',
-        per_page: 100,
-        page: 1,
-      })
-      .then(data => ({
-        pages: data.headers.hasOwnProperty('link')
-          ? relInLinks(data.headers.link)
-          : 1,
-      }));
+// TODO: Incorrect use of pagination
+// Replace with https://octokit.github.io/rest.js/v18#pagination
+export const getNumberOfPages = async (of, team = null, socialConnection,
+  since = '2020-01-01T00:00:00Z',
+) => {
+  if (since === null) {
+    since = '2020-01-01T00:00:00Z';
+  }
+  // let access_token = getAccessTokenPerUser(socialConnection);
+  let access_token = process.env.GITHUB_ACCESS_TOKEN;
+  let newOctokit = new Octokit({
+    auth: access_token,
+  });
+
+  try {
+    if (of === 'repoCollaborators') {
+      return newOctokit.repos
+        .listCollaborators({
+          owner: org,
+          repo: team,
+          per_page: 100,
+          page: 1,
+        })
+        .then(data => ({
+          pages: 'link' in data.headers
+            ? relInLinks(data.headers.link)
+            : 1,
+        }));
+    } if (of === 'authoredCommits') {
+      return newOctokit.repos
+        .listCommits({
+          owner: org,
+          repo: team.repository_name,
+          author: team.author,
+          per_page: 100,
+          page: 1,
+          since,
+        })
+        .then(data => ({
+          pages: 'link' in data.headers
+            ? relInLinks(data.headers.link)
+            : 1,
+        }));
+    } if (of === 'allCommits') {
+      return newOctokit.repos
+        .listCommits({
+          owner: org,
+          repo: team,
+          per_page: 100,
+          page: 1,
+        })
+        .then(data => ({
+          pages: 'link' in data.headers
+            ? relInLinks(data.headers.link)
+            : 1,
+        })).catch(err => 0);
+    } if (of === 'teams') {
+      return newOctokit.teams
+        .list({
+          org,
+          per_page: 100,
+          page: 1,
+        })
+        .then(data => ({
+          pages: 'link' in data.headers
+            ? relInLinks(data.headers.link)
+            : 1,
+        }));
+    } if (of === 'repos') {
+      return newOctokit.repos
+        .listForOrg({
+          org,
+          per_page: 100,
+          page: 1,
+        })
+        .then(data => ({
+          pages: 'link' in data.headers
+            ? relInLinks(data.headers.link)
+            : 1,
+        }));
+    } if (of === 'teamMembers') {
+      return newOctokit.teams
+        .listMembersInOrg({
+          org,
+          team_slug: team,
+          per_page: 100,
+          page: 1,
+        })
+        .then(data => ({
+          pages: 'link' in data.headers
+            ? relInLinks(data.headers.link)
+            : 1,
+        }));
+    } if (of === 'orgs') {
+      return newOctokit.orgs
+        .listMembers({
+          org,
+          role: 'all',
+          per_page: 100,
+          page: 1,
+        })
+        .then(data => ({
+          pages: 'link' in data.headers
+            ? relInLinks(data.headers.link)
+            : 1,
+        }));
+    }
+  } catch (err) {
+    console.log(err);
   }
 };
 
