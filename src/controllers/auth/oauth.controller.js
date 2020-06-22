@@ -33,7 +33,7 @@ const getGithubAccessToken = async code => {
 };
 
 const fetchProfileFromGithub = ({ githubToken, expiry }) =>
-  // TODO: reject if expired
+// TODO: reject if expired
 
   // fetching profile details from github
   request
@@ -194,6 +194,8 @@ export const signinWithGithub = (req, res) => {
   // const {user} = req.jwtData;
   const { code } = req.query;
 
+  // If no user's email is not found with github emails,
+  // then authentication error should be sent as resopnse
   getGithubAccessToken(code)
     .then(fetchProfileFromGithub)
     // If no user's email is not found with github emails,

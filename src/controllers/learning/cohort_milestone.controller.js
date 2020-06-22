@@ -60,7 +60,8 @@ export const getCohortMilestonesByUserId = async (req, res) => {
 
 export const getCohortMilestoneWithDetails = (req, res) => {
   const { milestone_id } = req.params;
-  getCohortMilestoneById(milestone_id)
+  const user_id = req.jwtData.user.id;
+  getCohortMilestoneById(milestone_id, user_id)
     .then(milestone => {
       res.json({
         text: 'GET Milestone',

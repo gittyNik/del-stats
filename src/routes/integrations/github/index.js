@@ -1,8 +1,8 @@
 import Express from 'express';
-import challengesRouter from './challenges.routes.js';
-import statsRouter from './stats.routes.js';
-import commitRouter from './commits.routes.js';
-import milestonesRouter from './milestones.routes.js';
+import challengesRouter from './challenges.routes';
+import statsRouter from './stats.routes';
+import commitRouter from './commits.routes';
+import milestonesRouter from './milestones.routes';
 import authenticate from '../../../controllers/auth/auth.controller';
 
 const router = Express.Router();
