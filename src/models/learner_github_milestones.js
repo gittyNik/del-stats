@@ -36,7 +36,6 @@ export const LearnerGithubMilestones = db.define('learner_github_milestones', {
   },
 });
 
-
 export const getAllLearnerGithubDataMilestone = (
   after_date = '2020-06-10 00:00:00+00',
 ) => LearnerGithubMilestones.findAll({
@@ -113,6 +112,31 @@ export const getLastUpdatedMilestoneCommitInCohort = (
 ) => LearnerGithubMilestones.findOne({
   where: {
     cohort_milestone_id,
+    commits: { [gt]: 0 },
+  },
+  order: [
+    ['last_committed_at', 'DESC'],
+  ],
+  raw: true,
+});
+
+export const getTeamMilestoneCommitsCount = (
+  team_id,
+) => LearnerGithubMilestones.count({
+  where: { team_id },
+});
+
+export const getUserMilestoneCommitsCount = (
+  user_id, team_id,
+) => LearnerGithubMilestones.count({
+  where: { user_id, team_id },
+});
+
+export const getLastUpdatedMilestoneCommitByUser = (
+  user_id,
+) => LearnerGithubMilestones.findOne({
+  where: {
+    user_id,
     commits: { [gt]: 0 },
   },
   order: [

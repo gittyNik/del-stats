@@ -2,7 +2,11 @@ import request from 'superagent';
 import uuid from 'uuid/v4';
 import dotenv from 'dotenv';
 import { getSoalToken } from '../../util/token';
-import { getUserFromEmails, USER_ROLES, getProfile } from '../../models/user';
+import {
+  getUserFromEmails,
+  USER_ROLES,
+  getProfile,
+} from '../../models/user';
 import { SocialConnection, PROVIDERS, getUserIdByEmail } from '../../models/social_connection';
 import { getCohortFromLearnerId } from '../../models/cohort';
 import {
@@ -274,7 +278,6 @@ const addGoogleProfile = ({
     })
     .then(socialConnection => ({ user, socialConnection }));
 };
-
 
 // checks if google proiver is present in social connection
 // sends redirect url if not found.
