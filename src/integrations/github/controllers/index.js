@@ -73,7 +73,6 @@ import {
   getTopicById,
 } from '../../../models/topic';
 
-
 // Returns latest commit object of given user {{username}} in repository {{repo_name}}
 const getRecentCommit = async (req, res) => {
   const { repo_name } = req.query;
@@ -563,6 +562,19 @@ export const createStatForSingleLearner = async (
   if ((contributorsRepo) && (_.isEmpty(milestoneData[0]))) {
     let gitName = await getGithubNameByUserId(user_id);
 
+    if (gitName === null) {
+      // Insert Empty Stats
+      if (learner_challenge_id) {
+        return createOrUpdateLearnerGithubDataForChallenge(
+          learner_challenge_id, 0, [], null, 0, cohort_milestone_id,
+        );
+      }
+      return createOrUpdteLearnerGithubDataForMilestone(
+        user_id, team_id, 0, [],
+        cohort_milestone_id, 0, null,
+      );
+    }
+
     let userStats = contributorsRepo.filter((item) => item.author.login === gitName.username);
     let numberOfLines;
     let totalCommits;
@@ -759,12 +771,10 @@ export const getLatestCommitinCohort = async (cohort_milestone_id) => {
   return latestCommit;
 };
 
-
 export const getAllStats = async (req, res) => {
   const { cohort_id, cohort_milestone_id } = req.params;
   const user_id = req.jwtData.user.id;
   // Get Social connection of User
-
 
   let socialConnection = await getGithubByUserId(user_id);
   let lastUpdatedChallenge = await getLastUpdatedChallengeUpdatedDate(user_id);
