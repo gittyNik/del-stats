@@ -112,6 +112,21 @@ export const getCohortMilestoneTeams = cohort_id => CohortMilestone.findAll({
   }],
 });
 
+export const getCohortMilestoneTeamsBeforeDate = (
+  cohort_id, before_date,
+) => CohortMilestone.findAll({
+  where: {
+    cohort_id,
+    review_scheduled: { [lte]: before_date },
+  },
+  attributes: ['id'],
+  include: [{
+    model: Team,
+    foreignKey: 'cohort_milestone_id',
+    attributes: ['learners', 'github_repo_link', 'id'],
+  }],
+});
+
 export const getCohortMilestoneBylearnerId = learner_id => Cohort.findOne({
   where: {
     learners: {
@@ -147,17 +162,15 @@ export const findTopicsForCohortAndMilestone = (cohort_id, milestone_id = null) 
 }).then(topics => Promise.all(topics.map(topic => {
   getChallengesByTopicId(topic.id).then(challenges => {
     topic.challenges = challenges;
-    Promise.all(challenges.map((challenge, index) =>
-      LearnerChallenge.count({
-        where: {
-          challenge_id: challenge.id,
-        },
-        raw: true
-      }).then(count => {
-        topic.challenges[index].dataValues.attemptedCount = count;
-      })
-    ))
-  })
+    Promise.all(challenges.map((challenge, index) => LearnerChallenge.count({
+      where: {
+        challenge_id: challenge.id,
+      },
+      raw: true,
+    }).then(count => {
+      topic.challenges[index].dataValues.attemptedCount = count;
+    })));
+  });
   getResourceByTopic(topic.id).then(resources => {
     topic.resources = resources;
   });
