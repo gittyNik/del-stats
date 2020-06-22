@@ -9,7 +9,7 @@ import { Milestone } from './milestone';
 import { Topic } from './topic';
 import { Team, createMilestoneTeams } from './team';
 import { User } from './user';
-import { LearnerChallenge } from './learner_challenge';
+import { LearnerChallenge, getLearnerChallengeCountByChallengeId } from './learner_challenge';
 import { getChallengesByTopicId } from './challenge';
 import { getRecentCommitByUser } from '../integrations/github/controllers/commits.controller';
 import {
@@ -20,8 +20,6 @@ import {
 } from '../integrations/github/controllers';
 import { getGithubConnecionByUserId } from './social_connection';
 import { getResourceByTopic } from './resource';
-import { getLearnerChallengeCountByChallengeId } from './learner_challenge';
-
 
 export const CohortMilestone = db.define('cohort_milestones', {
   id: {
@@ -54,7 +52,6 @@ export const CohortMilestone = db.define('cohort_milestones', {
     defaultValue: Sequelize.literal('NOW()'),
   },
 });
-
 
 const { lte, gt, between } = Sequelize.Op;
 
@@ -136,7 +133,6 @@ export const getCohortMilestoneBylearnerId = learner_id => Cohort.findOne({
   },
 }).then(cohort => getCohortMilestones(cohort.id));
 
-
 export const getOrCreateMilestoneTeams = milestone_id => getMilestoneTeams(milestone_id)
   .then(teams => {
     if (teams.length !== 0) {
@@ -178,7 +174,6 @@ export const findTopicsForCohortAndMilestone = (cohort_id, milestone_id = null) 
   return topic;
 })));
 
-
 const populateTeamsWithLearnersWrapper = async ([
   topics,
   programTopics,
@@ -189,7 +184,7 @@ const populateTeamsWithLearnersWrapper = async ([
   return [topics, programTopics, teams, breakouts];
 };
 
-const populateLearnerStats = (
+export const populateLearnerStats = (
   user_id,
   cohort_id,
   cohort_milestone_id,
@@ -216,15 +211,11 @@ const populateLearnerStats = (
     Teams[0].github_repo_link,
     socialConnection,
   );
-  const latestCohortCommit = await getLatestCommitInCohort(cohort_milestone_id, socialConnection);
-  const latestCommitByUser = await getRecentCommitByUser(
-    socialConnection.username,
-    Teams[0].github_repo_link,
-    socialConnection,
-  );
+  const latestCohortCommit = await getLatestCommitInCohort(cohort_milestone_id);
+  const latestCommitByUser = await getRecentCommitByUser(user_id);
   const teamAndUserCommits = await getTotalTeamAndUserCommitsCount(
-    socialConnection,
-    Teams[0].github_repo_link,
+    user_id,
+    Teams[0].id,
   );
 
   let { userCommitsDayWise, teamCommitsDayWise } = u;
@@ -244,7 +235,6 @@ export const findBreakoutsForMilestone = async (cohort_id, milestone_id) => {
   let breakouts = await getAllBreakoutsInCohortMilestone(cohort_id, milestone_id);
   return breakouts.filter((breakout) => (breakout != null));
 };
-
 
 export const getCurrentMilestoneOfCohortDelta = (cohort_id) => {
   const now = Sequelize.literal('NOW()');
@@ -379,7 +369,6 @@ export const getCohortMilestoneById = (milestone_id, user_id) => CohortMilestone
   include: [Cohort, Milestone],
   raw: true,
 }).then(milestone => populateMilestone(milestone, user_id));
-
 
 function* calculateReleaseTime(cohort_start, pending, cohort_duration, cohort_program) {
   const DAY_MSEC = 86400000;

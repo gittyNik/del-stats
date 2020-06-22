@@ -69,6 +69,27 @@ export const getLastUpdatedChallengeInCohort = (
   raw: true,
 });
 
+export const getLastUpdatedChallengeByUser = (
+  user_id,
+) => LearnerGithubChallenge.findOne({
+  where: {
+    '$learner_challenge.learner_id$': user_id,
+    commits: { [gt]: 0 },
+  },
+  order: [
+    ['last_committed_at', 'DESC'],
+  ],
+  include: [
+    {
+      model: LearnerChallenge,
+      attributes: ['learner_id'],
+      required: false,
+    },
+  ],
+  required: true,
+  raw: true,
+});
+
 export const getChallengesForCohortMilestone = (
   user_id,
   cohort_milestone_id,
@@ -118,7 +139,6 @@ export const getTotalChallengeCommitsForCohort = user_id => LearnerGithubChallen
   raw: true,
   order: Sequelize.literal('nocommits DESC'),
 });
-
 
 export const getAllLearnerGithubDataChallenge = (
   after_date = '2020-06-10 00:00:00+00',

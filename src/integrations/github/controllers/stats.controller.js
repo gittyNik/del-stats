@@ -26,7 +26,10 @@ export const contributersInRepository = async (repo, socialConnection) => {
     .get(`https://api.github.com/repos/${org}/${repo}/stats/contributors`)
     .set('accept', 'application/vnd.github.baptiste-preview+json')
     .set('authorization', `token ${access_token}`)
-    .then(data => JSON.parse(data.text));
+    .then(data => JSON.parse(data.text))
+    .catch(err => {
+      console.error(`Error while fetching contributors in Repo: ${err}`);
+    });
 };
 
 export const weeklyCommitActivityData = async (repo, socialConnection) => {
@@ -39,5 +42,8 @@ export const weeklyCommitActivityData = async (repo, socialConnection) => {
     )
     .set('accept', 'application/vnd.github.baptiste-preview+json')
     .set('authorization', `token ${access_token}`)
-    .then(data => (data.text === '' ? [] : JSON.parse(data.text)));
+    .then(data => (data.text === '' ? [] : JSON.parse(data.text)))
+    .catch(err => {
+      console.error(`Error while fetching commit activity: ${err}`);
+    });
 };
