@@ -1,4 +1,4 @@
-import { SocialConnection } from '../../models/social_connection';
+import { SocialConnection, getGithubConnecionByUserId } from '../../models/social_connection';
 
 export const getAll = (req, res) => {
   SocialConnection.findAll()
@@ -43,4 +43,19 @@ export const deleteOne = (req, res) => {
   SocialConnection.destroy({ _id: req.params.id })
     .then(() => res.sendStatus(204))
     .catch(err => res.sendStatus(500).send(err));
+};
+
+export const getGithubConnection = (req, res) => {
+  getGithubConnecionByUserId(req.params.id)
+    .then(data => {
+      if (!data) {
+        res.sendStatus(404);
+      } else {
+        res.json({
+          text: "Github Social Connection",
+          data,
+        })
+      }
+    })
+    .catch(err => res.status(500).send(err));
 };
