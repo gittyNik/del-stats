@@ -5,7 +5,7 @@ import { createOrUpdateContact } from '../../integrations/hubspot/controllers/co
 import { createDeal, associateDealWithContact } from '../../integrations/hubspot/controllers/deals.controller';
 
 const {
-  CATALYST, EDUCATOR, ADMIN, SUPERADMIN,
+  CATALYST, EDUCATOR, ADMIN, SUPERADMIN, REVIEWER,
 } = USER_ROLES;
 
 export const getProfile = (req, res) => {
@@ -98,7 +98,7 @@ export const getEducators = (req, res) => {
   User.findAll({
     where: {
       role: {
-        [Sequelize.Op.in]: [CATALYST, EDUCATOR, ADMIN, SUPERADMIN],
+        [Sequelize.Op.in]: [CATALYST, EDUCATOR, ADMIN, SUPERADMIN, REVIEWER],
       },
     },
   }).then(data => {

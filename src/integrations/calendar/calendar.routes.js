@@ -2,7 +2,7 @@ import Express from 'express';
 import {
   getAllCalendarEvents, createCalendarEvent,
   scheduleCalendarEventForLearner, updateCalendarEvent,
-  deleteOneEvent,
+  deleteOneEvent, createEventForLearner
 } from './calendar.controller';
 
 const router = Express.Router();
@@ -64,5 +64,17 @@ router.patch('/:eventId', updateCalendarEvent);
  * @apiGroup CalendarEvent
  */
 router.delete('/:eventId', deleteOneEvent);
+
+
+/**
+ * @api {post} /calendar/createEvent  Creates calendar events for a learner
+ * @apiDescription creates and updates the caledar event for a learner in learnerBreakout
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName AddCalendarEventForLearner
+ * @apiGroup CalendarEvent
+ *
+ * @apiParam {String} learner_id  learner_id
+ */
+router.post('/createEvent', createEventForLearner);
 
 export default router;

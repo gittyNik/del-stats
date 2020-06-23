@@ -465,6 +465,14 @@ export const getCohortBreakoutsByCohortId = (cohort_id) => CohortBreakout.findAl
   },
 });
 
+export const getScheduledCohortBreakoutsByCohortId = (cohort_id) => CohortBreakout.findAll({
+  where: {
+    cohort_id,
+    status: 'scheduled',
+  },
+  raw: true,
+});
+
 export const getCalendarDetailsOfCohortBreakout = async (id) => {
   const MINUTEINMILLISECONDS = 1000 * 60;
   const cohort_breakout = await CohortBreakout.findOne({
