@@ -302,17 +302,17 @@ export const populateMilestone = async (milestone, user_id) => {
   ])
     .then(populateTeamsWithLearnersWrapper)
     // UNCOMMENT THIS ONCE THE STATS ARE READY
-    .then(populateLearnerStats(user_id, cohort_id, milestone.id))
+    // .then(populateLearnerStats(user_id, cohort_id, milestone.id))
     .then(([topics, programTopics, teams,
       // UNCOMMENT THIS ONCE THE STATS ARE READY
-      stats,
+      // stats,
       breakouts,
     ]) => { // add breakouts
       milestone.topics = topics;
       milestone.programTopics = programTopics;
       milestone.teams = teams;
       // UNCOMMENT THIS ONCE THE STATS ARE READY
-      milestone.stats = stats;
+      // milestone.stats = stats;
       milestone.breakouts = breakouts;
       //  milestone.breakouts = milestones;
       return milestone;
