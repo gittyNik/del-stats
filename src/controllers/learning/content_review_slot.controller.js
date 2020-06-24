@@ -5,7 +5,6 @@ import {
   deleteReviewSlot,
 } from '../../models/review_slots';
 
-
 export const getAllReviewSlotsAPI = (req, res) => {
   getAllReviewSlots().then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));

@@ -13,7 +13,6 @@ import { createTypeBreakoutsInMilestone } from './breakout_template';
 import { removeLearnerBreakouts, createLearnerBreakouts } from './learner_breakout';
 import { moveLearnerToNewGithubTeam, deleteGithubRepository } from '../integrations/github/controllers';
 
-
 export const Cohort = db.define('cohorts', {
   id: {
     type: Sequelize.UUID,
@@ -87,6 +86,15 @@ const populateCohortsWithLearners = (cohorts) => {
   }));
   return Promise.all(learnerGetters);
 };
+
+export const getLearnersFromCohorts = (ids) => Cohort.findAll({
+  where: {
+    id: {
+      [Sequelize.Op.in]: ids,
+    },
+  },
+  attributes: ['learners', 'name', 'id', 'duration'],
+});
 
 // TODO: Optimize this later
 export const getCohortLearnerDetailsByName = ({ name, location, year }) => {
