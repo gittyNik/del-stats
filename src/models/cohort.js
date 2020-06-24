@@ -3,7 +3,7 @@ import Sequelize from 'sequelize';
 import { Application } from './application';
 import { User, USER_ROLES } from './user';
 import db from '../database';
-import { createCohortMilestones } from './cohort_milestone';
+import { createCohortMilestones, CohortMilestone } from './cohort_milestone';
 import {
   getChallengesByUserId, deleteLearnerChallengesByLearnerId,
 } from './learner_challenge';
@@ -189,6 +189,15 @@ export const getUpcomingCohort = (date) => {
 
 // Replace by findByPK
 export const getCohortFromId = (id) => Cohort.findOne({ where: { id } }).then((cohort) => cohort);
+
+export const getCohortMilestones = (id) => Cohort.findByPk(id, {
+  include: [
+    {
+      model: CohortMilestone,
+      attributes: ['id', 'milestone_id'],
+    },
+  ],
+});
 
 export const getCohortFromLearnerId = (user_id) => Application.findOne({
   where: {

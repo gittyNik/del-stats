@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import db from '../database';
-import { getChallengeByChallengeId } from './challenge';
+import { getChallengeByChallengeId, Challenge } from './challenge';
 import { getCohortFromId } from './cohort';
 import { getGithubConnecionByUserId } from './social_connection';
 import {
@@ -12,6 +12,7 @@ import {
   createRepositoryifnotPresentFromTemplate,
   provideAccessToRepoIfNot,
 } from '../integrations/github/controllers';
+import { User } from './user';
 
 export const LearnerChallenge = db.define('learner_challenges', {
   id: {
@@ -33,20 +34,40 @@ export const LearnerChallenge = db.define('learner_challenges', {
     type: Sequelize.UUID,
     references: { model: 'users', key: 'id' },
   },
+  created_at: Sequelize.DATE,
+  updated_at: Sequelize.DATE,
 });
 
-export default LearnerChallenge;
+
+const { gt } = Sequelize.Op;
 
 export const latestChallengeInCohort = async (cohort_id) => {
   let ch = await getCohortFromId(cohort_id);
-  return LearnerChallenge.findAll({
+  return LearnerChallenge.findOne({
+    include: [
+      {
+        model: User,
+        attributes: ['name', 'id'],
+      },
+    ],
     order: [[Sequelize.col('created_at'), Sequelize.literal('DESC')]],
     where: {
       learner_id: { [Sequelize.Op.in]: ch.learners },
     },
     raw: true,
-  }).then((challenges) => challenges[0]);
+  });
 };
+
+export const getLearnerChallengesAfterDate = (
+  after_date, learner_id,
+) => LearnerChallenge.findOne({
+  order: [[Sequelize.col('created_at'), Sequelize.literal('DESC')]],
+  where: {
+    created_at: { [gt]: after_date },
+    learner_id,
+  },
+  raw: true,
+});
 
 export const learnerChallengesFindOrCreate = async (
   challenge_id,
@@ -58,6 +79,7 @@ export const learnerChallengesFindOrCreate = async (
         challenge_id,
         learner_id,
       },
+      raw: true,
     });
 
     if (challenge === null) {
@@ -125,12 +147,27 @@ export const getChallengesByUserId = (learner_id) => LearnerChallenge.findAll(
     where: {
       learner_id,
     },
+    include: [
+      {
+        model: Challenge,
+        attributes: ['topic_id'],
+      }],
   },
   { raw: true },
 );
+
 
 export const deleteLearnerChallengesByLearnerId = (learner_id) => LearnerChallenge.destroy({
   where: {
     learner_id,
   },
 });
+
+export const getLearnerChallengeCountByChallengeId = challenge_id => LearnerChallenge.count({
+  where: {
+    challenge_id,
+  },
+});
+
+
+export default LearnerChallenge;

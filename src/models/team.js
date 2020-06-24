@@ -276,3 +276,13 @@ export const getAllLearnerTeamsByUserId = user_id => Team.findAll({
     },
   },
 });
+
+export const getLearnerMilestoneTeam = (user_id, cohort_milestone_id) => Team.findOne({
+  where: {
+    learners: {
+      [Sequelize.Op.contains]: [user_id],
+    },
+    cohort_milestone_id,
+  },
+  attributes: ['github_repo_link', 'id'],
+});

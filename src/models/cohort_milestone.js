@@ -9,7 +9,7 @@ import { Milestone } from './milestone';
 import { Topic } from './topic';
 import { Team, createMilestoneTeams } from './team';
 import { User } from './user';
-import { LearnerChallenge } from './learner_challenge';
+import { LearnerChallenge, getLearnerChallengeCountByChallengeId } from './learner_challenge';
 import { getChallengesByTopicId } from './challenge';
 import { getRecentCommitByUser } from '../integrations/github/controllers/commits.controller';
 import {
@@ -101,6 +101,31 @@ export const getCohortMilestones = cohort_id => CohortMilestone.findAll({
   include: [Milestone],
 });
 
+export const getCohortMilestoneTeams = cohort_id => CohortMilestone.findAll({
+  where: { cohort_id },
+  attributes: ['id'],
+  include: [{
+    model: Team,
+    foreignKey: 'cohort_milestone_id',
+    attributes: ['learners', 'github_repo_link', 'id'],
+  }],
+});
+
+export const getCohortMilestoneTeamsBeforeDate = (
+  cohort_id, before_date,
+) => CohortMilestone.findAll({
+  where: {
+    cohort_id,
+    review_scheduled: { [lte]: before_date },
+  },
+  attributes: ['id'],
+  include: [{
+    model: Team,
+    foreignKey: 'cohort_milestone_id',
+    attributes: ['learners', 'github_repo_link', 'id'],
+  }],
+});
+
 export const getCohortMilestoneBylearnerId = learner_id => Cohort.findOne({
   where: {
     learners: {
@@ -108,7 +133,6 @@ export const getCohortMilestoneBylearnerId = learner_id => Cohort.findOne({
     },
   },
 }).then(cohort => getCohortMilestones(cohort.id));
-
 
 export const getOrCreateMilestoneTeams = milestone_id => getMilestoneTeams(milestone_id)
   .then(teams => {
@@ -133,23 +157,23 @@ export const findTopicsForCohortAndMilestone = (cohort_id, milestone_id = null) 
       required: false,
     },
   ],
-}).then(async topics => {
-  for (let i = 0; i < topics.length; i++) {
-    topics[i].challenges = await getChallengesByTopicId(topics[i].id)
-    Promise.all(topics[i].challenges.map((challenge, index) =>
-      LearnerChallenge.count({
-        where: {
-          challenge_id: challenge,
-        },
-        raw: true
-      }, ).then(count => {
-        topics[i].challenges[index].dataValues.attemptedCount = count;
-      })
-    ))
-    topics[i].resources = await getResourceByTopic(topics[i].id);
-  }
-  return topics;
-});
+}).then(topics => Promise.all(topics.map(topic => {
+  getChallengesByTopicId(topic.id).then(challenges => {
+    topic.challenges = challenges;
+    Promise.all(challenges.map((challenge, index) => LearnerChallenge.count({
+      where: {
+        challenge_id: challenge.id,
+      },
+      raw: true,
+    }).then(count => {
+      topic.challenges[index].dataValues.attemptedCount = count;
+    })));
+  });
+  getResourceByTopic(topic.id).then(resources => {
+    topic.resources = resources;
+  });
+  return topic;
+})));
 
 const populateTeamsWithLearnersWrapper = async ([
   topics,
@@ -161,7 +185,7 @@ const populateTeamsWithLearnersWrapper = async ([
   return [topics, programTopics, teams, breakouts];
 };
 
-const populateLearnerStats = (
+export const populateLearnerStats = (
   user_id,
   cohort_id,
   cohort_milestone_id,
@@ -171,7 +195,7 @@ const populateLearnerStats = (
 
   let lastWeek = [];
   let lastWeekCommitsInRepoDayWise = await weeklyCommitActivityData(
-    Teams[0].github_repo_link,
+    Teams[0].github_repo_link, socialConnection,
   );
   if (typeof lastWeekCommitsInRepoDayWise[51] !== 'undefined') {
     let dayId = new Date(Date.now()).getDay();
@@ -186,15 +210,13 @@ const populateLearnerStats = (
   let u = await userAndTeamCommitsDayWise(
     Teams[0].learners,
     Teams[0].github_repo_link,
+    socialConnection,
   );
   const latestCohortCommit = await getLatestCommitInCohort(cohort_milestone_id);
-  const latestCommitByUser = await getRecentCommitByUser(
-    socialConnection.username,
-    Teams[0].github_repo_link,
-  );
+  const latestCommitByUser = await getRecentCommitByUser(user_id);
   const teamAndUserCommits = await getTotalTeamAndUserCommitsCount(
     user_id,
-    Teams[0].github_repo_link,
+    Teams[0].id,
   );
 
   let { userCommitsDayWise, teamCommitsDayWise } = u;
@@ -214,7 +236,6 @@ export const findBreakoutsForMilestone = async (cohort_id, milestone_id) => {
   let breakouts = await getAllBreakoutsInCohortMilestone(cohort_id, milestone_id);
   return breakouts.filter((breakout) => (breakout != null));
 };
-
 
 export const getCurrentMilestoneOfCohortDelta = (cohort_id) => {
   const now = Sequelize.literal('NOW()');
@@ -266,7 +287,7 @@ export const getLiveMilestones = (program, cohort_duration) => {
   });
 };
 
-export const populateMilestone = async (milestone) => {
+export const populateMilestone = async (milestone, user_id) => {
   if (!milestone) return milestone;
   const {
     cohort_id,
@@ -342,14 +363,13 @@ export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
   });
 };
 
-export const getCohortMilestoneById = (milestone_id) => CohortMilestone.findOne({
+export const getCohortMilestoneById = (milestone_id, user_id) => CohortMilestone.findOne({
   where: {
     id: milestone_id,
   },
   include: [Cohort, Milestone],
   raw: true,
-}).then(milestone => populateMilestone(milestone));
-
+}).then(milestone => populateMilestone(milestone, user_id));
 
 function* calculateReleaseTime(cohort_start, pending, cohort_duration, cohort_program) {
   const DAY_MSEC = 86400000;
@@ -423,3 +443,9 @@ export const markMilestoneReview = id => CohortMilestone.update(
     raw: true,
   },
 ).then(results => (results[1][0] ? results[1][0] : Promise.reject('Review could not be saved')));
+
+export const getCohortMilestone = (cohort_id, milestone_id) => CohortMilestone.findOne(
+  {
+    where: { cohort_id, milestone_id },
+  },
+);

@@ -2,7 +2,11 @@ import request from 'superagent';
 import uuid from 'uuid/v4';
 import dotenv from 'dotenv';
 import { getSoalToken } from '../../util/token';
-import { getUserFromEmails, USER_ROLES, getProfile } from '../../models/user';
+import {
+  getUserFromEmails,
+  USER_ROLES,
+  getProfile,
+} from '../../models/user';
 import { SocialConnection, PROVIDERS, getUserIdByEmail } from '../../models/social_connection';
 import { getCohortFromLearnerId } from '../../models/cohort';
 import {
@@ -33,7 +37,7 @@ const getGithubAccessToken = async code => {
 };
 
 const fetchProfileFromGithub = ({ githubToken, expiry }) =>
-  // TODO: reject if expired
+// TODO: reject if expired
 
   // fetching profile details from github
   request
@@ -194,6 +198,8 @@ export const signinWithGithub = (req, res) => {
   // const {user} = req.jwtData;
   const { code } = req.query;
 
+  // If no user's email is not found with github emails,
+  // then authentication error should be sent as resopnse
   getGithubAccessToken(code)
     .then(fetchProfileFromGithub)
     // If no user's email is not found with github emails,
@@ -272,7 +278,6 @@ const addGoogleProfile = ({
     })
     .then(socialConnection => ({ user, socialConnection }));
 };
-
 
 // checks if google proiver is present in social connection
 // sends redirect url if not found.

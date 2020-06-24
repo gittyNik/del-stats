@@ -419,10 +419,7 @@ export const getAllBreakoutsInCohortMilestone = (cohort_id, milestone_id) => Top
         include: [Topic],
         raw: true,
       })
-        .then(data => {
-          // console.log('SINGLE BREAKOUT');
-          return data;
-        })
+        .then(data => data)
         .catch(err => {
           console.error(err);
           return null;

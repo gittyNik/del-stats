@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 import db from '../database';
+import { User } from './user';
 
 export const PROVIDERS = Object.freeze({
   GITHUB: 'github',
@@ -15,7 +16,10 @@ export const SocialConnection = db.define(
       type: Sequelize.UUID,
       primaryKey: true,
     },
-    user_id: Sequelize.UUID,
+    user_id: {
+      type: Sequelize.UUID,
+      references: { model: 'users', key: 'id' },
+    },
     provider: Sequelize.STRING,
     username: Sequelize.STRING,
     email: Sequelize.STRING,
@@ -62,6 +66,37 @@ export const getGoogleTokens = (user_id) => SocialConnection.findOne({
     return null;
   });
 
+export const getSocialConnecionByUserId = (user_id, provider) => SocialConnection.findOne({
+  where: {
+    user_id,
+    provider,
+  },
+});
+
+// zoom <-> user details
+export const getSocialConnecionByUsername = (username, provider) => SocialConnection.findOne({
+  where: {
+    provider,
+    username,
+  },
+});
+
+
+export const getGithubNameByUserId = (user_id) => SocialConnection.findOne({
+  where: {
+    user_id,
+    provider: PROVIDERS.GITHUB,
+  },
+  attributes: ['username'],
+  raw: true,
+});
+
+export const getGithubByUserId = (user_id) => SocialConnection.findOne({
+  where: {
+    user_id,
+    provider: PROVIDERS.GITHUB,
+  },
+});
 
 export const getGithubConnecionByUserId = user_id => SocialConnection.findOne({
   where: {

@@ -31,8 +31,10 @@ async function downloadFile(bucket, objectKey) {
   }
 }
 
+export const replaceFields = (key, value, htmlFile) => htmlFile.replace(`((${key}))`, value);
+
 export const sendEmail = async (from_name, to_users, subject,
-  html_path, auth, email_attachments) => {
+  html_path, auth, email_attachments, replacement_fields) => {
   // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
@@ -48,6 +50,10 @@ export const sendEmail = async (from_name, to_users, subject,
 
   let html_file = await downloadFile(AWS_BUCKET_NAME, html_path);
   let html = html_file.Body.toString('utf-8');
+  Object.keys(replacement_fields).forEach((key) => {
+    html = replaceFields(key, replacement_fields[key], html);
+  });
+
 
   // send mail with defined transport object
   const mailOptions = {
@@ -109,8 +115,11 @@ export const sendCohortEmail = async (from_name, cohort_ids, subject, html, auth
 export const sendEmailApi = async (req, res) => {
   const {
     auth, user_emails, subject, html, from_name, attachments,
+    replacement_fields,
   } = req.body;
-  let messageId = await sendEmail(from_name, user_emails, subject, html, auth, attachments);
+  let messageId = await sendEmail(from_name, user_emails,
+    subject, html, auth, attachments,
+    replacement_fields);
   return res.json({
     text: 'Email sent successfully!',
     message_token: messageId,
