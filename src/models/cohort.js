@@ -73,7 +73,7 @@ export const getLiveCohorts = () => Cohort.findAll({
     learners: Sequelize.literal('learners<>\'{}\''),
   },
   order: [['start_date', 'DESC']],
-  limit: 14,
+  status: 'live',
   raw: true,
 });
 
