@@ -13,11 +13,23 @@ import { createTypeBreakoutsInMilestone } from './breakout_template';
 import { removeLearnerBreakouts, createLearnerBreakouts } from './learner_breakout';
 import { moveLearnerToNewGithubTeam, deleteGithubRepository } from '../integrations/github/controllers';
 
+export const COHORT_STATUS = [
+  'upcoming',
+  'live',
+  'completed',
+  'deferred',
+  'reallocated',
+  'suitup',
+];
 
 export const Cohort = db.define('cohorts', {
   id: {
     type: Sequelize.UUID,
     primaryKey: true,
+  },
+  status: {
+    type: Sequelize.ENUM(...COHORT_STATUS),
+    defaultValue: 'upcoming',
   },
   name: Sequelize.STRING,
   location: Sequelize.STRING,
@@ -32,6 +44,7 @@ export const Cohort = db.define('cohorts', {
     references: { model: 'users', key: 'id' },
   },
   duration: Sequelize.INTEGER,
+
 });
 
 export const getCohortsStartingToday = () => {
@@ -60,7 +73,7 @@ export const getLiveCohorts = () => Cohort.findAll({
     learners: Sequelize.literal('learners<>\'{}\''),
   },
   order: [['start_date', 'DESC']],
-  limit: 14,
+  status: 'live',
   raw: true,
 });
 
@@ -87,6 +100,15 @@ const populateCohortsWithLearners = (cohorts) => {
   }));
   return Promise.all(learnerGetters);
 };
+
+export const getLearnersFromCohorts = (ids) => Cohort.findAll({
+  where: {
+    id: {
+      [Sequelize.Op.in]: ids,
+    },
+  },
+  attributes: ['learners', 'name', 'id', 'duration'],
+});
 
 // TODO: Optimize this later
 export const getCohortLearnerDetailsByName = ({ name, location, year }) => {

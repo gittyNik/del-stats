@@ -157,7 +157,6 @@ export const updateReviewForLearner = (
   raw: true,
 });
 
-
 export const createReviewEntry = (milestone_team_id, cohort_id,
   time_scheduled, duration, details, cohortName, team_feedback,
   catalyst_notes, catalyst_id) => {
@@ -179,7 +178,6 @@ export const createReviewEntry = (milestone_team_id, cohort_id,
   };
   return BreakoutWithOptions(reviewDetails);
 };
-
 
 export const addReviewsForTeam = (milestone_team_id, learner_feedbacks, status, team_feedback,
   additional_details) => CohortBreakout.update({
@@ -297,7 +295,7 @@ export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
     subtractDeleteIndex += 1;
 
     let timeSlot = calculateReviewTime(milestonecohort.review_scheduled, reviewForTeam);
-    let { review_duration } = reviewForTeam;
+    let { review_duration, reviewer } = reviewForTeam;
     return createReviewEntry(
       id,
       cohort_id,
@@ -305,9 +303,12 @@ export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
       review_duration,
       details,
       cohortName,
+      null,
+      null,
+      reviewer,
     ).then(createReviewBreakout => {
       let cohort_breakout_id = createReviewBreakout.id;
-      let review_feedback = { type: 'review' };
+      let review_feedback = { type: 'reviews' };
       learners.map(learner_id => LearnerBreakout.create({
         id: uuid(),
         review_feedback,
