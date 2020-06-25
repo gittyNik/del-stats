@@ -71,9 +71,9 @@ export const getCohortsStartingToday = () => {
 export const getLiveCohorts = () => Cohort.findAll({
   where: {
     learners: Sequelize.literal('learners<>\'{}\''),
+    status: 'live',
   },
   order: [['start_date', 'DESC']],
-  status: 'live',
   raw: true,
 });
 
