@@ -179,8 +179,15 @@ export const updateReviewFeedback = async (learner_breakout_id, calendarDetails)
 };
 
 export const createCalendarEventsForLearner = async (learnerId) => {
-  const payload = await getPayloadForCalendar(learnerId);
-  const oauth = await getGoogleOauthOfUser(learnerId);
+  let payload;
+  let oauth;
+  try {
+    payload = await getPayloadForCalendar(learnerId);
+    oauth = await getGoogleOauthOfUser(learnerId);
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
   const res_data = [];
   return async.eachSeries(payload, (item, callback) => {
     if (item.learnerBreakout) {
