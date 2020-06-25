@@ -6,6 +6,7 @@ import { Cohort, getCohortFromLearnerId } from './cohort';
 import { getScheduledCohortBreakoutsByCohortId, getCalendarDetailsOfCohortBreakout, getCohortBreakoutsByCohortId } from './cohort_breakout';
 import { createEvent } from '../integrations/calendar/calendar.model';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
+import logger from '../util/logger';
 
 export const LearnerBreakout = db.define('learner_breakouts', {
   id: {
@@ -185,7 +186,7 @@ export const createCalendarEventsForLearner = async (learnerId) => {
     payload = await getPayloadForCalendar(learnerId);
     oauth = await getGoogleOauthOfUser(learnerId);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     return false;
   }
   const res_data = [];

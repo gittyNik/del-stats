@@ -35,7 +35,6 @@ const paperLogger = new winston.transports.Papertrail({
 const logger = winston.createLogger({
   format: combine(
     timestamp(),
-    winston.format.colorize(),
     prodLogFormat,
   ),
   transports: [consoleLogger],
