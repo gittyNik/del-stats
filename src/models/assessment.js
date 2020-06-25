@@ -257,6 +257,8 @@ export const createLearnerAssessmentBreakout = (assessmentSlots,
     assessmentSlots.splice(indexForReview, 1);
     subtractDeleteIndex += 1;
 
+    assessment_start = new Date(Date.parse(assessment_start));
+
     let timeSlot = calculateAssessmentTime(assessment_start,
       assessmentForLearner);
     let { assessment_duration, reviewer } = assessmentForLearner;
@@ -293,7 +295,7 @@ export const createAssessmentSchedule = (
   cohort_duration)
   .then(assessmentSlots => {
     let slotsForReview = assessmentSlots;
-    return getLearnersFromCohorts(program, cohort_duration, cohort_ids, assessment_start)
+    return getLearnersFromCohorts(cohort_ids)
       .then((cohortsForAssessments) => cohortsForAssessments.forEach(
         singleCohort => createLearnerAssessmentBreakout(
           slotsForReview, singleCohort, assessment_start,

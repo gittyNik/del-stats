@@ -44,7 +44,7 @@ export const AssessmentSlots = db.define('assessment_slots', {
   slot_order: {
     type: Sequelize.INTEGER,
   },
-  phase: Sequelize.STRING,
+  phase: Sequelize.UUID,
   assessment_rubric: Sequelize.JSON,
 });
 

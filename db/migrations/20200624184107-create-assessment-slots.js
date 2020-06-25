@@ -43,7 +43,7 @@ const migration = {
     slot_order: {
       type: Sequelize.INTEGER,
     },
-    phase: Sequelize.STRING,
+    phase: Sequelize.UUID,
     assessment_rubric: Sequelize.JSON,
   }),
   down: queryInterface => queryInterface.dropTable('assessment_slots'),
