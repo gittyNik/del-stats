@@ -22,10 +22,6 @@ const WEEK_VALUES = {
 
 const { gte } = Sequelize.Op;
 
-CohortBreakout.hasMany(LearnerBreakout, { foreignKey: 'cohort_breakout_id' });
-
-LearnerBreakout.belongsTo(User, { foreignKey: 'learner_id' });
-
 // Start date to get all reviews - 2020-04-20
 export const getAllReviews = (after_date = '2020-04-20 00:00:00+00') => CohortBreakout.findAll({
   where: {
