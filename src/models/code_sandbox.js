@@ -3,7 +3,6 @@ import request from 'superagent';
 import uuid from 'uuid';
 import db from '../database';
 
-
 const CODE_ENDPOINT = 'https://codesandbox.io/api/v1/';
 
 export const CodeSandbox = db.define('code_sandboxes', {
@@ -18,7 +17,7 @@ export const CodeSandbox = db.define('code_sandboxes', {
 
 // template [object] payload to send to codesandbox.
 // embed_options[object] sends query parameters as object.
-export const createSandbox = (payload) => {
+export const createSandbox = async (payload) => {
   const defaultTemplate = {
     files: {
       'package.json': {
@@ -45,26 +44,25 @@ export const createSandbox = (payload) => {
     defaultTemplate,
     embed_options,
   };
-  return request
-    .post(`${CODE_ENDPOINT}sandboxes/define?json=1`)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .send(payload)
-    .query(embed_options)
-    .then(response => {
-      // console.log(response);
-      // todo: store the sandbox id in DB.
-      return CodeSandbox.create({
-        id: uuid(),
-        sandbox_id: response.body.sandbox_id,
-        sandbox_setting,
-      })
-    })
-    .catch(err => {
-      console.error(err);
-      return {
-        text: 'Failed to create a sandbox',
-        err,
-      };
+  try {
+    const response = await request
+      .post(`${CODE_ENDPOINT}sandboxes/define?json=1`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .send(payload)
+      .query(embed_options);
+    // console.log(response);
+    // todo: store the sandbox id in DB.
+    return CodeSandbox.create({
+      id: uuid(),
+      sandbox_id: response.body.sandbox_id,
+      sandbox_setting,
     });
+  } catch (err) {
+    console.error(err);
+    return {
+      text: 'Failed to create a sandbox',
+      err,
+    };
+  }
 };

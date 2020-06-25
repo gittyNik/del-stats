@@ -276,6 +276,7 @@ export const getLiveMilestones = (program, cohort_duration) => {
       [Cohort, 'duration', 'ASC'],
     ],
     where: {
+      '$cohort.status$': 'live',
       release_time: { [lte]: now },
       review_scheduled: { [between]: [now, nextSevenDays] },
       '$cohort.program_id$': program,

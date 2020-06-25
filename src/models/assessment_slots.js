@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 
-export const ReviewSlots = db.define('review_slots', {
+export const AssessmentSlots = db.define('assessment_slots', {
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
@@ -21,7 +21,7 @@ export const ReviewSlots = db.define('review_slots', {
     type: Sequelize.STRING,
     references: { model: 'programs', key: 'id' },
   },
-  review_day: {
+  assessment_day: {
     type: Sequelize.STRING,
     allowNull: false,
   },
@@ -38,17 +38,20 @@ export const ReviewSlots = db.define('review_slots', {
     type: Sequelize.INTEGER,
     defaultValue: 1,
   },
-  review_duration: {
+  assessment_duration: {
     type: Sequelize.INTEGER,
   },
   slot_order: {
     type: Sequelize.INTEGER,
   },
+  phase: Sequelize.UUID,
+  assessment_rubric: Sequelize.JSON,
 });
 
-export const getAllReviewSlots = () => ReviewSlots.findAll({});
+export const getAllAssessmentSlots = () => AssessmentSlots.findAll({});
 
-export const getReviewSlotsByProgram = (program, cohort_duration) => ReviewSlots.findAll(
+export const getAssessmentSlotsByProgram = (program,
+  cohort_duration) => AssessmentSlots.findAll(
   {
     order: [
       ['cohort_duration', 'ASC'],
@@ -62,41 +65,43 @@ export const getReviewSlotsByProgram = (program, cohort_duration) => ReviewSlots
   },
 );
 
-export const getReviewSlotsByProgramDuration = (program, cohort_duration) => ReviewSlots.findAll(
+export const getAssessmentSlotsByProgramDuration = (program,
+  cohort_duration) => AssessmentSlots.findAll(
   { where: { program, cohort_duration } },
 );
 
-export const getReviewSlotsById = id => ReviewSlots.findOne(
+export const getAssessmentSlotsById = id => AssessmentSlots.findOne(
   { where: { id } },
 );
 
-export const createReviewSlots = (cohort_duration, program,
-  review_day, time_scheduled, reviewer, week, review_duration,
-  slot_order) => ReviewSlots.create(
+export const createAssessmentSlots = (cohort_duration, program,
+  assessment_day, time_scheduled, reviewer, week, assessment_duration,
+  slot_order, phase) => AssessmentSlots.create(
   {
     cohort_duration,
-    review_day,
+    assessment_day,
     program,
     time_scheduled,
     reviewer,
     week,
-    review_duration,
+    assessment_duration,
     slot_order,
+    phase,
     created_at: Sequelize.literal('NOW()'),
   },
 );
 
-export const updateReviewSlots = (id, review_day,
-  time_scheduled, reviewer, week, review_duration,
-  slot_order) => ReviewSlots.update({
-  review_day,
+export const updateAssessmentSlots = (id, assessment_day,
+  time_scheduled, reviewer, week, assessment_duration,
+  slot_order) => AssessmentSlots.update({
+  assessment_day,
   time_scheduled,
   reviewer,
   week,
-  review_duration,
+  assessment_duration,
   slot_order,
 }, { where: { id } });
 
-export const deleteReviewSlot = (id) => ReviewSlots.destroy(
+export const deleteAssessmentSlot = (id) => AssessmentSlots.destroy(
   { where: { id } },
 );
