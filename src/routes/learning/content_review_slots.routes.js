@@ -44,10 +44,8 @@ router.get('/:id', getReviewSlotsByIdAPI);
  */
 router.get('/review/:id', getReviewSlotsByProgramAPI);
 
-
 // Restrict modifications for any applicant to the cohorts
 router.use(allowAdminsOnly);
-
 
 /**
  * @api {post} /learning/content/review-slots/ Add ReviewSlots

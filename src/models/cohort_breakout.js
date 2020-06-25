@@ -31,6 +31,8 @@ export const BREAKOUT_TYPE = [
   'activity',
   'groupdiscussion',
   'reviews',
+  'assessment',
+  '1on1',
 ];
 
 export const CohortBreakout = db.define('cohort_breakouts', {

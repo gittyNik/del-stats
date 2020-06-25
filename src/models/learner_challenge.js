@@ -34,10 +34,15 @@ export const LearnerChallenge = db.define('learner_challenges', {
     type: Sequelize.UUID,
     references: { model: 'users', key: 'id' },
   },
-  created_at: Sequelize.DATE,
-  updated_at: Sequelize.DATE,
+  created_at: {
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.literal('NOW()'),
+  },
+  updated_at: {
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.literal('NOW()'),
+  },
 });
-
 
 const { gt } = Sequelize.Op;
 
@@ -103,8 +108,6 @@ export const learnerChallengesFindOrCreate = async (
         challenge_id,
         learner_id,
         repo: repo_name,
-        created_at: Date.now(),
-        updated_at: Date.now(),
       });
       return {
         challenge: chl,
@@ -155,7 +158,6 @@ export const getChallengesByUserId = (learner_id) => LearnerChallenge.findAll(
   },
   { raw: true },
 );
-
 
 export const deleteLearnerChallengesByLearnerId = (learner_id) => LearnerChallenge.destroy({
   where: {

@@ -27,7 +27,10 @@ export const LearnerBreakout = db.define('learner_breakouts', {
     type: Sequelize.UUID,
     references: { model: 'team_breakout', key: 'id' },
   },
-  attendance: Sequelize.BOOLEAN,
+  attendance: {
+    type: Sequelize.BOOLEAN,
+    default: false,
+  },
   created_at: {
     allowNull: false,
     type: Sequelize.DATE,
@@ -110,15 +113,14 @@ export const removeLearnerBreakouts = (learner_id) => LearnerBreakout.destroy({
 
 export const createLearnerBreakouts = (learner_id,
   future_cohort_id) => getCohortBreakoutsByCohortId(future_cohort_id)
-    .then((breakouts) => LearnerBreakout.bulkCreate(
-      breakouts.map((breakout) => ({
-        id: uuid(),
-        learner_id,
-        cohort_breakout_id: breakout.id,
-        attendance: false,
-      })),
-    ));
-
+  .then((breakouts) => LearnerBreakout.bulkCreate(
+    breakouts.map((breakout) => ({
+      id: uuid(),
+      learner_id,
+      cohort_breakout_id: breakout.id,
+      attendance: false,
+    })),
+  ));
 
 export const getPayloadForCalendar = async (learnerId) => {
   try {
@@ -215,10 +217,9 @@ export const createCalendarEventsForLearner = async (learnerId) => {
       callback();
     }
   })
-    .then(() => {
+    .then(() =>
       // console.log(res_data);
-      return res_data;
-    })
+      res_data)
     .catch(err => {
       console.error(err);
       return false;
