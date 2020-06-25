@@ -852,6 +852,7 @@ export const getRecentCommitInCohort = async (req, res) => {
     const latestCommit = await getLatestCommitInCohort(cohort_milestone_id);
     res.send({ data: latestCommit });
   } catch (err) {
+    console.error(err);
     res.status(500).send(err);
   }
 };

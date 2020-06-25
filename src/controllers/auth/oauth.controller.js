@@ -344,11 +344,11 @@ export const handleGoogleCallback = async (req, res) => {
             expiry,
             user,
           });
-          console.log(dataSC.user);
+          // console.log(dataSC.user);
           // Create calendar events if user is learner
           if (user.role === USER_ROLES.LEARNER) {
             const calendarStats = await createCalendarEventsForLearner(user.id);
-            console.log(calendarStats);
+            // console.log(calendarStats);
             res.json({
               text: 'Breakout are successfully added to Google Calendar',
               data: dataSC.user,

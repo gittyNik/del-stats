@@ -81,7 +81,9 @@
     "superagent": "^3.8.2",
     "twitter": "^1.7.1",
     "uuid": "^3.4.0",
-    "watson-developer-cloud": "^3.5.3"
+    "watson-developer-cloud": "^3.5.3",
+    "winston": "^3.3.3",
+    "winston-papertrail": "^1.0.5"
   },
   "devDependencies": {
     "@babel/node": "^7.10.3",

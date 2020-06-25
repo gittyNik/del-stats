@@ -167,6 +167,6 @@ export const getLearnerChallengeCountByChallengeId = challenge_id => LearnerChal
   where: {
     challenge_id,
   },
-}),
+});
 
 export default LearnerChallenge;

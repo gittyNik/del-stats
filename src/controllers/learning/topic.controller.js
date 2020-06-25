@@ -14,7 +14,7 @@ export const create = (req, res) => {
         data: tepTopic,
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => console.error(err));
 };
 
 export const getAllResourcesByTopic = (req, res) => {

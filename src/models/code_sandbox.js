@@ -52,8 +52,6 @@ export const createSandbox = (payload) => {
     .send(payload)
     .query(embed_options)
     .then(response => {
-      // console.log(response);
-      // todo: store the sandbox id in DB.
       return CodeSandbox.create({
         id: uuid(),
         sandbox_id: response.body.sandbox_id,

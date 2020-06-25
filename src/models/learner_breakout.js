@@ -66,7 +66,7 @@ export const createLearnerBreakoutsForCohortMilestones = (
   cohort_breakout_id,
   cohort_id,
 ) => {
-  console.log(cohort_breakout_id, cohort_id);
+  // console.log(cohort_breakout_id, cohort_id);
   return Cohort.findOne({
     attributes: ['id', 'learners'],
     where: {
@@ -90,9 +90,9 @@ export const createLearnerBreakoutsForCohortMilestones = (
           });
         return learnerBreakout;
       });
-      console.log(
-        `${learnerBreakouts.length} learner_breakouts created for a cohort_breakout_id: ${cohort_breakout_id}`,
-      );
+      // console.log(
+      //   `${learnerBreakouts.length} learner_breakouts created for a cohort_breakout_id: ${cohort_breakout_id}`,
+      // );
       return learnerBreakouts;
     })
     .catch((err) => {

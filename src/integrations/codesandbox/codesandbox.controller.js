@@ -28,7 +28,7 @@ export const createSandbox = (req, res) => {
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .then(response => {
-      console.log(response.body);
+      // console.log(response.body);
       res.json({
         text: 'Id of newly created codesandbox, used to redirect ex: https://codesanbox.io/embed/<id>',
         data: response.body,
@@ -50,7 +50,7 @@ export const createTemplate = (template, embed_options) => {
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .then(response => {
-      console.log(response.text);
+      // console.log(response.text);
       return {
         text: 'Id of newly created codesandbox, used to redirect ex: https://codesanbox.io/embed/<id>',
         data: response.text,
