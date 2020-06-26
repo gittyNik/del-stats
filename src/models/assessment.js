@@ -279,7 +279,7 @@ export const createLearnerAssessmentBreakout = (assessmentSlots,
         id: uuid(),
         review_feedback,
         cohort_breakout_id,
-        eachLearner,
+        learner_id: eachLearner,
       });
       return createReviewBreakout;
     });
