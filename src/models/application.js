@@ -1,12 +1,12 @@
-import Sequelize from 'sequelize';
-import db from '../database';
-import { Test } from './test';
-import { User } from './user';
-import { Cohort, getUpcomingCohort } from './cohort';
+import Sequelize from "sequelize";
+import db from "../database";
+import { Test } from "./test";
+import { User } from "./user";
+import { Cohort, getUpcomingCohort } from "./cohort";
 
 const { in: opIn } = Sequelize.Op;
 
-export const Application = db.define('applications', {
+export const Application = db.define("applications", {
   id: {
     type: Sequelize.UUID,
     primaryKey: true,
@@ -14,19 +14,23 @@ export const Application = db.define('applications', {
   user_id: {
     type: Sequelize.UUID,
     allowNull: false,
-    references: { model: 'users' },
+    references: { model: "users" },
   },
   cohort_applied: {
     type: Sequelize.UUID,
-    references: { model: 'cohorts' },
+    references: { model: "cohorts" },
   },
   cohort_joining: {
     type: Sequelize.UUID,
-    references: { model: 'cohorts' },
+    references: { model: "cohorts" },
   },
   status: Sequelize.ENUM(
-    'applied', 'review_pending', 'offered',
-    'rejected', 'joined', 'archieved',
+    "applied",
+    "review_pending",
+    "offered",
+    "rejected",
+    "joined",
+    "archieved"
   ),
   payment_details: Sequelize.JSON,
   created_at: {
@@ -39,42 +43,49 @@ export const Application = db.define('applications', {
   },
 });
 
-Application.prototype.populateTestResponses = () => Test
-  .findAll({ where: { application_id: this.id }, raw: true })
-  .then(test_series => ({ ...this, test_series }));
+Application.prototype.populateTestResponses = () =>
+  Test.findAll({
+    where: { application_id: this.id },
+    raw: true,
+  }).then((test_series) => ({ ...this, test_series }));
 
-export const getPendingApplications = () => Application.findAll({
-  order: Sequelize.col('created_at'),
-  where: { status: { [opIn]: ['review_pending', 'offered'] } },
-});
+export const getPendingApplications = () =>
+  Application.findAll({
+    order: Sequelize.col("created_at"),
+    where: { status: { [opIn]: ["review_pending", "offered"] } },
+  });
 
-export const getPendingApplicationCohorts = () => Application.findAll({
-  order: Sequelize.col('created_at'),
-  where: { status: { [opIn]: ['joined', 'review_pending', 'offered'] } },
-  include: [Cohort, User],
-  raw: true,
-});
+export const getPendingApplicationCohorts = () =>
+  Application.findAll({
+    order: Sequelize.col("created_at"),
+    where: { status: { [opIn]: ["joined", "review_pending", "offered"] } },
+    include: [Cohort, User],
+    raw: true,
+  });
 
-export const submitApplication = (id) => Application.update({
-  status: 'review_pending',
-}, {
-  where: { id },
-  returning: true,
-  raw: true,
-})
-  .then(result => result[1][0]);
+export const submitApplication = (id) =>
+  Application.update(
+    {
+      status: "review_pending",
+    },
+    {
+      where: { id },
+      returning: true,
+      raw: true,
+    }
+  ).then((result) => result[1][0]);
 
-export const getStatsForDay = date => {
+export const getStatsForDay = (date) => {
   const today = date || new Date();
   today.setHours(0);
   today.setMinutes(0);
   today.setSeconds(0);
 
-  const calcCount = applications => {
+  const calcCount = (applications) => {
     const count = {
       total: applications.length,
     };
-    applications.forEach(a => {
+    applications.forEach((a) => {
       count[a.status] = count[a.status] || 0;
       count[a.status]++;
     });
@@ -82,10 +93,13 @@ export const getStatsForDay = date => {
   };
 
   return Promise.all([
-    getUpcomingCohort()
-      .then(cohort => (cohort ? Application.findAll({
-        where: { cohort_joining: cohort.id },
-      }) : [])),
+    getUpcomingCohort().then((cohort) =>
+      cohort
+        ? Application.findAll({
+            where: { cohort_joining: cohort.id },
+          })
+        : []
+    ),
     Application.findAll({
       where: {
         created_at: {
@@ -97,6 +111,20 @@ export const getStatsForDay = date => {
       },
     }),
   ])
-    .then(lists => lists.map(calcCount))
+    .then((lists) => lists.map(calcCount))
     .then(([cohort, yesterday]) => ({ cohort, yesterday }));
 };
+
+export const updateCohortJoining = (cohort_applied, cohort_joining) =>
+  Application.update(
+    {
+      cohort_joining,
+    },
+    {
+      where: {
+        cohort_applied,
+      },
+      returning: true,
+      raw: true,
+    }
+  );

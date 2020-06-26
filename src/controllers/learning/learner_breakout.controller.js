@@ -1,14 +1,18 @@
-import { uuid } from 'uuid/v4';
-import { LearnerBreakout, createLearnerBreakouts } from '../../models/learner_breakout';
-import { CohortBreakout } from '../../models/cohort_breakout';
-import { User } from '../../models/user';
+import { uuid } from "uuid/v4";
+import {
+  LearnerBreakout,
+  createLearnerBreakouts,
+} from "../../models/learner_breakout";
+import { CohortBreakout } from "../../models/cohort_breakout";
+import { createLearnerBreakoutsForLearners } from "../../models/learner_breakout";
+import { User } from "../../models/user";
 
 export const getLearnerBreakouts = (req, res) => {
   LearnerBreakout.findAll({
-    attributes: ['cohort_breakout_id'],
+    attributes: ["cohort_breakout_id"],
   })
-    .then(data => res.json(data))
-    .catch(err => {
+    .then((data) => res.json(data))
+    .catch((err) => {
       console.error(err.stack);
       res.status(500);
     });
@@ -18,8 +22,8 @@ export const learnerBreakoutsCreate = (req, res) => {
   const { learner_id, cohort_id } = req.body;
 
   createLearnerBreakouts(learner_id, cohort_id)
-    .then(data => res.json(data))
-    .catch(err => {
+    .then((data) => res.json(data))
+    .catch((err) => {
       console.error(err.stack);
       res.status(500);
     });
@@ -28,11 +32,11 @@ export const learnerBreakoutsCreate = (req, res) => {
 export const getUpcomingBreakouts = (req, res) => {
   CohortBreakout.findAll({
     where: {
-      status: 'scheduled',
+      status: "scheduled",
     },
   })
-    .then(data => res.json(data))
-    .catch(err => {
+    .then((data) => res.json(data))
+    .catch((err) => {
       console.error(err.stack);
       res.status(500);
     });
@@ -52,8 +56,8 @@ export const createLearnerBreakout = (req, res) => {
     learner_notes,
     learner_feedback,
   })
-    .then(() => res.send('Created Learner Breakout'))
-    .catch(err => {
+    .then(() => res.send("Created Learner Breakout"))
+    .catch((err) => {
       console.error(err.stack);
       res.status(500);
     });
@@ -67,32 +71,57 @@ export const getLearnerBreakoutsByBreakoutId = (req, res) => {
     },
     include: [User],
   })
-    .then(data => res.json({
-      text: 'Learner breakouts for a cohort breakout',
-      data,
-    }))
-    .catch(err => {
+    .then((data) =>
+      res.json({
+        text: "Learner breakouts for a cohort breakout",
+        data,
+      })
+    )
+    .catch((err) => {
       console.error(err.stack);
       res.status(500);
     });
 };
 
 export const markAttendance = (req, res) => {
-  const {
-    learnerBreakouts,
-  } = req.body;
-  Promise.all(learnerBreakouts.map(breakout => LearnerBreakout.update({
-    attendance: breakout.attendance,
-  }, {
-    where: {
-      id: breakout.id,
-    },
-  }))).then(() => {
-    res.json({
-      text: 'Mark attendance success',
+  const { learnerBreakouts } = req.body;
+  Promise.all(
+    learnerBreakouts.map((breakout) =>
+      LearnerBreakout.update(
+        {
+          attendance: breakout.attendance,
+        },
+        {
+          where: {
+            id: breakout.id,
+          },
+        }
+      )
+    )
+  )
+    .then(() => {
+      res.json({
+        text: "Mark attendance success",
+      });
+    })
+    .catch((err) => {
+      console.error(err.stack);
+      res.status(500);
     });
-  }).catch(err => {
-    console.error(err.stack);
-    res.status(500);
-  });
+};
+
+export const createLearnerBreakoutsForLearnersEndpoint = async (req, res) => {
+  let { cohort_breakout_id, learners } = req.body;
+  try {
+    let bk = await createLearnerBreakoutsForLearners(
+      cohort_breakout_id,
+      learners
+    );
+    res.send({
+      data: bk,
+      desc: "Creates learner breakouts of passed learners",
+    });
+  } catch (err) {
+    res.status(500).send(err);
+  }
 };
