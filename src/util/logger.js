@@ -1,45 +1,94 @@
-import pjson from '../../package.json';
-import 'dotenv/config';
+import { createLogger, format, transports } from 'winston';
 import { Papertrail } from 'winston-papertrail';
-import winston from 'winston';
+import moment from 'moment';
+import 'dotenv/config';
 
 const {
-  combine, timestamp, printf,
-} = winston.format;
+  combine, timestamp, printf, label, prettyPrint,
+  splat, ms, colorize, simple, json, align,
+} = format;
 
-const consoleLogger = new winston.transports.Console({
+// LogFormat
+const prodLogFormat = printf(({
+  // eslint-disable-next-line no-shadow
+  level, message, label, timestamp,
+}) => `${timestamp} [${label}] ${level}: ${message}`);
+
+const jsonFormat = printf(({
+  // eslint-disable-next-line no-shadow
+  level, message, label, timestamp,
+}) => `${new Date(timestamp).toLocaleString()} ${level} [${label}] ${message}`);
+
+const debugFormat = printf(({
+  level, message, label, timestamp,
+}) => {
+  const now = () => moment().format('YYYY-MM-DD HH:mm:ss');
+  return `${timestamp} [${level}]: ` + message;
+});
+
+// Winston Transports
+const consoleLogger = new transports.Console({
   level: 'debug',
+  color: colorize(),
+  // format: simple(), // json() or  align() or prettyPrint() or combine(),
+  // prodLogFormat,
+  // prettyPrint(),
+
+  // format: winston.format.json(),
 });
 
-const prodLogFormat = printf(({ level, message, timestamp }) => {
-  return `${timestamp} ${level}: ${message}`;
-});
-
-const paperLogger = new winston.transports.Papertrail({
+const paperLogger = new Papertrail({
   host: 'logs3.papertrailapp.com',
   port: 25335,
-  program: pjson.name,
+  // The program for your transport, defaults to default
+  // program: pjson.name,
+  // id: 1234,
+  // disableTls set to true to disable TLS on your transport.
+  // The log level to use for this transport, defaults to info
+  // level: 'info';
+
+  // colorize - Enable colors in logs, defaults to false
+  // colorize: true,
+  inlineMeta: true,
   logFormat: (level, message) => {
     if (level === 'error') {
-      return `${level}-${message}`;
+      return `${level}: ${message}`;
     }
-    return `${level} - ${message}`;
+    return `${level} ${message}`;
   },
 });
 
-// paperLogger.on('error', err => {
-//   console.error('Error in Papertrail', err);
-// });
+paperLogger.on('error', err => {
+  console.error('Error in Papertrail', err);
+});
+
+// Log Formats
 
 // 3. configure
-const logger = winston.createLogger({
+const logger = createLogger({
+  level: 'info',
   format: combine(
+    // splat(),
     timestamp(),
+    label({ label: 'delta-api' }),
+    colorize(),
+    // prettyPrint(),
+    // simple(),
+    // json(),
+    // align(),
+    // winston.format.colorize(),
+    // winston.format.json(),
     prodLogFormat,
   ),
   transports: [consoleLogger],
   exitOnError: false,
 });
+
+// logger.stream = {
+//   write(message, encoding) {
+//     logger.info(message);
+//   },
+// };
 
 if (process.env === 'production') {
   logger.remove(consoleLogger);
@@ -47,15 +96,15 @@ if (process.env === 'production') {
   logger.add(paperLogger);
 }
 
-
-function gimme() {
-  throw Error('calendar creation failed');
-}
-try {
+const gimme = () => {
   logger.info({
-    name: 'asdfa',
+    text: 'Works as expected',
     key: 234,
   });
+  throw Error('An error message');
+};
+
+try {
   gimme();
 } catch (err) {
   logger.error(err);
