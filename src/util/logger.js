@@ -1,5 +1,7 @@
 import { createLogger, format, transports } from 'winston';
 import { Papertrail } from 'winston-papertrail';
+import Transport from 'winston-transport';
+
 import moment from 'moment';
 import 'dotenv/config';
 
@@ -58,9 +60,6 @@ const paperLogger = new Papertrail({
   },
 });
 
-paperLogger.on('error', err => {
-  console.error('Error in Papertrail', err);
-});
 
 // Log Formats
 
@@ -82,20 +81,25 @@ const logger = createLogger({
   ),
   transports: [consoleLogger],
   exitOnError: false,
+  handleExceptions: true,
 });
 
-// logger.stream = {
-//   write(message, encoding) {
-//     logger.info(message);
-//   },
-// };
+
+// on error event for papertrail
+paperLogger.on('error', err => {
+  logger.error('Error in Papertrail', err);
+});
 
 if (process.env === 'production') {
-  logger.remove(consoleLogger);
+  // logger.remove(consoleLogger);
   logger.add(paperLogger);
 } else {
   logger.add(paperLogger);
 }
-
+logger.stream = {
+  write: function (message, encoding) {
+    logger.info(message.replace(/\n$/, ''));
+  }
+};
 
 export default logger;
