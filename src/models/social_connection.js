@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 import { User } from './user';
+import logger from '../util/logger';
 
 export const PROVIDERS = Object.freeze({
   GITHUB: 'github',
@@ -58,11 +59,11 @@ export const getGoogleTokens = (user_id) => SocialConnection.findOne({
       // console.log(sc);
       return sc.profile.tokens;
     }
-    console.error(`no social connection found for user id: ${user_id}`);
+    logger.error(`no social connection found for user id: ${user_id}`);
     return null;
   })
   .catch(err => {
-    console.error(err);
+    logger.error(err);
     return null;
   });
 
