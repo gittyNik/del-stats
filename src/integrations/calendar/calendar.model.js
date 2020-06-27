@@ -1,6 +1,5 @@
 import { google } from 'googleapis';
 import { convertToEventBody } from '../../util/calendar-util';
-import logger from '../../util/logger';
 
 
 export const listEvents = (auth) => {
@@ -17,7 +16,7 @@ export const listEvents = (auth) => {
       return (events.length > 0) ? events : false;
     })
     .catch(err => {
-      logger.error(err);
+      console.error(err);
       return false;
     });
 };

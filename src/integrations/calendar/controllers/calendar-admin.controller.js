@@ -3,11 +3,10 @@ import { getGoogleOauthOfUser } from '../../../util/calendar-util';
 import { CohortBreakout, getCalendarDetailsOfCohortBreakout } from '../../../models/cohort_breakout';
 import { Cohort } from '../../../models/cohort';
 
-import logger from '../../../util/logger';
 
 export const getAllEvents = async (req, res) => {
   const { user } = req.jwtData;
-  logger.info(`GET.calendar.admin.getAllEvents, user: ${user}`);
+  console.log(user);
   const oauth = await getGoogleOauthOfUser(user.id);
   const events = await listEvents(oauth);
   res.json(events);
