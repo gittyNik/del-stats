@@ -29,11 +29,11 @@ export const createWorker = handler => {
   const worker = new Worker('delta', handler, { connection });
 
   worker.on('completed', (job) => {
-    console.log(`${job.id} has completed!`);
+    // console.log(`${job.id} has completed!`);
   });
 
   worker.on('failed', (job, err) => {
-    console.log(`${job.id} has failed with ${err.message}`);
+    console.error(`${job.id} has failed with ${err.message}`);
   });
 
   // initialize scheduler after a worker is created

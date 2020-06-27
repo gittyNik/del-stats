@@ -1,9 +1,9 @@
 import Express from 'express';
 import {
   getAllCalendarEvents, createCalendarEvent,
-  scheduleCalendarEventForLearner, updateCalendarEvent,
-  deleteOneEvent, createEventForLearner
-} from './calendar.controller';
+  updateCalendarEvent, createEventForEducator,
+  deleteOneEvent, createEventForLearner,
+} from '../controllers/calendar.controller';
 
 const router = Express.Router();
 

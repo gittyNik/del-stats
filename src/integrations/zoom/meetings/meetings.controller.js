@@ -105,7 +105,7 @@ export const scheduleNewMeeting = (req, res) => {
         uuid, id, status,
         start_url, join_url, h323_password,
       } = data.body;
-      console.log(`ZOOM MEETING --> uuid: ${uuid}, id: ${id}, status: ${status}, join_url: ${join_url}, start_url: ${start_url} h323_password: ${h323_password}.`);
+      // console.log(`ZOOM MEETING --> uuid: ${uuid}, id: ${id}, status: ${status}, join_url: ${join_url}, start_url: ${start_url} h323_password: ${h323_password}.`);
       res.json({
         text: `Successfully scheduled a meeting at ${start_time}`,
         data: {
@@ -117,7 +117,7 @@ export const scheduleNewMeeting = (req, res) => {
       });
     })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       res.status(500).send({
         text: 'Error:',
         data: err.response.text,

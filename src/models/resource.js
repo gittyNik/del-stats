@@ -148,28 +148,28 @@ export const autoTagUrls = (url) => request
 export const createResource = (url, level, owner, tagged, title = '',
   description = '', source = 'slack', type = 'article', details = {},
   thumbnail = '', program = 'tep') => Resource.create(
-  {
-    id: uuid(),
-    url,
-    type,
-    level,
-    owner,
-    title,
-    description,
-    source,
-    details,
-    tagged,
-    program,
-    thumbnail,
-  },
-);
+    {
+      id: uuid(),
+      url,
+      type,
+      level,
+      owner,
+      title,
+      description,
+      source,
+      details,
+      tagged,
+      program,
+      thumbnail,
+    },
+  );
 
 
 export const createFromSlackAttachment = async (attachment, owner) => {
   const url = attachment.original_url;
   try {
     const data = await autoTagUrls(url);
-    console.log(data);
+    // console.log(data);
     const { predicted_tag_ids } = data.body.data;
     return createResource(attachment.original_url || attachment.app_unfurl_url,
       'beginner', owner, predicted_tag_ids, attachment.title, attachment.text,
@@ -181,7 +181,7 @@ export const createFromSlackAttachment = async (attachment, owner) => {
 };
 
 export const searchResources = text => {
-  console.log(`searching for: ${text}`);
+  // console.log(`searching for: ${text}`);
   // TODO: important: remove special chars from text
   let initialSearchText = text.split(' ');
   let textWithWords = sw.removeStopwords(initialSearchText);

@@ -2,7 +2,7 @@ import uuid from 'uuid/v4';
 import { Tags, getResourcesByTag, getTagIdbyName, getTagIdbyNames } from '../../models/tags';
 
 export const getTags = (req, res) => {
-    Tags.findAll({})
+  Tags.findAll({})
     .then(data => res.json(data))
     .catch(err => {
       console.error(err);
@@ -11,20 +11,20 @@ export const getTags = (req, res) => {
 };
 
 export const getTag = (req, res) => {
-    const { id } = req.params;
-    Tags.findOne({
-      where: { id },
-    })
-      .then(data => res.json(data))
-      .catch(err => {
-        console.error(err);
-        res.status(500);
-      });
-  };
+  const { id } = req.params;
+  Tags.findOne({
+    where: { id },
+  })
+    .then(data => res.json(data))
+    .catch(err => {
+      console.error(err);
+      res.status(500);
+    });
+};
 
 export const getTagIdName = (req, res) => {
-    const { tag_name } = req.params;
-    getTagIdbyName(tag_name)
+  const { tag_name } = req.params;
+  getTagIdbyName(tag_name)
     .then(data => {
       //console.log(data);
       res.send({ data });
@@ -36,8 +36,8 @@ export const getTagIdName = (req, res) => {
 }
 
 export const getTagIdNames = (req, res) => {
-    const { tag_name } = req.body;
-    getTagIdbyNames(tag_name)
+  const { tag_name } = req.body;
+  getTagIdbyNames(tag_name)
     .then(data => {
       //console.log(data);
       res.send({ data });
@@ -72,7 +72,7 @@ export const createTags = (req, res) => {
     similar_tags
   })
     .then(data => {
-      console.log(data);
+      // console.log(data);
       res.send('Tag created');
     })
     .catch(err => {

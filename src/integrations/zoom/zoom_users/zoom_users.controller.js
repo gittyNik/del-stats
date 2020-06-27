@@ -22,15 +22,15 @@ export const userInfo = (req, res) => {
       // role_id: '',
     })
     .then(data => {
-      console.log(data);
-      console.log(data.body);
+      // console.log(data);
+      // console.log(data.body);
       res.json({
         text: 'List/Array of all users in the zoom account',
         data: data.body.users,
       });
     })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       res.sendStatus(500);
     });
 };

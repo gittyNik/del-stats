@@ -6,7 +6,7 @@ export const getStudentToDos = (req, res) => {
   }).exec()
     .then(data => res.json({ data }))
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.status(500).send(err);
     });
 };
@@ -31,7 +31,7 @@ export const create = (req, res) => {
     text, student, createTime, color,
   }).save()
     .then((data) => {
-      console.log({ data });
+      // console.log({ data });
       res.status(201).json({ data });
     })
     .catch(err => res.status(500).send(err));
@@ -43,7 +43,7 @@ export const update = (req, res) => {
   Todo.findByIdAndUpdate(req.params.id, todo)
     .then(data => res.json({ data }))
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.status(500).send(err);
     });
 };
@@ -58,7 +58,7 @@ export const updateAll = (req, res) => {
   Todo.update({}, { $set: { done: true } }, { multi: true })
     .then(data => res.json({ data }))
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.status(500).send(err);
     });
 };
@@ -67,7 +67,7 @@ export const deleteMultiple = (req, res) => {
   Todo.update({ done: true }, { $set: { deleted: true } }, { multi: true })
     .then(data => res.json({ data }))
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.status(500).send(err);
     });
 };

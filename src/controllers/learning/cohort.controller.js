@@ -107,7 +107,7 @@ export const beginCohort = (req, res) => {
       res.send(cohort);
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.sendStatus(404);
     });
 
@@ -134,7 +134,7 @@ export const getCohortByLearnerId = (req, res) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.sendStatus(404);
     });
 };
