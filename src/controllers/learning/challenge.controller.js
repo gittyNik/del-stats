@@ -27,7 +27,7 @@ export const createChallenge = (req, res) => {
     size,
   )
     .then((data) => {
-      console.log(data);
+      // console.log(data);
       res.send('Challenge created.');
     })
     .catch(err => {
@@ -93,7 +93,7 @@ export const createLearnerChallenge = (req, res) => {
   })
     .then(() => res.send(' Activity Challenge created'))
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.send(500);
     });
 };

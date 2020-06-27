@@ -104,7 +104,8 @@ export const getReleaseTimeFromTopic = (topic_id, cohort_id) => Topic.findByPk(t
       console.error(`Failed to find Cohort Milestone for the topic: ${topic}`);
       console.error(err);
       return null;
-    })).catch(err => {
+    }))
+  .catch(err => {
     console.error(`Failed to find topic for ${topic_id}`);
     console.error(err);
     return null;
@@ -112,13 +113,11 @@ export const getReleaseTimeFromTopic = (topic_id, cohort_id) => Topic.findByPk(t
 
 export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => Promise.all(
   breakoutTemplates.map(async (breakoutTemplate) => {
-    // console.log('Unpack breakoutTemplate: ');
     try {
       let extra = await getReleaseTimeFromTopic(breakoutTemplate.topic_id[0], cohort_id);
-      // console.log('extra:', extra);
       return { ...breakoutTemplate, ...extra };
     } catch (err) {
-      console.log('error in update Breakout Template', err);
+      console.error('error in update Breakout Template', err);
       return null;
     }
   }),
@@ -163,7 +162,7 @@ export const scheduling = (updatedBreakout) => Promise.all(
       let updateBreakout = await calculateBreakoutTime(eachBreakout);
       return updateBreakout;
     } catch (err) {
-      console.log('error in calculating Breakout Time', err);
+      console.error('error in calculating Breakout Time', err);
       return null;
     }
   }),
@@ -181,50 +180,46 @@ const createLearnerBreakouts = async (cohortBreakouts, cohort_id) => {
   return allLearnerBreakouts;
 };
 
-export const createBreakoutsInMilestone = (cohort_id, program_id,
-  cohort_duration) => BreakoutTemplate.findAll(
-  {
+export const createBreakoutsInMilestone = (
+  cohort_id, program_id,
+  cohort_duration,
+) => BreakoutTemplate
+  .findAll({
     attributes: ['id', 'name', 'topic_id', 'details',
       'duration', 'time_scheduled', 'after_days',
       'primary_catalyst', 'level', 'secondary_catalysts'],
     where: { program_id, cohort_duration },
     raw: true,
-  },
-).then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
+  })
+  .then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
   .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
   .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates, cohort_id))
   .then(createdBreakouts => {
-    console.log('Breakouts created for Cohort');
-    // console.log(createdBreakouts);
     return createLearnerBreakouts(createdBreakouts, cohort_id);
-    // return (createdBreakouts);
   });
 
 
 // Create Breakouts of Specific type
 export const createTypeBreakoutsInMilestone = (cohort_id, program_id,
   cohort_duration, type, codeSandBox = false, videoMeet = true) => BreakoutTemplate.findAll(
-  {
-    attributes: ['id', 'name', 'topic_id', 'details',
-      'duration', 'time_scheduled', 'after_days',
-      'primary_catalyst', 'level', 'secondary_catalysts'],
-    where: {
-      program_id,
-      cohort_duration,
-      [Sequelize.Op.and]: Sequelize.literal(`details->>'type'='${type}'`),
+    {
+      attributes: ['id', 'name', 'topic_id', 'details',
+        'duration', 'time_scheduled', 'after_days',
+        'primary_catalyst', 'level', 'secondary_catalysts'],
+      where: {
+        program_id,
+        cohort_duration,
+        [Sequelize.Op.and]: Sequelize.literal(`details->>'type'='${type}'`),
+      },
+      raw: true,
     },
-    raw: true,
-  },
-).then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
-  .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
-  .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates,
-    cohort_id, codeSandBox, videoMeet))
-  .then(createdBreakouts => {
-    console.log('Breakouts created for Cohort');
-    // console.log(createdBreakouts);
-    return createLearnerBreakouts(createdBreakouts, cohort_id);
-    // return (createdBreakouts);
-  });
+  ).then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
+    .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
+    .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates,
+      cohort_id, codeSandBox, videoMeet))
+    .then(createdBreakouts => {
+      return createLearnerBreakouts(createdBreakouts, cohort_id);
+    });
 
 export const getAllBreakoutTemplates = () => BreakoutTemplate.findAll({});
 
@@ -242,23 +237,23 @@ export const createBreakoutTemplate = (name, topic_id,
   cohort_duration,
   program_id,
   user_id) => BreakoutTemplate.create(
-  {
-    id: uuid(),
-    name,
-    topic_id,
-    mandatory,
-    level,
-    primary_catalyst,
-    secondary_catalysts,
-    details,
-    duration,
-    time_scheduled,
-    after_days,
-    cohort_duration,
-    program_id,
-    updated_by: [user_id],
-  },
-);
+    {
+      id: uuid(),
+      name,
+      topic_id,
+      mandatory,
+      level,
+      primary_catalyst,
+      secondary_catalysts,
+      details,
+      duration,
+      time_scheduled,
+      after_days,
+      cohort_duration,
+      program_id,
+      updated_by: [user_id],
+    },
+  );
 
 export const updateBreakoutTemplate = (id,
   name,
@@ -274,32 +269,32 @@ export const updateBreakoutTemplate = (id,
   user_id,
   cohort_duration,
   program_id) => BreakoutTemplate.findOne({
-  where: {
-    id,
-  },
-})
-  .then((milestone) => {
-    milestone.updated_by.push(user_id);
-    milestone.update({
-      updated_by: milestone.updated_by,
-      name,
-      topic_id,
-      mandatory,
-      level,
-      primary_catalyst,
-      secondary_catalysts,
-      details,
-      duration,
-      time_scheduled,
-      after_days,
-      cohort_duration,
-      program_id,
-    }, {
-      where: {
-        id,
-      },
+    where: {
+      id,
+    },
+  })
+    .then((milestone) => {
+      milestone.updated_by.push(user_id);
+      milestone.update({
+        updated_by: milestone.updated_by,
+        name,
+        topic_id,
+        mandatory,
+        level,
+        primary_catalyst,
+        secondary_catalysts,
+        details,
+        duration,
+        time_scheduled,
+        after_days,
+        cohort_duration,
+        program_id,
+      }, {
+        where: {
+          id,
+        },
+      });
     });
-  });
 
 
 export const deleteBreakoutTemplate = (id) => BreakoutTemplate.destroy(

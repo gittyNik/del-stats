@@ -19,36 +19,37 @@ export const requestOTP = (phone, res) => {
 export const sendOTP = (req, res) => {
   const { user, action } = req.body;
   const { phone, email, firstName, lastName, utm_source, utm_medium, utm_campaign } = user;
-    getUserFromPhone(phone).then(data => {
-      if(action === 'register') {
-        if(data) {
-          return res.sendStatus(409);
-        } else if(data === null) {
-          // create hubspot contact
-          createOrUpdateContact({ 
-            phone, 
-            email, 
-            firstName, 
-            lastName, 
-            otpVerified: 'No', 
-            utm_source, 
-            utm_medium, 
-            utm_campaign  
-          }).then(() => {
-            requestOTP(phone, res)
-          }).catch(err => {
-            console.error(err);
-            res.sendStatus(500);
-          })
-        }
-      } else if(action === 'signin') {
-        if(data === null) {
-          return res.sendStatus(404);
-        } else {
-          requestOTP(phone, res)
-        }
+  getUserFromPhone(phone).then(data => {
+    if (action === 'register') {
+      if (data) {
+        return res.sendStatus(409);
       }
-    })
+      if (data === null) {
+        // create hubspot contact
+        createOrUpdateContact({
+          phone,
+          email,
+          firstName,
+          lastName,
+          otpVerified: 'No',
+          utm_source,
+          utm_medium,
+          utm_campaign
+        }).then(() => {
+          requestOTP(phone, res)
+        }).catch(err => {
+          console.error(err);
+          res.sendStatus(500);
+        });
+      }
+    } else if (action === 'signin') {
+      if (data === null) {
+        return res.sendStatus(404);
+      } else {
+        requestOTP(phone, res)
+      }
+    }
+  })
 };
 
 export const retryOTP = (req, res) => {
@@ -56,7 +57,8 @@ export const retryOTP = (req, res) => {
 
   // retryVoice Boolean value to enable Voice Call or disable Voice Call and use SMS
   sendOtp.retry(phone, retryVoice, (error, data) => {
-    console.log(data);
+    // console.log(data);
+    if (error) console.error(error);
     res.send(data);
   });
 };
@@ -76,7 +78,7 @@ const signInUser = (phone, res) => {
 
 const register = (data, res) => {
   const { fullName: name, phone, email, otpVerified } = data;
-    // create hubspot contact
+  // create hubspot contact
   createOrUpdateContact({ email, otpVerified }).then(() => {
     createUser({ name, phone, email }).then(user => {
       return res.send({
@@ -85,7 +87,7 @@ const register = (data, res) => {
       })
     })
   }).catch(err => {
-    console.log(err);
+    console.error(err);
     res.sendStatus(500);
   });
 
@@ -96,11 +98,11 @@ export const verifyOTP = (req, res) => {
   const { phone, email, fullName } = user;
 
   sendOtp.verify(phone, otp, (error, data) => {
-    console.log(data);
+    // console.log(data);
     if (error === null && data.type === 'success') { // OTP verified
-      if(action === "register") {
+      if (action === "register") {
         register({ email, phone, fullName, otpVerified: 'Yes' }, res);
-      } else if(action === "signin") {
+      } else if (action === "signin") {
         signInUser(phone, res);
       }
     } else { // if (data.type == 'error') // OTP verification failed

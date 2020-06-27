@@ -29,14 +29,14 @@ export const createSlackChannelRow = (cohort_id, channelId) => SlackChannel
     channels: [channelId],
   })
   .then(data => {
-    console.log(data.toJSON());
+    // console.log(data.toJSON());
     return data.toJSON();
   });
 
 export const getChannelIdForCohort = (cohort_id) => SlackChannel
   .findOne({ attributes: ['channels'], where: { cohort_id }, raw: true })
   .then(data => {
-    console.log(data.channels);
+    // console.log(data.channels);
     return data.channels[0];
   });
 
@@ -95,7 +95,7 @@ export const getTeamSlackIDs = async () => {
 
 export const getLearnerSlackIds = async (cohort_id) => {
   const cohort = await Cohort.findByPk(cohort_id);
-  console.log(cohort.learners);
+  // console.log(cohort.learners);
   let learnerIds = await Promise.all(cohort.learners.map(async (user_id) => {
     try {
       let social = await SocialConnection
@@ -122,7 +122,7 @@ export const getLearnerSlackIds = async (cohort_id) => {
 export const createChannel = async (cohort_id) => {
   const { SLACK_DELTA_BOT_TOKEN } = process.env;
   const channelName = await getChannelName(cohort_id);
-  console.log(channelName);
+  // console.log(channelName);
   let emptyChannel = await request
     .post('https://slack.com/api/conversations.create')
     .set('Content-Type', 'application/x-www-form-urlencoded')
@@ -162,7 +162,7 @@ export const createChannel = async (cohort_id) => {
         channel: channelWithTeam.body.channel,
       };
     }
-    console.log(channelWithTeam.body);
+    // console.log(channelWithTeam.body);
     return {
       text: 'Channel created and error in inviting',
       channel: emptyChannel.body,
@@ -233,7 +233,7 @@ const getSlackIdsFromEmail = async (emailIds) => {
     }
   };
   let slackIds = await Promise.all(emailIds.map(email => slackId(email)));
-  console.log(slackIds);
+  // console.log(slackIds);
   return slackIds;
 };
 
@@ -312,7 +312,7 @@ export const beginChannel = async (cohort_id, emailList) => {
   const slackUser = learnerIds.filter(l => !l.text);
 
   const channel = await createChannelFromSlackIds(cohort_id, channelName, [...teamIds, ...slackUser]);
-  console.log(JSON.stringify(channel, null, 2));
+  // console.log(JSON.stringify(channel, null, 2));
   return {
     text: 'Creating slack channel, inviting soal team and learners',
     data: {

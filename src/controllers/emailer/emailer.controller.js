@@ -84,11 +84,11 @@ export const sendEmail = async (from_name, to_users, subject,
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      console.log(error);
+      console.error(error);
       return 'Error occurred';
     }
-    console.log('Email sent: %s', info.response);
-    console.log('Message sent: %s', info.messageId);
+    // console.log('Email sent: %s', info.response);
+    // console.log('Message sent: %s', info.messageId);
     return info.messageId;
   });
 };

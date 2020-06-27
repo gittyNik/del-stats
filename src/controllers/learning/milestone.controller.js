@@ -37,7 +37,7 @@ export const create = (req, res) => {
         data: tepMilestone,
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => console.error(err));
 };
 
 export const update = (req, res) => {
@@ -94,7 +94,7 @@ export const getTeam = (req, res) => {
   })
     .then((data) => { res.json(data); })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       res.status(500);
     });
 };
@@ -110,7 +110,7 @@ export const createTeam = (req, res) => {
         data: team,
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => console.error(err));
 };
 
 export const updateTeam = (req, res) => {
@@ -158,7 +158,7 @@ export const getMilestoneTeams = (req, res) => {
   })
     .then((data) => { res.json(data); })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       res.sendStatus(500);
     });
 };
@@ -185,7 +185,7 @@ export const createMilestone = (req, res) => {
   createMilestones(name, prerequisite_milestones,
     problem_statement, learning_competencies, releases, starter_repo)
     .then((data) => { res.json(data); })
-    .catch(err => console.log(err));
+    .catch(err => console.error(err));
 };
 
 export const updateMilestone = (req, res) => {
@@ -200,7 +200,7 @@ export const updateMilestone = (req, res) => {
     name, problem_statement, starter_repo, user_id,
     releases, learning_competencies, prerequisite_milestones, guidelines)
     .then(() => { res.send('Milestone Updated'); })
-    .catch(err => console.log(err));
+    .catch(err => console.error(err));
 };
 
 export const deleteMilestone = (req, res) => {

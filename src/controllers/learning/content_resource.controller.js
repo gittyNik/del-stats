@@ -27,7 +27,7 @@ export const getFirewall = (req, res) => {
       know, think, play, reflect,
     }))
     .then(data => {
-      console.log(data);
+      // console.log(data);
       res.send({ data });
     })
     .catch(err => {
@@ -50,7 +50,7 @@ export const getTaggedResources = (req, res) => {
 
 export const searchTaggedResources = (req, res) => {
   const { text } = req.query;
-  console.log(text);
+  // console.log(text);
   searchResources(text.toLowerCase())
     .then(data => {
       res.send({ data });
@@ -67,13 +67,13 @@ export const logResourceVisit = (req, res) => {
 
   logResourceVisitByFirewallUser(resource_id, user_id)
     .then(visit => {
-      console.log(visit);
+      // console.log(visit);
       res.send({
         text: 'Successfully logged',
       });
     })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       res.sendStatus(500);
     });
 };
@@ -131,7 +131,7 @@ export const getResourceUrl = (req, res) => {
   const { url } = req.body;
   getResourceByUrl(url)
     .then(data => {
-      console.log(data);
+      // console.log(data);
       res.send({ data });
     })
     .catch(err => {
@@ -144,7 +144,7 @@ export const getTopicResource = (req, res) => {
   const { topic_id } = req.params;
   getResourceByTopic(topic_id)
     .then(data => {
-      console.log(data);
+      // console.log(data);
       res.send({ data });
     })
     .catch(err => {
@@ -159,7 +159,7 @@ export const create = (req, res) => {
   } = req.body;
   getResourceByUrl(url)
     .then(data => {
-      console.log(data);
+      // console.log(data);
       if (data) {
         res.send({ data });
       } else {
@@ -174,8 +174,8 @@ export const create = (req, res) => {
             } = response_data.body.data;
             createResource(url, level, owner, predicted_tag_ids,
               title, description, source, type, data, thumbnail_url).then(resource_added => {
-              res.send({ resource_added });
-            })
+                res.send({ resource_added });
+              })
               .catch(err => {
                 console.error(err);
                 res.sendStatus(500);
@@ -286,7 +286,7 @@ export const addReport = (req, res) => {
   const id = uuid();
   const { resource_id } = req.params;
   const { report } = req.body;
-  console.log(id, resource_id, report);
+  // console.log(id, resource_id, report);
   return ResourceReport.create({
     id, resource_id, report,
   })

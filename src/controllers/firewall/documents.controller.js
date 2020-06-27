@@ -86,7 +86,7 @@ export const Esign = (template_values, signers,
   };
   const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
 
-  console.log(DIGIO_CLIENT, DIGIO_SECRET);
+  // console.log(DIGIO_CLIENT, DIGIO_SECRET);
   return (request
     .post(`${DIGIO_BASE_URL}v2/client/template/${template_id}/create_sign_request`)
     .send(requestObject)
@@ -94,7 +94,7 @@ export const Esign = (template_values, signers,
     .set('content-type', 'application/json')
     .then(data => data)
     .catch(err => {
-      console.log(err);
+      console.error(err);
       let data = { message: 'Failed to send Esign request', status: 'Failure' };
       return data;
     })
@@ -144,7 +144,7 @@ export const EsignRequest = (req, res) => {
       let updatedProfile = User.update({
         profile: mergedUserDetails,
       }, { where: { id }, returning: true });
-      console.log(updatedProfile);
+      // console.log(updatedProfile);
     }
 
     return Esign(template_values,
@@ -155,8 +155,8 @@ export const EsignRequest = (req, res) => {
       notify_signers,
       send_sign_link,
       file_name).then(esignStatus => {
-      createUserEntry(id, esignStatus, 'requested');
-      return res.json(esignStatus);
-    });
+        createUserEntry(id, esignStatus, 'requested');
+        return res.json(esignStatus);
+      });
   });
 };

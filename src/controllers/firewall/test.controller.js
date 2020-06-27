@@ -15,7 +15,7 @@ export const getAllTests = (req, res) => {
     .then(populateQuestionDetails)
     .then(data => res.status(200).json(data))
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.sendStatus(500);
     });
 };
@@ -34,7 +34,7 @@ export const getTestByApplicationId = (req, res) => {
       res.status(200).json(testSeries);
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.sendStatus(500);
     });
 };
@@ -69,7 +69,7 @@ export const getTestById = (req, res) => {
       } else res.sendStatus(404);
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.sendStatus(500);
     });
 };
@@ -105,7 +105,7 @@ export const submitTest = (req, res) => {
       return test;
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.sendStatus(500);
     });
 };
@@ -119,7 +119,7 @@ export const startTest = (req, res) => {
     .then(test => populateQuestionDetails([test]))
     .then(testSeries => res.send(testSeries[0]))
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.sendStatus(500);
     });
 };
@@ -184,7 +184,7 @@ export const updateTestResponses = (req, res) => {
         });
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.sendStatus(500);
     });
 };
@@ -194,7 +194,7 @@ export const updateTest = updateTestResponses;
 export const updateBrowsedUrl = (req, res) => {
   const { browsedUrls } = req.body;
   const history = JSON.parse(browsedUrls);
-  console.log(history);
+  // console.log(history);
   const { id } = req.params;
   Test.update({
     browser_history: history.urls,

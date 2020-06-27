@@ -90,8 +90,8 @@ export const getTokensFromCode = async (code) => {
   data0.tokens = tokens;
   const profile = getOAuth2(oauth2Client);
   const googleProfile = await profile.userinfo.v2.me.get();
-  console.log('GOOGLE PROFILE');
-  console.log(googleProfile.data);
+
+  // console.log(googleProfile.data);
   data0.profile = googleProfile.data;
   // oauth2Client.on('tokens', (tokens) => {
   //   if (tokens.refresh_token) {
