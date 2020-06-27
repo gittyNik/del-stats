@@ -92,22 +92,10 @@ const logger = createLogger({
 
 if (process.env === 'production') {
   logger.remove(consoleLogger);
+  logger.add(paperLogger);
 } else {
   logger.add(paperLogger);
 }
 
-const gimme = () => {
-  logger.info({
-    text: 'Works as expected',
-    key: 234,
-  });
-  throw Error('An error message');
-};
-
-try {
-  gimme();
-} catch (err) {
-  logger.error(err);
-}
 
 export default logger;
