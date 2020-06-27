@@ -1,15 +1,13 @@
 import Express from 'express';
-import logger from 'winston';
-import morgan from 'morgan';
 import compression from 'compression';
 import apiRouter from './routes/api.routes';
 import integrationRouter from './routes/integrations';
+
 // Initialize the Express App
 const app = Express();
 
 // Use it before because slack/events-api has an issue with the body-parser
 // External API integrations
-app.use(morgan('combined', { stream: logger.stream }));
 app.use('/integrations', integrationRouter);
 
 // Apply body Parser
