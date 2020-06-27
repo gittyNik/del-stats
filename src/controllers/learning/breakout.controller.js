@@ -65,7 +65,7 @@ export const getLiveCohortsBreakouts = (req, res) => {
         },
       };
       if (req.jwtData.user.role === USER_ROLES.REVIEWER) {
-        where.type = 'reviews';
+        where.type = { [Sequelize.Op.in]: ['reviews', 'assessment'] };
       } else if (req.jwtData.user.role === USER_ROLES.CATALYST) {
         where.type = 'lecture';
       }
@@ -412,7 +412,6 @@ export const updateMilestoneByDays = async (cohortId, updateByDays) => {
     })));
   return { message: 'Update Milestones and breakouts' };
 };
-
 
 export const updateMilestonesBreakoutTimelines = async (req, res) => {
   let {
