@@ -7,6 +7,8 @@ import { LearnerBreakout } from './learner_breakout';
 import { SocialConnection } from './social_connection';
 import { CohortBreakout } from './cohort_breakout';
 
+const { in: opIn, between } = Sequelize.Op;
+
 export const VideoMeeting = db.define('video_meetings', {
   id: {
     type: Sequelize.UUID,
@@ -17,6 +19,7 @@ export const VideoMeeting = db.define('video_meetings', {
   join_url: Sequelize.STRING,
   start_time: Sequelize.STRING, // zoom time format
   duration: Sequelize.STRING,
+  zoom_user: Sequelize.STRING,
   created_at: {
     allowNull: false,
     type: Sequelize.DATE,
@@ -28,7 +31,6 @@ export const VideoMeeting = db.define('video_meetings', {
     defaultValue: Sequelize.literal('NOW()'),
   },
 });
-
 
 const jwt_payload = {
   iss: process.env.ZOOM_API_KEY,
@@ -85,8 +87,10 @@ Meeting type:
   3- Recurring Meeting with no fixed time
   4- Recurring Meeting with a fixed time
 */
-export const createScheduledMeeting = (topic, start_time, millisecs_duration, agenda, type) => {
+export const createScheduledMeeting = async (topic, start_time,
+  millisecs_duration, agenda, type) => {
   const { ZOOM_BASE_URL, ZOOM_USER } = process.env;
+  let zoom_user_array = ZOOM_USER.split(',');
   const duration = millisecondsToMinutes(millisecs_duration);
   const meeting_object = {
     topic,
@@ -100,8 +104,33 @@ export const createScheduledMeeting = (topic, start_time, millisecs_duration, ag
   };
   console.log('trying to create meeting');
 
+  // Calculate End time for Meeting
+  let end_time = new Date(start_time + (duration * 60 * 1000));
+
+  // Check if Meeting exist between same start and end time
+  let concurrent_meet = await VideoMeeting.findAll({
+    where: {
+      zoom_user: { [opIn]: zoom_user_array },
+      start_time: { [between]: [start_time, end_time] },
+    },
+  });
+  let zoom_user_index = 0;
+  let zoom_user;
+
+  // Meetings will be created in a particular order of user id
+  // All meetings will be created with 1st account
+  // If meeting at that time exist, with 2nd and so on
+  if (concurrent_meet) {
+    zoom_user_index = concurrent_meet.length;
+  }
+  try {
+    zoom_user = zoom_user_array[zoom_user_index];
+  } catch (err) {
+    [zoom_user] = zoom_user_array;
+  }
+
   return (request
-    .post(`${ZOOM_BASE_URL}users/${ZOOM_USER}/meetings`) // todo: need to assign delta user to zoom user
+    .post(`${ZOOM_BASE_URL}users/${zoom_user}/meetings`) // todo: need to assign delta user to zoom user
     .send(meeting_object)
     .set('Authorization', `Bearer ${zoom_token}`)
     .set('User-Agent', 'Zoom-api-Jwt-Request')
@@ -119,6 +148,7 @@ export const createScheduledMeeting = (topic, start_time, millisecs_duration, ag
         start_url,
         join_url,
         duration,
+        start_time,
       })
         .then(video => {
           console.log('meeting updated in db.');
@@ -151,7 +181,6 @@ export const createScheduledMeeting = (topic, start_time, millisecs_duration, ag
 export const learnerAttendance = async (participant, catalyst_id,
   cohort_breakout_id, attentiveness_threshold, duration_threshold) => {
   const { user_email, duration, attentiveness_score } = participant;
-  // TODO use duration also to mark attendance
   let attentivenessScore = parseFloat(attentiveness_score);
   let durationTime = parseFloat(duration);
   // if (isNaN(attentivenessScore)) {
