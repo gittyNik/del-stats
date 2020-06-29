@@ -153,7 +153,7 @@ export const createScheduledMeeting = async (topic, start_time,
         start_url,
         join_url,
         duration,
-        start_time,
+        db_start_time,
       })
         .then(video =>
           // console.log('meeting updated in db.');
