@@ -2,6 +2,7 @@ import Sequelize from 'sequelize';
 import request from 'superagent';
 import uuid from 'uuid/v4';
 import jwt from 'jsonwebtoken';
+import moment from 'moment';
 import db from '../database';
 import { LearnerBreakout } from './learner_breakout';
 import { SocialConnection } from './social_connection';
@@ -87,7 +88,7 @@ Meeting type:
   4- Recurring Meeting with a fixed time
 */
 export const createScheduledMeeting = async (topic, start_time,
-  millisecs_duration, agenda, type) => {
+  millisecs_duration, agenda, type, timezone = 'Asia/Calcutta') => {
   const { ZOOM_BASE_URL, ZOOM_USER } = process.env;
   let zoom_user_array = ZOOM_USER.split(',');
   const duration = millisecondsToMinutes(millisecs_duration);
@@ -96,7 +97,7 @@ export const createScheduledMeeting = async (topic, start_time,
     type: type || 2, // defaults to scheduled Meeting
     start_time,
     duration,
-    timezone: 'Asia/Calcutta',
+    timezone,
     password: 'soal',
     agenda,
     settings: MEETING_SETTINGS,
@@ -104,14 +105,19 @@ export const createScheduledMeeting = async (topic, start_time,
   // console.log('trying to create meeting');
 
   // Calculate End time for Meeting
-  let end_time = new Date(start_time + (duration * 60 * 1000));
-
+  let db_start_time = moment(start_time, 'DD/MM/YYYY,THH:mm:ss').tz(timezone).toDate();
+  let end_time = new Date(db_start_time);
+  end_time.setMinutes(end_time.getMinutes() + duration);
+  db_start_time = moment.utc(db_start_time).format('YYYY-MM-DDTHH:mm:ssZ');
+  end_time = moment.utc(end_time).format('YYYY-MM-DDTHH:mm:ssZ');
   // Check if Meeting exist between same start and end time
   let concurrent_meet = await VideoMeeting.findAll({
     where: {
       zoom_user: { [opIn]: zoom_user_array },
-      start_time: { [between]: [start_time, end_time] },
+      start_time: { [between]: [db_start_time, end_time] },
     },
+    attributes: ['zoom_user'],
+    group: ['zoom_user'],
   });
   let zoom_user_index = 0;
   let zoom_user;
@@ -149,16 +155,15 @@ export const createScheduledMeeting = async (topic, start_time,
         duration,
         start_time,
       })
-        .then(video => {
+        .then(video =>
           // console.log('meeting updated in db.');
           // console.log(video);
-          return {
+          ({
             id,
             status,
             start_url,
             join_url,
-          };
-        })
+          }))
         .catch(err => {
           // todo: delete the meeting from Zoom.
           deleteMeetingFromZoom(id);
@@ -334,10 +339,9 @@ export const updateCohortMeeting = async (cohort_breakout_id, updatedTime) => {
         { time_scheduled: updatedTime },
         { returning: true, where: { id: cohort_breakout_id } },
       )
-      .then(([rowsUpdated, updatedCB]) => {
+      .then(([rowsUpdated, updatedCB]) =>
         // console.log(`Cohort breakout ${cohort_breakout_id} updated to ${updatedTime}`);
-        return updatedCB[0].toJSON();
-      })
+        updatedCB[0].toJSON())
       .catch((err) => {
         console.error(err);
         return `Error updating cohort breakout ${cohort_breakout_id}`;
