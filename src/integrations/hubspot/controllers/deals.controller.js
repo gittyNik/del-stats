@@ -60,25 +60,25 @@ export const updateDealApplicationStatus = (dealId, status) => {
 		hubspotStatus = "Test In Progress";
 		testTime = {
 			name: "date_of_start_test",
-			value: moment.utc().set({hour: 0, minute: 0, second: 0, millisecond: 0}).valueOf()
+			value: moment.utc().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).valueOf()
 		}
 	} else if (status === "review_pending") {
 		hubspotStatus = "Review Pending";
 		testTime = {
 			name: "date_of_test_completion",
-			value: moment.utc().set({hour: 0, minute: 0, second: 0, millisecond: 0}).valueOf()
+			value: moment.utc().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).valueOf()
 		}
 	} else if (status === "offered") {
 		hubspotStatus = "Offered";
 		testTime = {
 			name: "date_of_review",
-			value: moment.utc().set({hour: 0, minute: 0, second: 0, millisecond: 0}).valueOf()
+			value: moment.utc().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).valueOf()
 		}
 	} else if (status === "rejected") {
 		hubspotStatus = "Rejected";
 		testTime = {
 			name: "date_of_review",
-			value: moment.utc().set({hour: 0, minute: 0, second: 0, millisecond: 0}).valueOf()
+			value: moment.utc().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).valueOf()
 		}
 	}
 	const updateObj = {
@@ -86,7 +86,7 @@ export const updateDealApplicationStatus = (dealId, status) => {
 			name: "applicant_status",
 			value: hubspotStatus
 		},
-		testTime ],
+			testTime],
 	};
 	return hubspot.deals.updateById(dealId, updateObj);
 }
@@ -96,14 +96,14 @@ export const associateDealWithContact = (dealId, contactId) => {
 }
 
 export const getDealById = (req, res) => {
-  const { hubspotDealId } = req.query;
-  hubspot.deals.getById(hubspotDealId).then(deal => {
-    res.send({
-      text: "Hubspot Deal details",
-      data: deal
-    });
-  }).catch(err => {
-    console.log(err);
-    res.sendStatus(500)
-  })
+	const { hubspotDealId } = req.query;
+	hubspot.deals.getById(hubspotDealId).then(deal => {
+		res.send({
+			text: "Hubspot Deal details",
+			data: deal
+		});
+	}).catch(err => {
+		console.error(err);
+		res.sendStatus(500)
+	})
 }

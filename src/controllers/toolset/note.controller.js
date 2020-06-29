@@ -5,13 +5,13 @@ export const getStudentNotes = (req, res) => {
   Resource.find({
     user: req.params.studentID,
   }).exec().then(data => res.json({ data })).catch((err) => {
-    console.log(err);
+    console.error(err);
     res.status(500).send(err);
   });
 };
 
 export const getAll = (req, res) => {
-  console.log(' in get all');
+  // console.log(' in get all');
   Resource.find().exec()
     .then(data => res.json({ data }))
     .catch(err => res.status(500).send(err));
@@ -24,7 +24,7 @@ export const getOne = (req, res) => {
 };
 
 export const create = (req, res) => {
-  console.log('In create Note');
+  // console.log('In create Note');
   const {
     text, user, color, createdTime,
   } = req.body;
@@ -34,7 +34,7 @@ export const create = (req, res) => {
   }).save()
     .then(data => res.status(201).json({ data }))
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.status(500).send(err);
     });
 };
@@ -44,7 +44,7 @@ export const update = (req, res) => {
   Resource.findByIdAndUpdate(req.params.id, { text, color, deleted })
     .then((data) => {
       res.json({ data });
-      console.log(data);
+      // console.log(data);
     })
     .catch(err => res.status(500).send(err));
 };

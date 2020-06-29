@@ -17,6 +17,7 @@ import {
 } from '../../integrations/github/controllers';
 import { urlGoogle, getTokensFromCode } from '../../util/calendar-util';
 import { createCalendarEventsForLearner } from '../../models/learner_breakout';
+import { logger } from '../../util/logger';
 
 dotenv.config();
 
@@ -37,7 +38,7 @@ const getGithubAccessToken = async code => {
 };
 
 const fetchProfileFromGithub = ({ githubToken, expiry }) =>
-// TODO: reject if expired
+  // TODO: reject if expired
 
   // fetching profile details from github
   request
@@ -284,6 +285,7 @@ const addGoogleProfile = ({
 export const checkGoogleOrSendRedirectUrl = async (req, res) => {
   const { userId } = req.jwtData;
   // console.log(req.jwtData);
+  logger.info(' user_id: ', userId)
   const result = await SocialConnection.findOne({
     where: {
       user_id: userId,
@@ -299,6 +301,7 @@ export const checkGoogleOrSendRedirectUrl = async (req, res) => {
           },
         };
       }
+      logger.info('Google access token doesn\'t');
       return {
         text: 'Google access Token doesnt exist',
         data: {
@@ -307,7 +310,7 @@ export const checkGoogleOrSendRedirectUrl = async (req, res) => {
       };
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       return {
         text: 'Error checking google access Token',
         data: {
@@ -326,7 +329,7 @@ export const handleGoogleCallback = async (req, res) => {
       const user = await getUserFromEmails([data.profile.email])
         .then(user0 => user0.toJSON())
         .catch(err => {
-          console.error(err);
+          logger.error(err);
           res.status(401);
           res.json({
             error: 'Unable to find the user with the given email',
@@ -344,11 +347,11 @@ export const handleGoogleCallback = async (req, res) => {
             expiry,
             user,
           });
-          console.log(dataSC.user);
+          // console.log(dataSC.user);
           // Create calendar events if user is learner
           if (user.role === USER_ROLES.LEARNER) {
             const calendarStats = await createCalendarEventsForLearner(user.id);
-            console.log(calendarStats);
+            logger.info(calendarStats);
             res.json({
               text: 'Breakout are successfully added to Google Calendar',
               data: dataSC.user,
@@ -360,7 +363,7 @@ export const handleGoogleCallback = async (req, res) => {
             });
           }
         } catch (err) {
-          console.error(err);
+          logger.error(err);
           res.status(403);
           res.json({
             error: 'Failed to authenticate Google',
@@ -368,15 +371,15 @@ export const handleGoogleCallback = async (req, res) => {
         }
       }
     } else {
-      console.error(error);
+      logger.error(error);
       res.status(403);
       res.json({
         error: 'Failed to authenticate Google',
       });
     }
   } catch (err) {
-    console.error('CHECK REDIRECT_URLS');
-    console.error(err);
+    logger.error('CHECK REDIRECT_URLS');
+    logger.error(err);
     res.status(403);
     res.json({
       error: 'Failed to authenticate Google',

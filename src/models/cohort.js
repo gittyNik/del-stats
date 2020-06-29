@@ -185,14 +185,14 @@ export const beginCohortWithId = (cohort_id) => Promise.all([
       cohort.duration,
       cohort.program_id,
     ).then((allBreakouts) => {
-      console.log(`All breakouts scheduled for the cohort ${cohort_id} `);
+      // console.log(`All breakouts scheduled for the cohort ${cohort_id} `);
     });
     // console.log(milestones);
     cohort.milestones = milestones;
     return cohort;
   })
   .catch((err) => {
-    console.log(err);
+    console.error(err);
     return null;
   });
 

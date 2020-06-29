@@ -74,7 +74,7 @@ export const getLiveApplications = (req, res) => {
 };
 
 export const addApplication = (req, res) => {
-  const { id:user_id, profile } = req.jwtData.user;
+  const { id: user_id, profile } = req.jwtData.user;
   const { cohort_applied } = req.body;
   updateDealApplicationStatus(profile.hubspotDealId, 'applied').then(() => {
     Cohort.findByPk(cohort_applied).then((cohort) => {
@@ -124,10 +124,10 @@ const populateTestResponses = application => {
 // h.o. function
 const notifyApplicationSubmitted = (phone) => (application) => Promise.all([
   sendSms(phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
-    .catch(err => console.log(err)),
+    .catch(err => console.error(err)),
   populateTestResponses(application)
     .then(appli => sendFirewallResult(appli, phone))
-    .catch(err => console.log(err)),
+    .catch(err => console.error(err)),
 ])
   .then(() => application);
 
@@ -136,10 +136,10 @@ export const submitApplicationAndNotify = (id, phone) => submitApplication(id)
 
 // TODO: send all sms using worker. Reduce the delay on web services
 export const notifyApplicationReview = (phone, status) => (application) => {
-  if(status === 'offered' || status === 'rejected')
+  if (status === 'offered' || status === 'rejected')
     return User.findByPk(application.user_id)
-      .then(user =>sendSms(phone, TEMPLATE_FIREWALL_REVIEWED(user.name)))
-      .then(()=>application)
+      .then(user => sendSms(phone, TEMPLATE_FIREWALL_REVIEWED(user.name)))
+      .then(() => application)
   return application;
 };
 
@@ -159,7 +159,7 @@ export const updateApplication = (req, res) => {
       updated_at: new Date(),
     }, { where: { id }, returning: true })
       .then(result => result[1][0])
-      .then(data => res.send({data}))
+      .then(data => res.send({ data }))
       .catch(() => res.sendStatus(500));
   } else if (status) {
     updateDealApplicationStatus(profile.hubspotDealId, status).then(result => {
@@ -172,7 +172,7 @@ export const updateApplication = (req, res) => {
       .then(notifyApplicationReview(req.body.phone, status))
       .then(application => res.send(application))
       .catch((err) => {
-        console.log(err);
+        console.error(err);
         res.sendStatus(500);
       });
   } else {

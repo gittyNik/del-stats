@@ -11,13 +11,13 @@ export const showMilestoneDetails = (payload, respond) => {
   getCurrentMilestoneOfCohortDelta(cohort_id)
     .then(composeMilestoneModal)
     .then(view => {
-      console.log(0);
+      // console.log(0);
       return web.views.open({
         view,
         trigger_id,
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => console.error(err));
 };
 
 export const requestTopicBreakout = (payload, respond) => {
@@ -32,5 +32,5 @@ export const requestTopicBreakout = (payload, respond) => {
 
   // TODO: schedule the breakout on database
   sendMessageToChannel()
-    .catch(err => console.log(err));
+    .catch(err => console.error(err));
 };

@@ -6,6 +6,7 @@ import { Cohort, getCohortFromLearnerId } from './cohort';
 import { getScheduledCohortBreakoutsByCohortId, getCalendarDetailsOfCohortBreakout, getCohortBreakoutsByCohortId } from './cohort_breakout';
 import { createEvent } from '../integrations/calendar/calendar.model';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
+import logger from '../util/logger';
 
 export const LearnerBreakout = db.define('learner_breakouts', {
   id: {
@@ -69,7 +70,7 @@ export const createLearnerBreakoutsForCohortMilestones = (
   cohort_breakout_id,
   cohort_id,
 ) => {
-  console.log(cohort_breakout_id, cohort_id);
+  // console.log(cohort_breakout_id, cohort_id);
   return Cohort.findOne({
     attributes: ['id', 'learners'],
     where: {
@@ -93,9 +94,9 @@ export const createLearnerBreakoutsForCohortMilestones = (
           });
         return learnerBreakout;
       });
-      console.log(
-        `${learnerBreakouts.length} learner_breakouts created for a cohort_breakout_id: ${cohort_breakout_id}`,
-      );
+      // console.log(
+      //   `${learnerBreakouts.length} learner_breakouts created for a cohort_breakout_id: ${cohort_breakout_id}`,
+      // );
       return learnerBreakouts;
     })
     .catch((err) => {
@@ -181,8 +182,15 @@ export const updateReviewFeedback = async (learner_breakout_id, calendarDetails)
 };
 
 export const createCalendarEventsForLearner = async (learnerId) => {
-  const payload = await getPayloadForCalendar(learnerId);
-  const oauth = await getGoogleOauthOfUser(learnerId);
+  let payload;
+  let oauth;
+  try {
+    payload = await getPayloadForCalendar(learnerId);
+    oauth = await getGoogleOauthOfUser(learnerId);
+  } catch (err) {
+    logger.error(err);
+    return false;
+  }
   const res_data = [];
   return async.eachSeries(payload, (item, callback) => {
     if (item.learnerBreakout) {

@@ -12,7 +12,7 @@ import authRouter from './auth';
 import adminRouter from './admin.routes';
 import profileRouter from './community/profile.routes';
 
-import calendarRouter from '../integrations/calendar/calendar.routes'
+import calendarRouter from '../integrations/calendar/routes';
 
 import authenticate from '../controllers/auth/auth.controller';
 import { allowSuperAdminOnly } from '../controllers/auth/roles.controller';
