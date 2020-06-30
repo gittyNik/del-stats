@@ -19,6 +19,8 @@ import { getLiveCohorts, Cohort } from '../../models/cohort';
 import { User, USER_ROLES } from '../../models/user';
 import { Milestone } from '../../models/milestone';
 
+const { gte } = Sequelize.Op;
+
 export const getBreakouts = (req, res) => {
   CohortBreakout.findAll({})
     .then(data => res.json(data))
@@ -59,10 +61,14 @@ export const getLiveCohortsBreakouts = (req, res) => {
   getLiveCohorts()
     .then(cohorts => {
       const cohortIds = cohorts.map(c => c.id);
+      // Fetching breakouts 1 week before and plus
+      let breakout_dates = new Date();
+      breakout_dates.setDate(breakout_dates.getDate() - 7);
       let where = {
         cohort_id: {
           [Sequelize.Op.in]: cohortIds,
         },
+        time_scheduled: { [gte]: breakout_dates },
       };
       if (req.jwtData.user.role === USER_ROLES.REVIEWER) {
         where.type = { [Sequelize.Op.in]: ['reviews', 'assessment'] };
@@ -75,8 +81,8 @@ export const getLiveCohortsBreakouts = (req, res) => {
           model: User,
           as: 'catalyst',
         },
-          Cohort,
-          BreakoutTemplate,
+        Cohort,
+        BreakoutTemplate,
         {
           model: Topic,
           attributes: [],
@@ -298,8 +304,8 @@ export const createBreakoutsOfType = (req, res) => {
   } = req.body;
   createTypeBreakoutsInMilestone(cohort_id, cohort_program_id,
     cohort_duration, type, code_sandbox, video_meet).then((data) => {
-      res.status(201).json({ data });
-    })
+    res.status(201).json({ data });
+  })
     .catch(err => res.status(500).send({ err }));
 };
 
@@ -320,8 +326,8 @@ export const createSingleBreakout = (req, res) => {
   const { id: cohort_id } = req.params;
   createSingleBreakoutAndLearnerBreakout(cohort_id, topic_id,
     breakout_duration, time_scheduled, agenda).then((data) => {
-      res.status(201).json({ data });
-    })
+    res.status(201).json({ data });
+  })
     .catch(err => res.status(500).send({ err }));
 };
 
