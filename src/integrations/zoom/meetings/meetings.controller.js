@@ -66,9 +66,11 @@ export const meetingDetails = (req, res) => {
 */
 export const scheduleNewMeeting = (req, res) => {
   const {
-    topic, type, start_time, duration, agenda,
+    topic, type, start_time, duration, agenda, catalyst_id,
+    time_zone,
   } = req.body;
-  createScheduledMeeting(topic, start_time, duration, agenda, type).then(
+  createScheduledMeeting(topic, start_time, duration, agenda,
+    type, catalyst_id, time_zone).then(
     data => res.json(data),
   ).catch(err => res.json(err));
 };
