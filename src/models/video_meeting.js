@@ -120,7 +120,7 @@ export const createScheduledMeeting = async (topic, start_time,
     group: ['zoom_user'],
   });
   let zoom_user_index = 0;
-  let zoom_user;
+  let zoom_user = zoom_user_array[0];
 
   // Meetings will be created in a particular order of user id
   // All meetings will be created with 1st account
@@ -153,7 +153,8 @@ export const createScheduledMeeting = async (topic, start_time,
         start_url,
         join_url,
         duration,
-        db_start_time,
+        start_time: db_start_time,
+        zoom_user,
       })
         .then(video =>
           // console.log('meeting updated in db.');
@@ -306,6 +307,7 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
 
 export const updateVideoMeeting = async (meetingId, updatedTime) => {
   const { ZOOM_BASE_URL } = process.env;
+  let db_start_time = moment.utc(updatedTime).format('YYYY-MM-DDTHH:mm:ssZ');
 
   let response = await request
     .patch(`${ZOOM_BASE_URL}meetings/${meetingId}`)
@@ -317,6 +319,12 @@ export const updateVideoMeeting = async (meetingId, updatedTime) => {
     });
 
   if (response.status === 204) {
+    await VideoMeeting.update({
+      start_time: db_start_time,
+    }, {
+      where: { video_id: meetingId },
+      raw: true,
+    });
     return true;
   }
   return false;
