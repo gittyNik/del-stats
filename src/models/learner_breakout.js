@@ -111,20 +111,23 @@ export const removeLearnerBreakouts = (learner_id) => LearnerBreakout.destroy({
 
 export const createLearnerBreakouts = (learner_id,
   future_cohort_id) => getCohortBreakoutsByCohortId(future_cohort_id)
-  .then((breakouts) => LearnerBreakout.bulkCreate(
-    breakouts.map((breakout) => ({
-      id: uuid(),
-      learner_id,
-      cohort_breakout_id: breakout.id,
-      attendance: false,
-    })),
-  ));
+    .then((breakouts) => LearnerBreakout.bulkCreate(
+      breakouts.map((breakout) => ({
+        id: uuid(),
+        learner_id,
+        cohort_breakout_id: breakout.id,
+        attendance: false,
+      })),
+    ));
 
 export const getPayloadForCalendar = async (learnerId) => {
   try {
     const cohort_id = await getCohortFromLearnerId(learnerId)
       .then(cohort => cohort.get({ plain: true }))
-      .then(cohort => cohort.id);
+      .then(cohort => cohort.id)
+      .catch(err => {
+        logger.error(err);
+      });
     // console.log(cohort_id);
     const cohortBreakouts = await getScheduledCohortBreakoutsByCohortId(cohort_id);
     // console.log(cohortBreakouts.length);
@@ -150,7 +153,7 @@ export const getPayloadForCalendar = async (learnerId) => {
     return payload;
   } catch (err) {
     console.error(err);
-    return new Error(err);
+    return false;
   }
 };
 
@@ -186,6 +189,7 @@ export const createCalendarEventsForLearner = async (learnerId) => {
     payload = await getPayloadForCalendar(learnerId);
     oauth = await getGoogleOauthOfUser(learnerId);
   } catch (err) {
+    logger.error('Error at payload or oauth');
     logger.error(err);
     return false;
   }
@@ -205,7 +209,7 @@ export const createCalendarEventsForLearner = async (learnerId) => {
             callback();
           })
           .catch(err => {
-            console.error(err);
+            // console.error(err);
             callback(err);
           }))
         .catch(err => {
@@ -215,9 +219,7 @@ export const createCalendarEventsForLearner = async (learnerId) => {
       callback();
     }
   })
-    .then(() =>
-      // console.log(res_data);
-      res_data)
+    .then(() => res_data)
     .catch(err => {
       console.error(err);
       return false;

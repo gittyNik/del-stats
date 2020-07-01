@@ -38,7 +38,7 @@ const getGithubAccessToken = async code => {
 };
 
 const fetchProfileFromGithub = ({ githubToken, expiry }) =>
-// TODO: reject if expired
+  // TODO: reject if expired
 
   // fetching profile details from github
   request
@@ -350,8 +350,13 @@ export const handleGoogleCallback = async (req, res) => {
           // console.log(dataSC.user);
           // Create calendar events if user is learner
           if (user.role === USER_ROLES.LEARNER) {
-            const calendarStats = await createCalendarEventsForLearner(user.id);
-            logger.info(calendarStats);
+            try {
+              await createCalendarEventsForLearner(user.id);
+            } catch (err) {
+              logger.error(err);
+            }
+
+            // logger.info(calendarStats);
             res.json({
               text: 'Breakout are successfully added to Google Calendar',
               data: dataSC.user,
