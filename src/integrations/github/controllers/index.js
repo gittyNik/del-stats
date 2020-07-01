@@ -18,6 +18,7 @@ import {
   createRepositoryifnotPresentFromTemplate,
   provideAccessToRepoIfNot,
   deleteGithubRepository,
+  isExistingRepository,
 } from './repository.controller';
 import {
   getAllAuthoredCommits,
@@ -83,6 +84,13 @@ const getRecentCommit = async (req, res) => {
   const user_id = req.jwtData.user.id;
   let socialConnection = await getGithubConnecionByUserId(user_id);
   getAllCommits(repo_name, socialConnection)
+    .then(data => res.send({ data }))
+    .catch(err => res.status(500).send(err));
+};
+
+export const checkRepoExist = async (req, res) => {
+  const { repo_name } = req.query;
+  isExistingRepository(repo_name)
     .then(data => res.send({ data }))
     .catch(err => res.status(500).send(err));
 };
