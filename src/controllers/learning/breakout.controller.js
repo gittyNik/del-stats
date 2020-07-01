@@ -36,6 +36,10 @@ const populateTopics = async breakouts => {
   allTopics.map(eachTopic => allTopicsIds.push(eachTopic.id));
   breakouts.map(breakout => {
     let breakoutTopics = [];
+    // TODO: Remove hard-code
+    if (breakout.type === 'assessment') {
+      breakout['breakout_template.topic_id'] = [breakout.topic_id];
+    }
     if (breakout['breakout_template.topic_id'] !== null) {
       breakout['breakout_template.topic_id'].map(breakTopic => {
         let topicIndex = allTopicsIds.indexOf(breakTopic);
@@ -44,6 +48,7 @@ const populateTopics = async breakouts => {
       });
       breakout.topics = breakoutTopics;
     }
+    // Reviews are not associated with a particular milestone
     if (breakout.type === 'reviews') {
       breakout['topic.milestone.id'] = breakout.details.milestoneId;
       breakout['topic.milestone.name'] = breakout.details.milestoneName;
@@ -51,6 +56,7 @@ const populateTopics = async breakouts => {
       breakout['topic.milestone.learning_competencies'] = breakout.details.milestoneLearningComp;
       breakout['topic.milestone.starter_repo'] = breakout.details.milestoneRepo;
       breakout['topic.milestone.releases'] = breakout.details.milestoneReleases;
+      breakout['breakout_template.topic_id'] = [breakout.topic_id];
     }
     return breakout;
   });
