@@ -23,7 +23,7 @@ const debugFormat = printf(({
   level, message, label, timestamp,
 }) => {
   const now = () => moment().format('YYYY-MM-DD HH:mm:ss');
-  return `${timestamp} [${level}]: ` + message;
+  return `${timestamp} [${level}]: ${message}`;
 });
 
 // Winston Transports
@@ -37,30 +37,30 @@ const consoleLogger = new transports.Console({
   // format: winston.format.json(),
 });
 
-const paperLogger = new Papertrail({
-  host: 'logs3.papertrailapp.com',
-  port: 25335,
-  // The program for your transport, defaults to default
-  // program: pjson.name,
-  // id: 1234,
-  // disableTls set to true to disable TLS on your transport.
-  // The log level to use for this transport, defaults to info
-  // level: 'info';
+// const paperLogger = new Papertrail({
+//   host: 'logs3.papertrailapp.com',
+//   port: 25335,
+//   // The program for your transport, defaults to default
+//   // program: pjson.name,
+//   // id: 1234,
+//   // disableTls set to true to disable TLS on your transport.
+//   // The log level to use for this transport, defaults to info
+//   // level: 'info';
 
-  // colorize - Enable colors in logs, defaults to false
-  // colorize: true,
-  inlineMeta: true,
-  logFormat: (level, message) => {
-    if (level === 'error') {
-      return `${level}: ${message}`;
-    }
-    return `${level} ${message}`;
-  },
-});
+//   // colorize - Enable colors in logs, defaults to false
+//   // colorize: true,
+//   inlineMeta: true,
+//   logFormat: (level, message) => {
+//     if (level === 'error') {
+//       return `${level}: ${message}`;
+//     }
+//     return `${level} ${message}`;
+//   },
+// });
 
-paperLogger.on('error', err => {
-  console.error('Error in Papertrail', err);
-});
+// paperLogger.on('error', err => {
+//   console.error('Error in Papertrail', err);
+// });
 
 // Log Formats
 
@@ -90,12 +90,11 @@ const logger = createLogger({
 //   },
 // };
 
-if (process.env === 'production') {
-  logger.remove(consoleLogger);
-  logger.add(paperLogger);
-} else {
-  logger.add(paperLogger);
-}
-
+// if (process.env === 'production') {
+//   logger.remove(consoleLogger);
+//   logger.add(paperLogger);
+// } else {
+//   logger.add(paperLogger);
+// }
 
 export default logger;

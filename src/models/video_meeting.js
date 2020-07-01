@@ -3,10 +3,12 @@ import request from 'superagent';
 import uuid from 'uuid/v4';
 import jwt from 'jsonwebtoken';
 import moment from 'moment';
+import { exceptions } from 'winston';
 import db from '../database';
 import { LearnerBreakout } from './learner_breakout';
 import { SocialConnection } from './social_connection';
 import { CohortBreakout } from './cohort_breakout';
+import { User } from './user';
 
 const { in: opIn, between } = Sequelize.Op;
 
@@ -88,9 +90,17 @@ Meeting type:
   4- Recurring Meeting with a fixed time
 */
 export const createScheduledMeeting = async (topic, start_time,
-  millisecs_duration, agenda, type, timezone = 'Asia/Calcutta') => {
-  const { ZOOM_BASE_URL, ZOOM_USER } = process.env;
-  let zoom_user_array = ZOOM_USER.split(',');
+  millisecs_duration, agenda, type, catalyst_id = null,
+  timezone = 'Asia/Calcutta') => {
+  let catalyst_email = 'delta@soal.io';
+  if (catalyst_id !== null) {
+    let catalyst_details = await User.findByPk(catalyst_id, {
+      attributes: ['email'],
+    });
+    catalyst_email = catalyst_details.email;
+  }
+
+  const { ZOOM_BASE_URL } = process.env;
   const duration = millisecondsToMinutes(millisecs_duration);
   const meeting_object = {
     topic,
@@ -105,37 +115,16 @@ export const createScheduledMeeting = async (topic, start_time,
   // console.log('trying to create meeting');
 
   // Calculate End time for Meeting
-  let db_start_time = moment(start_time, 'DD/MM/YYYY,THH:mm:ss').tz(timezone).toDate();
-  let end_time = new Date(db_start_time);
-  end_time.setMinutes(end_time.getMinutes() + duration);
-  db_start_time = moment.utc(db_start_time).format('YYYY-MM-DDTHH:mm:ssZ');
-  end_time = moment.utc(end_time).format('YYYY-MM-DDTHH:mm:ssZ');
-  // Check if Meeting exist between same start and end time
-  let concurrent_meet = await VideoMeeting.findAll({
-    where: {
-      zoom_user: { [opIn]: zoom_user_array },
-      start_time: { [between]: [db_start_time, end_time] },
-    },
-    attributes: ['zoom_user'],
-    group: ['zoom_user'],
-  });
-  let zoom_user_index = 0;
-  let zoom_user = zoom_user_array[0];
-
-  // Meetings will be created in a particular order of user id
-  // All meetings will be created with 1st account
-  // If meeting at that time exist, with 2nd and so on
-  if (concurrent_meet) {
-    zoom_user_index = concurrent_meet.length;
-  }
+  let db_start_time;
   try {
-    zoom_user = zoom_user_array[zoom_user_index];
+    db_start_time = moment(start_time, 'DD/MM/YYYY,THH:mm:ss').tz(timezone).toDate();
   } catch (err) {
-    [zoom_user] = zoom_user_array;
+    db_start_time = moment(start_time).tz(timezone).toDate();
   }
+  db_start_time = moment.utc(db_start_time).format('YYYY-MM-DDTHH:mm:ssZ');
 
   return (request
-    .post(`${ZOOM_BASE_URL}users/${zoom_user}/meetings`) // todo: need to assign delta user to zoom user
+    .post(`${ZOOM_BASE_URL}users/${catalyst_email}/meetings`) // todo: need to assign delta user to zoom user
     .send(meeting_object)
     .set('Authorization', `Bearer ${zoom_token}`)
     .set('User-Agent', 'Zoom-api-Jwt-Request')
@@ -154,7 +143,7 @@ export const createScheduledMeeting = async (topic, start_time,
         join_url,
         duration,
         start_time: db_start_time,
-        zoom_user,
+        catalyst_email,
       })
         .then(video =>
           // console.log('meeting updated in db.');

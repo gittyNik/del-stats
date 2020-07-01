@@ -36,6 +36,10 @@ const populateTopics = async breakouts => {
   allTopics.map(eachTopic => allTopicsIds.push(eachTopic.id));
   breakouts.map(breakout => {
     let breakoutTopics = [];
+    // TODO: Remove hard-code
+    if (breakout.type === 'assessment') {
+      breakout['breakout_template.topic_id'] = [breakout.topic_id];
+    }
     if (breakout['breakout_template.topic_id'] !== null) {
       breakout['breakout_template.topic_id'].map(breakTopic => {
         let topicIndex = allTopicsIds.indexOf(breakTopic);
@@ -44,6 +48,7 @@ const populateTopics = async breakouts => {
       });
       breakout.topics = breakoutTopics;
     }
+    // Reviews are not associated with a particular milestone
     if (breakout.type === 'reviews') {
       breakout['topic.milestone.id'] = breakout.details.milestoneId;
       breakout['topic.milestone.name'] = breakout.details.milestoneName;
@@ -51,6 +56,7 @@ const populateTopics = async breakouts => {
       breakout['topic.milestone.learning_competencies'] = breakout.details.milestoneLearningComp;
       breakout['topic.milestone.starter_repo'] = breakout.details.milestoneRepo;
       breakout['topic.milestone.releases'] = breakout.details.milestoneReleases;
+      breakout['breakout_template.topic_id'] = [breakout.topic_id];
     }
     return breakout;
   });
@@ -113,7 +119,7 @@ export const createBreakout = (req, res) => {
     location, catalyst_id, attendance_count,
     catalyst_notes, catalyst_feedback,
     isVideoMeeting, isCodeSandbox, breakout_template_id,
-    team_feedback,
+    team_feedback, agenda,
   } = req.body;
   let time = time_scheduled.toLocaleString().split(' ').join('T');
   // console.group(time);
@@ -121,7 +127,7 @@ export const createBreakout = (req, res) => {
   if (isCodeSandbox && isVideoMeeting) {
     Promise.all([
       createSandbox(),
-      createScheduledMeeting(topic_id, time, duration),
+      createScheduledMeeting(topic_id, time, duration, agenda, 2, catalyst_id),
     ])
       .then(([sandbox, videoMeeting]) => {
         // console.log('Sandbox Created');
@@ -178,7 +184,7 @@ export const createBreakout = (req, res) => {
         res.send(500);
       });
   } else if (isVideoMeeting) {
-    createScheduledMeeting(topic_id, time, duration)
+    createScheduledMeeting(topic_id, time, duration, agenda, 2, catalyst_id)
       .then(videoMeeting => {
         let details = {
           videoMeeting_id: videoMeeting,
@@ -321,11 +327,11 @@ export const createBreakouts = (req, res) => {
 
 export const createSingleBreakout = (req, res) => {
   let {
-    topic_id, breakout_duration, time_scheduled, agenda,
+    topic_id, breakout_duration, time_scheduled, agenda, catalyst_id,
   } = req.body;
   const { id: cohort_id } = req.params;
   createSingleBreakoutAndLearnerBreakout(cohort_id, topic_id,
-    breakout_duration, time_scheduled, agenda).then((data) => {
+    breakout_duration, time_scheduled, agenda, catalyst_id).then((data) => {
     res.status(201).json({ data });
   })
     .catch(err => res.status(500).send({ err }));
@@ -368,6 +374,7 @@ export const updateMilestoneByDays = async (cohortId, updateByDays) => {
   await CohortMilestone.findAll({
     where: {
       cohort_id: cohortId,
+      release_time: { [gte]: Date.now() },
     },
     attributes: ['id', 'release_time', 'review_scheduled'],
     raw: true,
