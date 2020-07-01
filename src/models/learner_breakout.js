@@ -6,7 +6,7 @@ import { Cohort, getCohortFromLearnerId } from './cohort';
 import { getScheduledCohortBreakoutsByCohortId, getCalendarDetailsOfCohortBreakout, getCohortBreakoutsByCohortId } from './cohort_breakout';
 import { createEvent } from '../integrations/calendar/calendar.model';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
-import logger from '../util/logger';
+import { logger } from '../util/logger';
 
 export const LearnerBreakout = db.define('learner_breakouts', {
   id: {
@@ -69,9 +69,9 @@ export const LearnerBreakout = db.define('learner_breakouts', {
 export const createLearnerBreakoutsForCohortMilestones = (
   cohort_breakout_id,
   cohort_id,
-) => {
+) =>
   // console.log(cohort_breakout_id, cohort_id);
-  return Cohort.findOne({
+  Cohort.findOne({
     attributes: ['id', 'learners'],
     where: {
       id: cohort_id,
@@ -103,8 +103,6 @@ export const createLearnerBreakoutsForCohortMilestones = (
       console.error(err);
       return null;
     });
-};
-
 export const removeLearnerBreakouts = (learner_id) => LearnerBreakout.destroy({
   where: {
     learner_id,

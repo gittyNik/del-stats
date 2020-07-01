@@ -38,7 +38,7 @@ const getGithubAccessToken = async code => {
 };
 
 const fetchProfileFromGithub = ({ githubToken, expiry }) =>
-  // TODO: reject if expired
+// TODO: reject if expired
 
   // fetching profile details from github
   request
@@ -285,7 +285,7 @@ const addGoogleProfile = ({
 export const checkGoogleOrSendRedirectUrl = async (req, res) => {
   const { userId } = req.jwtData;
   // console.log(req.jwtData);
-  logger.info(' user_id: ', userId)
+  logger.info(' user_id: ', userId);
   const result = await SocialConnection.findOne({
     where: {
       user_id: userId,
