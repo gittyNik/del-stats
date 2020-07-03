@@ -123,7 +123,6 @@ export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => Promise
   }),
 );
 
-
 export const changeTimezone = (date, ianatz) => {
   // suppose the date is 02:30 UTC
   let invdate = new Date(date.toLocaleString('en-US', {
@@ -137,7 +136,6 @@ export const changeTimezone = (date, ianatz) => {
   // so 08:00pm in India is 02:30 UTC
   return new Date(date.getTime() + diff);
 };
-
 
 export const calculateBreakoutTime = (eachBreakoutTemp) => {
   // Shallow copy datetime object
@@ -194,32 +192,27 @@ export const createBreakoutsInMilestone = (
   .then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
   .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
   .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates, cohort_id))
-  .then(createdBreakouts => {
-    return createLearnerBreakouts(createdBreakouts, cohort_id);
-  });
-
+  .then(createdBreakouts => createLearnerBreakouts(createdBreakouts, cohort_id));
 
 // Create Breakouts of Specific type
 export const createTypeBreakoutsInMilestone = (cohort_id, program_id,
   cohort_duration, type, codeSandBox = false, videoMeet = true) => BreakoutTemplate.findAll(
-    {
-      attributes: ['id', 'name', 'topic_id', 'details',
-        'duration', 'time_scheduled', 'after_days',
-        'primary_catalyst', 'level', 'secondary_catalysts'],
-      where: {
-        program_id,
-        cohort_duration,
-        [Sequelize.Op.and]: Sequelize.literal(`details->>'type'='${type}'`),
-      },
-      raw: true,
+  {
+    attributes: ['id', 'name', 'topic_id', 'details',
+      'duration', 'time_scheduled', 'after_days',
+      'primary_catalyst', 'level', 'secondary_catalysts'],
+    where: {
+      program_id,
+      cohort_duration,
+      [Sequelize.Op.and]: Sequelize.literal(`details->>'type'='${type}'`),
     },
-  ).then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
-    .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
-    .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates,
-      cohort_id, codeSandBox, videoMeet))
-    .then(createdBreakouts => {
-      return createLearnerBreakouts(createdBreakouts, cohort_id);
-    });
+    raw: true,
+  },
+).then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
+  .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
+  .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates,
+    cohort_id, codeSandBox, videoMeet))
+  .then(createdBreakouts => createLearnerBreakouts(createdBreakouts, cohort_id));
 
 export const getAllBreakoutTemplates = () => BreakoutTemplate.findAll({});
 
@@ -237,23 +230,23 @@ export const createBreakoutTemplate = (name, topic_id,
   cohort_duration,
   program_id,
   user_id) => BreakoutTemplate.create(
-    {
-      id: uuid(),
-      name,
-      topic_id,
-      mandatory,
-      level,
-      primary_catalyst,
-      secondary_catalysts,
-      details,
-      duration,
-      time_scheduled,
-      after_days,
-      cohort_duration,
-      program_id,
-      updated_by: [user_id],
-    },
-  );
+  {
+    id: uuid(),
+    name,
+    topic_id,
+    mandatory,
+    level,
+    primary_catalyst,
+    secondary_catalysts,
+    details,
+    duration,
+    time_scheduled,
+    after_days,
+    cohort_duration,
+    program_id,
+    updated_by: [user_id],
+  },
+);
 
 export const updateBreakoutTemplate = (id,
   name,
@@ -269,33 +262,32 @@ export const updateBreakoutTemplate = (id,
   user_id,
   cohort_duration,
   program_id) => BreakoutTemplate.findOne({
-    where: {
-      id,
-    },
-  })
-    .then((milestone) => {
-      milestone.updated_by.push(user_id);
-      milestone.update({
-        updated_by: milestone.updated_by,
-        name,
-        topic_id,
-        mandatory,
-        level,
-        primary_catalyst,
-        secondary_catalysts,
-        details,
-        duration,
-        time_scheduled,
-        after_days,
-        cohort_duration,
-        program_id,
-      }, {
-        where: {
-          id,
-        },
-      });
+  where: {
+    id,
+  },
+})
+  .then((milestone) => {
+    milestone.updated_by.push(user_id);
+    milestone.update({
+      updated_by: milestone.updated_by,
+      name,
+      topic_id,
+      mandatory,
+      level,
+      primary_catalyst,
+      secondary_catalysts,
+      details,
+      duration,
+      time_scheduled,
+      after_days,
+      cohort_duration,
+      program_id,
+    }, {
+      where: {
+        id,
+      },
     });
-
+  });
 
 export const deleteBreakoutTemplate = (id) => BreakoutTemplate.destroy(
   { where: { id } },

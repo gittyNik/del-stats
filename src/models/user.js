@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
+import _ from 'lodash';
 import db from '../database';
 
 const { DEFAULT_USER } = process.env;
@@ -15,6 +16,24 @@ export const USER_ROLES = Object.freeze({
   REVIEWER: 'reviewer',
 });
 
+const AVAILABLE_USER_STATUS = [
+  'medical emergency',
+  'dropout',
+  'moved',
+  'respawning core phase',
+  'respawning focus phase',
+  'irregular',
+  'focus phase',
+  'core phase',
+  'frontend',
+  'backend',
+  'admission terminated',
+  'long leave',
+  'joining later',
+  'prefers hindi',
+  'back after absence',
+];
+
 export const User = db.define(
   'users',
   {
@@ -23,7 +42,17 @@ export const User = db.define(
     phone: Sequelize.STRING,
     role: Sequelize.STRING,
     location: Sequelize.STRING,
-    profile: Sequelize.JSON, // profile: {key: {value, source, details}}
+    profile: Sequelize.JSON,
+    // USER status should have the status and date when
+    // it was reported
+    status: {
+      type: Sequelize.ARRAY(Sequelize.STRING),
+      defaultValue: [],
+    },
+    status_reason: {
+      type: Sequelize.ARRAY(Sequelize.JSON),
+      defaultValue: [],
+    },
   },
   {},
 );
@@ -36,6 +65,29 @@ export const getProfile = id => User.findOne(
   },
   { raw: true },
 );
+
+export const updateUserData = (id, phone, email, location, profile) => User.findOne({
+  where: {
+    id,
+  },
+})
+  .then((userStatus) => {
+    if (_.isEmpty(userStatus)) {
+      throw Error('User does not exist');
+    }
+
+    let mergedUserDetails = { ...profile, ...userStatus.profile };
+    return userStatus.update({
+      profile: mergedUserDetails,
+      phone,
+      email,
+      location,
+    }, {
+      where: {
+        id,
+      },
+    });
+  });
 
 export const getUserFromEmails = emails => User.findOne(
   {
@@ -81,3 +133,32 @@ export const createSuperAdmin = () => User.findOrCreate({
     id: uuid(),
   },
 });
+
+export const addUserStatus = (id, status, status_reason) => {
+  if (AVAILABLE_USER_STATUS.indexOf(status) > -1) {
+    return User.findOne({
+      where: {
+        id,
+      },
+    })
+      .then((userStatus) => {
+        if (_.isEmpty(userStatus)) {
+          throw Error('User does not exist');
+        }
+
+        let statusDetails = { status_reason, status, date: new Date() };
+
+        userStatus.status_reason.push(statusDetails);
+        userStatus.status.push(status);
+        return userStatus.update({
+          status_reason: userStatus.status_reason,
+          status: userStatus.status,
+        }, {
+          where: {
+            id,
+          },
+        });
+      });
+  }
+  throw Error('Status not valid');
+};
