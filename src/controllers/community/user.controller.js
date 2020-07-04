@@ -1,6 +1,8 @@
 import Sequelize from 'sequelize';
 import { apiNotReady } from '../api.controller';
-import { User, USER_ROLES } from '../../models/user';
+import {
+  User, USER_ROLES, addUserStatus, updateUserData,
+} from '../../models/user';
 import { createOrUpdateContact } from '../../integrations/hubspot/controllers/contacts.controller';
 import { createDeal, associateDealWithContact } from '../../integrations/hubspot/controllers/deals.controller';
 
@@ -12,7 +14,21 @@ export const getProfile = (req, res) => {
   res.json({ user: req.jwtData.user });
 };
 
-export const updateUser = apiNotReady;
+export const updateUser = (req, res) => {
+  let {
+    phone, email, location, profile,
+  } = req.body;
+  let { id } = req.params;
+  updateUserData(id, phone, email, location, profile).then(data => {
+    res.json({
+      text: 'Update user',
+      data,
+    });
+  }).catch(err => {
+    console.error(err);
+    res.sendStatus(500);
+  });
+};
 
 export const updateProfile = (req, res) => {
   const { id, phone } = req.jwtData.user;
@@ -104,6 +120,21 @@ export const getEducators = (req, res) => {
   }).then(data => {
     res.json({
       text: 'Teaching users',
+      data,
+    });
+  }).catch(err => {
+    console.error(err);
+    res.sendStatus(500);
+  });
+};
+
+export const updateUserStatus = (req, res) => {
+  let {
+    user_id, status, reason,
+  } = req.body;
+  addUserStatus(user_id, status, reason).then(data => {
+    res.json({
+      text: 'Added User status',
       data,
     });
   }).catch(err => {

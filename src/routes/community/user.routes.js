@@ -2,6 +2,7 @@ import express from 'express';
 import {
   updateUser,
   getEducators,
+  updateUserStatus,
 } from '../../controllers/community/user.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -12,10 +13,14 @@ const {
 
 const router = express.Router();
 
-router.patch('/', updateUser);
-
 router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER]));
 
+router.post('/', updateUserStatus);
+
 router.get('/educators', getEducators);
+
+router.use(allowMultipleRoles([ADMIN]));
+
+router.patch('/', updateUser);
 
 module.exports = router;

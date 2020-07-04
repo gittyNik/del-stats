@@ -53,7 +53,9 @@ export const CohortMilestone = db.define('cohort_milestones', {
   },
 });
 
-const { lte, gt, between } = Sequelize.Op;
+const {
+  lte, gt, between, gte,
+} = Sequelize.Op;
 
 export const getDataForMilestoneName = id => CohortMilestone.findOne({
   where: {
@@ -111,11 +113,11 @@ export const getCohortMilestoneTeams = cohort_id => CohortMilestone.findAll({
 });
 
 export const getCohortMilestoneTeamsBeforeDate = (
-  cohort_id, before_date,
+  cohort_id, before_date, after_date,
 ) => CohortMilestone.findAll({
   where: {
     cohort_id,
-    review_scheduled: { [lte]: before_date },
+    review_scheduled: { [lte]: before_date, [gte]: after_date },
   },
   attributes: ['id'],
   include: [{

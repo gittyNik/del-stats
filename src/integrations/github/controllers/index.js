@@ -330,25 +330,15 @@ const userAndTeamCommitsDayWise = async (learners, repo) => {
 
 export const getContributorsInRepo = async (github_repo, socialConnection) => {
   let contributorsRepo;
-  try {
-    contributorsRepo = await contributersInRepository(github_repo, socialConnection);
-  } catch (err) {
-    // If User token is not able to fetch data, use SOAL token
-    if ((err.message === 'Unauthorized') || (err.message === 'Not Found')) {
-      try {
-        let tempSocialConnection = {
-          access_token:
-            `access_token=${process.env.GITHUB_ACCESS_TOKEN}&`,
-        };
-        contributorsRepo = await contributersInRepository(github_repo,
-          tempSocialConnection);
-      } catch (err2) {
-        console.warn(`Error while fetching github stats ${err2}`);
-        contributorsRepo = [];
-      }
-    } else {
-      contributorsRepo = [];
-    }
+
+  contributorsRepo = await contributersInRepository(github_repo, socialConnection);
+  if (contributorsRepo === null) {
+    let tempSocialConnection = {
+      access_token:
+        `access_token=${process.env.GITHUB_ACCESS_TOKEN}&`,
+    };
+    contributorsRepo = await contributersInRepository(github_repo,
+      tempSocialConnection);
   }
   return contributorsRepo;
 };
@@ -402,9 +392,13 @@ export const apiForOneLearnerGithubMilestone = async (oneLearner,
   return { milestoneData, user_id: oneLearner };
 };
 
-export const getGithubStats = async (cohort_id, before_date) => {
+export const getGithubStats = async (cohort_id, before_date, after_date) => {
   // Fetch Cohort Milestone Teams
-  let cohortMilestones = await getCohortMilestoneTeamsBeforeDate(cohort_id, before_date);
+  let cohortMilestones = await getCohortMilestoneTeamsBeforeDate(
+    cohort_id,
+    before_date,
+    after_date,
+  );
 
   let allMilestoneCommitsPromises = await Promise.all(
     cohortMilestones.map(async cohortMilestone => {
@@ -608,9 +602,9 @@ export const createStatForSingleLearner = async (
 };
 
 export const fillGithubStats = async (req, res) => {
-  const { cohort_id, before_date } = req.query;
+  const { cohort_id, before_date, after_date } = req.query;
 
-  let allMilestoneCommits = await getGithubStats(cohort_id, before_date);
+  let allMilestoneCommits = await getGithubStats(cohort_id, before_date, after_date);
   let savedCommitsDB = allMilestoneCommits.map(singleMilestoneCommits => {
     let teamCommits = singleMilestoneCommits.map(teamMilestoneCommit => {
       let {
