@@ -331,8 +331,13 @@ export const updateCohortMeeting = async (cohort_breakout_id, updatedTime,
 
   let updated;
   if ((newCatalyst_id !== null) && (catalyst_id !== newCatalyst_id)) {
+    try {
+      deleteMeetingFromZoom(details.zoom.id);
+    } catch (error) {
+      console.warn(`Unable to delete Zoom meeting: \n${error}`);
+    }
     updated = await createScheduledMeeting(details.topics,
-      updatedTime, duration, null, newCatalyst_id);
+      updatedTime, duration, null, 2, newCatalyst_id);
   } else {
     updated = await updateVideoMeeting(details.zoom.id, updatedTime);
   }

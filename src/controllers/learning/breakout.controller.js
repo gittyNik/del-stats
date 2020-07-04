@@ -355,8 +355,8 @@ export const updateCohortBreakout = (req, res) => {
     updated_time,
     catalyst_id,
   } = req.body;
-  const { id: cohort_breakout_id } = req.params;
-  updateCohortMeeting(cohort_breakout_id, updated_time, catalyst_id).then((data) => {
+  const { id } = req.params;
+  updateCohortMeeting(id, updated_time, catalyst_id).then((data) => {
     res.status(201).json({ data });
   }).catch(err => res.status(500).send({ err }));
 };

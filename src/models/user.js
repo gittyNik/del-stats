@@ -66,6 +66,15 @@ export const getProfile = id => User.findOne(
   { raw: true },
 );
 
+export const getUserByEmail = email => User.findOne(
+  {
+    where: {
+      email,
+    },
+  },
+  { raw: true },
+);
+
 export const updateUserData = (id, phone, email, location, profile) => User.findOne({
   where: {
     id,

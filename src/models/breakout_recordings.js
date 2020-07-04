@@ -88,7 +88,6 @@ export const getRecordingVideoUrl = (id) => BreakoutRecordings.findOne(
   return record;
 });
 
-
 export const getRecordingsById = id => BreakoutRecordings.findOne(
   { where: { id } },
 );

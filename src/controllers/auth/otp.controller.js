@@ -1,5 +1,9 @@
 import SendOtp from 'sendotp';
-import { getOrCreateUser, getUserFromPhone, createUser } from '../../models/user';
+import {
+  getOrCreateUser, getUserFromPhone,
+  createUser, User,
+  getUserByEmail,
+} from '../../models/user';
 import { getSoalToken } from '../../util/token';
 import { createOrUpdateContact } from '../../integrations/hubspot/controllers/contacts.controller';
 import { createDeal } from '../../integrations/hubspot/controllers/deals.controller';
@@ -18,7 +22,9 @@ export const requestOTP = (phone, res) => {
 
 export const sendOTP = (req, res) => {
   const { user, action } = req.body;
-  const { phone, email, firstName, lastName, utm_source, utm_medium, utm_campaign } = user;
+  const {
+    phone, email, firstName, lastName, utm_source, utm_medium, utm_campaign,
+  } = user;
   getUserFromPhone(phone).then(data => {
     if (action === 'register') {
       if (data) {
@@ -34,9 +40,9 @@ export const sendOTP = (req, res) => {
           otpVerified: 'No',
           utm_source,
           utm_medium,
-          utm_campaign
+          utm_campaign,
         }).then(() => {
-          requestOTP(phone, res)
+          requestOTP(phone, res);
         }).catch(err => {
           console.error(err);
           res.sendStatus(500);
@@ -45,11 +51,10 @@ export const sendOTP = (req, res) => {
     } else if (action === 'signin') {
       if (data === null) {
         return res.sendStatus(404);
-      } else {
-        requestOTP(phone, res)
       }
+      requestOTP(phone, res);
     }
-  })
+  });
 };
 
 export const retryOTP = (req, res) => {
@@ -77,21 +82,25 @@ const signInUser = (phone, res) => {
 };
 
 const register = (data, res) => {
-  const { fullName: name, phone, email, otpVerified } = data;
+  let {
+    fullName: name, phone, email, otpVerified,
+  } = data;
   // create hubspot contact
-  createOrUpdateContact({ email, otpVerified }).then(() => {
-    createUser({ name, phone, email }).then(user => {
-      return res.send({
-        user,
-        soalToken: getSoalToken(user)
-      })
-    })
+  createOrUpdateContact({ email, otpVerified }).then(async () => {
+    email = email.toLowerCase();
+    let isExistingUser = await getUserByEmail(email);
+    if (isExistingUser !== null) {
+      res.sendStatus(500).send('User email exists');
+    }
+    createUser({ name, phone, email }).then(user => res.send({
+      user,
+      soalToken: getSoalToken(user),
+    }));
   }).catch(err => {
     console.error(err);
     res.sendStatus(500);
   });
-
-}
+};
 
 export const verifyOTP = (req, res) => {
   const { user, otp, action } = req.query;
@@ -100,9 +109,11 @@ export const verifyOTP = (req, res) => {
   sendOtp.verify(phone, otp, (error, data) => {
     // console.log(data);
     if (error === null && data.type === 'success') { // OTP verified
-      if (action === "register") {
-        register({ email, phone, fullName, otpVerified: 'Yes' }, res);
-      } else if (action === "signin") {
+      if (action === 'register') {
+        register({
+          email, phone, fullName, otpVerified: 'Yes',
+        }, res);
+      } else if (action === 'signin') {
         signInUser(phone, res);
       }
     } else { // if (data.type == 'error') // OTP verification failed
