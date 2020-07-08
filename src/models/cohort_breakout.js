@@ -133,10 +133,22 @@ export const markZoomAttendance = (cohort_breakout_details) => {
     // If meeting does not have zoom url
     // If zoom meeting url creation has failed
     console.warn('Meeting missing Zoom url');
-    console.warn(cohort_breakout_details);
+    // console.warn(cohort_breakout_details);
     return { message: 'Meeting marked as complete' };
   }
 };
+
+export const markBreakoutComplete = (breakout_id) => CohortBreakout.update(
+  {
+    status: 'completed',
+    updated_at: Date.now(),
+  },
+  {
+    where: { id: breakout_id },
+    returning: true,
+    plain: true,
+  },
+);
 
 export const markComplete = (topic_id, cohort_id) => CohortBreakout.update(
   {
@@ -170,7 +182,7 @@ export const markStatusAndAttendance = (
     // eslint-disable-next-line no-else-return
   } else {
     const { topic_id } = breakoutTemplate;
-    breakout_topic_id = topic_id[0];
+    [breakout_topic_id] = topic_id;
   }
   return checkForAttendance(cohort_id, breakout_topic_id).then((attendance) => {
     if (_.isEmpty(breakoutTemplate)) {
@@ -217,6 +229,15 @@ export const createOrUpdateCohortBreakout = (
     time_scheduled,
   )).then(showCompletedBreakoutOnSlack(cohort_topic_id, cohort_id, name));
 });
+
+export const markBreakoutFinished = (
+  cohort_breakout_id, name = '',
+) => markBreakoutComplete(cohort_breakout_id)
+  .then((completeBreakout) => Promise.all([
+    markZoomAttendance(completeBreakout[1]),
+    showCompletedBreakoutOnSlack(completeBreakout[1].topic_id,
+      completeBreakout[1].cohort_id, name),
+  ]));
 
 export const createNewBreakout = (
   breakout_template_id,
@@ -457,6 +478,33 @@ export const createSingleBreakoutAndLearnerBreakout = (
         .then(() => ({ zoomDetails, id, cohort_id }));
     });
 });
+
+export const updateZoomMeetingForBreakout = (
+  id,
+) => CohortBreakout.findByPk(id)
+  .then((cohort_breakout) => createScheduledMeeting(
+    cohort_breakout.topic_id,
+    cohort_breakout.time_scheduled,
+    cohort_breakout.breakout_duration,
+    '',
+    2,
+    cohort_breakout.catalyst_id,
+  ).then((zoomMeeting) => {
+    if (cohort_breakout.details) {
+      cohort_breakout.details.zoom = zoomMeeting;
+    } else {
+      cohort_breakout.details = { zoom: zoomMeeting };
+    }
+    return CohortBreakout.update({
+      details: cohort_breakout.details,
+      updated_at: Date.now(),
+    },
+    {
+      where: { id },
+      returning: true,
+      plain: true,
+    });
+  }));
 
 export const getCohortBreakoutsByCohortId = (cohort_id) => CohortBreakout.findAll({
   where: {

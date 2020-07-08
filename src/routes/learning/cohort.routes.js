@@ -12,6 +12,7 @@ import {
   getCohortByLearnerId,
   createUpdateCohortBreakout,
   moveLearnertoDifferentCohortEndpoint,
+  markCompleteBreakout,
 } from '../../controllers/learning/cohort.controller';
 import {
   createBreakouts,
@@ -76,7 +77,6 @@ router.get('/user/:id', getCohortByLearnerId);
 
 router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR, REVIEWER]));
 
-
 /**
  * @api {patch} /cohorts/movelearner move learner to a new cohort
  * @apiHeader {String} authorization JWT Token.
@@ -92,6 +92,14 @@ router.patch('/movelearner', moveLearnertoDifferentCohortEndpoint);
  * @apiGroup Cohort
  */
 router.post('/breakout', createUpdateCohortBreakout);
+
+/**
+ * @api {post} /cohorts/breakout/finished Schedule a Breakout for Cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ScheduleBreakouts
+ * @apiGroup Cohort
+ */
+router.post('/finished', markCompleteBreakout);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowSuperAdminOnly);
@@ -136,7 +144,6 @@ router.patch('/:id/milestones', updateMilestonesBreakoutTimelines);
  */
 router.post('/schedule', createBreakouts);
 
-
 /**
  * @api {patch} /cohorts/schedule Schedule Breakouts for Cohorts
  * @apiHeader {String} authorization JWT Token.
@@ -144,7 +151,6 @@ router.post('/schedule', createBreakouts);
  * @apiGroup Cohort
  */
 router.post('/schedule-breakout-type', createBreakoutsOfType);
-
 
 /**
  * @api {patch} /cohorts/:id/breakout Schedule a Single Breakout for Cohort with Learners Breakouts
@@ -162,7 +168,6 @@ router.post('/:id/breakout', createSingleBreakout);
  */
 router.patch('/breakout/:id', updateCohortBreakout);
 
-
 /**
  * @api {delete} /cohorts/:id Delete a cohort
  * @apiHeader {String} authorization JWT Token.
@@ -179,6 +184,5 @@ router.delete('/:id', deleteCohort);
  * @apiGroup Zoom
  */
 router.patch('/zoom/:id', updateZoomMeeting);
-
 
 export default router;
