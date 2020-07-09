@@ -5,7 +5,6 @@ import {
   deleteRubric,
 } from '../../models/rubrics';
 
-
 export const getAllRubricsAPI = (req, res) => {
   getAllRubrics().then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
@@ -19,9 +18,9 @@ export const getRubricsByIdAPI = (req, res) => {
 };
 
 export const getRubricsByProgramAPI = (req, res) => {
-  const { program } = req.params;
+  const { program, type } = req.params;
 
-  getRubricsByProgram(program).then((data) => { res.json(data); })
+  getRubricsByProgram(program, type).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
@@ -31,10 +30,11 @@ export const createRubricsAPI = (req, res) => {
     rubric_name,
     program,
     rubric_parameters,
+    type,
   } = req.body;
 
   createRubrics(milestone_id, rubric_name,
-    program, rubric_parameters).then((data) => { res.json(data); })
+    program, rubric_parameters, type).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 

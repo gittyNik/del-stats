@@ -20,6 +20,8 @@ export const COHORT_STATUS = [
   'deferred',
   'reallocated',
   'suitup',
+  'filled',
+  'fast-filling',
 ];
 
 export const Cohort = db.define('cohorts', {

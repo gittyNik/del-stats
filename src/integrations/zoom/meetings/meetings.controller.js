@@ -1,4 +1,5 @@
 import { createScheduledMeeting } from '../../../models/video_meeting';
+import { updateZoomMeetingForBreakout } from '../../../models/cohort_breakout';
 
 const request = require('superagent');
 const jwt = require('jsonwebtoken');
@@ -71,6 +72,15 @@ export const scheduleNewMeeting = (req, res) => {
   } = req.body;
   createScheduledMeeting(topic, start_time, duration, agenda,
     type, catalyst_id, time_zone).then(
+    data => res.json(data),
+  ).catch(err => res.json(err));
+};
+
+export const attachZoomToBreakout = (req, res) => {
+  const {
+    cohort_breakout_id,
+  } = req.body;
+  updateZoomMeetingForBreakout(cohort_breakout_id).then(
     data => res.json(data),
   ).catch(err => res.json(err));
 };

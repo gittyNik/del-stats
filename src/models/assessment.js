@@ -261,7 +261,7 @@ export const createLearnerAssessmentBreakout = (assessmentSlots,
 
     let timeSlot = calculateAssessmentTime(assessment_start,
       assessmentForLearner);
-    let { assessment_duration, reviewer } = assessmentForLearner;
+    let { assessment_duration, reviewer, phase } = assessmentForLearner;
     return createAssessmentEntry(
       learnerDetails.name,
       id,
@@ -272,6 +272,7 @@ export const createLearnerAssessmentBreakout = (assessmentSlots,
       null,
       null,
       reviewer,
+      phase,
     ).then(createReviewBreakout => {
       let cohort_breakout_id = createReviewBreakout.id;
       let review_feedback = { type: 'assessment' };

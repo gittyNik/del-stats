@@ -9,6 +9,7 @@ import { LearnerBreakout } from './learner_breakout';
 import { SocialConnection } from './social_connection';
 import { CohortBreakout } from './cohort_breakout';
 import { User } from './user';
+import { changeTimezone } from './breakout_template';
 
 const { in: opIn, between } = Sequelize.Op;
 
@@ -143,7 +144,7 @@ export const createScheduledMeeting = async (topic, start_time,
         join_url,
         duration,
         start_time: db_start_time,
-        catalyst_email,
+        zoom_user: catalyst_email,
       })
         .then(video =>
           // console.log('meeting updated in db.');
@@ -296,7 +297,8 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
 
 export const updateVideoMeeting = async (meetingId, updatedTime) => {
   const { ZOOM_BASE_URL } = process.env;
-  let db_start_time = moment.utc(updatedTime).format('YYYY-MM-DDTHH:mm:ssZ');
+
+  updatedTime = changeTimezone(updatedTime, 'Asia/Kolkata');
 
   let response = await request
     .patch(`${ZOOM_BASE_URL}meetings/${meetingId}`)
@@ -309,7 +311,7 @@ export const updateVideoMeeting = async (meetingId, updatedTime) => {
 
   if (response.status === 204) {
     await VideoMeeting.update({
-      start_time: db_start_time,
+      start_time: updatedTime,
     }, {
       where: { video_id: meetingId },
       raw: true,
@@ -319,21 +321,33 @@ export const updateVideoMeeting = async (meetingId, updatedTime) => {
   return false;
 };
 
-export const updateCohortMeeting = async (cohort_breakout_id, updatedTime) => {
+export const updateCohortMeeting = async (cohort_breakout_id, updatedTime,
+  newCatalyst_id = null) => {
   let cohort_breakout = await CohortBreakout.findByPk(cohort_breakout_id);
-  let { details } = cohort_breakout.toJSON();
+  let { details, catalyst_id, duration } = cohort_breakout.toJSON();
   if (details.zoom.id === undefined) {
     return `No zoom meeting available to update ${cohort_breakout_id}`;
   }
 
-  let updated = updateVideoMeeting(details.zoom.id, updatedTime);
+  let updated;
+  if ((newCatalyst_id !== null) && (catalyst_id !== newCatalyst_id)) {
+    try {
+      deleteMeetingFromZoom(details.zoom.id);
+    } catch (error) {
+      console.warn(`Unable to delete Zoom meeting: \n${error}`);
+    }
+    updated = await createScheduledMeeting(details.topics,
+      updatedTime, duration, null, 2, newCatalyst_id);
+  } else {
+    updated = await updateVideoMeeting(details.zoom.id, updatedTime);
+  }
   let data = {};
   if (updated) {
     data.zoom = { id: details.zoom.id };
 
     data.cohort_breakout = await CohortBreakout
       .update(
-        { time_scheduled: updatedTime },
+        { time_scheduled: updatedTime, catalyst_id: newCatalyst_id },
         { returning: true, where: { id: cohort_breakout_id } },
       )
       .then(([rowsUpdated, updatedCB]) =>

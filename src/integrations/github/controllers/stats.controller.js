@@ -22,6 +22,7 @@ export const contributersInRepository = async (repo, socialConnection) => {
   let access_token = getAccessTokenPerUser(
     socialConnection,
   );
+  console.log(`Org: ${org}, Repo: ${repo}`);
   return request
     .get(`https://api.github.com/repos/${org}/${repo}/stats/contributors`)
     .set('accept', 'application/vnd.github.baptiste-preview+json')
@@ -29,6 +30,7 @@ export const contributersInRepository = async (repo, socialConnection) => {
     .then(data => JSON.parse(data.text))
     .catch(err => {
       console.error(`Error while fetching contributors in Repo: ${err}`);
+      return null;
     });
 };
 

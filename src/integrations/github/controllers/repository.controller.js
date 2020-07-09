@@ -1,6 +1,7 @@
 import request from 'superagent';
 import _ from 'lodash';
 import { octokit, org } from './git.auth.controller';
+import { contributersInRepository } from './stats.controller';
 import { getNumberOfPages } from './pagination.controller';
 
 const getAllReposPageWise = (per_page = 100, page = 1) => octokit.repos
@@ -91,6 +92,19 @@ export const createGithubRepositoryFromTemplate = async (
     .then((data) => JSON.parse(data.text));
 };
 
+export const isExistingRepository = async (name) => {
+  let tempSocialConnection = {
+    access_token:
+      `access_token=${process.env.GITHUB_ACCESS_TOKEN}&`,
+  };
+  let existingRepo = await contributersInRepository(name, tempSocialConnection);
+
+  if (_.isEmpty(existingRepo)) {
+    return false;
+  }
+  return true;
+};
+
 export const repositoryPresentOrNot = (name) => getAllRepos()
   .then((repos) => _.filter(repos, (repo) => repo.name === name))
   .then((repo) => (repo.length > 0));
@@ -115,7 +129,7 @@ export const createRepositoryifnotPresentFromTemplate = async (
 ) => {
   // Create repository for Challenge
 
-  let isPresent = await repositoryPresentOrNot(repo);
+  let isPresent = await isExistingRepository(repo);
 
   if (!isPresent) {
     return createGithubRepositoryFromTemplate(template_repo_name, repo);
