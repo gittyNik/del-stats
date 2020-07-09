@@ -36,6 +36,7 @@ const {
 
 const router = Express.Router();
 
+// router.patch('/movelearner', moveLearnertoDifferentCohortEndpoint);
 /**
  * @api {get} /cohorts Get all cohorts
  * @apiHeader {String} authorization JWT Token.

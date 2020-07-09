@@ -14,7 +14,7 @@
     "lint": "nodemon --watch src --exec eslint src --fix",
     "doc": "apidoc -i src",
     "start-dev": "nodemon --watch src --exec \"apidoc -i src && babel-node --inspect\" src",
-    "start-dev-lite": "nodemon --watch src --exec \"babel-node \" src",
+    "start-dev-lite": "nodemon --watch src --exec \"babel-node \" src/index.js",
     "start-prod": "node api-build",
     "start": "if [ $NODE_ENV = 'production' ]; then npm run start-prod; else npm run start-dev; fi;",
     "bg-dev": "nodemon --watch src --exec babel-node src/background.js",

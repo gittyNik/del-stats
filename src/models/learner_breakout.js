@@ -129,8 +129,8 @@ export const createLearnerBreakoutsForLearners = (
 
 export const removeLearnerBreakouts = async (learner_id, current_cohort_id) => {
   const now = Sequelize.literal("NOW()");
-  return Sequelize.query(
-    `delete from learner_breakouts where id in (select l.id from learner_breakouts as l left join cohort_breakouts as c on l.cohort_breakout_id=c.id where l.learner_id in (${learner_id}) and c.cohort_id=${current_cohort_id} and c.time_scheduled>${now})`
+  return db.query(
+    `delete from learner_breakouts where id in (select l.id from learner_breakouts as l left join cohort_breakouts as c on l.cohort_breakout_id=c.id where l.learner_id in (\'${learner_id}\') and c.cohort_id=\'${current_cohort_id}\' and c.time_scheduled>\'${new Date(new Date()).toUTCString()}\')`
   );
 
   // LearnerBreakout.destroy({

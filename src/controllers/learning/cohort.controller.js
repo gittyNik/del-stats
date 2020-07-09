@@ -167,14 +167,18 @@ export const getCohortByLearnerId = (req, res) => {
 
 export const moveLearnertoDifferentCohortEndpoint = async (req, res) => {
   const { learner_id, current_cohort_id, future_cohort_id } = req.body;
-  let bk = await moveLearnertoDifferentCohort(
-    learner_id,
-    current_cohort_id,
-    future_cohort_id
-  );
-  res.send({
-    data: bk,
-  });
+  try {
+    let bk = await moveLearnertoDifferentCohort(
+      learner_id,
+      current_cohort_id,
+      future_cohort_id
+    );
+    res.send({
+      data: bk,
+    });
+  } catch (err) {
+    res.status(500).send(err);
+  }
 };
 
 export const removeLearnerEndpoint = async (req, res) => {

@@ -115,14 +115,14 @@ export const getStatsForDay = (date) => {
     .then(([cohort, yesterday]) => ({ cohort, yesterday }));
 };
 
-export const updateCohortJoining = (cohort_applied, cohort_joining) =>
+export const updateCohortJoining = (user_id, cohort_joining) =>
   Application.update(
     {
       cohort_joining,
     },
     {
       where: {
-        cohort_applied,
+        user_id,
       },
       returning: true,
       raw: true,
