@@ -7,10 +7,12 @@ import {
   getCohortFromLearnerId,
   moveLearnertoDifferentCohort,
 } from '../../models/cohort';
-import { createOrUpdateCohortBreakout } from '../../models/cohort_breakout';
+import {
+  createOrUpdateCohortBreakout,
+  markBreakoutFinished,
+} from '../../models/cohort_breakout';
 
 import { USER_ROLES } from '../../models/user';
-
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
@@ -86,6 +88,26 @@ export const createUpdateCohortBreakout = (req, res) => {
   const { id: user_id, role } = req.jwtData.user;
   if (user_id === catalyst_id || role === USER_ROLES.SUPERADMIN) {
     createOrUpdateCohortBreakout(topic_id, cohort_id, time_scheduled, req.jwtData.user.name)
+      .then((data) => {
+        res.status(201).json({
+          data,
+        });
+      })
+      .catch((err) => res.status(500).send({
+        err,
+      }));
+  } else {
+    res.status(403).send('You do not have access to this data!');
+  }
+};
+
+export const markCompleteBreakout = (req, res) => {
+  let {
+    cohort_breakout_id, catalyst_id,
+  } = req.body;
+  const { id: user_id, role } = req.jwtData.user;
+  if (user_id === catalyst_id || role === USER_ROLES.SUPERADMIN) {
+    markBreakoutFinished(cohort_breakout_id, req.jwtData.user.name)
       .then((data) => {
         res.status(201).json({
           data,
