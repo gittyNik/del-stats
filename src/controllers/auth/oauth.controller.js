@@ -362,12 +362,14 @@ export const handleGoogleCallback = async (req, res) => {
               data: dataSC.user,
             });
           } else {
+            logger.info(`Calendar events not created for ${user.id}`);
             res.json({
               text: 'Google authentication successfull',
               data: dataSC.user,
             });
           }
         } catch (err) {
+          logger.error(`Failed to authenticate google for user_id: ${user.id}`);
           logger.error(err);
           res.status(403);
           res.json({
@@ -383,7 +385,7 @@ export const handleGoogleCallback = async (req, res) => {
       });
     }
   } catch (err) {
-    logger.error('CHECK REDIRECT_URLS');
+    logger.error('check REDIRECT_URLS for google app');
     logger.error(err);
     res.status(403);
     res.json({

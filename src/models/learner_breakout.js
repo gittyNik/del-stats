@@ -3,7 +3,7 @@ import uuid from 'uuid/v4';
 import async from 'async';
 import db from '../database';
 import { Cohort, getCohortFromLearnerId } from './cohort';
-import { getScheduledCohortBreakoutsByCohortId, getCalendarDetailsOfCohortBreakout, getCohortBreakoutsByCohortId } from './cohort_breakout';
+import { getUpcomingBreakoutsByCohortId, getCalendarDetailsOfCohortBreakout, getCohortBreakoutsByCohortId } from './cohort_breakout';
 import { createEvent } from '../integrations/calendar/calendar.model';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 import { logger } from '../util/logger';
@@ -129,7 +129,7 @@ export const getPayloadForCalendar = async (learnerId) => {
         logger.error(err);
       });
     // console.log(cohort_id);
-    const cohortBreakouts = await getScheduledCohortBreakoutsByCohortId(cohort_id);
+    const cohortBreakouts = await getUpcomingBreakoutsByCohortId(cohort_id);
     // console.log(cohortBreakouts.length);
     const payload = await Promise.all(cohortBreakouts.map(async cohortBreakout => {
       const data = {};
@@ -144,7 +144,8 @@ export const getPayloadForCalendar = async (learnerId) => {
         })
         .then(_lb => _lb.get({ plain: true }))
         .catch(err => {
-          console.error(`No learner breakout for ${cohortBreakout.id}`);
+          logger.error(`No learner breakout for ${cohortBreakout.id}`);
+          // logger.error(err);
           return false;
         });
       return data;
@@ -152,11 +153,12 @@ export const getPayloadForCalendar = async (learnerId) => {
     // console.log(payload);
     return payload;
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     return false;
   }
 };
 
+// Add a property calendarDetails to review_feedback
 export const updateReviewFeedback = async (learner_breakout_id, calendarDetails) => {
   const learner_breakout = await LearnerBreakout
     .findOne({ where: { id: learner_breakout_id } })
@@ -191,6 +193,10 @@ export const createCalendarEventsForLearner = async (learnerId) => {
   } catch (err) {
     logger.error('Error at payload or oauth');
     logger.error(err);
+    return false;
+  }
+  if (!payload) {
+    logger.error('Error in calendar payload');
     return false;
   }
   const res_data = [];

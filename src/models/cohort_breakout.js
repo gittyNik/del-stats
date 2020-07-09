@@ -12,7 +12,7 @@ import { Topic } from './topic';
 import { BreakoutTemplate } from './breakout_template';
 import { createLearnerBreakoutsForCohortMilestones } from './learner_breakout';
 import { showCompletedBreakoutOnSlack } from '../integrations/slack/team-app/controllers/milestone.controller';
-
+import { logger } from '../util/logger';
 // import sandbox from 'bullmq/dist/classes/sandbox';
 
 export const EVENT_STATUS = [
@@ -342,8 +342,10 @@ export const BreakoutWithOptions = (breakoutObject) => {
   }
 };
 
-export const createCohortBreakouts = (breakoutTemplateList,
-  cohort_id, codeSandbox = true, videoMeet = true) => Cohort.findByPk(cohort_id, {
+export const createCohortBreakouts = (
+  breakoutTemplateList,
+  cohort_id, codeSandbox = true, videoMeet = true
+) => Cohort.findByPk(cohort_id, {
   attributes: ['location', 'name'],
   raw: true,
 })
@@ -471,6 +473,23 @@ export const getScheduledCohortBreakoutsByCohortId = (cohort_id) => CohortBreako
   },
   raw: true,
 });
+
+export const getUpcomingBreakoutsByCohortId = (cohort_id) => CohortBreakout.findAll({
+  where: {
+    cohort_id,
+    time_scheduled: {
+      [Op.gte]: new Date(),
+    },
+  },
+  raw: true,
+})
+  .then(cohorts => {
+    logger.info(cohorts);
+    return cohorts;
+  })
+  .catch(err => {
+    logger.error(err);
+  });
 
 export const getCalendarDetailsOfCohortBreakout = async (id) => {
   const MINUTEINMILLISECONDS = 1000 * 60;
