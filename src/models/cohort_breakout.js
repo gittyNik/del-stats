@@ -236,7 +236,7 @@ export const markBreakoutFinished = (
   .then((completeBreakout) => Promise.all([
     markZoomAttendance(completeBreakout[1]),
     showCompletedBreakoutOnSlack(completeBreakout[1].topicId,
-      completeBreakout[1].cohort_id, name),
+      completeBreakout[1].cohortId, name),
   ]));
 
 export const createNewBreakout = (
