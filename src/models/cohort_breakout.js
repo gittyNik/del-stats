@@ -503,7 +503,7 @@ export const updateZoomMeetingForBreakout = (
       where: { id },
       returning: true,
       plain: true,
-    });
+    }).then(data => data[1]);
   }));
 
 export const getCohortBreakoutsByCohortId = (cohort_id) => CohortBreakout.findAll({

@@ -72,7 +72,10 @@ export const scheduleNewMeeting = (req, res) => {
   } = req.body;
   createScheduledMeeting(topic, start_time, duration, agenda,
     type, catalyst_id, time_zone).then(
-    data => res.json(data),
+    data => res.json({
+      text: 'New Meeting',
+      data,
+    }),
   ).catch(err => res.json(err));
 };
 
@@ -81,6 +84,9 @@ export const attachZoomToBreakout = (req, res) => {
     cohort_breakout_id,
   } = req.body;
   updateZoomMeetingForBreakout(cohort_breakout_id).then(
-    data => res.json(data),
+    data => res.json({
+      text: 'Updated Meeting',
+      data,
+    }),
   ).catch(err => res.json(err));
 };

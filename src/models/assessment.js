@@ -292,8 +292,12 @@ export const createAssessmentSchedule = (
   cohort_duration,
   cohort_ids,
   assessment_start,
-) => getAssessmentSlotsByProgram(program,
-  cohort_duration)
+  phase,
+) => getAssessmentSlotsByProgram(
+  program,
+  cohort_duration,
+  phase,
+)
   .then(assessmentSlots => {
     let slotsForReview = assessmentSlots;
     return getLearnersFromCohorts(cohort_ids)

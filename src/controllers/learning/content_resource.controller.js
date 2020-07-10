@@ -8,7 +8,6 @@ import { ResourceReport } from '../../models/resource_report';
 import { ResourceVote } from '../../models/resource_vote';
 import { logResourceVisitByFirewallUser } from '../../models/resource_visit';
 
-
 export const getLatest = (req, res) => {
   Resource.findAll({
     order: [
@@ -155,7 +154,7 @@ export const getTopicResource = (req, res) => {
 
 export const create = (req, res) => {
   const {
-    url, // todo: Auto assign tpoic id based on tags returned
+    url, topic_id,
   } = req.body;
   getResourceByUrl(url)
     .then(data => {
@@ -172,10 +171,13 @@ export const create = (req, res) => {
             const {
               predicted_tag_ids, description, title, thumbnail_url,
             } = response_data.body.data;
-            createResource(url, level, owner, predicted_tag_ids,
-              title, description, source, type, data, thumbnail_url).then(resource_added => {
-                res.send({ resource_added });
-              })
+            createResource(
+              url, level, owner, predicted_tag_ids,
+              title, description, source, type, data, thumbnail_url,
+              topic_id,
+            ).then(resource_added => {
+              res.json({ text: 'Added Resource', data: resource_added });
+            })
               .catch(err => {
                 console.error(err);
                 res.sendStatus(500);
