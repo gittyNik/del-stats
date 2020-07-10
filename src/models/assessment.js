@@ -174,8 +174,6 @@ export const createAssessmentEntry = (learner_name, cohort_id,
     type: 'assessment',
     topic_id,
   };
-  console.log('XXXXXXXXXXXXXX');
-  console.log(assessmentDetails);
   return BreakoutWithOptions(assessmentDetails);
 };
 
