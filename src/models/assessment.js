@@ -172,7 +172,7 @@ export const createAssessmentEntry = (learner_name, cohort_id,
     location: 'Online',
     cohortName,
     type: 'assessment',
-    topic_id,
+    topic_id: [topic_id],
   };
   return BreakoutWithOptions(assessmentDetails);
 };

@@ -27,10 +27,10 @@ export const markMilestoneAsReviewed = (payload, respond) => {
   const cohort_milestone_id = payload.actions[0].value;
 
   markMilestoneReview(cohort_milestone_id)
-    .then(({ milestoneId, cohortId }) => {
+    .then(({ milestoneId, cohortId }) =>
       // console.log('milestone review saved!', milestoneId);
       // respond({ text: 'Milestone review saved' });
-      return Promise.all([
+      Promise.all([
         Milestone.findByPk(milestoneId),
         Cohort.findByPk(cohortId),
       ])
@@ -41,8 +41,7 @@ export const markMilestoneAsReviewed = (payload, respond) => {
         .catch(err => {
           console.error(err);
           // respond({ text: 'Failed to save review' });
-        });
-    });
+        }));
 };
 
 export const showCompletedBreakoutOnSlack = (topic_id, cohort_id, username) => Promise.all([
@@ -68,8 +67,8 @@ export const showCompletedBreakoutOnSlack = (topic_id, cohort_id, username) => P
       },
     ],
     channel: 'clockwork',
-  })
-    .catch(err => console.log(err)));
+  }))
+  .catch(err => err);
 
 export const markTopicAsFinished = (topic_id, cohort_id, username) => {
   const sendMessageToSlack = Promise.all([
