@@ -317,14 +317,25 @@ export const BreakoutWithOptions = (breakoutObject) => {
       .then(([sandbox, videoMeeting]) => {
         details.sandbox.sandbox_id = sandbox.sandbox_id;
         details.zoom = videoMeeting;
-        return createNewBreakout(
-          breakout_template_id, topic_id, cohort_id,
-          time_scheduled, duration, location,
-          catalyst_id, details, type, team_feedback, catalyst_notes,
-        )
-          .then(data =>
-            // console.log('Breakout created with codesandbox and videoMeeting');
-            data.toJSON());
+        try {
+          return createNewBreakout(
+            breakout_template_id, topic_id, cohort_id,
+            time_scheduled, duration, location,
+            catalyst_id, details, type, team_feedback, catalyst_notes,
+          )
+            .then(data =>
+              // console.log('Breakout created with codesandbox and videoMeeting');
+              data.toJSON());
+        } catch (err) {
+          console.log(`breakout_template_id ${breakout_template_id}, 
+            topic_id ${topic_id}, cohort_id ${cohort_id},
+            time_scheduled ${time_scheduled}, duration ${duration}, 
+            location ${location},
+            catalyst_id ${catalyst_id}, details ${details},
+            type ${type},
+            team_feedback ${team_feedback}, catalyst_notes ${catalyst_notes}`);
+          console.error(err);
+        }
       });
     // eslint-disable-next-line no-else-return
   } else if (isCodeSandbox) {

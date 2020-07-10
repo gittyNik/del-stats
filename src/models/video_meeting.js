@@ -124,6 +124,8 @@ export const createScheduledMeeting = async (topic, start_time,
   }
   db_start_time = moment.utc(db_start_time).format('YYYY-MM-DDTHH:mm:ssZ');
 
+  console.log(`db_start_time ${db_start_time}`);
+
   return (request
     .post(`${ZOOM_BASE_URL}users/${catalyst_email}/meetings`) // todo: need to assign delta user to zoom user
     .send(meeting_object)
