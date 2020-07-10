@@ -83,10 +83,10 @@ export const updateStatusForTeamAPI = (req, res) => {
 export const createAssessmentScheduleAPI = (req, res) => {
   const {
     program, cohort_duration, cohort_ids,
-    assessment_start,
+    assessment_start, phase,
   } = req.body;
   createAssessmentSchedule(program, cohort_duration,
-    cohort_ids, assessment_start).then((data) => { res.json(data); })
+    cohort_ids, assessment_start, phase).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
