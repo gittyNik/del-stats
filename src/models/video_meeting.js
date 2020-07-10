@@ -325,14 +325,14 @@ export const updateCohortMeeting = async (cohort_breakout_id, updatedTime,
   newCatalyst_id = null) => {
   let cohort_breakout = await CohortBreakout.findByPk(cohort_breakout_id);
   let { details, catalyst_id, duration } = cohort_breakout.toJSON();
-  if (details.zoom.id === undefined) {
-    return `No zoom meeting available to update ${cohort_breakout_id}`;
-  }
 
   let updated;
   if ((newCatalyst_id !== null) && (catalyst_id !== newCatalyst_id)) {
     try {
-      deleteMeetingFromZoom(details.zoom.id);
+      if (typeof details.zoom.id !== 'undefined') {
+        deleteMeetingFromZoom(details.zoom.id);
+      }
+      // delete calendar event for catalyst
     } catch (error) {
       console.warn(`Unable to delete Zoom meeting: \n${error}`);
     }
@@ -344,19 +344,6 @@ export const updateCohortMeeting = async (cohort_breakout_id, updatedTime,
   let data = {};
   if (updated) {
     data.zoom = { id: details.zoom.id };
-
-    data.cohort_breakout = await CohortBreakout
-      .update(
-        { time_scheduled: updatedTime, catalyst_id: newCatalyst_id },
-        { returning: true, where: { id: cohort_breakout_id } },
-      )
-      .then(([rowsUpdated, updatedCB]) =>
-        // console.log(`Cohort breakout ${cohort_breakout_id} updated to ${updatedTime}`);
-        updatedCB[0].toJSON())
-      .catch((err) => {
-        console.error(err);
-        return `Error updating cohort breakout ${cohort_breakout_id}`;
-      });
     return data;
   }
   data.error = 'Unable to update zoom meeting';

@@ -12,6 +12,8 @@ import { Topic } from './topic';
 import { BreakoutTemplate } from './breakout_template';
 import { createLearnerBreakoutsForCohortMilestones } from './learner_breakout';
 import { showCompletedBreakoutOnSlack } from '../integrations/slack/team-app/controllers/milestone.controller';
+import { getGoogleOauthOfUser } from '../util/calendar-util';
+import { createEvent, deleteEvent } from '../integrations/calendar/calendar.model';
 import { logger } from '../util/logger';
 // import sandbox from 'bullmq/dist/classes/sandbox';
 
@@ -366,10 +368,11 @@ export const BreakoutWithOptions = (breakoutObject) => {
 export const createCohortBreakouts = (
   breakoutTemplateList,
   cohort_id, codeSandbox = true, videoMeet = true
-) => Cohort.findByPk(cohort_id, {
-  attributes: ['location', 'name'],
-  raw: true,
-})
+) => Cohort
+  .findByPk(cohort_id, {
+    attributes: ['location', 'name'],
+    raw: true,
+  })
   .then((cohort) => {
     let BreakoutObjects = breakoutTemplateList.map((breakoutTemplate) => {
       let {
@@ -501,11 +504,11 @@ export const updateZoomMeetingForBreakout = (
       details: cohort_breakout.details,
       updated_at: Date.now(),
     },
-    {
-      where: { id },
-      returning: true,
-      plain: true,
-    });
+      {
+        where: { id },
+        returning: true,
+        plain: true,
+      });
   }));
 
 export const getCohortBreakoutsByCohortId = (cohort_id) => CohortBreakout.findAll({
@@ -584,3 +587,48 @@ export const getCalendarDetailsOfCohortBreakout = async (id) => {
     description,
   });
 };
+
+// create or update calendar event for a catalyst.
+// delete previous event if catalyst is changed.
+export const updateBreakoutCalendarEventForCatalyst = async ({
+  id, updated_time = null, catalyst_id = null,
+}) => {
+  let cohort_breakout = await CohortBreakout
+    .findByPk(id)
+    .then(_cohortBreakout => _cohortBreakout.get({ plain: true }))
+    .catch(err => logger.error(err));
+
+  const { catalyst_id: prevCatalystId, time_scheduled, details } = cohort_breakout;
+
+  let calendarDetails = await getCalendarDetailsOfCohortBreakout(id);
+  // check if catalyst needs to be changed
+  const checkTime = () => ((updated_time !== null) && (updated_time !== time_scheduled));
+  let googleOAuthCatalyst;
+  if ((catalyst_id !== null) && (catalyst_id !== prevCatalystId)) {
+    // create event for that catalyst and update it in cohort_breakout details with new property
+    // check if calendarEvent already created then delete old catalyst event
+    // and create event for new catalyst.
+    if (typeof details.catalystCalendarEvent !== 'undefined') {
+      let googleOAuthPrevCatalyst = await getGoogleOauthOfUser(prevCatalystId);
+      const oldEventId = cohort_breakout.details.catalystCalendarEvent.id;
+      await deleteEvent(googleOAuthPrevCatalyst, oldEventId);
+      // googleOAuthCatalyst = await getGoogleOauthOfUser(catalyst_id);
+      // todo: create a new event for the new catalyst.
+    }
+    googleOAuthCatalyst = await getGoogleOauthOfUser(catalyst_id);
+  }
+  if ((catalyst_id === null) && (cohort_breakout.catalyst_id)) {
+    googleOAuthCatalyst = await getGoogleOauthOfUser(prevCatalystId);
+  }
+  calendarDetails.start = checkTime() ? updated_time : time_scheduled;
+  let catalystCalendarEvent = await createEvent(googleOAuthCatalyst, calendarDetails);
+  return catalystCalendarEvent;
+};
+
+export const updateCohortBreakouts = ({ whereObject, updateObject }) => CohortBreakout
+  .update(updateObject, { returning: true, where: whereObject })
+  .then(([rowUpdated, updatedCB]) => updatedCB.map(_cb => _cb.toJSON()))
+  .catch(err => {
+    console.error(err);
+    return 'Error updating cohort breakout';
+  });
