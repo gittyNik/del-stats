@@ -68,7 +68,7 @@ export const showCompletedBreakoutOnSlack = (topic_id, cohort_id, username) => P
     ],
     channel: 'clockwork',
   }))
-  .catch(err => err);
+  .catch(err => console.log("SEND SLACK MESSAGE ERROR", err));
 
 export const markTopicAsFinished = (topic_id, cohort_id, username) => {
   const sendMessageToSlack = Promise.all([
