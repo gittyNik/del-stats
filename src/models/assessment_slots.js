@@ -51,7 +51,7 @@ export const AssessmentSlots = db.define('assessment_slots', {
 export const getAllAssessmentSlots = () => AssessmentSlots.findAll({});
 
 export const getAssessmentSlotsByProgram = (program,
-  cohort_duration) => AssessmentSlots.findAll(
+  cohort_duration, phase) => AssessmentSlots.findAll(
   {
     order: [
       ['cohort_duration', 'ASC'],
@@ -61,6 +61,7 @@ export const getAssessmentSlotsByProgram = (program,
     where: {
       program,
       cohort_duration,
+      phase,
     },
   },
 );
