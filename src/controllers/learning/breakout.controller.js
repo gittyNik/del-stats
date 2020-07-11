@@ -408,12 +408,14 @@ export const updateCohortBreakout = async (req, res) => {
       whereObject: { id },
     })
       .then(_cb => _cb[0]);
+    const learnerBreakoutEvents = await updateBreakoutCalendarEventForLearners(id);
     res.status(201).json({
       updatedCohortBreakout,
+      learnerBreakoutEvents,
     });
   } catch (err) {
     logger.error(err);
-    res.send(500).json([err.name, err.message]);
+    res.status(500).json([err.name, err.message]);
   }
 };
 

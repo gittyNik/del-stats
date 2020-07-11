@@ -3,8 +3,8 @@ import uuid from 'uuid/v4';
 import async from 'async';
 import db from '../database';
 import { Cohort, getCohortFromLearnerId } from './cohort';
-import { getUpcomingBreakoutsByCohortId, getCalendarDetailsOfCohortBreakout, getCohortBreakoutsByCohortId } from './cohort_breakout';
-import { createEvent } from '../integrations/calendar/calendar.model';
+import { getUpcomingBreakoutsByCohortId, getCalendarDetailsOfCohortBreakout, getCohortBreakoutsByCohortId, CohortBreakout } from './cohort_breakout';
+import { createEvent, deleteEvent } from '../integrations/calendar/calendar.model';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 import { logger } from '../util/logger';
 
@@ -228,6 +228,67 @@ export const createCalendarEventsForLearner = async (learnerId) => {
     .then(() => res_data)
     .catch(err => {
       console.error(err);
+      return false;
+    });
+};
+
+/**
+ * Update or creates a calendar event when cohortBreakout is updated.
+ * @param {String} cohort_breakout_id
+ */
+export const updateBreakoutCalendarEventForLearners = async (cohort_breakout_id) => {
+  const cohort_breakout = await CohortBreakout
+    .findByPk(cohort_breakout_id)
+    .then(_cb => _cb.get({ plain: true }));
+
+  const { cohort_id } = cohort_breakout;
+
+  const cohort = Cohort
+    .findByPk(cohort_id)
+    .then(_cohort => _cohort.get({ plain: true }));
+  const { learners } = cohort;
+  const calendarPayload = await getCalendarDetailsOfCohortBreakout(cohort_breakout_id);
+  const payload = await Promise.all(learners.map(async learner => {
+    const googleOauth = await getGoogleOauthOfUser(learner);
+    // delete previously created calendar events.
+    await LearnerBreakout
+      .findByPk(learner)
+      .then(_lb => _lb.get({ plain: true }))
+      .then(async lb => {
+        if (typeof lb.review_feeback.calendarDetails !== 'undefined') {
+          await deleteEvent(googleOauth, lb.review_feedback.calendarDetails.id);
+        }
+      })
+      .catch(err => {
+        logger.error(err);
+      });
+    return {
+      learner,
+      googleOauth,
+    };
+  }));
+  const res_data = [];
+  return async.eachSeries(payload, (item, callback) => {
+    createEvent(item.googleOauth, calendarPayload)
+      .then(event => {
+        let data = {
+          learner: item.learner,
+          event,
+        }
+        res_data.push(data);
+        return data;
+      })
+      .then(_data => updateReviewFeedback(_data.learner, _data.event)
+        .then(() => callback())
+        .catch(err => callback(err)))
+      .catch(err => {
+        logger.error(err);
+        callback(err);
+      });
+  })
+    .then(() => res_data)
+    .catch(err => {
+      logger.error(err);
       return false;
     });
 };
