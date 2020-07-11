@@ -289,14 +289,17 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
 export const updateVideoMeeting = async (meetingId, updatedTime) => {
   const { ZOOM_BASE_URL } = process.env;
 
-  updatedTime = changeTimezone(updatedTime, 'Asia/Kolkata');
+  let dateupdatedTime = new Date(updatedTime);
+  let updatedTimeZoneTime = changeTimezone(dateupdatedTime, 'Asia/Kolkata');
+
+  let time = updatedTimeZoneTime.toLocaleString().split(' ').join('T');
 
   let response = await request
     .patch(`${ZOOM_BASE_URL}meetings/${meetingId}`)
     .set('Authorization', `Bearer ${zoom_token}`)
     .set('content-type', 'application/json')
     .send({
-      start_time: updatedTime,
+      start_time: time,
       // settings: MEETING_SETTINGS,
     });
 
