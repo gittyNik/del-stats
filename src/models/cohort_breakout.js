@@ -296,14 +296,10 @@ export const BreakoutWithOptions = (breakoutObject) => {
 
   if (details.sandbox === undefined) {
     isCodeSandbox = false;
-  } else {
-    isCodeSandbox = true;
   }
 
   if ((time === undefined) && (duration === undefined)) {
     isVideoMeeting = false;
-  } else {
-    isVideoMeeting = true;
   }
 
   let zoomTopic = `Cohort ${cohortName} - Breakout \n\n Topics: \n ${details.topics} \n\n ${location}`;
