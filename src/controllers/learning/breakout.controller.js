@@ -488,7 +488,12 @@ export const updateMilestoneByDays = async (cohortId, updateByDays) => {
               id: cohortBreakout.id,
             },
           },
-        ).then(() => updateVideoMeeting(zoomMeetingId, updatedScheduledTime));
+        ).then(() => {
+          if (zoomMeetingId !== undefined) {
+            return updateVideoMeeting(zoomMeetingId, updatedScheduledTime);
+          }
+          return 'Update breakout';
+        });
       }
       return null;
     }),
