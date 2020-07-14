@@ -4,7 +4,7 @@ import 'dotenv/config';
 import request from 'superagent';
 import app from './server';
 import db from './database';
-import { userAndTeamCommitsDayWise } from './integrations/github/controllers';
+// import { userAndTeamCommitsDayWise } from './integrations/github/controllers';
 
 const { PORT } = process.env;
 

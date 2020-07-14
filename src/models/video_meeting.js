@@ -115,15 +115,6 @@ export const createScheduledMeeting = async (topic, start_time,
   };
   // console.log('trying to create meeting');
 
-  // Calculate End time for Meeting
-  let db_start_time;
-  try {
-    db_start_time = moment(start_time, 'DD/MM/YYYY,THH:mm:ss').tz(timezone).toDate();
-  } catch (err) {
-    db_start_time = moment(start_time).tz(timezone).toDate();
-  }
-  db_start_time = moment.utc(db_start_time).format('YYYY-MM-DDTHH:mm:ssZ');
-
   return (request
     .post(`${ZOOM_BASE_URL}users/${catalyst_email}/meetings`) // todo: need to assign delta user to zoom user
     .send(meeting_object)
@@ -143,7 +134,7 @@ export const createScheduledMeeting = async (topic, start_time,
         start_url,
         join_url,
         duration,
-        start_time: db_start_time,
+        start_time,
         zoom_user: catalyst_email,
       })
         .then(video =>
@@ -298,14 +289,17 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
 export const updateVideoMeeting = async (meetingId, updatedTime) => {
   const { ZOOM_BASE_URL } = process.env;
 
-  updatedTime = changeTimezone(updatedTime, 'Asia/Kolkata');
+  let dateupdatedTime = new Date(updatedTime);
+  let updatedTimeZoneTime = changeTimezone(dateupdatedTime, 'Asia/Kolkata');
+
+  let time = updatedTimeZoneTime.toLocaleString().split(' ').join('T');
 
   let response = await request
     .patch(`${ZOOM_BASE_URL}meetings/${meetingId}`)
     .set('Authorization', `Bearer ${zoom_token}`)
     .set('content-type', 'application/json')
     .send({
-      start_time: updatedTime,
+      start_time: time,
       // settings: MEETING_SETTINGS,
     });
 

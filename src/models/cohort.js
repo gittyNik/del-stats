@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 // import { Program } from './program';
-import { Application } from './application';
+import { Application, updateCohortJoining } from './application';
 import { User, USER_ROLES } from './user';
 import db from '../database';
 import { createCohortMilestones, CohortMilestone } from './cohort_milestone';
@@ -232,6 +232,7 @@ export const getCohortFromLearnerId = (user_id) => Application.findOne({
   .then(getCohortFromId);
 
 const removeLearnerFromCohort = async (learner_id, cohort_id) => {
+  console.log(cohort_id)
   let cohort = await getCohortFromId(cohort_id);
   cohort = cohort.learners;
   cohort = cohort.filter((learner) => learner !== learner_id);
@@ -273,12 +274,13 @@ export const moveLearnertoDifferentCohort = async (
   try {
     await removeLearnerFromCohort(learner_id, current_cohort_id);
     await addLearnerToCohort(learner_id, future_cohort_id);
+    await updateCohortJoining(learner_id, future_cohort_id);
     await moveLearnerToNewGithubTeam(
       learner_id,
       current_cohort_id,
       future_cohort_id,
     );
-    await removeLearnerBreakouts(learner_id);
+    await removeLearnerBreakouts(learner_id, current_cohort_id);
     let breakouts = await createLearnerBreakouts(learner_id, future_cohort_id);
     let learnerChallenges = await getChallengesByUserId(learner_id);
     for (let i = 0; i < learnerChallenges.length; i++) {
@@ -292,6 +294,25 @@ export const moveLearnertoDifferentCohort = async (
     // await moveLearnerToNewSlackTeam(learner_id, current_cohort_id, future_cohort_id);
     // return breakouts;
     return { breakouts, learnerChallenges };
+  } catch (err) {
+    return err;
+  }
+};
+
+
+export const removeLearner = async (
+  learner_id,
+  current_cohort_id
+) => {
+  try {
+    await removeLearnerFromCohort(learner_id, current_cohort_id);
+    await removeLearnerFromGithubTeam(
+      learner_id,
+      current_cohort_id,
+    );
+    return removeLearnerBreakouts(learner_id, current_cohort_id);
+    // TODO: add function for slack channel change
+    // await removeLearnerFromSlackTeam(learner_id, current_cohort_id);
   } catch (err) {
     return err;
   }

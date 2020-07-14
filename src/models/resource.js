@@ -147,23 +147,23 @@ export const autoTagUrls = (url) => request
 
 export const createResource = (url, level, owner, tagged, title = '',
   description = '', source = 'slack', type = 'article', details = {},
-  thumbnail = '', program = 'tep') => Resource.create(
-    {
-      id: uuid(),
-      url,
-      type,
-      level,
-      owner,
-      title,
-      description,
-      source,
-      details,
-      tagged,
-      program,
-      thumbnail,
-    },
-  );
-
+  thumbnail = '', program = 'tep', topic_id = '') => Resource.create(
+  {
+    id: uuid(),
+    url,
+    type,
+    level,
+    owner,
+    title,
+    description,
+    source,
+    details,
+    tagged,
+    program,
+    thumbnail,
+    topic_id,
+  },
+);
 
 export const createFromSlackAttachment = async (attachment, owner) => {
   const url = attachment.original_url;

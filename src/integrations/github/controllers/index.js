@@ -1,13 +1,14 @@
-import _ from 'lodash';
-import { octokit, org } from './git.auth.controller';
+import _ from "lodash";
+import { octokit, org } from "./git.auth.controller";
 import {
   createTeam,
   getTeamIdByName,
   isEducator,
   toSentenceCase,
   moveLearnerToNewGithubTeam,
-} from './teams.controller';
-import { sendInvitesToNewMembers } from './orgs.controller';
+  removeLearnerFromGithubTeam,
+} from "./teams.controller";
+import { sendInvitesToNewMembers } from "./orgs.controller";
 import {
   getAllRepos,
   createGithubRepositoryFromTemplate,
@@ -26,7 +27,7 @@ import {
   getRecentCommitInRepository,
   getCommitsBetweenDates,
   getAuthoredCommitsBetweenDates,
-} from './commits.controller';
+} from "./commits.controller";
 import {
   getTeamsbyCohortMilestoneId,
   createMilestoneTeams,
@@ -100,8 +101,8 @@ const createChallenge = async (req, res) => {
     const { id } = req.params;
     const user_id = req.jwtData.user.id;
     learnerChallengesFindOrCreate(id, user_id)
-      .then(data => res.send({ data }))
-      .catch(err => res.status(500).send(err));
+      .then((data) => res.send({ data }))
+      .catch((err) => res.status(500).send(err));
   } catch (err) {
     res.status(500).send(err);
   }
@@ -126,7 +127,7 @@ const getTotalTeamAndUserCommits = async (req, res) => {
     const user_id = req.jwtData.user.id;
     const count = await getTotalTeamAndUserCommitsCount(
       user_id,
-      milestone_repo_name,
+      milestone_repo_name
     );
     res.send({
       data: count,
@@ -146,7 +147,7 @@ const getTotalUserCommitsPastWeek = async (req, res) => {
     .then(async data => {
       let socialConnection = await getGithubConnecionByUserId(user_id);
       let commits = 0;
-      data.map(dt => {
+      data.map((dt) => {
         if (dt.author.login === socialConnection.username) {
           commits = dt.weeks[0].c;
         }
@@ -159,15 +160,17 @@ const getTotalUserCommitsPastWeek = async (req, res) => {
 const createMilestoneTeamsbyCohortMilestoneId = async (req, res) => {
   const { cohort_milestone_id } = req.params;
   createMilestoneTeams(cohort_milestone_id)
-    .then(data => res.send({ data }))
-    .catch(err => res.status(500).send(err));
+    .then((data) => res.send({ data }))
+    .catch((err) => res.status(500).send(err));
 };
 
 const numberOfAttemptedChallenges = async (req, res) => {
   const user_id = req.jwtData.user.id;
   getChallengesByUserId(user_id)
-    .then(challenges => res.send({ data: { noOfChallenges: challenges.length } }))
-    .catch(err => res.status(500).send(err));
+    .then((challenges) =>
+      res.send({ data: { noOfChallenges: challenges.length } })
+    )
+    .catch((err) => res.status(500).send(err));
 };
 
 const getTotalCohortCommits = async (req, res) => {
@@ -189,12 +192,10 @@ const numberOfLinesInEachMilestone = async (cohort_id, user_id, username) => {
   try {
     let teams = await getAllLearnerTeamsByUserId(user_id);
     for (let i = 0; i < teams.length; i++) {
-      let cont = await contributersInRepository(
-        teams[i].github_repo_link,
-      );
+      let cont = await contributersInRepository(teams[i].github_repo_link);
       let com = await getAllAuthoredCommits(
         teams[i].github_repo_link,
-        username,
+        username
       );
       if (com.length === 0) {
         teams[i] = {
@@ -238,7 +239,7 @@ const numberOfLinesInEachMilestone = async (cohort_id, user_id, username) => {
   }
 };
 
-const isoToDateString = str => {
+const isoToDateString = (str) => {
   str = new Date(str);
   return `${str.getDate()}/${str.getMonth() + 1}/${str.getUTCFullYear()}`;
 };
@@ -278,7 +279,7 @@ const commitsDayWise = (date, commits) => {
   for (let i = 0; i < 14; i++) {
     let d = date + day * i;
     d = isoToDateString(new Date(d).toISOString());
-    let temp = _.filter(dayWiseCommits, el => el.day === d);
+    let temp = _.filter(dayWiseCommits, (el) => el.day === d);
     if (temp.length === 0) {
       temp = { day: d, commits: 0 };
     } else {
@@ -297,7 +298,7 @@ const userAndTeamCommitsDayWise = async (learners, repo) => {
   let commits = await getCommitsBetweenDates(
     repo,
     new Date(twoWeeks).toISOString(),
-    new Date(Date.now()).toISOString(),
+    new Date(Date.now()).toISOString()
   );
   for (let i = 0; i < learners.length; i++) {
     let user = learners[i];
@@ -313,7 +314,7 @@ const userAndTeamCommitsDayWise = async (learners, repo) => {
         repo,
         new Date(twoWeeks).toISOString(),
         new Date(Date.now()).toISOString(),
-        socialConnection.username,
+        socialConnection.username
       );
       ret.push({
         user_id: user.id,
@@ -885,4 +886,5 @@ export {
   userAndTeamCommitsDayWise,
   moveLearnerToNewGithubTeam,
   deleteGithubRepository,
+  removeLearnerFromGithubTeam,
 };
