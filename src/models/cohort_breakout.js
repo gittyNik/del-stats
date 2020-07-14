@@ -508,6 +508,7 @@ export const updateZoomMeetingForBreakout = (
 export const getCohortBreakoutsByCohortId = (cohort_id) => CohortBreakout.findAll({
   where: {
     cohort_id,
+    type: 'lecture',
   },
 });
 

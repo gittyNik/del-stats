@@ -13,7 +13,7 @@ import {
   createUpdateCohortBreakout,
   moveLearnertoDifferentCohortEndpoint,
   markCompleteBreakout,
-  removeLearnerEndpoint
+  removeLearnerEndpoint,
 } from '../../controllers/learning/cohort.controller';
 import {
   createBreakouts,
@@ -93,7 +93,7 @@ router.patch('/movelearner', moveLearnertoDifferentCohortEndpoint);
  * @apiName changeLearnerBreakout
  * @apiGroup Cohort
  */
- router.delete('/removeLearner', removeLearnerEndpoint)
+router.delete('/removeLearner', removeLearnerEndpoint);
 
 /**
  * @api {patch} /cohorts/breakout Schedule a Breakout for Cohort
