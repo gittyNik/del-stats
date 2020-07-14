@@ -306,7 +306,7 @@ export const updateVideoMeeting = async (meetingId, updatedTime) => {
 
     if (response.status === 204) {
       await VideoMeeting.update({
-        start_time: updatedTime,
+        start_time: time,
       }, {
         where: { video_id: meetingId },
         raw: true,
