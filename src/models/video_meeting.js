@@ -289,30 +289,35 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
 export const updateVideoMeeting = async (meetingId, updatedTime) => {
   const { ZOOM_BASE_URL } = process.env;
 
-  let dateupdatedTime = new Date(updatedTime);
-  let updatedTimeZoneTime = changeTimezone(dateupdatedTime, 'Asia/Kolkata');
+  try {
+    let dateupdatedTime = new Date(updatedTime);
+    let updatedTimeZoneTime = changeTimezone(dateupdatedTime, 'Asia/Kolkata');
 
-  let time = updatedTimeZoneTime.toLocaleString().split(' ').join('T');
+    let time = updatedTimeZoneTime.toLocaleString().split(' ').join('T');
 
-  let response = await request
-    .patch(`${ZOOM_BASE_URL}meetings/${meetingId}`)
-    .set('Authorization', `Bearer ${zoom_token}`)
-    .set('content-type', 'application/json')
-    .send({
-      start_time: time,
-      // settings: MEETING_SETTINGS,
-    });
+    let response = await request
+      .patch(`${ZOOM_BASE_URL}meetings/${meetingId}`)
+      .set('Authorization', `Bearer ${zoom_token}`)
+      .set('content-type', 'application/json')
+      .send({
+        start_time: time,
+        // settings: MEETING_SETTINGS,
+      });
 
-  if (response.status === 204) {
-    await VideoMeeting.update({
-      start_time: updatedTime,
-    }, {
-      where: { video_id: meetingId },
-      raw: true,
-    });
-    return true;
+    if (response.status === 204) {
+      await VideoMeeting.update({
+        start_time: time,
+      }, {
+        where: { video_id: meetingId },
+        raw: true,
+      });
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.log(`Error updating zoom meeting ${err}`);
+    return false;
   }
-  return false;
 };
 
 export const updateCohortMeeting = async (cohort_breakout_id, updatedTime,
