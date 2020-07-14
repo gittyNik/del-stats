@@ -430,6 +430,7 @@ export const calculateAfterDays = (previousTime, afterDays) => {
   return updatedTime;
 };
 
+// TODO: Make this transactional, if one fails, all should revert
 export const updateMilestoneByDays = async (cohortId, updateByDays) => {
   let currentDateTime = new Date();
   await CohortMilestone.findAll({
