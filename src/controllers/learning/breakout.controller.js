@@ -125,7 +125,8 @@ export const createBreakout = (req, res) => {
     location, catalyst_id, attendance_count,
     catalyst_notes, catalyst_feedback,
     isVideoMeeting, isCodeSandbox, breakout_template_id,
-    team_feedback, agenda,
+    team_feedback, agenda, cohort_milestone_id,
+    teamId, milestone_team_id, github_repo_link,
   } = req.body;
   let time = time_scheduled.toLocaleString().split(' ').join('T');
   // console.group(time);
@@ -142,6 +143,17 @@ export const createBreakout = (req, res) => {
           sandbox_id: sandbox.data.sandbox_id,
           videoMeeting_id: videoMeeting,
         };
+
+        if (type === 'reviews') {
+          details.cohort_milestone_id = cohort_milestone_id;
+          details.teamId = teamId;
+          details.milestone_team_id = milestone_team_id;
+          details.github_repo_link = github_repo_link;
+          details.topics = agenda;
+        } else if (type === 'assessment') {
+          details.topics = agenda;
+        }
+
         createNewBreakout(
           breakout_template_id,
           topic_id,
