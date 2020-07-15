@@ -4,7 +4,9 @@ import async from 'async';
 import db from '../database';
 import { Cohort, getCohortFromLearnerId } from './cohort';
 import {
-  getScheduledCohortBreakoutsByCohortId, getCalendarDetailsOfCohortBreakout, getCohortBreakoutsByCohortId, CohortBreakout,
+  getScheduledCohortBreakoutsByCohortId,
+  getCalendarDetailsOfCohortBreakout,
+  getCohortBreakoutsByCohortId, CohortBreakout,
 } from './cohort_breakout';
 import { createEvent } from '../integrations/calendar/calendar.model';
 import { getGoogleOauthOfUser } from '../util/calendar-util';

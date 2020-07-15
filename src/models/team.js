@@ -11,8 +11,11 @@ import {
   addCollaboratorToRepository,
   createGithubRepositoryFromTemplate,
 } from '../integrations/github/controllers';
+import {
+  addTeamAccessToRepo,
+  isExistingRepository,
+} from '../integrations/github/controllers/repository.controller';
 import { getGithubConnecionByUserId } from './social_connection';
-
 
 const { contains } = Sequelize.Op;
 
@@ -88,12 +91,29 @@ const toGithubFormat = str => {
   return finalStr;
 };
 
+// TODO: Need to change this entire logic, inefficient
 export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
   let m = [];
   for (let i = 0; i < mL.length; i++) {
     let as = await getProfile(mL[i]);
     m.push(as);
   }
+
+  let data = await getDataForMilestoneName(cohort_milestone_id);
+  let baseMilestoneName = `MS_${toSentenceCase(
+    data.milestone.name,
+  )}_${toSentenceCase(data.cohort.name)}_${toSentenceCase(
+    data.cohort.program_id,
+  )}_${toSentenceCase(
+    data.cohort.location === 'T-hub, IIIT Hyderabad'
+      ? 'Hyderabad'
+      : data.cohort.location,
+  )}_${new Date(data.cohort.start_date).getFullYear()}`;
+  let { starter_repo } = data.milestone;
+
+  // Add Read-access to Reviewers
+  await addTeamAccessToRepo('reviewer', starter_repo);
+
   if (
     m[0].profile !== null
     && m[0].profile.hasOwnProperty('stack')
@@ -108,26 +128,22 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
         backendUsers.push(ms.id);
       }
     });
+
     const frontendTeams = splitTeams(frontendUsers);
     const backendTeams = splitTeams(backendUsers);
     let teams = [];
     frontendTeams.map(t => teams.push(t));
     backendTeams.map(t => teams.push(t));
-    let data = await getDataForMilestoneName(cohort_milestone_id);
-    let baseMilestoneName = `MS_${toSentenceCase(
-      data.milestone.name,
-    )}_${toSentenceCase(data.cohort.name)}_${toSentenceCase(
-      data.cohort.program_id,
-    )}_${toSentenceCase(
-      data.cohort.location === 'T-hub, IIIT Hyderabad'
-        ? 'Hyderabad'
-        : data.cohort.location,
-    )}_${new Date(data.cohort.start_date).getFullYear()}`;
-    let { starter_repo } = data.milestone;
     for (let i = 0; i < teams.length; i++) {
       let msName = `${baseMilestoneName}_${i + 1}`;
       msName = toGithubFormat(msName);
-      let repo = await createGithubRepositoryFromTemplate(starter_repo, msName);
+      let existingRepo = await isExistingRepository(msName);
+      let repo;
+      if (!existingRepo) {
+        repo = await createGithubRepositoryFromTemplate(starter_repo, msName);
+      } else {
+        repo = existingRepo;
+      }
       let team = teams[i];
       for (let j = 0; j < team.length; j++) {
         msName = repo.name;
@@ -163,23 +179,19 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
     return teams;
   }
   m = m.map(ms => ms.id);
-  let data = await getDataForMilestoneName(cohort_milestone_id);
-  let baseMilestoneName = `MS_${toSentenceCase(
-    data.milestone.name,
-  )}_${toSentenceCase(data.cohort.name)}_${toSentenceCase(
-    data.cohort.program_id,
-  )}_${toSentenceCase(
-    data.cohort.location === 'T-hub, IIIT Hyderabad'
-      ? 'Hyderabad'
-      : data.cohort.location,
-  )}_${new Date(data.cohort.start_date).getFullYear()}`;
-  let { starter_repo } = data.milestone;
+
   let teams = splitTeams(m);
   // TODO: change for loop for proper use of await @Nik
   for (let i = 0; i < teams.length; i++) {
     let msName = `${baseMilestoneName}_${i + 1}`;
     msName = toGithubFormat(msName);
-    let repo = await createGithubRepositoryFromTemplate(starter_repo, msName);
+    let existingRepo = await isExistingRepository(msName);
+    let repo;
+    if (!existingRepo) {
+      repo = await createGithubRepositoryFromTemplate(starter_repo, msName);
+    } else {
+      repo = existingRepo;
+    }
     let team = teams[i];
     for (let j = 0; j < team.length; j++) {
       // console.log(repo);
