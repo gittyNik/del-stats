@@ -1,4 +1,4 @@
-import Sequelize from "sequelize";
+import Sequelize from 'sequelize';
 import {
   getAllBreakoutsInCohortMilestone,
   CohortBreakout,
@@ -13,8 +13,8 @@ import {
   deleteMeetingFromZoom,
   updateVideoMeeting,
   updateCohortMeeting,
-} from "../../models/video_meeting";
-import { createSandbox } from "../../models/code_sandbox";
+} from '../../models/video_meeting';
+import { createSandbox } from '../../models/code_sandbox';
 import {
   BreakoutTemplate,
   createBreakoutsInMilestone,
@@ -87,31 +87,30 @@ export const getLiveCohortsBreakouts = (req, res) => {
       if (req.jwtData.user.role === USER_ROLES.REVIEWER) {
         where.type = { [Sequelize.Op.in]: ['reviews', 'assessment'] };
       } else if (req.jwtData.user.role === USER_ROLES.CATALYST) {
-        where.type = "lecture";
+        where.type = 'lecture';
       }
       return CohortBreakout.findAll({
         where,
-        include: [{
-          model: User,
-          as: 'catalyst',
-        },
+        include: [
+          {
+            model: User,
+            as: 'catalyst',
+          },
           Cohort,
           BreakoutTemplate,
-        {
-          model: Topic,
-          attributes: [],
-          include: [Milestone],
-        },
+          {
+            model: Topic,
+            attributes: [],
+            include: [Milestone],
+          },
         ],
         raw: true,
       })
         .then(populateTopics)
-        .then((data) =>
-          res.json({
-            text: "Live cohort breakouts",
-            data,
-          })
-        )
+        .then((data) => res.json({
+          text: 'Live cohort breakouts',
+          data,
+        }))
         .catch((err) => {
           console.error(err);
           res.status(500);
@@ -130,9 +129,10 @@ export const createBreakout = (req, res) => {
     location, catalyst_id, attendance_count,
     catalyst_notes, catalyst_feedback,
     isVideoMeeting, isCodeSandbox, breakout_template_id,
-    team_feedback, agenda,
+    team_feedback, agenda, cohort_milestone_id,
+    teamId, milestone_team_id, github_repo_link,
   } = req.body;
-  let time = time_scheduled.toLocaleString().split(" ").join("T");
+  let time = time_scheduled.toLocaleString().split(' ').join('T');
   // console.group(time);
 
   if (isCodeSandbox && isVideoMeeting) {
@@ -147,6 +147,17 @@ export const createBreakout = (req, res) => {
           sandbox_id: sandbox.data.sandbox_id,
           videoMeeting_id: videoMeeting,
         };
+
+        if (type === 'reviews') {
+          details.cohort_milestone_id = cohort_milestone_id;
+          details.teamId = teamId;
+          details.milestone_team_id = milestone_team_id;
+          details.github_repo_link = github_repo_link;
+          details.topics = agenda;
+        } else if (type === 'assessment') {
+          details.topics = agenda;
+        }
+
         createNewBreakout(
           breakout_template_id,
           topic_id,
@@ -161,15 +172,15 @@ export const createBreakout = (req, res) => {
           catalyst_notes,
           attendance_count,
           domain,
-          catalyst_feedback
+          catalyst_feedback,
         )
           .then((data) => {
             // console.log(data);
-            res.send("Breakout Created with codesandbox and videomeeting.");
+            res.send('Breakout Created with codesandbox and videomeeting.');
           })
           .catch((err) => {
             deleteMeetingFromZoom(details.videoMeeting_id);
-            console.error("Failed to create Cohort Breakout", err);
+            console.error('Failed to create Cohort Breakout', err);
             res.send(500);
           });
       })
@@ -199,14 +210,14 @@ export const createBreakout = (req, res) => {
           catalyst_notes,
           attendance_count,
           domain,
-          catalyst_feedback
+          catalyst_feedback,
         )
           .then(data => {
             // console.log('Breakout created with code sandbox only', data);
             res.send('Breakout Created with codesandbox only.');
           })
           .catch((err) => {
-            console.error("Failed to create Breakout", err);
+            console.error('Failed to create Breakout', err);
             res.send(500);
           });
       })
@@ -234,17 +245,17 @@ export const createBreakout = (req, res) => {
           catalyst_notes,
           attendance_count,
           domain,
-          catalyst_feedback
+          catalyst_feedback,
         )
           .then((data) => {
             // console.log(data);
-            res.send("Breakout and video meeting created Created");
+            res.send('Breakout and video meeting created Created');
           })
           .catch((err) => {
             deleteMeetingFromZoom(details.videoMeeting_id);
             console.error(
-              "Failed to create Breakout after creating video meeting",
-              err
+              'Failed to create Breakout after creating video meeting',
+              err,
             );
             res.send(500);
           });
@@ -294,9 +305,9 @@ export const updateBreakout = (req, res) => {
     },
     {
       where: { id },
-    }
+    },
   )
-    .then(() => res.send("Cohort Breakout updated."))
+    .then(() => res.send('Cohort Breakout updated.'))
     .catch((err) => {
       console.error(err);
       res.status(500);
@@ -309,7 +320,7 @@ export const deleteBreakout = (req, res) => {
   CohortBreakout.destroy({
     where: { id },
   })
-    .then(() => res.send("Deleted Cohort Breakout. "))
+    .then(() => res.send('Deleted Cohort Breakout. '))
     .catch((err) => {
       console.error(err);
       res.status(500);
@@ -328,20 +339,20 @@ export const getAllCohortBreakouts = (req, res) => {
   })
     .then((breakouts) => {
       breakouts.map((breakout) => {
-        if (breakout.type === "reviews") {
-          breakout["topic.milestone_id"] = breakout.details.milestoneId;
+        if (breakout.type === 'reviews') {
+          breakout['topic.milestone_id'] = breakout.details.milestoneId;
         }
         return breakout;
       });
       res.json({
-        text: "List of all breakouts scheduled in this cohort",
+        text: 'List of all breakouts scheduled in this cohort',
         data: breakouts,
       });
     })
     .catch((err) => {
       console.error(err);
       res.json({
-        text: "Failed to get list of all breakouts in this cohort",
+        text: 'Failed to get list of all breakouts in this cohort',
         data: null,
       });
     });
@@ -355,7 +366,7 @@ export const getBreakoutsForCohortMilestone = async (req, res) => {
   // console.log('RESPONSE: ', breakouts);
   breakouts = breakouts.filter(breakout => breakout != null);
   res.json({
-    text: "List of all breakouts in a cohort milestone",
+    text: 'List of all breakouts in a cohort milestone',
     data: breakouts,
   });
 };
@@ -375,7 +386,7 @@ export const createBreakoutsOfType = (req, res) => {
     cohort_duration,
     type,
     code_sandbox,
-    video_meet
+    video_meet,
   )
     .then((data) => {
       res.status(201).json({ data });
@@ -409,9 +420,9 @@ export const updateZoomMeeting = (req, res) => {
   const { id: zoom_meeting_id } = req.params;
   updateVideoMeeting(zoom_meeting_id, updated_time).then((data) => {
     if (data) {
-      res.status(200).json({ message: "Zoom meeting updated with time" });
+      res.status(200).json({ message: 'Zoom meeting updated with time' });
     }
-    res.status(400).json({ message: "Zoom meeting not updated" });
+    res.status(400).json({ message: 'Zoom meeting not updated' });
   });
 };
 
@@ -480,13 +491,14 @@ export const updateCohortBreakout = async (req, res) => {
 
 export const calculateAfterDays = (previousTime, afterDays) => {
   // Shallow copy datetime object
-  const RELEASE_TIME = new Date(previousTime.toLocaleString("en-US"));
+  const RELEASE_TIME = new Date(previousTime.toLocaleString('en-US'));
   let updatedTime = RELEASE_TIME;
 
   updatedTime.setDate(RELEASE_TIME.getDate() + afterDays);
   return updatedTime;
 };
 
+// TODO: Make this transactional, if one fails, all should revert
 export const updateMilestoneByDays = async (cohortId, updateByDays) => {
   let currentDateTime = new Date();
   await CohortMilestone.findAll({
@@ -494,7 +506,7 @@ export const updateMilestoneByDays = async (cohortId, updateByDays) => {
       cohort_id: cohortId,
       release_time: { [gte]: Date.now() },
     },
-    attributes: ["id", "release_time", "review_scheduled"],
+    attributes: ['id', 'release_time', 'review_scheduled'],
     raw: true,
   }).then(cohortMilestones => {
     // console.log('Updating Milestone timings');
@@ -516,42 +528,46 @@ export const updateMilestoneByDays = async (cohortId, updateByDays) => {
             where: {
               id: cohortMilestone.id,
             },
-          }
+          },
         );
       }
-    })
-    );
+    }));
   });
   await CohortBreakout.findAll({
-    attributes: ["id", "time_scheduled", "details"],
+    attributes: ['id', 'time_scheduled', 'details'],
     where: {
       cohort_id: cohortId,
+      type: 'lecture',
     },
-  }).then((cohortBreakouts) =>
-    Promise.all(
-      cohortBreakouts.map((cohortBreakout) => {
-        let updatedScheduledTime = calculateAfterDays(
-          cohortBreakout.time_scheduled,
-          updateByDays
-        );
-        if (updatedScheduledTime > currentDateTime) {
-          let zoomMeetingId = cohortBreakout.details.zoom.id;
-          // Update breakout time and Zoom meeting
-          CohortBreakout.update(
-            {
-              time_scheduled: updatedScheduledTime,
+  }).then((cohortBreakouts) => Promise.all(
+    cohortBreakouts.map((cohortBreakout) => {
+      let updatedScheduledTime = calculateAfterDays(
+        cohortBreakout.time_scheduled,
+        updateByDays,
+      );
+      if (updatedScheduledTime > currentDateTime) {
+        let zoomMeetingId = cohortBreakout.details.zoom.id;
+        // Update breakout time and Zoom meeting
+        return CohortBreakout.update(
+          {
+            time_scheduled: updatedScheduledTime,
+          },
+          {
+            where: {
+              id: cohortBreakout.id,
             },
-            {
-              where: {
-                id: cohortBreakout.id,
-              },
-            }
-          ).then(() => updateVideoMeeting(zoomMeetingId, updatedScheduledTime));
-        }
-      })
-    )
-  );
-  return { message: "Update Milestones and breakouts" };
+          },
+        ).then(() => {
+          if (zoomMeetingId !== undefined) {
+            return updateVideoMeeting(zoomMeetingId, updatedScheduledTime);
+          }
+          return 'Update breakout';
+        });
+      }
+      return null;
+    }),
+  ));
+  return { message: 'Update Milestones and breakouts' };
 };
 
 export const updateMilestonesBreakoutTimelines = async (req, res) => {

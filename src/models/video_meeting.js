@@ -90,6 +90,7 @@ Meeting type:
   3- Recurring Meeting with no fixed time
   4- Recurring Meeting with a fixed time
 */
+// TODO: Standarise breakout timings to UTC
 export const createScheduledMeeting = async (topic, start_time,
   millisecs_duration, agenda, type, catalyst_id = null,
   timezone = 'Asia/Calcutta') => {
@@ -289,38 +290,47 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
 export const updateVideoMeeting = async (meetingId, updatedTime) => {
   const { ZOOM_BASE_URL } = process.env;
 
-  let dateupdatedTime = new Date(updatedTime);
-  let updatedTimeZoneTime = changeTimezone(dateupdatedTime, 'Asia/Kolkata');
+  try {
+    let dateupdatedTime = new Date(updatedTime);
+    let updatedTimeZoneTime = changeTimezone(dateupdatedTime, 'Asia/Kolkata');
 
-  let time = updatedTimeZoneTime.toLocaleString().split(' ').join('T');
+    let time = updatedTimeZoneTime.toLocaleString().split(' ').join('T');
 
-  let response = await request
-    .patch(`${ZOOM_BASE_URL}meetings/${meetingId}`)
-    .set('Authorization', `Bearer ${zoom_token}`)
-    .set('content-type', 'application/json')
-    .send({
-      start_time: time,
-      // settings: MEETING_SETTINGS,
-    });
+    let response = await request
+      .patch(`${ZOOM_BASE_URL}meetings/${meetingId}`)
+      .set('Authorization', `Bearer ${zoom_token}`)
+      .set('content-type', 'application/json')
+      .send({
+        start_time: time,
+        // settings: MEETING_SETTINGS,
+      });
 
-  if (response.status === 204) {
-    await VideoMeeting.update({
-      start_time: updatedTime,
-    }, {
-      where: { video_id: meetingId },
-      raw: true,
-    });
-    return true;
+    if (response.status === 204) {
+      await VideoMeeting.update({
+        start_time: time,
+      }, {
+        where: { video_id: meetingId },
+        raw: true,
+      });
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.log(`Error updating zoom meeting ${err}`);
+    return false;
   }
-  return false;
 };
 
 export const updateCohortMeeting = async (cohort_breakout_id, updatedTime,
   newCatalyst_id = null) => {
   let cohort_breakout = await CohortBreakout.findByPk(cohort_breakout_id);
   let { details, catalyst_id, duration } = cohort_breakout.toJSON();
-
   let updated;
+  if (details.zoom.id === undefined) {
+    updated = await createScheduledMeeting(details.topics,
+      updatedTime, duration, null, 2, newCatalyst_id, 'UTC');
+  }
+
   if ((newCatalyst_id !== null) && (catalyst_id !== newCatalyst_id)) {
     try {
       if (typeof details.zoom.id !== 'undefined') {
@@ -331,7 +341,7 @@ export const updateCohortMeeting = async (cohort_breakout_id, updatedTime,
       console.warn(`Unable to delete Zoom meeting: \n${error}`);
     }
     updated = await createScheduledMeeting(details.topics,
-      updatedTime, duration, null, 2, newCatalyst_id);
+      updatedTime, duration, null, 2, newCatalyst_id, 'UTC');
   } else {
     updated = await updateVideoMeeting(details.zoom.id, updatedTime);
   }

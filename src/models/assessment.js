@@ -215,7 +215,7 @@ export const calculateAssessmentTime = (assessmentDate, assessmentForTeam) => {
 
   scheduled_time.setDate(assessmentDate.getDate() + ((
     WEEK_VALUES[assessmentForTeam.assessment_day.toLowerCase()]
-    + 7 - assessmentDate.getDay()) % 7));
+    + (7 * assessmentForTeam.week) - assessmentDate.getDay()) % 7));
 
   scheduled_time.setHours(time_split[0], time_split[1], time_split[2]);
 

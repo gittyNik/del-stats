@@ -298,14 +298,10 @@ export const BreakoutWithOptions = (breakoutObject) => {
 
   if (details.sandbox === undefined) {
     isCodeSandbox = false;
-  } else {
-    isCodeSandbox = true;
   }
 
   if ((time === undefined) && (duration === undefined)) {
     isVideoMeeting = false;
-  } else {
-    isVideoMeeting = true;
   }
 
   let zoomTopic = `Cohort ${cohortName} - Breakout \n\n Topics: \n ${details.topics} \n\n ${location}`;
@@ -487,33 +483,38 @@ export const createSingleBreakoutAndLearnerBreakout = (
 export const updateZoomMeetingForBreakout = (
   id,
 ) => CohortBreakout.findByPk(id)
-  .then((cohort_breakout) => createScheduledMeeting(
-    cohort_breakout.topic_id,
-    cohort_breakout.time_scheduled,
-    cohort_breakout.breakout_duration,
-    '',
-    2,
-    cohort_breakout.catalyst_id,
-  ).then((zoomMeeting) => {
-    if (cohort_breakout.details) {
-      cohort_breakout.details.zoom = zoomMeeting;
-    } else {
-      cohort_breakout.details = { zoom: zoomMeeting };
-    }
-    return CohortBreakout.update({
-      details: cohort_breakout.details,
-      updated_at: Date.now(),
-    },
-      {
-        where: { id },
-        returning: true,
-        plain: true,
-      });
-  }));
+  .then((cohort_breakout) => {
+    let meetingTime = cohort_breakout.time_scheduled.toLocaleString().split(' ').join('T');
+    createScheduledMeeting(
+      cohort_breakout.topic_id,
+      meetingTime,
+      cohort_breakout.breakout_duration,
+      '',
+      2,
+      cohort_breakout.catalyst_id,
+    ).then((zoomMeeting) => {
+      if (cohort_breakout.details) {
+        cohort_breakout.details.zoom = zoomMeeting;
+      } else {
+        cohort_breakout.details = { zoom: zoomMeeting };
+      }
+      return CohortBreakout
+        .update({
+          details: cohort_breakout.details,
+          updated_at: Date.now(),
+        }, {
+          where: { id },
+          returning: true,
+          plain: true,
+        })
+        .then(data => data[1]);
+    });
+  });
 
 export const getCohortBreakoutsByCohortId = (cohort_id) => CohortBreakout.findAll({
   where: {
     cohort_id,
+    type: 'lecture',
   },
 });
 

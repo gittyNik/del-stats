@@ -3,31 +3,36 @@ import uuid from 'uuid/v4';
 import async from 'async';
 import db from '../database';
 import { Cohort, getCohortFromLearnerId } from './cohort';
-import { getUpcomingBreakoutsByCohortId, getCalendarDetailsOfCohortBreakout, getCohortBreakoutsByCohortId, CohortBreakout } from './cohort_breakout';
+import {
+  getUpcomingBreakoutsByCohortId,
+  getCalendarDetailsOfCohortBreakout,
+  getCohortBreakoutsByCohortId,
+  CohortBreakout
+} from './cohort_breakout';
 import { createEvent, deleteEvent } from '../integrations/calendar/calendar.model';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 import { logger } from '../util/logger';
 
 const { Op } = Sequelize;
 
-export const LearnerBreakout = db.define("learner_breakouts", {
+export const LearnerBreakout = db.define('learner_breakouts', {
   id: {
     type: Sequelize.UUID,
     primaryKey: true,
   },
   cohort_breakout_id: {
     type: Sequelize.UUID,
-    references: { model: "cohort_breakouts", key: "id" },
+    references: { model: 'cohort_breakouts', key: 'id' },
   },
   learner_id: {
     type: Sequelize.UUID,
-    references: { model: "users", key: "id" },
+    references: { model: 'users', key: 'id' },
   },
   learner_notes: Sequelize.TEXT,
   learner_feedback: Sequelize.TEXT,
   team_breakout_id: {
     type: Sequelize.UUID,
-    references: { model: "team_breakout", key: "id" },
+    references: { model: 'team_breakout', key: 'id' },
   },
   attendance: {
     type: Sequelize.BOOLEAN,
@@ -36,12 +41,12 @@ export const LearnerBreakout = db.define("learner_breakouts", {
   created_at: {
     allowNull: false,
     type: Sequelize.DATE,
-    defaultValue: Sequelize.literal("NOW()"),
+    defaultValue: Sequelize.literal('NOW()'),
   },
   updated_at: {
     allowNull: false,
     type: Sequelize.DATE,
-    defaultValue: Sequelize.literal("NOW()"),
+    defaultValue: Sequelize.literal('NOW()'),
   },
   review_feedback: Sequelize.JSON,
 });
@@ -108,28 +113,27 @@ export const createLearnerBreakoutsForCohortMilestones = (
 
 export const createLearnerBreakoutsForLearners = (
   cohort_breakout_id,
-  learners
-) =>
-  learners.map((learner) => {
-    // console.log(learner, cohort_breakout_id);
-    let learnerBreakout = LearnerBreakout.create({
-      id: uuid(),
-      cohort_breakout_id,
-      learner_id: learner,
-      attendance: false,
-    })
-      .then((data) => data.get({ plain: true }))
-      .catch((err) => {
-        console.error(err);
-        return null;
-      });
-    return learnerBreakout;
-  });
+  learners,
+) => learners.map((learner) => {
+  // console.log(learner, cohort_breakout_id);
+  let learnerBreakout = LearnerBreakout.create({
+    id: uuid(),
+    cohort_breakout_id,
+    learner_id: learner,
+    attendance: false,
+  })
+    .then((data) => data.get({ plain: true }))
+    .catch((err) => {
+      console.error(err);
+      return null;
+    });
+  return learnerBreakout;
+});
 
 export const removeLearnerBreakouts = async (learner_id, current_cohort_id) => {
-  const now = Sequelize.literal("NOW()");
+  const now = Sequelize.literal('NOW()');
   return db.query(
-    `delete from learner_breakouts where id in (select l.id from learner_breakouts as l left join cohort_breakouts as c on l.cohort_breakout_id=c.id where l.learner_id in (\'${learner_id}\') and c.cohort_id=\'${current_cohort_id}\' and c.time_scheduled>\'${new Date(new Date()).toUTCString()}\')`
+    `delete from learner_breakouts where id in (select l.id from learner_breakouts as l left join cohort_breakouts as c on l.cohort_breakout_id=c.id where l.learner_id in (\'${learner_id}\') and c.cohort_id=\'${current_cohort_id}\' and c.time_scheduled>\'${new Date(new Date()).toUTCString()}\')`,
   );
 
   // LearnerBreakout.destroy({
@@ -143,15 +147,15 @@ export const removeLearnerBreakouts = async (learner_id, current_cohort_id) => {
 };
 
 export const createLearnerBreakouts = (learner_id, future_cohort_id) =>
-  getCohortBreakoutsByCohortId(future_cohort_id).then((breakouts) =>
-    LearnerBreakout.bulkCreate(
-      breakouts.map((breakout) => ({
+  getCohortBreakoutsByCohortId(future_cohort_id)
+    .then((breakouts) =>
+      LearnerBreakout.bulkCreate(breakouts.map((breakout) => ({
         id: uuid(),
         learner_id,
         cohort_breakout_id: breakout.id,
         attendance: false,
       })),
-    ));
+      ));
 
 export const getPayloadForCalendar = async (learnerId) => {
   try {
@@ -169,7 +173,7 @@ export const getPayloadForCalendar = async (learnerId) => {
         const data = {};
         data.cohortBreakout = cohortBreakout;
         data.eventBody = await getCalendarDetailsOfCohortBreakout(
-          cohortBreakout.id
+          cohortBreakout.id,
         );
         data.learnerBreakout = await LearnerBreakout.findOne({
           where: {
@@ -183,7 +187,7 @@ export const getPayloadForCalendar = async (learnerId) => {
             return false;
           });
         return data;
-      })
+      }),
     );
     // console.log(payload);
     return payload;
@@ -218,7 +222,7 @@ export const updateReviewFeedback = async (learner_breakout_id, calendarDetails)
       },
       returning: true,
       raw: true,
-    }
+    },
   );
   return updatedLearnerBreakout;
 };
