@@ -90,6 +90,7 @@ Meeting type:
   3- Recurring Meeting with no fixed time
   4- Recurring Meeting with a fixed time
 */
+// TODO: Standarise breakout timings to UTC
 export const createScheduledMeeting = async (topic, start_time,
   millisecs_duration, agenda, type, catalyst_id = null,
   timezone = 'Asia/Calcutta') => {
@@ -324,11 +325,12 @@ export const updateCohortMeeting = async (cohort_breakout_id, updatedTime,
   newCatalyst_id = null) => {
   let cohort_breakout = await CohortBreakout.findByPk(cohort_breakout_id);
   let { details, catalyst_id, duration } = cohort_breakout.toJSON();
+  let updated;
   if (details.zoom.id === undefined) {
-    return `No zoom meeting available to update ${cohort_breakout_id}`;
+    updated = await createScheduledMeeting(details.topics,
+      updatedTime, duration, null, 2, newCatalyst_id, 'UTC');
   }
 
-  let updated;
   if ((newCatalyst_id !== null) && (catalyst_id !== newCatalyst_id)) {
     try {
       deleteMeetingFromZoom(details.zoom.id);
@@ -336,7 +338,7 @@ export const updateCohortMeeting = async (cohort_breakout_id, updatedTime,
       console.warn(`Unable to delete Zoom meeting: \n${error}`);
     }
     updated = await createScheduledMeeting(details.topics,
-      updatedTime, duration, null, 2, newCatalyst_id);
+      updatedTime, duration, null, 2, newCatalyst_id, 'UTC');
   } else {
     updated = await updateVideoMeeting(details.zoom.id, updatedTime);
   }
