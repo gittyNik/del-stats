@@ -13,6 +13,7 @@ import { createTypeBreakoutsInMilestone } from './breakout_template';
 import { removeLearnerBreakouts, createLearnerBreakouts } from './learner_breakout';
 import { moveLearnerToNewGithubTeam, deleteGithubRepository } from '../integrations/github/controllers';
 import { removeLearnerFromSlackChannel, moveLearnerToNewSlackChannel } from './slack_channels';
+import { removeLearnerFromGithubTeam } from '../integrations/github/controllers/teams.controller';
 
 export const COHORT_STATUS = [
   'upcoming',
@@ -308,7 +309,6 @@ export const moveLearnertoDifferentCohort = async (
   }
 };
 
-
 export const removeLearner = async (
   learner_id,
   current_cohort_id
@@ -321,7 +321,6 @@ export const removeLearner = async (
     );
     await removeLearnerFromSlackChannel(learner_id, current_cohort_id);
     return removeLearnerBreakouts(learner_id, current_cohort_id);
-    // TODO: add function for slack channel change
   } catch (err) {
     return err;
   }
