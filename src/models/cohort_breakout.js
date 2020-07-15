@@ -237,8 +237,8 @@ export const markBreakoutFinished = (
 ) => markBreakoutComplete(cohort_breakout_id)
   .then((completeBreakout) => Promise.all([
     markZoomAttendance(completeBreakout[1]),
-    showCompletedBreakoutOnSlack(completeBreakout[1].topic_id,
-      completeBreakout[1].cohort_id, name),
+    showCompletedBreakoutOnSlack(completeBreakout[1].topicId,
+      completeBreakout[1].cohortId, name),
   ]));
 
 export const createNewBreakout = (
@@ -257,8 +257,9 @@ export const createNewBreakout = (
   domain = null,
   catalyst_feedback = null,
 ) => {
-  if (typeof topic_id !== 'undefined' && topic_id.length > 0) {
-    topic_id = topic_id[0];
+  if (typeof topic_id !== 'undefined' && Array.isArray(topic_id) && topic_id.length > 0) {
+
+    [topic_id] = topic_id;
   }
   // console.log(`${time_scheduled} ${duration} ${location}`);
   return CohortBreakout.create({
