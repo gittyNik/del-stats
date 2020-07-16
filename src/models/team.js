@@ -153,7 +153,11 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
           continue;
         }
         u = u.username;
-        let col = await addCollaboratorToRepository(u, repo.name);
+        try {
+          await addCollaboratorToRepository(u, repo.name);
+        } catch (err) {
+          console.warn(`Unable to give user access: ${u}`);
+        }
         // return {id: user, username: u.username}
       }
 
@@ -202,7 +206,11 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
         continue;
       }
       u = u.username;
-      let col = await addCollaboratorToRepository(u, repo.name);
+      try {
+        await addCollaboratorToRepository(u, repo.name);
+      } catch (err) {
+        console.warn(`Unable to give user access: ${u}`);
+      }
       // return {id: user, username: u.username}
     }
 
