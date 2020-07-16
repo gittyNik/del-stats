@@ -192,6 +192,16 @@ export const createBreakout = (req, res) => {
         let details = {
           sandbox_id: sandbox.data.sandbox_id,
         };
+
+        if (type === 'reviews') {
+          details.cohort_milestone_id = cohort_milestone_id;
+          details.teamId = teamId;
+          details.milestone_team_id = milestone_team_id;
+          details.github_repo_link = github_repo_link;
+          details.topics = agenda;
+        } else if (type === 'assessment') {
+          details.topics = agenda;
+        }
         createNewBreakout(
           breakout_template_id,
           topic_id,
@@ -227,6 +237,16 @@ export const createBreakout = (req, res) => {
         let details = {
           videoMeeting_id: videoMeeting,
         };
+
+        if (type === 'reviews') {
+          details.cohort_milestone_id = cohort_milestone_id;
+          details.teamId = teamId;
+          details.milestone_team_id = milestone_team_id;
+          details.github_repo_link = github_repo_link;
+          details.topics = agenda;
+        } else if (type === 'assessment') {
+          details.topics = agenda;
+        }
         createNewBreakout(
           breakout_template_id,
           topic_id,

@@ -128,7 +128,7 @@ export const addTeamAccessToRepo = async (
   team_slug,
   repo,
   permission = 'pull',
-) => octokit.teams.addOrUpdateRepoPermissionsInOrg({
+) => octokit.teams.addOrUpdateRepoInOrg({
   org,
   team_slug,
   owner: org,

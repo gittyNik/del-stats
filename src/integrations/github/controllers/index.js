@@ -20,6 +20,7 @@ import {
   provideAccessToRepoIfNot,
   deleteGithubRepository,
   isExistingRepository,
+  addTeamAccessToRepo,
 } from './repository.controller';
 import {
   getAllAuthoredCommits,
@@ -598,6 +599,13 @@ export const createStatForSingleLearner = async (
     );
   });
   return createdStat;
+};
+
+export const addTeamAccessRepo = async (req, res) => {
+  const { team_slug, repo, permissions } = req.query;
+  let permissionsTeam = await addTeamAccessToRepo(team_slug, repo, permissions);
+
+  return res.json({ data: permissionsTeam });
 };
 
 export const fillGithubStats = async (req, res) => {
