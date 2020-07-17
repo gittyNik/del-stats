@@ -286,7 +286,7 @@ export const updateCalendarEventInLearnerBreakout = async (cohort_breakout_id) =
 
   const { cohort_id } = cohort_breakout;
 
-  const cohort = Cohort
+  const cohort = await Cohort
     .findByPk(cohort_id)
     .then(_cohort => _cohort.get({ plain: true }));
   const { learners } = cohort;

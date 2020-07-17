@@ -144,8 +144,8 @@ export const createBreakout = (req, res) => {
         // console.log('Sandbox Created');
         // console.log('VideoMeeting Created');
         let details = {
-          sandbox_id: sandbox.data.sandbox_id,
-          videoMeeting_id: videoMeeting,
+          sandbox,
+          zoom: videoMeeting,
         };
 
         if (type === 'reviews') {
@@ -179,7 +179,7 @@ export const createBreakout = (req, res) => {
             res.send('Breakout Created with codesandbox and videomeeting.');
           })
           .catch((err) => {
-            deleteMeetingFromZoom(details.videoMeeting_id);
+            deleteMeetingFromZoom(details.zoom.id);
             console.error('Failed to create Cohort Breakout', err);
             res.send(500);
           });
@@ -194,7 +194,7 @@ export const createBreakout = (req, res) => {
       .then((sandbox) => {
         // console.log(data);
         let details = {
-          sandbox_id: sandbox.data.sandbox_id,
+          sandbox,
         };
 
         if (type === 'reviews') {
@@ -239,7 +239,7 @@ export const createBreakout = (req, res) => {
     createScheduledMeeting(topic_id, time, duration, agenda, 2, catalyst_id)
       .then(videoMeeting => {
         let details = {
-          videoMeeting_id: videoMeeting,
+          zoom: videoMeeting,
         };
 
         if (type === 'reviews') {
@@ -272,7 +272,7 @@ export const createBreakout = (req, res) => {
             res.send('Breakout and video meeting created Created');
           })
           .catch((err) => {
-            deleteMeetingFromZoom(details.videoMeeting_id);
+            deleteMeetingFromZoom(details.zoom.id);
             console.error(
               'Failed to create Breakout after creating video meeting',
               err,

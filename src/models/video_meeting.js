@@ -352,7 +352,12 @@ export const updateCohortMeeting = async (cohort_breakout_id, updatedTime,
     updated = await createScheduledMeeting(details.topics,
       updatedTime, duration, null, 2, newCatalyst_id, 'UTC');
   } else {
-    updated = await updateVideoMeeting(details.zoom.id, updatedTime);
+    try {
+      updated = await updateVideoMeeting(details.zoom.id, updatedTime);
+    } catch (err) {
+      // Handling cases where videoMeeting_id is key
+      updated = await updateVideoMeeting(details.videoMeeting_id.id, updatedTime);
+    }
     if (updated) {
       updated = details.zoom;
     }
