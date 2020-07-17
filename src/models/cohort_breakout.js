@@ -484,7 +484,7 @@ export const updateZoomMeetingForBreakout = (
 ) => CohortBreakout.findByPk(id)
   .then((cohort_breakout) => {
     let meetingTime = cohort_breakout.time_scheduled.toLocaleString().split(' ').join('T');
-    createScheduledMeeting(
+    return createScheduledMeeting(
       cohort_breakout.topic_id,
       meetingTime,
       cohort_breakout.breakout_duration,
