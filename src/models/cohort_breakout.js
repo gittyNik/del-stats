@@ -598,7 +598,7 @@ export const updateBreakoutCalendarEventForCatalyst = async ({
   let cohort_breakout = await CohortBreakout
     .findByPk(id)
     .then(_cohortBreakout => _cohortBreakout.get({ plain: true }))
-    .catch(err => logger.error(err));
+    .catch(err => console.error(err));
 
   const { catalyst_id: prevCatalystId, time_scheduled, details } = cohort_breakout;
 

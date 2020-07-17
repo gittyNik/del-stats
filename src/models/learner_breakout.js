@@ -277,9 +277,8 @@ export const createCalendarEventsForLearner = async (learnerId) => {
 
 /**
  * Update or creates a calendar event when cohortBreakout is updated.
- * @param {String} cohort_breakout_id
  */
-export const updateBreakoutCalendarEventForLearners = async (cohort_breakout_id) => {
+export const updateCalendarEventInLearnerBreakout = async (cohort_breakout_id) => {
   const cohort_breakout = await CohortBreakout
     .findByPk(cohort_breakout_id)
     .then(_cb => _cb.get({ plain: true }));
@@ -317,7 +316,7 @@ export const updateBreakoutCalendarEventForLearners = async (cohort_breakout_id)
         let data = {
           learner: item.learner,
           event,
-        }
+        };
         res_data.push(data);
         return data;
       })

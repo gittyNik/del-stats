@@ -5,9 +5,9 @@ import {
   createNewBreakout,
   createSingleBreakoutAndLearnerBreakout,
   updateBreakoutCalendarEventForCatalyst,
-  updateBreakoutCalendarEventForLearners,
   updateCohortBreakouts,
 } from '../../models/cohort_breakout';
+import { updateCalendarEventInLearnerBreakout } from '../../models/learner_breakout';
 import {
   createScheduledMeeting,
   deleteMeetingFromZoom,
@@ -449,10 +449,6 @@ export const updateCohortBreakout = async (req, res) => {
 
     let zoomDetails;
     const updatedZoomDetails = await updateCohortMeeting(id, updated_time, catalyst_id)
-      .then((data) => {
-        res.status(201).json({ data });
-      })
-      .catch(err => res.status(500).send({ err }));
 
     if (typeof updatedZoomDetails.error !== 'undefined') {
       zoomDetails = updatedZoomDetails.error;
@@ -467,7 +463,6 @@ export const updateCohortBreakout = async (req, res) => {
 
     details.zoom = zoomDetails;
     details.catalystCalendarEvent = catalystCalendarEvent;
-    // 3. Create events for all the learners.
 
     const updatedCohortBreakout = await updateCohortBreakouts({
       updateObject: {
@@ -477,14 +472,19 @@ export const updateCohortBreakout = async (req, res) => {
       },
       whereObject: { id },
     })
-      .then(_cb => _cb[0]);
-    const learnerBreakoutEvents = await updateBreakoutCalendarEventForLearners(id);
+      .then(_cb => _cb[0])
+      .catch(err => {
+        console.error('Failed to update CohortBreakout');
+        console.error(err);
+        res.status(500).json([err.name, err.message]);
+      });
+    const learnerBreakoutEvents = await updateCalendarEventInLearnerBreakout(id);
     res.status(201).json({
       updatedCohortBreakout,
       learnerBreakoutEvents,
     });
   } catch (err) {
-    logger.error(err);
+    console.error(err);
     res.status(500).json([err.name, err.message]);
   }
 };

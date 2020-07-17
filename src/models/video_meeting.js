@@ -326,28 +326,40 @@ export const updateCohortMeeting = async (cohort_breakout_id, updatedTime,
   let cohort_breakout = await CohortBreakout.findByPk(cohort_breakout_id);
   let { details, catalyst_id, duration } = cohort_breakout.toJSON();
   let updated;
-  if (details.zoom.id === undefined) {
+  let data = {};
+  if (typeof details.zoom !== 'undefined') {
+    if (typeof details.zoom.id === 'undefined') {
+      updated = await createScheduledMeeting(details.topics,
+        updatedTime, duration, null, 2, newCatalyst_id, 'UTC');
+    }
+  } else {
     updated = await createScheduledMeeting(details.topics,
       updatedTime, duration, null, 2, newCatalyst_id, 'UTC');
   }
 
   if ((newCatalyst_id !== null) && (catalyst_id !== newCatalyst_id)) {
     try {
-      if (typeof details.zoom.id !== 'undefined') {
-        deleteMeetingFromZoom(details.zoom.id);
+      if (typeof details.zoom !== 'undefined') {
+        if (typeof details.zoom.id !== 'undefined') {
+          // delete calendar event for catalyst
+          deleteMeetingFromZoom(details.zoom.id);
+        }
       }
-      // delete calendar event for catalyst
     } catch (error) {
-      console.warn(`Unable to delete Zoom meeting: \n${error}`);
+      console.warn('Unable to delete Zoom meeting');
+      console.warn(error);
     }
     updated = await createScheduledMeeting(details.topics,
       updatedTime, duration, null, 2, newCatalyst_id, 'UTC');
   } else {
     updated = await updateVideoMeeting(details.zoom.id, updatedTime);
+    if (updated) {
+      updated = details.zoom;
+    }
   }
-  let data = {};
+
   if (updated) {
-    data.zoom = { id: details.zoom.id };
+    data.zoom = updated;
     return data;
   }
   data.error = 'Unable to update zoom meeting';
