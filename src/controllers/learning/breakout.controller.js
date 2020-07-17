@@ -196,6 +196,16 @@ export const createBreakout = (req, res) => {
         let details = {
           sandbox_id: sandbox.data.sandbox_id,
         };
+
+        if (type === 'reviews') {
+          details.cohort_milestone_id = cohort_milestone_id;
+          details.teamId = teamId;
+          details.milestone_team_id = milestone_team_id;
+          details.github_repo_link = github_repo_link;
+          details.topics = agenda;
+        } else if (type === 'assessment') {
+          details.topics = agenda;
+        }
         createNewBreakout(
           breakout_template_id,
           topic_id,
@@ -231,6 +241,16 @@ export const createBreakout = (req, res) => {
         let details = {
           videoMeeting_id: videoMeeting,
         };
+
+        if (type === 'reviews') {
+          details.cohort_milestone_id = cohort_milestone_id;
+          details.teamId = teamId;
+          details.milestone_team_id = milestone_team_id;
+          details.github_repo_link = github_repo_link;
+          details.topics = agenda;
+        } else if (type === 'assessment') {
+          details.topics = agenda;
+        }
         createNewBreakout(
           breakout_template_id,
           topic_id,
@@ -410,8 +430,8 @@ export const createSingleBreakout = (req, res) => {
   const { id: cohort_id } = req.params;
   createSingleBreakoutAndLearnerBreakout(cohort_id, topic_id,
     breakout_duration, time_scheduled, agenda, catalyst_id).then((data) => {
-      res.status(201).json({ data });
-    })
+    res.status(201).json({ data });
+  })
     .catch(err => res.status(500).send({ err }));
 };
 
@@ -448,7 +468,7 @@ export const updateCohortBreakout = async (req, res) => {
     const { details, catalyst_id, time_scheduled: oldTime } = cohort_breakout;
 
     let zoomDetails;
-    const updatedZoomDetails = await updateCohortMeeting(id, updated_time, catalyst_id)
+    const updatedZoomDetails = await updateCohortMeeting(id, updated_time, catalyst_id);
 
     if (typeof updatedZoomDetails.error !== 'undefined') {
       zoomDetails = updatedZoomDetails.error;

@@ -51,7 +51,8 @@ export const LearnerBreakout = db.define('learner_breakouts', {
   review_feedback: Sequelize.JSON,
 });
 
-// LearnerBreakout.addHook('afterCreate', 'createCalendarEvent', async (learner_breakout, options) => {
+// LearnerBreakout.addHook('afterCreate', 'createCalendarEvent',
+// async (learner_breakout, options) => {
 //   const learner_breakout_raw = learner_breakout.get({ plain: true });
 //   // console.log(learner_breakout);
 //   const { cohort_breakout_id, learner_id } = learner_breakout_raw;
@@ -67,7 +68,8 @@ export const LearnerBreakout = db.define('learner_breakouts', {
 //   }
 // });
 
-// LearnerBreakout.addHook('afterUpdate', 'updateCalendarEvent', async (learner_breakout, options) => {
+// LearnerBreakout.addHook('afterUpdate', 'updateCalendarEvent',
+// async (learner_breakout, options) => {
 //   console.log('Learner Breakout updated');
 //   console.log(learner_breakout.get({ plain: true }));
 //   // todo: update calendar event.
@@ -146,16 +148,15 @@ export const removeLearnerBreakouts = async (learner_id, current_cohort_id) => {
   // });
 };
 
-export const createLearnerBreakouts = (learner_id, future_cohort_id) =>
-  getCohortBreakoutsByCohortId(future_cohort_id)
-    .then((breakouts) =>
-      LearnerBreakout.bulkCreate(breakouts.map((breakout) => ({
-        id: uuid(),
-        learner_id,
-        cohort_breakout_id: breakout.id,
-        attendance: false,
-      })),
-      ));
+export const createLearnerBreakouts = (
+  learner_id, future_cohort_id,
+) => getCohortBreakoutsByCohortId(future_cohort_id)
+  .then((breakouts) => LearnerBreakout.bulkCreate(breakouts.map((breakout) => ({
+    id: uuid(),
+    learner_id,
+    cohort_breakout_id: breakout.id,
+    attendance: false,
+  }))));
 
 export const getPayloadForCalendar = async (learnerId) => {
   try {

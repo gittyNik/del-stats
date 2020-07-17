@@ -258,7 +258,6 @@ export const createNewBreakout = (
   catalyst_feedback = null,
 ) => {
   if (typeof topic_id !== 'undefined' && Array.isArray(topic_id) && topic_id.length > 0) {
-
     [topic_id] = topic_id;
   }
   // console.log(`${time_scheduled} ${duration} ${location}`);
@@ -364,12 +363,11 @@ export const BreakoutWithOptions = (breakoutObject) => {
 
 export const createCohortBreakouts = (
   breakoutTemplateList,
-  cohort_id, codeSandbox = true, videoMeet = true
-) => Cohort
-  .findByPk(cohort_id, {
-    attributes: ['location', 'name'],
-    raw: true,
-  })
+  cohort_id, codeSandbox = false, videoMeet = false,
+) => Cohort.findByPk(cohort_id, {
+  attributes: ['location', 'name'],
+  raw: true,
+})
   .then((cohort) => {
     let BreakoutObjects = breakoutTemplateList.map((breakoutTemplate) => {
       let {
