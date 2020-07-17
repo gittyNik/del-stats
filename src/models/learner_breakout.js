@@ -4,9 +4,12 @@ import async from 'async';
 import db from '../database';
 import { Cohort, getCohortFromLearnerId } from './cohort';
 import {
-  getScheduledCohortBreakoutsByCohortId, getCalendarDetailsOfCohortBreakout, getCohortBreakoutsByCohortId, CohortBreakout,
+  CohortBreakout,
+  getUpcomingBreakoutsByCohortId,
+  getCalendarDetailsOfCohortBreakout,
+  getCohortBreakoutsByCohortId,
 } from './cohort_breakout';
-import { createEvent } from '../integrations/calendar/calendar.model';
+import { createEvent, deleteEvent } from '../integrations/calendar/calendar.model';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 import { logger } from '../util/logger';
 
@@ -143,26 +146,27 @@ export const removeLearnerBreakouts = async (learner_id, current_cohort_id) => {
   // });
 };
 
-export const createLearnerBreakouts = (learner_id,
-  future_cohort_id) => getCohortBreakoutsByCohortId(future_cohort_id)
-  .then((breakouts) => LearnerBreakout.bulkCreate(
-    breakouts.map((breakout) => ({
-      id: uuid(),
-      learner_id,
-      cohort_breakout_id: breakout.id,
-      attendance: false,
-    })),
-  ));
+export const createLearnerBreakouts = (learner_id, future_cohort_id) =>
+  getCohortBreakoutsByCohortId(future_cohort_id)
+    .then((breakouts) =>
+      LearnerBreakout.bulkCreate(breakouts.map((breakout) => ({
+        id: uuid(),
+        learner_id,
+        cohort_breakout_id: breakout.id,
+        attendance: false,
+      })),
+      ));
 
 export const getPayloadForCalendar = async (learnerId) => {
   try {
     const cohort_id = await getCohortFromLearnerId(learnerId)
-      .then((cohort) => cohort.get({ plain: true }))
-      .then((cohort) => cohort.id);
+      .then(cohort => cohort.get({ plain: true }))
+      .then(cohort => cohort.id)
+      .catch(err => {
+        logger.error(err);
+      });
     // console.log(cohort_id);
-    const cohortBreakouts = await getScheduledCohortBreakoutsByCohortId(
-      cohort_id,
-    );
+    const cohortBreakouts = await getUpcomingBreakoutsByCohortId(cohort_id);
     // console.log(cohortBreakouts.length);
     const payload = await Promise.all(
       cohortBreakouts.map(async (cohortBreakout) => {
@@ -188,20 +192,17 @@ export const getPayloadForCalendar = async (learnerId) => {
     // console.log(payload);
     return payload;
   } catch (err) {
-    console.error(err);
-    return new Error(err);
+    logger.error(err);
+    return false;
   }
 };
 
-export const updateReviewFeedback = async (
-  learner_breakout_id,
-  calendarDetails,
-) => {
-  const learner_breakout = await LearnerBreakout.findOne({
-    where: { id: learner_breakout_id },
-  })
-    .then((_lb) => _lb.get({ plain: true }))
-    .catch((err) => {
+// Add a property calendarDetails to review_feedback
+export const updateReviewFeedback = async (learner_breakout_id, calendarDetails) => {
+  const learner_breakout = await LearnerBreakout
+    .findOne({ where: { id: learner_breakout_id } })
+    .then(_lb => _lb.get({ plain: true }))
+    .catch(err => {
       console.error('Learner breakout doesnt exist');
       console.error(err);
     });
@@ -233,7 +234,12 @@ export const createCalendarEventsForLearner = async (learnerId) => {
     payload = await getPayloadForCalendar(learnerId);
     oauth = await getGoogleOauthOfUser(learnerId);
   } catch (err) {
+    logger.error('Error at payload or oauth');
     logger.error(err);
+    return false;
+  }
+  if (!payload) {
+    logger.error('Error in calendar payload');
     return false;
   }
   const res_data = [];
@@ -252,7 +258,7 @@ export const createCalendarEventsForLearner = async (learnerId) => {
             callback();
           })
           .catch(err => {
-            console.error(err);
+            // console.error(err);
             callback(err);
           }))
         .catch(err => {
@@ -262,12 +268,71 @@ export const createCalendarEventsForLearner = async (learnerId) => {
       callback();
     }
   })
-    .then(() =>
-      // console.log(res_data);
-      res_data)
+    .then(() => res_data)
     .catch(err => {
       console.error(err);
       return false;
     });
 };
+
+/**
+ * Update or creates a calendar event when cohortBreakout is updated.
+ */
+export const updateCalendarEventInLearnerBreakout = async (cohort_breakout_id) => {
+  const cohort_breakout = await CohortBreakout
+    .findByPk(cohort_breakout_id)
+    .then(_cb => _cb.get({ plain: true }));
+
+  const { cohort_id } = cohort_breakout;
+
+  const cohort = Cohort
+    .findByPk(cohort_id)
+    .then(_cohort => _cohort.get({ plain: true }));
+  const { learners } = cohort;
+  const calendarPayload = await getCalendarDetailsOfCohortBreakout(cohort_breakout_id);
+  const payload = await Promise.all(learners.map(async learner => {
+    const googleOauth = await getGoogleOauthOfUser(learner);
+    // delete previously created calendar events.
+    await LearnerBreakout
+      .findByPk(learner)
+      .then(_lb => _lb.get({ plain: true }))
+      .then(async lb => {
+        if (typeof lb.review_feeback.calendarDetails !== 'undefined') {
+          await deleteEvent(googleOauth, lb.review_feedback.calendarDetails.id);
+        }
+      })
+      .catch(err => {
+        logger.error(err);
+      });
+    return {
+      learner,
+      googleOauth,
+    };
+  }));
+  const res_data = [];
+  return async.eachSeries(payload, (item, callback) => {
+    createEvent(item.googleOauth, calendarPayload)
+      .then(event => {
+        let data = {
+          learner: item.learner,
+          event,
+        };
+        res_data.push(data);
+        return data;
+      })
+      .then(_data => updateReviewFeedback(_data.learner, _data.event)
+        .then(() => callback())
+        .catch(err => callback(err)))
+      .catch(err => {
+        logger.error(err);
+        callback(err);
+      });
+  })
+    .then(() => res_data)
+    .catch(err => {
+      logger.error(err);
+      return false;
+    });
+};
+
 export default LearnerBreakout;
