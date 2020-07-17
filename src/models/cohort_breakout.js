@@ -12,7 +12,9 @@ import { Topic } from './topic';
 import { BreakoutTemplate } from './breakout_template';
 import { createLearnerBreakoutsForCohortMilestones } from './learner_breakout';
 import { showCompletedBreakoutOnSlack } from '../integrations/slack/team-app/controllers/milestone.controller';
-
+import { getGoogleOauthOfUser } from '../util/calendar-util';
+import { createEvent, deleteEvent } from '../integrations/calendar/calendar.model';
+import { logger } from '../util/logger';
 // import sandbox from 'bullmq/dist/classes/sandbox';
 
 export const EVENT_STATUS = [
@@ -359,8 +361,10 @@ export const BreakoutWithOptions = (breakoutObject) => {
   }
 };
 
-export const createCohortBreakouts = (breakoutTemplateList,
-  cohort_id, codeSandbox = true, videoMeet = true) => Cohort.findByPk(cohort_id, {
+export const createCohortBreakouts = (
+  breakoutTemplateList,
+  cohort_id, codeSandbox = false, videoMeet = false,
+) => Cohort.findByPk(cohort_id, {
   attributes: ['location', 'name'],
   raw: true,
 })
@@ -493,15 +497,16 @@ export const updateZoomMeetingForBreakout = (
       } else {
         cohort_breakout.details = { zoom: zoomMeeting };
       }
-      return CohortBreakout.update({
-        details: cohort_breakout.details,
-        updated_at: Date.now(),
-      },
-      {
-        where: { id },
-        returning: true,
-        plain: true,
-      }).then(data => data[1]);
+      return CohortBreakout
+        .update({
+          details: cohort_breakout.details,
+          updated_at: Date.now(),
+        }, {
+          where: { id },
+          returning: true,
+          plain: true,
+        })
+        .then(data => data[1]);
     });
   });
 
@@ -520,6 +525,23 @@ export const getScheduledCohortBreakoutsByCohortId = (cohort_id) => CohortBreako
   raw: true,
 });
 
+export const getUpcomingBreakoutsByCohortId = (cohort_id) => CohortBreakout.findAll({
+  where: {
+    cohort_id,
+    time_scheduled: {
+      [Op.gte]: new Date(),
+    },
+  },
+  raw: true,
+})
+  .then(cohorts => {
+    logger.info(cohorts);
+    return cohorts;
+  })
+  .catch(err => {
+    logger.error(err);
+  });
+
 export const getCalendarDetailsOfCohortBreakout = async (id) => {
   const MINUTEINMILLISECONDS = 1000 * 60;
   const cohort_breakout = await CohortBreakout.findOne({
@@ -528,33 +550,36 @@ export const getCalendarDetailsOfCohortBreakout = async (id) => {
     },
     raw: true,
   });
+  let summary;
+  let description;
   // console.log(cohort_breakout);
   const {
     type, domain, breakout_template_id,
     time_scheduled, duration, location, status,
   } = cohort_breakout;
-
-  const breakoutTemplate = await BreakoutTemplate.findOne({
-    where: { id: breakout_template_id },
-    raw: true,
-  });
-  // console.log(breakoutTemplate);
-  const { name, topic_id: topic_ids } = breakoutTemplate;
-
-  const topics = await Promise.all(topic_ids.map(async topic_id => {
-    const topic = await Topic.findOne({
-      attributes: ['title'],
-      where: { id: topic_id },
+  if (type === 'lecture') {
+    const breakoutTemplate = await BreakoutTemplate.findOne({
+      where: { id: breakout_template_id },
       raw: true,
     });
-    return topic.title;
-  }));
-  // console.log(topics);
-  // let summary = `${name.toUpperCase()}-${domain} BO`;
-  let summary = `${name.toUpperCase()} BO`;
-  let description = `Topics:
+    const { name, topic_id: topic_ids } = breakoutTemplate;
+
+    const topics = await Promise.all(topic_ids.map(async topic_id => {
+      const topic = await Topic.findOne({
+        attributes: ['title'],
+        where: { id: topic_id },
+        raw: true,
+      });
+      return topic.title;
+    }));
+    summary = `${name.toUpperCase()} BO`;
+    description = `Topics:
   ${topics.join('\n ')}
   `;
+  } else {
+    summary = type;
+    description = type;
+  }
   // convert milliseconds into minutes 360000 -> 60 minutes;
   return ({
     summary,
@@ -565,3 +590,48 @@ export const getCalendarDetailsOfCohortBreakout = async (id) => {
     description,
   });
 };
+
+// create or update calendar event for a catalyst.
+// delete previous event if catalyst is changed.
+export const updateBreakoutCalendarEventForCatalyst = async ({
+  id, updated_time = null, catalyst_id = null,
+}) => {
+  let cohort_breakout = await CohortBreakout
+    .findByPk(id)
+    .then(_cohortBreakout => _cohortBreakout.get({ plain: true }))
+    .catch(err => console.error(err));
+
+  const { catalyst_id: prevCatalystId, time_scheduled, details } = cohort_breakout;
+
+  let calendarDetails = await getCalendarDetailsOfCohortBreakout(id);
+  // check if catalyst needs to be changed
+  const checkTime = () => ((updated_time !== null) && (updated_time !== time_scheduled));
+  let googleOAuthCatalyst;
+  if ((catalyst_id !== null) && (catalyst_id !== prevCatalystId)) {
+    // create event for that catalyst and update it in cohort_breakout details with new property
+    // check if calendarEvent already created then delete old catalyst event
+    // and create event for new catalyst.
+    if (typeof details.catalystCalendarEvent !== 'undefined') {
+      let googleOAuthPrevCatalyst = await getGoogleOauthOfUser(prevCatalystId);
+      const oldEventId = cohort_breakout.details.catalystCalendarEvent.id;
+      await deleteEvent(googleOAuthPrevCatalyst, oldEventId);
+      // googleOAuthCatalyst = await getGoogleOauthOfUser(catalyst_id);
+      // todo: create a new event for the new catalyst.
+    }
+    googleOAuthCatalyst = await getGoogleOauthOfUser(catalyst_id);
+  }
+  if ((catalyst_id === null) && (cohort_breakout.catalyst_id)) {
+    googleOAuthCatalyst = await getGoogleOauthOfUser(prevCatalystId);
+  }
+  calendarDetails.start = checkTime() ? updated_time : time_scheduled;
+  let catalystCalendarEvent = await createEvent(googleOAuthCatalyst, calendarDetails);
+  return catalystCalendarEvent;
+};
+
+export const updateCohortBreakouts = ({ whereObject, updateObject }) => CohortBreakout
+  .update(updateObject, { returning: true, where: whereObject })
+  .then(([rowUpdated, updatedCB]) => updatedCB.map(_cb => _cb.toJSON()))
+  .catch(err => {
+    console.error(err);
+    return 'Error updating cohort breakout';
+  });

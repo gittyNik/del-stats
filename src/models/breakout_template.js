@@ -196,7 +196,7 @@ export const createBreakoutsInMilestone = (
 
 // Create Breakouts of Specific type
 export const createTypeBreakoutsInMilestone = (cohort_id, program_id,
-  cohort_duration, type, codeSandBox = false, videoMeet = true) => BreakoutTemplate.findAll(
+  cohort_duration, type, codeSandBox = false, videoMeet = false) => BreakoutTemplate.findAll(
   {
     attributes: ['id', 'name', 'topic_id', 'details',
       'duration', 'time_scheduled', 'after_days',

@@ -44,7 +44,7 @@ export const LearnerChallenge = db.define('learner_challenges', {
   },
 });
 
-const { gt } = Sequelize.Op;
+const { gt, between } = Sequelize.Op;
 
 export const latestChallengeInCohort = async (cohort_id) => {
   let ch = await getCohortFromId(cohort_id);
@@ -145,19 +145,29 @@ export const learnerChallengesFindOrCreate = async (
   }
 };
 
-export const getChallengesByUserId = (learner_id) => LearnerChallenge.findAll(
-  {
-    where: {
-      learner_id,
+export const getChallengesByUserId = (
+  learner_id,
+  start_time = null,
+  end_time = null,
+) => {
+  let where = {
+    learner_id,
+  };
+  if ((start_time !== null) && (end_time !== null)) {
+    where.created_at = { [between]: [start_time, end_time] };
+  }
+  return LearnerChallenge.findAll(
+    {
+      where,
+      include: [
+        {
+          model: Challenge,
+          attributes: ['topic_id'],
+        }],
     },
-    include: [
-      {
-        model: Challenge,
-        attributes: ['topic_id'],
-      }],
-  },
-  { raw: true },
-);
+    { raw: true },
+  );
+};
 
 export const deleteLearnerChallengesByLearnerId = (learner_id) => LearnerChallenge.destroy({
   where: {

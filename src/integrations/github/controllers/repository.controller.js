@@ -117,10 +117,23 @@ export const isRepositoryCollaborator = async (login, repo) => getAllRepositoryC
   .then((collaborater) => (collaborater.length > 0));
 
 export const addCollaboratorToRepository = async (
-  collaborater, repo) => octokit.repos.addCollaborator({
+  collaborater, repo, permission = 'push') => octokit.repos.addCollaborator({
   owner: org,
   repo,
   username: collaborater,
+  permission,
+});
+
+export const addTeamAccessToRepo = async (
+  team_slug,
+  repo,
+  permission = 'pull',
+) => octokit.teams.addOrUpdateRepoInOrg({
+  org,
+  team_slug,
+  owner: org,
+  repo,
+  permission,
 });
 
 export const createRepositoryifnotPresentFromTemplate = async (

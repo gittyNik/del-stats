@@ -38,7 +38,7 @@ const getGithubAccessToken = async code => {
 };
 
 const fetchProfileFromGithub = ({ githubToken, expiry }) =>
-// TODO: reject if expired
+  // TODO: reject if expired
 
   // fetching profile details from github
   request
@@ -350,19 +350,26 @@ export const handleGoogleCallback = async (req, res) => {
           // console.log(dataSC.user);
           // Create calendar events if user is learner
           if (user.role === USER_ROLES.LEARNER) {
-            const calendarStats = await createCalendarEventsForLearner(user.id);
-            logger.info(calendarStats);
+            try {
+              await createCalendarEventsForLearner(user.id);
+            } catch (err) {
+              logger.error(err);
+            }
+
+            // logger.info(calendarStats);
             res.json({
               text: 'Breakout are successfully added to Google Calendar',
               data: dataSC.user,
             });
           } else {
+            logger.info(`Calendar events not created for ${user.id}`);
             res.json({
               text: 'Google authentication successfull',
               data: dataSC.user,
             });
           }
         } catch (err) {
+          logger.error(`Failed to authenticate google for user_id: ${user.id}`);
           logger.error(err);
           res.status(403);
           res.json({
@@ -378,7 +385,7 @@ export const handleGoogleCallback = async (req, res) => {
       });
     }
   } catch (err) {
-    logger.error('CHECK REDIRECT_URLS');
+    logger.error('check REDIRECT_URLS for google app');
     logger.error(err);
     res.status(403);
     res.json({
