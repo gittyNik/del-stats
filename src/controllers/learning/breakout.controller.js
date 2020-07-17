@@ -4,7 +4,10 @@ import {
   CohortBreakout,
   createNewBreakout,
   createSingleBreakoutAndLearnerBreakout,
+  updateBreakoutCalendarEventForCatalyst,
+  updateCohortBreakouts,
 } from '../../models/cohort_breakout';
+import { updateCalendarEventInLearnerBreakout } from '../../models/learner_breakout';
 import {
   createScheduledMeeting,
   deleteMeetingFromZoom,
@@ -22,6 +25,7 @@ import { CohortMilestone } from '../../models/cohort_milestone';
 import { getLiveCohorts, Cohort } from '../../models/cohort';
 import { User, USER_ROLES } from '../../models/user';
 import { Milestone } from '../../models/milestone';
+import { logger } from '../../util/logger';
 
 const { gte } = Sequelize.Op;
 
@@ -407,7 +411,7 @@ export const createBreakoutsOfType = (req, res) => {
     .then((data) => {
       res.status(201).json({ data });
     })
-    .catch((err) => res.status(500).send({ err }));
+    .catch(err => res.status(500).send({ err }));
 };
 
 export const createBreakouts = (req, res) => {
@@ -442,15 +446,67 @@ export const updateZoomMeeting = (req, res) => {
   });
 };
 
-export const updateCohortBreakout = (req, res) => {
-  let {
-    updated_time,
-    catalyst_id,
-  } = req.body;
+/**
+ *  updateCohortBreakout -> can either update time_scheduled, catalyst or both
+ * These changes need to be done for each update.
+ * 1. update/create zoom meeting.
+ * 2. update/create calendarevent for Catalyst
+ * 3. create/update calendar event for all learners in that cohort.
+ * 4. todo: update only for learners of a certain path (backend/frontend).
+ */
+export const updateCohortBreakout = async (req, res) => {
+  const { updated_time, catalyst_id: newCatalystId } = req.body;
   const { id } = req.params;
-  updateCohortMeeting(id, updated_time, catalyst_id).then((data) => {
-    res.status(201).json({ data });
-  }).catch(err => res.status(500).send({ err }));
+  try {
+    let cohort_breakout = await CohortBreakout
+      .findByPk(id)
+      .then(_cohortBreakout => _cohortBreakout.get({ plain: true }))
+      .catch(err => {
+        logger.error(err);
+        res.status(500).json([err.name, err.message]);
+      });
+    const { details, catalyst_id, time_scheduled: oldTime } = cohort_breakout;
+
+    let zoomDetails;
+    const updatedZoomDetails = await updateCohortMeeting(id, updated_time, catalyst_id);
+
+    if (typeof updatedZoomDetails.error !== 'undefined') {
+      zoomDetails = updatedZoomDetails.error;
+    }
+    zoomDetails = updatedZoomDetails.zoom;
+
+    let catalystCalendarEvent = await updateBreakoutCalendarEventForCatalyst({
+      id,
+      updated_time,
+      catalyst_id,
+    });
+
+    details.zoom = zoomDetails;
+    details.catalystCalendarEvent = catalystCalendarEvent;
+
+    const updatedCohortBreakout = await updateCohortBreakouts({
+      updateObject: {
+        time_scheduled: updated_time || oldTime,
+        catalyst_id: newCatalystId || catalyst_id,
+        details,
+      },
+      whereObject: { id },
+    })
+      .then(_cb => _cb[0])
+      .catch(err => {
+        console.error('Failed to update CohortBreakout');
+        console.error(err);
+        res.status(500).json([err.name, err.message]);
+      });
+    const learnerBreakoutEvents = await updateCalendarEventInLearnerBreakout(id);
+    res.status(201).json({
+      updatedCohortBreakout,
+      learnerBreakoutEvents,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json([err.name, err.message]);
+  }
 };
 
 export const calculateAfterDays = (previousTime, afterDays) => {
