@@ -360,7 +360,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
 };
 
 export const createCohortBreakouts = (breakoutTemplateList,
-  cohort_id, codeSandbox = true, videoMeet = true) => Cohort.findByPk(cohort_id, {
+  cohort_id, codeSandbox = false, videoMeet = false) => Cohort.findByPk(cohort_id, {
   attributes: ['location', 'name'],
   raw: true,
 })
