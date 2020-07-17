@@ -552,33 +552,36 @@ export const getCalendarDetailsOfCohortBreakout = async (id) => {
     },
     raw: true,
   });
+  let summary;
+  let description;
   // console.log(cohort_breakout);
   const {
     type, domain, breakout_template_id,
     time_scheduled, duration, location, status,
   } = cohort_breakout;
-
-  const breakoutTemplate = await BreakoutTemplate.findOne({
-    where: { id: breakout_template_id },
-    raw: true,
-  });
-  // console.log(breakoutTemplate);
-  const { name, topic_id: topic_ids } = breakoutTemplate;
-
-  const topics = await Promise.all(topic_ids.map(async topic_id => {
-    const topic = await Topic.findOne({
-      attributes: ['title'],
-      where: { id: topic_id },
+  if (type === 'lecture') {
+    const breakoutTemplate = await BreakoutTemplate.findOne({
+      where: { id: breakout_template_id },
       raw: true,
     });
-    return topic.title;
-  }));
-  // console.log(topics);
-  // let summary = `${name.toUpperCase()}-${domain} BO`;
-  let summary = `${name.toUpperCase()} BO`;
-  let description = `Topics:
+    const { name, topic_id: topic_ids } = breakoutTemplate;
+
+    const topics = await Promise.all(topic_ids.map(async topic_id => {
+      const topic = await Topic.findOne({
+        attributes: ['title'],
+        where: { id: topic_id },
+        raw: true,
+      });
+      return topic.title;
+    }));
+    summary = `${name.toUpperCase()} BO`;
+    description = `Topics:
   ${topics.join('\n ')}
   `;
+  } else {
+    summary = type;
+    description = type;
+  }
   // convert milliseconds into minutes 360000 -> 60 minutes;
   return ({
     summary,
