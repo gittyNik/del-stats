@@ -3,9 +3,10 @@ import uuid from 'uuid/v4';
 import request from 'superagent';
 import Redis from 'ioredis';
 import db from '../database';
-import { Cohort } from './cohort';
+import { Cohort, getCohortIdFromLearnerId } from './cohort';
 import { SocialConnection } from './social_connection';
-
+import { User } from './user';
+import { logger } from '../util/logger';
 
 export const SlackChannel = db.define('slack_channels', {
   id: {
@@ -210,7 +211,7 @@ export const addLearnerToChannels = async (cohort_id, learnerSlackID) => {
   return channelResponses;
 };
 
-const getSlackIdsFromEmail = async (emailIds) => {
+const getSlackIdsFromEmails = async (emailIds) => {
   const { SLACK_DELTA_BOT_TOKEN } = process.env;
   const slackId = async (emailId) => {
     try {
@@ -307,7 +308,7 @@ const createChannelFromSlackIds = async (cohort_id, channelName, slackIds) => {
 export const beginChannel = async (cohort_id, emailList) => {
   const channelName = await getChannelName(cohort_id);
   const teamIds = await getTeamSlackIDs();
-  const learnerIds = await getSlackIdsFromEmail(emailList);
+  const learnerIds = await getSlackIdsFromEmails(emailList);
   const notSlackUser = learnerIds.filter(l => l.text);
   const slackUser = learnerIds.filter(l => !l.text);
 
@@ -323,4 +324,71 @@ export const beginChannel = async (cohort_id, emailList) => {
       channel, // main data
     },
   };
+};
+
+export const getSlackIdForLearner = async (learner_id) => {
+  const learner = await User
+    .findByPk(learner_id)
+    .then(_learner => _learner.get({ plain: true }))
+    .catch(err => {
+      logger.error('Failed to get learner email id');
+      logger.error(err);
+    });
+  const { email } = learner;
+  const slackId = await getSlackIdsFromEmails([email]);
+  logger.info(slackId[0]);
+  return slackId[0];
+};
+
+export const removeLearnerFromSlackChannel = async (learner_id, cohort_id) => {
+  const { SLACK_DELTA_BOT_TOKEN } = process.env;
+  const slackId = await getSlackIdForLearner(learner_id);
+  logger.info(slackId);
+
+  const slackChannel = await SlackChannel
+    .findOne({
+      where: {
+        cohort_id,
+      },
+    })
+    .then(sc => sc.get({ plain: true }))
+    .then(sc => sc.channels[0])
+    .catch(err => {
+      logger.error(err);
+      return false;
+    });
+  if (slackChannel) {
+    const res = await request
+      .post('https://slack.com/api/conversations.kick')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
+      .set('Authorization', `Bearer ${SLACK_DELTA_BOT_TOKEN}`)
+      .send({
+        channel: slackChannel,
+        user: slackId,
+      });
+    const { ok, error } = res.body;
+    if (ok) {
+      logger.info(`Learner: ${learner_id} removed from slackChannel ${slackChannel}`);
+      return true;
+    }
+    logger.error(error);
+    return false;
+  }
+  logger.error(`Error finding slack channel for cohort_id: ${cohort_id}`);
+  return false;
+};
+
+export const moveLearnerToNewSlackChannel = async (
+  learner_id, current_cohort_id, new_cohort_id,
+) => {
+  try {
+    const slackId = await getSlackIdForLearner(learner_id);
+    const newSlackChannelId = await getChannelIdForCohort(new_cohort_id);
+    await removeLearnerFromSlackChannel(learner_id, current_cohort_id);
+    await addLearnerToAChannel(newSlackChannelId, [slackId]);
+    return `Successfully moved learner ${learner_id} to ${new_cohort_id}`;
+  } catch (err) {
+    logger.error(err);
+    return `Failed to move learner: ${learner_id} to another cohort slack channel: ${new_cohort_id}`;
+  }
 };
