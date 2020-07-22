@@ -241,7 +241,7 @@ export const getCohortIdFromLearnerId = (learner_id) => Application
   .then(_application => _application.cohort_joining);
 
 const removeLearnerFromCohort = async (learner_id, cohort_id) => {
-  console.log(cohort_id)
+  console.log(cohort_id);
   let cohort = await getCohortFromId(cohort_id);
   cohort = cohort.learners;
   cohort = cohort.filter((learner) => learner !== learner_id);
@@ -291,19 +291,11 @@ export const moveLearnertoDifferentCohort = async (
     );
     await removeLearnerBreakouts(learner_id, current_cohort_id);
     let breakouts = await createLearnerBreakouts(learner_id, future_cohort_id);
-    let learnerChallenges = await getChallengesByUserId(learner_id);
-    for (let i = 0; i < learnerChallenges.length; i++) {
-      if (learnerChallenges[i].repo) {
-        // TODO: @Nik change for loop
-        await deleteGithubRepository(learnerChallenges[i].repo);
-      }
-    }
-    await deleteLearnerChallengesByLearnerId(learner_id);
 
     await moveLearnerToNewSlackChannel(learner_id, current_cohort_id, future_cohort_id);
     // return breakouts;
 
-    return { breakouts, learnerChallenges };
+    return { breakouts };
   } catch (err) {
     return err;
   }
@@ -311,7 +303,7 @@ export const moveLearnertoDifferentCohort = async (
 
 export const removeLearner = async (
   learner_id,
-  current_cohort_id
+  current_cohort_id,
 ) => {
   try {
     await removeLearnerFromCohort(learner_id, current_cohort_id);
