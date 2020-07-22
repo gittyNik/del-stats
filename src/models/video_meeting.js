@@ -4,6 +4,7 @@ import uuid from 'uuid/v4';
 import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import { exceptions } from 'winston';
+import _ from 'lodash';
 import db from '../database';
 import { LearnerBreakout } from './learner_breakout';
 import { SocialConnection } from './social_connection';
@@ -322,8 +323,10 @@ export const updateVideoMeeting = async (meetingId, updatedTime) => {
 };
 
 export const updateCohortMeeting = async (cohort_breakout_id, updatedTime,
-  newCatalyst_id = null) => {
-  let cohort_breakout = await CohortBreakout.findByPk(cohort_breakout_id);
+  newCatalyst_id, cohort_breakout) => {
+  if (_.isEmpty(cohort_breakout)) {
+    cohort_breakout = await CohortBreakout.findByPk(cohort_breakout_id);
+  }
   let { details, catalyst_id, duration } = cohort_breakout.toJSON();
   let updated;
   let data = {};
@@ -352,11 +355,18 @@ export const updateCohortMeeting = async (cohort_breakout_id, updatedTime,
     updated = await createScheduledMeeting(details.topics,
       updatedTime, duration, null, 2, newCatalyst_id, 'UTC');
   } else {
-    try {
-      updated = await updateVideoMeeting(details.zoom.id, updatedTime);
-    } catch (err) {
-      // Handling cases where videoMeeting_id is key
-      updated = await updateVideoMeeting(details.videoMeeting_id.id, updatedTime);
+    if (typeof details.zoom !== 'undefined') {
+      if (typeof details.zoom.id !== 'undefined') {
+        try {
+          updated = await updateVideoMeeting(details.zoom.id, updatedTime);
+        } catch (err) {
+          // Handling cases where videoMeeting_id is key
+          updated = await updateVideoMeeting(details.videoMeeting_id.id, updatedTime);
+        }
+      }
+    } else {
+      updated = await createScheduledMeeting(details.topics,
+        updatedTime, duration, null, 2, newCatalyst_id, 'UTC');
     }
     if (updated) {
       updated = details.zoom;

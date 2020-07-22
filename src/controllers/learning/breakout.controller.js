@@ -468,7 +468,7 @@ export const updateCohortBreakout = async (req, res) => {
     const { details, catalyst_id, time_scheduled: oldTime } = cohort_breakout;
 
     let zoomDetails;
-    const updatedZoomDetails = await updateCohortMeeting(id, updated_time, catalyst_id);
+    const updatedZoomDetails = await updateCohortMeeting(id, updated_time, newCatalystId);
 
     if (typeof updatedZoomDetails.error !== 'undefined') {
       zoomDetails = updatedZoomDetails.error;

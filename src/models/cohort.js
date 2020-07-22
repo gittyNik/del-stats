@@ -12,6 +12,8 @@ import {
 import { createTypeBreakoutsInMilestone } from './breakout_template';
 import { removeLearnerBreakouts, createLearnerBreakouts } from './learner_breakout';
 import { moveLearnerToNewGithubTeam, deleteGithubRepository } from '../integrations/github/controllers';
+import { removeLearnerFromSlackChannel, moveLearnerToNewSlackChannel } from './slack_channels';
+import { removeLearnerFromGithubTeam } from '../integrations/github/controllers/teams.controller';
 
 export const COHORT_STATUS = [
   'upcoming',
@@ -231,6 +233,13 @@ export const getCohortFromLearnerId = (user_id) => Application.findOne({
   .then((data) => data.cohort_joining)
   .then(getCohortFromId);
 
+export const getCohortIdFromLearnerId = (learner_id) => Application
+  .findOne({
+    where: { user_id: learner_id },
+  })
+  .then(application => application.get({ plain: true }))
+  .then(_application => _application.cohort_joining);
+
 const removeLearnerFromCohort = async (learner_id, cohort_id) => {
   console.log(cohort_id)
   let cohort = await getCohortFromId(cohort_id);
@@ -290,15 +299,15 @@ export const moveLearnertoDifferentCohort = async (
       }
     }
     await deleteLearnerChallengesByLearnerId(learner_id);
-    // TODO: add function for slack channel change
-    // await moveLearnerToNewSlackTeam(learner_id, current_cohort_id, future_cohort_id);
+
+    await moveLearnerToNewSlackChannel(learner_id, current_cohort_id, future_cohort_id);
     // return breakouts;
+
     return { breakouts, learnerChallenges };
   } catch (err) {
     return err;
   }
 };
-
 
 export const removeLearner = async (
   learner_id,
@@ -310,9 +319,8 @@ export const removeLearner = async (
       learner_id,
       current_cohort_id,
     );
+    await removeLearnerFromSlackChannel(learner_id, current_cohort_id);
     return removeLearnerBreakouts(learner_id, current_cohort_id);
-    // TODO: add function for slack channel change
-    // await removeLearnerFromSlackTeam(learner_id, current_cohort_id);
   } catch (err) {
     return err;
   }
