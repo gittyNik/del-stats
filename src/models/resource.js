@@ -145,9 +145,9 @@ export const autoTagUrls = (url) => request
     return { message: 'Error. Invalid response from autotag url' };
   });
 
-export const createResource = (url, level, owner, tagged, title = '',
-  description = '', source = 'slack', type = 'article', details = {},
-  thumbnail = '', program = 'tep', topic_id = '') => Resource.create(
+export const createResource = (url, level, owner, tagged, title,
+  description, source = 'slack', type = 'article', details = {},
+  thumbnail, program = 'tep', topic_id) => Resource.create(
   {
     id: uuid(),
     url,
