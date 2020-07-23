@@ -159,7 +159,7 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
       }
 
       // Add Read-access to Reviewers
-      await addTeamAccessToRepo('reviewer', starter_repo);
+      await addTeamAccessToRepo('reviewer', msName);
       // Section for checking
 
       // let isRepo = await repositoryPresentOrNot(msName);
@@ -211,7 +211,7 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
         console.warn(`Unable to give user access: ${u}`);
       }
       // Add Read-access to Reviewers
-      await addTeamAccessToRepo('reviewer', starter_repo);
+      await addTeamAccessToRepo('reviewer', msName);
       // return {id: user, username: u.username}
     }
 
