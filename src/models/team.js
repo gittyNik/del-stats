@@ -111,9 +111,6 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
   )}_${new Date(data.cohort.start_date).getFullYear()}`;
   let { starter_repo } = data.milestone;
 
-  // Add Read-access to Reviewers
-  await addTeamAccessToRepo('reviewer', starter_repo);
-
   if (
     m[0].profile !== null
     && m[0].profile.hasOwnProperty('stack')
@@ -161,6 +158,8 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
         // return {id: user, username: u.username}
       }
 
+      // Add Read-access to Reviewers
+      await addTeamAccessToRepo('reviewer', starter_repo);
       // Section for checking
 
       // let isRepo = await repositoryPresentOrNot(msName);
@@ -211,6 +210,8 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
       } catch (err) {
         console.warn(`Unable to give user access: ${u}`);
       }
+      // Add Read-access to Reviewers
+      await addTeamAccessToRepo('reviewer', starter_repo);
       // return {id: user, username: u.username}
     }
 
