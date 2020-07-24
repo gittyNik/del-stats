@@ -482,7 +482,7 @@ export const createSingleBreakoutAndLearnerBreakout = (
 export const updateZoomMeetingForBreakout = (
   id,
 ) => CohortBreakout.findByPk(id)
-  .then((cohort_breakout) => {
+  .then(async (cohort_breakout) => {
     let meetingTime = cohort_breakout.time_scheduled.toLocaleString().split(' ').join('T');
     return createScheduledMeeting(
       cohort_breakout.topic_id,
@@ -502,7 +502,10 @@ export const updateZoomMeetingForBreakout = (
           details: cohort_breakout.details,
           updated_at: Date.now(),
         }, {
-          where: { id },
+          where: {
+            topic_id: cohort_breakout.topic_id,
+            time_scheduled: cohort_breakout.time_scheduled,
+          },
           returning: true,
           plain: true,
         })

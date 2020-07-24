@@ -490,7 +490,10 @@ export const updateCohortBreakout = async (req, res) => {
         catalyst_id: newCatalystId || catalyst_id,
         details,
       },
-      whereObject: { id },
+      whereObject: {
+        topic_id: cohort_breakout.topic_id,
+        time_scheduled: cohort_breakout.time_scheduled,
+      },
     })
       .then(_cb => _cb[0])
       .catch(err => {
