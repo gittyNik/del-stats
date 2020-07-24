@@ -241,7 +241,6 @@ export const getCohortIdFromLearnerId = (learner_id) => Application
   .then(_application => _application.cohort_joining);
 
 const removeLearnerFromCohort = async (learner_id, cohort_id) => {
-  console.log(cohort_id);
   let cohort = await getCohortFromId(cohort_id);
   cohort = cohort.learners;
   cohort = cohort.filter((learner) => learner !== learner_id);
