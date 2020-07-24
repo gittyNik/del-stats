@@ -47,8 +47,25 @@ const getChannelName = async (cohort_id) => {
   let location = cohort.location.split(' ');
   location = location.length > 1 ? location[location.length - 1].slice(0, 3) : location[0].slice(0, 3);
 
-  let { start_date } = cohort;
-  return `${cohort.name.toLowerCase()}-${location.toLowerCase()}-${start_date.getFullYear()}`
+  let { start_date, duration } = cohort;
+  switch (duration) {
+    case 16:
+      duration = 'ft';
+      break;
+    case 26:
+      duration = 'pt';
+      break;
+    default:
+      console.error('Cohort duration need to be 16 or 26');
+  }
+  const monthNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun',
+    'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
+  ];
+  const cohortName = cohort.name.toLowerCase();
+  const locationName = location.toLowerCase();
+  const year = start_date.getFullYear();
+  const month = monthNames[start_date.getMonth()];
+  return `${cohortName}-${locationName}-${duration}-${month}-${year}`;
 };
 
 // currently not working due to irregularities.
