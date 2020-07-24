@@ -166,10 +166,10 @@ export const getCohortByLearnerId = (req, res) => {
 };
 
 export const moveLearnertoDifferentCohortEndpoint = async (req, res) => {
-  const { learner_id, current_cohort_id, future_cohort_id } = req.body;
+  const { learners, current_cohort_id, future_cohort_id } = req.body;
   try {
     let bk = await moveLearnertoDifferentCohort(
-      learner_id,
+      learners,
       current_cohort_id,
       future_cohort_id
     );

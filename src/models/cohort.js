@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 // import { Program } from './program';
 import { Application, updateCohortJoining } from './application';
-import { User, USER_ROLES } from './user';
+import { User, USER_ROLES, changeUserRole } from './user';
 import db from '../database';
 import { createCohortMilestones, CohortMilestone } from './cohort_milestone';
 import {
@@ -299,16 +299,15 @@ export const moveLearnertoDifferentCohort = async (
 export const removeLearner = async (
   learner_id,
   current_cohort_id,
-) => {
-  try {
-    await removeLearnerFromCohort(learner_id, current_cohort_id);
-    await removeLearnerFromGithubTeam(
+) => Promise.all([
+    removeLearnerFromCohort(learner_id, current_cohort_id),
+    removeLearnerFromGithubTeam(
       learner_id,
       current_cohort_id,
-    );
-    await removeLearnerFromSlackChannel(learner_id, current_cohort_id);
-    return removeLearnerBreakouts(learner_id, current_cohort_id);
-  } catch (err) {
-    return err;
-  }
-};
+    ),
+    removeLearnerFromSlackChannel(learner_id, current_cohort_id),
+    removeLearnerBreakouts(learner_id, current_cohort_id),
+    changeUserRole(learner_id, USER_ROLES.GUEST)
+    ]);
+  
+
