@@ -171,3 +171,11 @@ export const addUserStatus = (id, status, status_reason) => {
   }
   throw Error('Status not valid');
 };
+
+export const changeUserRole = (learner_id, role) => User.update({
+  role
+}, {
+  where: {
+    id: learner_id
+  }
+})

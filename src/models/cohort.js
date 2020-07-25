@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 // import { Program } from './program';
 import { Application, updateCohortJoining } from './application';
-import { User, USER_ROLES } from './user';
+import { User, USER_ROLES, changeUserRole } from './user';
 import db from '../database';
 import { createCohortMilestones, CohortMilestone } from './cohort_milestone';
 import {
@@ -241,7 +241,6 @@ export const getCohortIdFromLearnerId = (learner_id) => Application
   .then(_application => _application.cohort_joining);
 
 const removeLearnerFromCohort = async (learner_id, cohort_id) => {
-  console.log(cohort_id);
   let cohort = await getCohortFromId(cohort_id);
   cohort = cohort.learners;
   cohort = cohort.filter((learner) => learner !== learner_id);
@@ -276,44 +275,38 @@ const addLearnerToCohort = async (learner_id, cohort_id) => {
 };
 
 export const moveLearnertoDifferentCohort = async (
-  learner_id,
+  learners,
   current_cohort_id,
   future_cohort_id,
-) => {
-  try {
-    await removeLearnerFromCohort(learner_id, current_cohort_id);
-    await addLearnerToCohort(learner_id, future_cohort_id);
-    await updateCohortJoining(learner_id, future_cohort_id);
-    await moveLearnerToNewGithubTeam(
-      learner_id,
-      current_cohort_id,
-      future_cohort_id,
-    );
-    await removeLearnerBreakouts(learner_id, current_cohort_id);
-    let breakouts = await createLearnerBreakouts(learner_id, future_cohort_id);
+) => learners.map(learner_id => Promise.all ([
+    removeLearnerFromCohort(learner_id, current_cohort_id),
+    addLearnerToCohort(learner_id, future_cohort_id),
+    updateCohortJoining(learner_id, future_cohort_id),
+    moveLearnerToNewGithubTeam(
+        learner_id,
+        current_cohort_id,
+        future_cohort_id,
+      ),
+    removeLearnerBreakouts(learner_id, current_cohort_id),
+    createLearnerBreakouts(learner_id, future_cohort_id),
+    moveLearnerToNewSlackChannel(learner_id, current_cohort_id, future_cohort_id)
+  ])
+)
+  
 
-    await moveLearnerToNewSlackChannel(learner_id, current_cohort_id, future_cohort_id);
-    // return breakouts;
-
-    return { breakouts };
-  } catch (err) {
-    return err;
-  }
-};
 
 export const removeLearner = async (
   learner_id,
   current_cohort_id,
-) => {
-  try {
-    await removeLearnerFromCohort(learner_id, current_cohort_id);
-    await removeLearnerFromGithubTeam(
+) => Promise.all([
+    removeLearnerFromCohort(learner_id, current_cohort_id),
+    removeLearnerFromGithubTeam(
       learner_id,
       current_cohort_id,
-    );
-    await removeLearnerFromSlackChannel(learner_id, current_cohort_id);
-    return removeLearnerBreakouts(learner_id, current_cohort_id);
-  } catch (err) {
-    return err;
-  }
-};
+    ),
+    removeLearnerFromSlackChannel(learner_id, current_cohort_id),
+    removeLearnerBreakouts(learner_id, current_cohort_id),
+    changeUserRole(learner_id, USER_ROLES.GUEST)
+    ]);
+  
+
