@@ -483,6 +483,17 @@ export const updateCohortBreakout = async (req, res) => {
 
     details.zoom = zoomDetails;
     details.catalystCalendarEvent = catalystCalendarEvent;
+    let whereObject;
+
+    if (cohort_breakout.type === 'lecture') {
+      whereObject = {
+        topic_id: cohort_breakout.topic_id,
+        time_scheduled: cohort_breakout.time_scheduled,
+        type: 'lecture',
+      };
+    } else {
+      whereObject = { id };
+    }
 
     const updatedCohortBreakout = await updateCohortBreakouts({
       updateObject: {
@@ -490,10 +501,7 @@ export const updateCohortBreakout = async (req, res) => {
         catalyst_id: newCatalystId || catalyst_id,
         details,
       },
-      whereObject: {
-        topic_id: cohort_breakout.topic_id,
-        time_scheduled: cohort_breakout.time_scheduled,
-      },
+      whereObject,
     })
       .then(_cb => _cb[0])
       .catch(err => {
