@@ -497,15 +497,29 @@ export const updateZoomMeetingForBreakout = (
       } else {
         cohort_breakout.details = { zoom: zoomMeeting };
       }
+      if (cohort_breakout.type === 'lecture') {
+        return CohortBreakout
+          .update({
+            details: cohort_breakout.details,
+            updated_at: Date.now(),
+          }, {
+            where: {
+              topic_id: cohort_breakout.topic_id,
+              time_scheduled: cohort_breakout.time_scheduled,
+              type: 'lecture',
+            },
+            returning: true,
+            plain: true,
+          })
+          .then(data => data[1]);
+      }
       return CohortBreakout
         .update({
           details: cohort_breakout.details,
           updated_at: Date.now(),
         }, {
           where: {
-            topic_id: cohort_breakout.topic_id,
-            time_scheduled: cohort_breakout.time_scheduled,
-            type: 'lecture',
+            id,
           },
           returning: true,
           plain: true,
