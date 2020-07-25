@@ -505,6 +505,7 @@ export const updateZoomMeetingForBreakout = (
           where: {
             topic_id: cohort_breakout.topic_id,
             time_scheduled: cohort_breakout.time_scheduled,
+            type: 'lecture',
           },
           returning: true,
           plain: true,

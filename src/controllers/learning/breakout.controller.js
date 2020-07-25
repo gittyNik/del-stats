@@ -493,6 +493,7 @@ export const updateCohortBreakout = async (req, res) => {
       whereObject: {
         topic_id: cohort_breakout.topic_id,
         time_scheduled: cohort_breakout.time_scheduled,
+        type: 'lecture',
       },
     })
       .then(_cb => _cb[0])
