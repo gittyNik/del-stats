@@ -223,9 +223,12 @@ export const calculateAssessmentTime = (assessmentDate, assessmentForTeam) => {
   return assessmentScheduledUTC;
 };
 
-export const createLearnerAssessmentBreakout = (assessmentSlots,
+export const createLearnerAssessmentBreakout = (
+  assessmentSlots,
   cohortLearners,
-  assessment_start) => {
+  assessment_start,
+  excluded_learners,
+) => {
   let {
     learners, name, id, duration,
   } = cohortLearners;
@@ -234,56 +237,64 @@ export const createLearnerAssessmentBreakout = (assessmentSlots,
   let skipSlots = 0;
   let subtractDeleteIndex = 0;
   return learners.forEach(async (eachLearner, teamIndex) => {
-    let learnerDetails = await getProfile(eachLearner);
-
-    let topics = `Assessment for ${name} Learner: ${learnerDetails.name}`;
-
-    let details = {
-      topics,
-    };
-
-    // Assign only full-time slots to full-time assessment
-    // vice versa for part-time
-    // full-time will start first bo order by
-    // if full time has extra slots left, skip those
-    // assessmentSlots is directly modified, so works with map
-    // also reduced index by the elements being removed
-    let indexForReview = teamIndex + skipSlots - subtractDeleteIndex;
-    while (duration !== assessmentSlots[indexForReview].cohort_duration) {
-      skipSlots += 1;
+    let toExcludeLearner = false;
+    if (Array.isArray(excluded_learners)) {
+      toExcludeLearner = excluded_learners.includes(eachLearner);
     }
-    let assessmentForLearner = assessmentSlots[indexForReview];
-    // Remove assessment that gets assigned
-    assessmentSlots.splice(indexForReview, 1);
-    subtractDeleteIndex += 1;
 
-    assessment_start = new Date(Date.parse(assessment_start));
+    if (!toExcludeLearner) {
+      let learnerDetails = await getProfile(eachLearner);
 
-    let timeSlot = calculateAssessmentTime(assessment_start,
-      assessmentForLearner);
-    let { assessment_duration, reviewer, phase } = assessmentForLearner;
-    return createAssessmentEntry(
-      learnerDetails.name,
-      id,
-      timeSlot,
-      assessment_duration,
-      details,
-      name,
-      null,
-      null,
-      reviewer,
-      phase,
-    ).then(createReviewBreakout => {
-      let cohort_breakout_id = createReviewBreakout.id;
-      let review_feedback = { type: 'assessment' };
-      LearnerBreakout.create({
-        id: uuid(),
-        review_feedback,
-        cohort_breakout_id,
-        learner_id: eachLearner,
+      let topics = `Assessment for ${name} Learner: ${learnerDetails.name}`;
+
+      let details = {
+        topics,
+      };
+
+      // Assign only full-time slots to full-time assessment
+      // vice versa for part-time
+      // full-time will start first bo order by
+      // if full time has extra slots left, skip those
+      // assessmentSlots is directly modified, so works with map
+      // also reduced index by the elements being removed
+      let indexForReview = teamIndex + skipSlots - subtractDeleteIndex;
+      while (duration !== assessmentSlots[indexForReview].cohort_duration) {
+        skipSlots += 1;
+      }
+      let assessmentForLearner = assessmentSlots[indexForReview];
+      // Remove assessment that gets assigned
+      assessmentSlots.splice(indexForReview, 1);
+      subtractDeleteIndex += 1;
+
+      assessment_start = new Date(Date.parse(assessment_start));
+
+      let timeSlot = calculateAssessmentTime(assessment_start,
+        assessmentForLearner);
+      let { assessment_duration, reviewer, phase } = assessmentForLearner;
+      return createAssessmentEntry(
+        learnerDetails.name,
+        id,
+        timeSlot,
+        assessment_duration,
+        details,
+        name,
+        null,
+        null,
+        reviewer,
+        phase,
+      ).then(createReviewBreakout => {
+        let cohort_breakout_id = createReviewBreakout.id;
+        let review_feedback = { type: 'assessment' };
+        LearnerBreakout.create({
+          id: uuid(),
+          review_feedback,
+          cohort_breakout_id,
+          learner_id: eachLearner,
+        });
+        return createReviewBreakout;
       });
-      return createReviewBreakout;
-    });
+    }
+    return null;
   });
 };
 
@@ -293,6 +304,7 @@ export const createAssessmentSchedule = (
   cohort_ids,
   assessment_start,
   phase,
+  excluded_learners,
 ) => getAssessmentSlotsByProgram(
   program,
   cohort_duration,
@@ -304,6 +316,7 @@ export const createAssessmentSchedule = (
       .then((cohortsForAssessments) => cohortsForAssessments.forEach(
         singleCohort => createLearnerAssessmentBreakout(
           slotsForReview, singleCohort, assessment_start,
+          excluded_learners,
         ),
       ));
   });
