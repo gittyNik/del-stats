@@ -168,7 +168,7 @@ export const createAssessmentEntry = (learner_name, cohort_id,
     team_feedback,
     catalyst_notes,
     isVideoMeeting: false,
-    isCodeSandbox: true,
+    isCodeSandbox: false,
     location: 'Online',
     cohortName,
     type: 'assessment',
@@ -294,6 +294,7 @@ export const createLearnerAssessmentBreakout = (
         return createReviewBreakout;
       });
     }
+    skipSlots += 1;
     return null;
   });
 };
