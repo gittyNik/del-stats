@@ -128,6 +128,7 @@ export const getUserFromPhone = phone => User.findOne(
     where: {
       phone,
     },
+    attributes: ['name', 'phone'],
   },
   { raw: true },
 );
@@ -173,9 +174,9 @@ export const addUserStatus = (id, status, status_reason) => {
 };
 
 export const changeUserRole = (learner_id, role) => User.update({
-  role
+  role,
 }, {
   where: {
-    id: learner_id
-  }
-})
+    id: learner_id,
+  },
+});

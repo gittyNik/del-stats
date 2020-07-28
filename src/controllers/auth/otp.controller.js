@@ -107,8 +107,10 @@ export const verifyOTP = (req, res) => {
   const { phone, email, fullName } = user;
 
   sendOtp.verify(phone, otp, (error, data) => {
-    // console.log(data);
-    if (error === null && data.type === 'success') { // OTP verified
+    if ((error === null && data.type === 'success')
+      || (data.type === 'error' && data.message === 'already_verified')
+      || (data.type === 'error' && data.message.includes('already verified'))) {
+      // OTP verified
       if (action === 'register') {
         register({
           email, phone, fullName, otpVerified: 'Yes',
@@ -116,7 +118,10 @@ export const verifyOTP = (req, res) => {
       } else if (action === 'signin') {
         signInUser(phone, res);
       }
-    } else { // if (data.type == 'error') // OTP verification failed
+    } else {
+      // if (data.type == 'error') // OTP verification failed
+      console.warn(`Data received from MSG91 api: ${data}`);
+      console.warn(`Error received from MSG91 api: ${error}`);
       res.sendStatus(401);
     }
   });

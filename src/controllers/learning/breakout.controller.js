@@ -141,7 +141,6 @@ export const createBreakout = (req, res) => {
       createScheduledMeeting(topic_id, time, duration, agenda, 2, catalyst_id),
     ])
       .then(([sandbox, videoMeeting]) => {
-        // console.log('Sandbox Created');
         // console.log('VideoMeeting Created');
         let details = {
           sandbox,
@@ -176,17 +175,27 @@ export const createBreakout = (req, res) => {
         )
           .then((data) => {
             // console.log(data);
-            res.send('Breakout Created with codesandbox and videomeeting.');
+            res.status(201).json({
+              message: 'Breakout, video meeting and sandbox created',
+              data,
+              type: 'success',
+            });
           })
           .catch((err) => {
             deleteMeetingFromZoom(details.zoom.id);
             console.error('Failed to create Cohort Breakout', err);
-            res.send(500);
+            res.send(500).json({
+              message: `Reason for error: ${err}`,
+              type: 'failure',
+            });
           });
       })
       .catch(err => {
         console.error('Failed to create Code Sanbdbox and Videomeeting', err);
-        res.status(500);
+        res.send(500).json({
+          message: `Reason for error: ${err}`,
+          type: 'failure',
+        });
       });
   } else if (isCodeSandbox) {
     // todo: pass template, and embedd_options as args
@@ -224,16 +233,26 @@ export const createBreakout = (req, res) => {
         )
           .then(data => {
             // console.log('Breakout created with code sandbox only', data);
-            res.send('Breakout Created with codesandbox only.');
+            res.status(201).json({
+              message: 'Breakout and sandbox created',
+              data,
+              type: 'success',
+            });
           })
           .catch((err) => {
             console.error('Failed to create Breakout', err);
-            res.send(500);
+            res.send(500).json({
+              message: `Reason for error: ${err}`,
+              type: 'failure',
+            });
           });
       })
       .catch(err => {
         console.error('Failed to create codesandbox', err);
-        res.send(500);
+        res.send(500).json({
+          message: `Reason for error: ${err}`,
+          type: 'failure',
+        });
       });
   } else if (isVideoMeeting) {
     createScheduledMeeting(topic_id, time, duration, agenda, 2, catalyst_id)
@@ -269,7 +288,11 @@ export const createBreakout = (req, res) => {
         )
           .then((data) => {
             // console.log(data);
-            res.send('Breakout and video meeting created Created');
+            res.status(201).json({
+              message: 'Breakout and video meeting created',
+              data,
+              type: 'success',
+            });
           })
           .catch((err) => {
             deleteMeetingFromZoom(details.zoom.id);
@@ -277,17 +300,66 @@ export const createBreakout = (req, res) => {
               'Failed to create Breakout after creating video meeting',
               err,
             );
-            res.send(500);
+            res.send(500).json({
+              message: `Reason for error: ${err}`,
+              type: 'failure',
+            });
           });
       })
       .catch((err) => {
         // todo: Remove the scheduled meeting from zoom  and deltaDB - delete.
-        console.error(err);
-        res.send(500);
+        res.send(500).json({
+          message: `Reason for error: ${err}`,
+          type: 'failure',
+        });
       });
   } else {
-    console.error(' No Codesandbox and Videomeeting');
-    res.send('Breakout created without the code-sandbox and video-meeting');
+    let details = {
+    };
+
+    if (type === 'reviews') {
+      details.cohort_milestone_id = cohort_milestone_id;
+      details.teamId = teamId;
+      details.milestone_team_id = milestone_team_id;
+      details.github_repo_link = github_repo_link;
+      details.topics = agenda;
+    } else if (type === 'assessment') {
+      details.topics = agenda;
+    }
+    createNewBreakout(
+      breakout_template_id,
+      topic_id,
+      cohort_id,
+      time_scheduled,
+      duration,
+      location,
+      catalyst_id,
+      details,
+      type,
+      team_feedback,
+      catalyst_notes,
+      attendance_count,
+      domain,
+      catalyst_feedback,
+    )
+      .then((data) => {
+        // console.log(data);
+        res.status(201).json({
+          message: 'Breakout created',
+          data,
+          type: 'success',
+        });
+      })
+      .catch((err) => {
+        console.error(
+          'Failed to create Breakout after creating video meeting',
+          err,
+        );
+        res.send(500).json({
+          message: `Reason for error: ${err}`,
+          type: 'failure',
+        });
+      });
   }
 };
 
