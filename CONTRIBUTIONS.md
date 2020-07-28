@@ -37,3 +37,33 @@ include:
 * Gracefully accepting constructive criticism
 * Focusing on what is best for the community
 * Showing empathy towards other community members
+
+### API Guidelines
+
+Every Success API should return data with the following fields:
+
+```javascript
+res.status(201).json({
+              message: 'Breakout and sandbox created',
+              data,
+              type: 'success',
+            });
+```
+
+* Appropriate Status code
+* Message
+* Data
+* type - success/failure
+
+Every Failure API should return data with the following fields:
+
+```javascript
+res.status(500).json({
+          message: `Reason for error: ${err}`,
+          type: 'failure',
+        });
+```
+
+* Appropriate Status code
+* Message - Send either the error or specific text that can help identify error.
+* type - success/failure
