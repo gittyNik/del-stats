@@ -128,7 +128,7 @@ export const getUserFromPhone = phone => User.findOne(
     where: {
       phone,
     },
-    attributes: ['name', 'phone'],
+    // attributes: ['name', 'phone'],
   },
   { raw: true },
 );
