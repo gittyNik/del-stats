@@ -230,7 +230,6 @@ export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
   // skipSlots is to skip if the slot is for
   // different Cohort duration
   let skipSlots = 0;
-  let subtractDeleteIndex = 0;
   return getTeamsbyCohortMilestoneId(
     milestonecohort.id,
   ).then(learnerTeams => learnerTeams.forEach((eachTeam, teamIndex) => {
@@ -286,14 +285,13 @@ export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
     // if full time has extra slots left, skip those
     // reviewSlots is directly modified, so works with map
     // also reduced index by the elements being removed
-    let indexForReview = teamIndex + skipSlots - subtractDeleteIndex;
+    let indexForReview = teamIndex + skipSlots;
     while (cohortDuration !== reviewSlots[indexForReview].cohort_duration) {
       skipSlots += 1;
     }
     let reviewForTeam = reviewSlots[indexForReview];
     // Remove review that gets assigned
     reviewSlots.splice(indexForReview, 1);
-    subtractDeleteIndex += 1;
 
     let timeSlot = calculateReviewTime(milestonecohort.review_scheduled, reviewForTeam);
     let { review_duration, reviewer } = reviewForTeam;
