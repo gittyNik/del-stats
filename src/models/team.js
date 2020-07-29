@@ -51,6 +51,75 @@ export const Team = db.define('milestone_learner_teams', {
   },
 });
 
+// Paste bin : https://pastebin.com/bAUYmmhD
+
+const createFullStackTeams = (frontendLearners, backendLearners) => {
+  let teams = [];
+  let current = [];
+  while (frontendLearners.length > 0 && backendLearners.length > 0) {
+    if (current.length === 2) {
+      const f = allFrontend(current);
+      const b = allBackend(current);
+
+      if (f && !b) {
+        current.push({ id: backendLearners.pop(), stack: 'f' })
+      } else if (b && !f) {
+        current.push({ id: frontendLearners.pop(), stack: 'b' })
+      }
+    }
+    if (current.length === 3) {
+      teams.push(current);
+      current = [];
+    }
+    if (frontendLearners.length > backendLearners.length) {
+      current.push({ id: frontendLearners.pop(), stack: 'f' })
+    } else {
+      current.push({ id: backendLearners.pop(), stack: 'b' })
+    }
+  }
+
+
+
+
+  teams = teams.map(team => team.map(member => member.id));
+
+  current = current.map(member => member.id);
+
+  if (frontendLearners.length !== 0) {
+    current = current.concat(frontendLearners)
+  } else if (!backendLearners.length !== 0) {
+    current = current.concat(backendLearners)
+  }
+
+  current = splitTeams(current)
+
+  teams = teams.concat(current)
+
+  return teams;
+};
+
+
+
+const allFrontend = (current) => {
+  if (current[0].stack !== current[1].stack) {
+    return false;
+  }
+  if (current[0].stack === 'f') {
+    return true;
+  }
+  return false;
+};
+
+const allBackend = (current) => {
+  if (current[0].stack !== current[1].stack) {
+    return false;
+  }
+  if (current[0].stack === 'b') {
+    return true;
+  }
+  return false;
+};
+
 export const splitTeams = users => {
   const teams = [];
   const shuffled = _.shuffle(users);
@@ -91,13 +160,15 @@ const toGithubFormat = str => {
   return finalStr;
 };
 
-// TODO: Need to change this entire logic, inefficient
+
 export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
-  let m = [];
-  for (let i = 0; i < mL.length; i++) {
-    let as = await getProfile(mL[i]);
-    m.push(as);
-  }
+  let m = [], teams = [];
+  // for (let i = 0; i < mL.length; i++) {
+  //   let as = await getProfile(mL[i]);
+  //   m.push(as);
+  // }
+
+  m = await Promise.all(mL.map(id => getProfile(id)));
 
   let data = await getDataForMilestoneName(cohort_milestone_id);
   let baseMilestoneName = `MS_${toSentenceCase(
@@ -126,66 +197,14 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
       }
     });
 
-    const frontendTeams = splitTeams(frontendUsers);
-    const backendTeams = splitTeams(backendUsers);
-    let teams = [];
-    frontendTeams.map(t => teams.push(t));
-    backendTeams.map(t => teams.push(t));
-    for (let i = 0; i < teams.length; i++) {
-      let msName = `${baseMilestoneName}_${i + 1}`;
-      msName = toGithubFormat(msName);
-      let existingRepo = await isExistingRepository(msName);
-      let repo;
-      if (!existingRepo) {
-        repo = await createGithubRepositoryFromTemplate(starter_repo, msName);
-      } else {
-        repo = existingRepo;
-      }
-      let team = teams[i];
-      for (let j = 0; j < team.length; j++) {
-        msName = repo.name;
-
-        let u = await getGithubConnecionByUserId(team[j]);
-        if (!u) {
-          continue;
-        }
-        u = u.username;
-        try {
-          await addCollaboratorToRepository(u, repo.name);
-        } catch (err) {
-          console.warn(`Unable to give user access: ${u}`);
-        }
-        // return {id: user, username: u.username}
-      }
-
-      // Add Read-access to Reviewers
-      await addTeamAccessToRepo('reviewer', msName);
-      // Section for checking
-
-      // let isRepo = await repositoryPresentOrNot(msName);
-      // if (!isRepo) {
-      //   let repo = await createGithubRepository(msName);
-      //   var team = teams[i];
-      //   for (let j = 0; j < team.length; j++) {
-      //     msName = repo.data.name;
-      //     let u = await getGithubConnecionByUserId(team[j]);
-      //     if (!u) {
-      //       continue;
-      //     }
-      //     u = u.username;
-      //     let col = await addCollaboratorToRepository(u, repo.data.name);
-      //     // return {id: user, username: u.username}
-      //   }
-      // }
-      teams[i] = { team, repo: msName };
-    }
-    return teams;
+    teams = createFullStackTeams(frontendUsers, backendUsers);
+  } else {
+    m = m.map(ms => ms.id);
+    teams = splitTeams(m);
   }
-  m = m.map(ms => ms.id);
 
-  let teams = splitTeams(m);
-  // TODO: change for loop for proper use of await @Nik
-  for (let i = 0; i < teams.length; i++) {
+  teams = await Promise.all(teams.map(async team => {
+
     let msName = `${baseMilestoneName}_${i + 1}`;
     msName = toGithubFormat(msName);
     let existingRepo = await isExistingRepository(msName);
@@ -195,27 +214,25 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
     } else {
       repo = existingRepo;
     }
-    let team = teams[i];
-    for (let j = 0; j < team.length; j++) {
-      // console.log(repo);
-      msName = repo.name;
-      let u = await getGithubConnecionByUserId(team[j]);
-      if (!u) {
-        // TODO: Remove continue
-        continue;
+    msName = repo.name;
+    await Promise.all(team.map(async member => {
+      let u = await getGithubConnecionByUserId(member);
+      if (u) {
+        u = u.username;
+        try {
+          await addCollaboratorToRepository(u, repo.name);
+        } catch (err) {
+          console.warn(`Unable to give user access: ${u}`);
+        }
       }
-      u = u.username;
-      try {
-        await addCollaboratorToRepository(u, repo.name);
-      } catch (err) {
-        console.warn(`Unable to give user access: ${u}`);
-      }
-      // Add Read-access to Reviewers
-      await addTeamAccessToRepo('reviewer', msName);
-      // return {id: user, username: u.username}
-    }
 
-    // Commented to reduce Github api pinging
+      // return {id: user, username: u.username}
+
+    }));
+
+    // Add Read-access to Reviewers
+    await addTeamAccessToRepo('reviewer', msName);
+    // Section for checking
 
     // let isRepo = await repositoryPresentOrNot(msName);
     // if (!isRepo) {
@@ -232,10 +249,11 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
     //     // return {id: user, username: u.username}
     //   }
     // }
-    teams[i] = { team, repo: msName };
-  }
+    return { team, repo: msName };
+  }));
   return teams;
-};
+}
+
 
 const findTeamsByCohortMilestoneId = cohort_milestone_id => Team.findAll(
   {
