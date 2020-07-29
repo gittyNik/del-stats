@@ -120,6 +120,7 @@ export const verifyOTP = (req, res) => {
       }
     } else {
       // if (data.type == 'error') // OTP verification failed
+      console.log(`User ${fullName} failed OTP for phone: ${phone}`);
       console.warn(`Data received from MSG91 api: ${data.message}`);
       console.warn(`Data type from MSG91 api: ${data.type}`);
       console.warn(`Error received from MSG91 api: ${error}`);
