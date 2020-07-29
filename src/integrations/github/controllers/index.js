@@ -637,9 +637,9 @@ export const fillGithubStats = async (req, res) => {
 };
 
 export const fillGithubChallengesStats = async (req, res) => {
-  const { cohort_id } = req.query;
+  const { cohort_id, start_date, end_date } = req.query;
 
-  let allMilestoneCommits = await getGithubChallengesStats(cohort_id);
+  let allMilestoneCommits = await getGithubChallengesStats(cohort_id, start_date, end_date);
   let savedCommitsDB = allMilestoneCommits.map(singleMilestoneCommits => {
     let teamCommits = singleMilestoneCommits.map(teamMilestoneCommit => {
       let {

@@ -235,7 +235,6 @@ export const createLearnerAssessmentBreakout = (
   // skipSlots is to skip if the slot is for
   // different Cohort duration
   let skipSlots = 0;
-  let subtractDeleteIndex = 0;
   return learners.forEach(async (eachLearner, teamIndex) => {
     let toExcludeLearner = false;
     if (Array.isArray(excluded_learners)) {
@@ -257,14 +256,13 @@ export const createLearnerAssessmentBreakout = (
       // if full time has extra slots left, skip those
       // assessmentSlots is directly modified, so works with map
       // also reduced index by the elements being removed
-      let indexForReview = teamIndex + skipSlots - subtractDeleteIndex;
+      let indexForReview = teamIndex + skipSlots;
       while (duration !== assessmentSlots[indexForReview].cohort_duration) {
         skipSlots += 1;
       }
       let assessmentForLearner = assessmentSlots[indexForReview];
       // Remove assessment that gets assigned
       assessmentSlots.splice(indexForReview, 1);
-      subtractDeleteIndex += 1;
 
       assessment_start = new Date(Date.parse(assessment_start));
 
@@ -294,7 +292,6 @@ export const createLearnerAssessmentBreakout = (
         return createReviewBreakout;
       });
     }
-    skipSlots += 1;
     return null;
   });
 };
