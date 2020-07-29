@@ -163,11 +163,7 @@ const toGithubFormat = str => {
 
 export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
   let m = [], teams = [];
-  // for (let i = 0; i < mL.length; i++) {
-  //   let as = await getProfile(mL[i]);
-  //   m.push(as);
-  // }
-
+  
   m = await Promise.all(mL.map(id => getProfile(id)));
 
   let data = await getDataForMilestoneName(cohort_milestone_id);
@@ -232,23 +228,7 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
 
     // Add Read-access to Reviewers
     await addTeamAccessToRepo('reviewer', msName);
-    // Section for checking
-
-    // let isRepo = await repositoryPresentOrNot(msName);
-    // if (!isRepo) {
-    //   let repo = await createGithubRepository(msName);
-    //   var team = teams[i];
-    //   for (let j = 0; j < team.length; j++) {
-    //     msName = repo.data.name;
-    //     let u = await getGithubConnecionByUserId(team[j]);
-    //     if (!u) {
-    //       continue;
-    //     }
-    //     u = u.username;
-    //     let col = await addCollaboratorToRepository(u, repo.data.name);
-    //     // return {id: user, username: u.username}
-    //   }
-    // }
+    
     return { team, repo: msName };
   }));
   return teams;
