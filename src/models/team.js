@@ -198,8 +198,8 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
     m = m.map(ms => ms.id);
     teams = splitTeams(m);
   }
-
-  teams = await Promise.all(teams.map(async team => {
+  
+  teams = await Promise.all(teams.map(async (team, i) => {
 
     let msName = `${baseMilestoneName}_${i + 1}`;
     msName = toGithubFormat(msName);
