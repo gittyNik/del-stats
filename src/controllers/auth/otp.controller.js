@@ -90,7 +90,7 @@ const register = (data, res) => {
     email = email.toLowerCase();
     let isExistingUser = await getUserByEmail(email);
     if (isExistingUser !== null) {
-      res.sendStatus(409).send('User email exists');
+      res.status(409).send('User email exists');
     }
     createUser({ name, phone, email }).then(user => res.send({
       user,

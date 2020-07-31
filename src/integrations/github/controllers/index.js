@@ -48,6 +48,7 @@ import {
   getChallengesByUserId,
   latestChallengeInCohort,
   getLearnerChallengesAfterDate,
+  getLearnerChallengesBetweenDate,
 } from '../../../models/learner_challenge';
 import {
   contributersInRepository,
@@ -56,6 +57,7 @@ import {
 import {
   getCohortMilestoneTeamsBeforeDate,
   getCohortMilestone,
+  findInCohortMilestones,
 } from '../../../models/cohort_milestone';
 import { getProfile, getUserFromEmails } from '../../../models/user';
 import {
@@ -394,6 +396,8 @@ export const apiForOneLearnerGithubMilestone = async (oneLearner,
 
 export const getGithubStats = async (cohort_id, before_date, after_date) => {
   // Fetch Cohort Milestone Teams
+  before_date = new Date(before_date);
+  after_date = new Date(after_date);
   let cohortMilestones = await getCohortMilestoneTeamsBeforeDate(
     cohort_id,
     before_date,
@@ -779,14 +783,19 @@ export const getAllStats = async (req, res) => {
       user_id,
     );
 
-    let lastUpdatedAt = await getLastUpdatedMilestoneCommit(user_id, cohort_milestone_id);
+    let lastMilestoneUpdatedAt;
+    lastMilestoneUpdatedAt = await getLastUpdatedMilestoneCommit(user_id, cohort_milestone_id);
+    if (lastMilestoneUpdatedAt === null) {
+      lastMilestoneUpdatedAt = { last_committed_at: null };
+    }
+
     if (socialConnection !== null) {
       // Update any new changes to Milestone Repo
       let { github_repo_link, id } = await getLearnerMilestoneTeam(user_id, cohort_milestone_id);
       let contributorsRepo = await getContributorsInRepo(github_repo_link, socialConnection);
 
       let eachLearnerCommit = await apiForOneLearnerGithubMilestone(user_id,
-        github_repo_link, socialConnection, lastUpdatedAt.last_committed_at);
+        github_repo_link, socialConnection, lastMilestoneUpdatedAt.last_committed_at);
 
       await createStatForSingleLearner(
         eachLearnerCommit,
