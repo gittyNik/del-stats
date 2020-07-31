@@ -179,9 +179,9 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
   let { starter_repo } = data.milestone;
 
   if (
-    m[0].profile !== null
-    && m[0].profile.hasOwnProperty('stack')
-    && m[0].profile.hasOwnProperty('stack') !== null
+    m[0].status !== null
+    && m[0].status.hasOwnProperty('stack')
+    && m[0].status.hasOwnProperty('stack') !== null
   ) {
     let frontendUsers = [];
     let backendUsers = [];
