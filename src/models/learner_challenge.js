@@ -74,6 +74,17 @@ export const getLearnerChallengesAfterDate = (
   raw: true,
 });
 
+export const getLearnerChallengesBetweenDate = (
+  learner_id, before_date, after_date,
+) => LearnerChallenge.findOne({
+  order: [[Sequelize.col('created_at'), Sequelize.literal('DESC')]],
+  where: {
+    created_at: { [between]: [before_date, after_date] },
+    learner_id,
+  },
+  raw: true,
+});
+
 export const learnerChallengesFindOrCreate = async (
   challenge_id,
   learner_id,

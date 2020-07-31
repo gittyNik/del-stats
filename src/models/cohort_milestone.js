@@ -57,6 +57,15 @@ const {
   lte, gt, between, gte,
 } = Sequelize.Op;
 
+export const findInCohortMilestones = (
+  where, attributes, include, order,
+) => CohortMilestone.findOne({
+  where,
+  include,
+  order,
+  attributes,
+});
+
 export const getDataForMilestoneName = id => CohortMilestone.findOne({
   where: {
     id,
@@ -117,7 +126,7 @@ export const getCohortMilestoneTeamsBeforeDate = (
 ) => CohortMilestone.findAll({
   where: {
     cohort_id,
-    review_scheduled: { [lte]: before_date, [gte]: after_date },
+    review_scheduled: { [between]: [after_date, before_date] },
   },
   attributes: ['id'],
   include: [{
@@ -259,7 +268,8 @@ export const getCurrentMilestoneOfCohortDelta = (cohort_id) => {
         getOrCreateMilestoneTeams(id),
       ])
         .then(([topics, programTopics, teams]) => {
-          // console.log(`Milestone topics: ${topics.length}, Program topics: ${programTopics.length}`);
+          // console.log(`Milestone topics: ${topics.length},
+          // Program topics: ${ programTopics.length }`);
           milestone.topics = topics;
           milestone.programTopics = programTopics;
           milestone.teams = teams;
