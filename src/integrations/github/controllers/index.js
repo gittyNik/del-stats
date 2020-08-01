@@ -673,7 +673,7 @@ export const getTotalMilestoneChallengeCommits = async (user_id) => {
   if (totalProgramMilestoneCommits[0]) {
     noOfCommits += parseInt(totalProgramMilestoneCommits[0].nocommits, 10);
     noOfLines += parseInt(totalProgramMilestoneCommits[0].nolines, 10);
-    user.name = parseInt(totalProgramMilestoneCommits[0]['user.name'], 10);
+    user.name = totalProgramMilestoneCommits[0]['user.name'];
   }
 
   let totalChallengesCommits = await getTotalChallengeCommitsForCohort(user_id);
@@ -825,6 +825,7 @@ export const getAllStats = async (req, res) => {
       let noOfCommitsLinesOfEachMSForUserId;
       let totalProgramMilestoneCommits;
       let noOfCommitsAndLearnerDetails = [];
+      let milestoneStats = [];
       await Promise.all(cohortLearners.map(async learner => {
         let noOfCommitsLinesOfEachMSPerUser = await getCohortMilestoneStatsUser(learner);
         if (learner === user_id) {
@@ -833,6 +834,10 @@ export const getAllStats = async (req, res) => {
 
         totalProgramMilestoneCommits = await getTotalMilestoneChallengeCommits(learner);
         noOfCommitsLinesOfEachMS.push(...noOfCommitsLinesOfEachMSPerUser);
+        let currentCohortCommits = noOfCommitsLinesOfEachMSPerUser.filter(
+          cohortCommits => cohortCommits.cohort_milestone_id === cohort_milestone_id,
+        );
+        milestoneStats.push(...currentCohortCommits);
         noOfCommitsAndLearnerDetails.push(totalProgramMilestoneCommits);
       }));
 
@@ -840,11 +845,14 @@ export const getAllStats = async (req, res) => {
 
       let latestCommitInCohortId = await getLatestCommitInCohort(cohort_milestone_id);
 
+      // sorting descending order
+      noOfCommitsAndLearnerDetails.sort((a, b) => ((a.noOfCommits > b.noOfCommits) ? -1 : 1));
+
       res.send({
         data: {
           noOfCommitsLinesOfEachMS,
           noOfCommitsLinesOfEachMSForUser: { a: noOfCommitsLinesOfEachMSForUserId, user_id },
-          noOfCommitsAndLearnerDetails: totalProgramMilestoneCommits,
+          noOfCommitsAndLearnerDetails,
           LatestChallengeInCohort: {
             challenge: LatestChallengeInCohortId,
             user: { id: user_id, name: socialConnection.username },
@@ -854,6 +862,7 @@ export const getAllStats = async (req, res) => {
             commit: latestCommitInCohortId,
             user: socialConnection.username,
           },
+          milestone: { stats: milestoneStats },
         },
       });
     } else {
@@ -864,6 +873,7 @@ export const getAllStats = async (req, res) => {
           noOfCommitsAndLearnerDetails: 0,
           LatestChallengeInCohort: 0,
           latestCommitInCohort: 0,
+          milestone: 0,
         },
       });
     }
