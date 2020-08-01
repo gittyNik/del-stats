@@ -176,15 +176,11 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
   )}_${new Date(data.cohort.start_date).getFullYear()}`;
   let { starter_repo } = data.milestone;
 
-  if (
-    m[0].status !== null
-    && m[0].status.hasOwnProperty('stack')
-    && m[0].status.hasOwnProperty('stack') !== null
-  ) {
+  if (m[0].status.includes ('frontend') || m[0].status.includes ('backend')) {
     let frontendUsers = [];
     let backendUsers = [];
     m.map(ms => {
-      if (ms.profile.stack === 'frontend') {
+      if (ms.status.includes ('frontend')) {
         frontendUsers.push(ms.id);
       } else {
         backendUsers.push(ms.id);
