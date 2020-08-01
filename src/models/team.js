@@ -51,8 +51,6 @@ export const Team = db.define('milestone_learner_teams', {
   },
 });
 
-// Paste bin : https://pastebin.com/bAUYmmhD
-
 const createFullStackTeams = (frontendLearners, backendLearners) => {
   let teams = [];
   let current = [];
