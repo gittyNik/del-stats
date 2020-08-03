@@ -688,10 +688,16 @@ export const getTotalMilestoneChallengeCommits = async (user_id) => {
 
 export const getCohortMilestoneStatsUser = async learner => {
   let noOfCommitsLinesOfAllMS = await getAllCohortGithubMilestoneData(learner);
-  let user = {
-    id: noOfCommitsLinesOfAllMS[0].user_id,
-    name: noOfCommitsLinesOfAllMS[0]['user.name'],
-  };
+  let user;
+  try {
+    user = {
+      id: noOfCommitsLinesOfAllMS[0].userId,
+      name: noOfCommitsLinesOfAllMS[0]['user.name'],
+    };
+  } catch (err) {
+    user = null;
+    console.warn(`User with id: ${learner} does not exists`);
+  }
 
   return Promise.all(noOfCommitsLinesOfAllMS.map(async forCohortMilestone => {
     let challengesAttempted = 0;
@@ -878,7 +884,8 @@ export const getAllStats = async (req, res) => {
       });
     }
   } catch (err) {
-    console.log(`Error while fetching Github Stats for User ${user_id} ${cohort_milestone_id}: ${err}`);
+    console.error(`Error while fetching Github Stats for User ${user_id} ${cohort_milestone_id}: ${err}`);
+    console.error(err.stack);
     res.send({
       data: {
         noOfCommitsLinesOfEachMS: 0,
