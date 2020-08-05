@@ -96,5 +96,8 @@
   },
   "eslintIgnore": [
     "**/*.spec.js"
-  ]
+  ],
+  "jest": {
+    "testEnvironment": "node"
+  }
 }
