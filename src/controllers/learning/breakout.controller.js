@@ -641,6 +641,7 @@ export const updateMilestoneByDays = async (cohortId, updateByDays) => {
     where: {
       cohort_id: cohortId,
       type: 'lecture',
+      status: 'scheduled',
     },
   }).then((cohortBreakouts) => Promise.all(
     cohortBreakouts.map((cohortBreakout) => {

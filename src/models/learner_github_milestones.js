@@ -253,7 +253,10 @@ export const createOrUpdteLearnerGithubDataForMilestone = (user_id,
       });
     }
 
-    learnerGithub.repository_commits.push(new_commits);
+    if (commits_count !== learnerGithub.commits) {
+      learnerGithub.repository_commits.push(...new_commits);
+    }
+
     return learnerGithub.update({
       number_of_lines: new_commit_count,
       repository_commits: learnerGithub.repository_commits,
