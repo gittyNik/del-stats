@@ -33,7 +33,7 @@ export const sendMessage = (req, res) => {
     });
 };
 
-export const notifyLearnerInChannel = async (req, res) => {
+export const notifyLearnersInChannel = async (req, res) => {
   let { learner_id, text, cohort_id, type, team_number } = req.body;
   const learner = await getProfile(learner_id);
   const { email } = learner;
