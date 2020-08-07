@@ -227,9 +227,7 @@ export const calculateReviewTime = (reviewDate, reviewForTeam) => {
 
 export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
   let milestonecohort = cohortMilestone;
-  // skipSlots is to skip if the slot is for
-  // different Cohort duration
-  let skipSlots = 0;
+  let defaultSlot;
   return getTeamsbyCohortMilestoneId(
     milestonecohort.id,
   ).then(learnerTeams => learnerTeams.forEach((eachTeam, teamIndex) => {
@@ -279,19 +277,19 @@ export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
       milestoneReleases,
     };
 
-    // Assign only full-time slots to full-time reviews
-    // vice versa for part-time
-    // full-time will start first bo order by
-    // if full time has extra slots left, skip those
-    // reviewSlots is directly modified, so works with map
-    // also reduced index by the elements being removed
-    let indexForReview = teamIndex + skipSlots;
-    while (cohortDuration !== reviewSlots[indexForReview].cohort_duration) {
-      skipSlots += 1;
+    let indexForReview = 0;
+    let reviewForTeam;
+
+    try {
+      reviewForTeam = reviewSlots[indexForReview];
+      if (defaultSlot === undefined) {
+        defaultSlot = { ...reviewForTeam };
+      }
+      // Remove assessment that gets assigned
+      reviewSlots.splice(indexForReview, 1);
+    } catch (err) {
+      reviewForTeam = { ...defaultSlot };
     }
-    let reviewForTeam = reviewSlots[indexForReview];
-    // Remove review that gets assigned
-    reviewSlots.splice(indexForReview, 1);
 
     let timeSlot = calculateReviewTime(milestonecohort.review_scheduled, reviewForTeam);
     let { review_duration, reviewer } = reviewForTeam;
