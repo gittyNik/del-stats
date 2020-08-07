@@ -766,8 +766,7 @@ export const getLatestCommitInCohort = async (cohort_milestone_id) => {
 
 export const getAllStats = async (req, res) => {
   const { cohort_id, cohort_milestone_id } = req.params;
-  // const user_id = req.jwtData.user.id;
-  const user_id = '5ad468d0-ab54-46a6-8b50-06dd6e1f560e';
+  const user_id = req.jwtData.user.id;
   // Get Social connection of User
 
   try {
