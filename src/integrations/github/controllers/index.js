@@ -772,8 +772,7 @@ export const getLatestCommitInCohort = async (cohort_milestone_id) => {
 
 export const getAllStats = async (req, res) => {
   const { cohort_id, cohort_milestone_id } = req.params;
-  // const user_id = req.jwtData.user.id;
-  const user_id = '2c445f43-8a3b-4830-b2c7-5cb6729b4ae8';
+  const user_id = req.jwtData.user.id;
   // Get Social connection of User
 
   try {
@@ -801,7 +800,6 @@ export const getAllStats = async (req, res) => {
 
     let lastMilestoneUpdatedAt;
     lastMilestoneUpdatedAt = await getLastUpdatedMilestoneCommit(user_id, cohort_milestone_id);
-    console.log(lastMilestoneUpdatedAt);
     if ((lastMilestoneUpdatedAt === null) || (lastMilestoneUpdatedAt.last_committed_at === null)) {
       lastMilestoneUpdatedAt = { last_committed_at: null };
     } else {
