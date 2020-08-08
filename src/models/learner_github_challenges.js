@@ -40,6 +40,7 @@ export const getLastUpdatedChallengeUpdatedDate = (
 ) => LearnerGithubChallenge.findOne({
   where: {
     '$learner_challenge.learner_id$': user_id,
+    commits: { [gt]: 0 },
   },
   include: [
     {
@@ -60,6 +61,20 @@ export const getLastUpdatedChallengeInCohort = (
 ) => LearnerGithubChallenge.findOne({
   where: {
     cohort_milestone_id,
+    commits: { [gt]: 0 },
+  },
+  order: [
+    ['last_committed_at', 'DESC'],
+  ],
+  required: true,
+  raw: true,
+});
+
+export const getLastChallengeInCohort = (
+  cohort_milestone_ids,
+) => LearnerGithubChallenge.findOne({
+  where: {
+    cohort_milestone_id: { [Sequelize.Op.in]: cohort_milestone_ids },
     commits: { [gt]: 0 },
   },
   order: [
