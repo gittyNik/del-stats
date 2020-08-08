@@ -14,6 +14,7 @@ export const USER_ROLES = Object.freeze({
   GUEST: 'guest',
   SUPERADMIN: 'superadmin',
   REVIEWER: 'reviewer',
+  OPERATIONS: 'operations',
 });
 
 const AVAILABLE_USER_STATUS = [
