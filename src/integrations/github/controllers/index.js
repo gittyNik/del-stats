@@ -512,7 +512,6 @@ export const createStatForSingleLearner = async (
   }, {}));
 
   let { milestoneData, user_id } = eachLearnerCommit;
-
   if (_.isEmpty(milestoneData[0]) && _.isEmpty(contributorsRepo)) {
     // Insert Empty Stats
     if (learner_challenge_id) {
@@ -746,6 +745,9 @@ export const getRecentCommitByUser = async (user_id) => {
   if ((lastMilestone === null) && (lastChallenge)) {
     return lastChallenge;
   }
+  if ((lastMilestone === null) && (lastChallenge === null)) {
+    return {};
+  }
   latestCommit = lastChallenge.last_committed_at > lastMilestone.last_committed_at ? lastChallenge : lastMilestone;
   return latestCommit;
 };
@@ -760,6 +762,9 @@ export const getLatestCommitInCohort = async (cohort_milestone_id) => {
   }
   if ((lastMilestone === null) && (lastChallenge)) {
     return lastChallenge;
+  }
+  if ((lastMilestone === null) && (lastChallenge === null)) {
+    return {};
   }
   latestCommit = lastChallenge.last_committed_at > lastMilestone.last_committed_at ? lastChallenge : lastMilestone;
   return latestCommit;
@@ -783,6 +788,10 @@ export const getAllStats = async (req, res) => {
     if (lastChallengeUpdated === null) {
       lastChallengeUpdated = new Date();
       lastChallengeUpdated.setDate(lastChallengeUpdated.getDate() - 2);
+    } else {
+      // If last updated time is passed, it returns the last added commit also
+      // adding 10 seconds assuming that is enough buffer time
+      lastChallengeUpdated.setSeconds(lastChallengeUpdated.getSeconds() + 10);
     }
     let updateChallenges = await getLearnerChallengesAfterDate(
       lastChallengeUpdated,
@@ -791,8 +800,16 @@ export const getAllStats = async (req, res) => {
 
     let lastMilestoneUpdatedAt;
     lastMilestoneUpdatedAt = await getLastUpdatedMilestoneCommit(user_id, cohort_milestone_id);
-    if (lastMilestoneUpdatedAt === null) {
+    if ((lastMilestoneUpdatedAt === null) || (lastMilestoneUpdatedAt.last_committed_at === null)) {
       lastMilestoneUpdatedAt = { last_committed_at: null };
+    } else {
+      // If last updated time is passed, it returns the last added commit also
+      // adding 10 seconds assuming that is enough buffer time
+      let updatedTime = lastMilestoneUpdatedAt.last_committed_at;
+      updatedTime.setSeconds(
+        updatedTime.getSeconds() + 10,
+      );
+      lastMilestoneUpdatedAt.last_committed_at = updatedTime;
     }
 
     if (socialConnection !== null) {
@@ -854,6 +871,19 @@ export const getAllStats = async (req, res) => {
       // sorting descending order
       noOfCommitsAndLearnerDetails.sort((a, b) => ((a.noOfCommits > b.noOfCommits) ? -1 : 1));
 
+      let author;
+      let message;
+      let commit_date;
+      try {
+        let latestCommits = latestCommitInCohortId.repository_commits;
+        let commitDetails = latestCommits[0];
+        author = commitDetails.commit.author;
+        message = commitDetails.commit.message;
+        commit_date = commitDetails.commit.commit_date;
+      } catch (err) {
+        console.warn(`Unable to get committer details: ${err}`);
+      }
+
       res.send({
         data: {
           noOfCommitsLinesOfEachMS,
@@ -861,12 +891,17 @@ export const getAllStats = async (req, res) => {
           noOfCommitsAndLearnerDetails,
           LatestChallengeInCohort: {
             challenge: LatestChallengeInCohortId,
-            user: { id: user_id, name: socialConnection.username },
+            user: {
+              id: LatestChallengeInCohortId['user.id'],
+              name: LatestChallengeInCohortId['user.name'],
+            },
             cohort: cohortDetails,
           },
           latestCommitInCohort: {
             commit: latestCommitInCohortId,
-            user: socialConnection.username,
+            user: author,
+            message,
+            commit_date,
           },
           milestone: { stats: milestoneStats },
         },

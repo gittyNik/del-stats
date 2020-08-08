@@ -234,7 +234,7 @@ export const createLearnerAssessmentBreakout = (
   } = cohortLearners;
   // skipSlots is to skip if the slot is for
   // different Cohort duration
-  let skipSlots = 0;
+  let defaultSlot;
   return learners.forEach(async (eachLearner, teamIndex) => {
     let toExcludeLearner = false;
     if (Array.isArray(excluded_learners)) {
@@ -250,19 +250,18 @@ export const createLearnerAssessmentBreakout = (
         topics,
       };
 
-      // Assign only full-time slots to full-time assessment
-      // vice versa for part-time
-      // full-time will start first bo order by
-      // if full time has extra slots left, skip those
-      // assessmentSlots is directly modified, so works with map
-      // also reduced index by the elements being removed
-      let indexForReview = teamIndex + skipSlots;
-      while (duration !== assessmentSlots[indexForReview].cohort_duration) {
-        skipSlots += 1;
+      let indexForReview = 0;
+      let assessmentForLearner;
+      try {
+        assessmentForLearner = assessmentSlots[indexForReview];
+        if (defaultSlot === undefined) {
+          defaultSlot = { ...assessmentForLearner };
+        }
+        // Remove assessment that gets assigned
+        assessmentSlots.splice(indexForReview, 1);
+      } catch (err) {
+        assessmentForLearner = { ...defaultSlot };
       }
-      let assessmentForLearner = assessmentSlots[indexForReview];
-      // Remove assessment that gets assigned
-      assessmentSlots.splice(indexForReview, 1);
 
       assessment_start = new Date(Date.parse(assessment_start));
 

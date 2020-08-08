@@ -131,6 +131,7 @@ export const createBreakout = (req, res) => {
     isVideoMeeting, isCodeSandbox, breakout_template_id,
     team_feedback, agenda, cohort_milestone_id,
     teamId, milestone_team_id, github_repo_link,
+    milestone_id,
   } = req.body;
   let time = time_scheduled.toLocaleString().split(' ').join('T');
   // console.group(time);
@@ -153,8 +154,10 @@ export const createBreakout = (req, res) => {
           details.milestone_team_id = milestone_team_id;
           details.github_repo_link = github_repo_link;
           details.topics = agenda;
+          details.milestoneId = milestone_id;
         } else if (type === 'assessment') {
           details.topics = agenda;
+          details.milestoneId = milestone_id;
         }
 
         createNewBreakout(
@@ -214,6 +217,7 @@ export const createBreakout = (req, res) => {
           details.topics = agenda;
         } else if (type === 'assessment') {
           details.topics = agenda;
+          details.milestoneId = milestone_id;
         }
         createNewBreakout(
           breakout_template_id,
@@ -267,8 +271,10 @@ export const createBreakout = (req, res) => {
           details.milestone_team_id = milestone_team_id;
           details.github_repo_link = github_repo_link;
           details.topics = agenda;
+          details.milestoneId = milestone_id;
         } else if (type === 'assessment') {
           details.topics = agenda;
+          details.milestoneId = milestone_id;
         }
         createNewBreakout(
           breakout_template_id,
@@ -323,8 +329,10 @@ export const createBreakout = (req, res) => {
       details.milestone_team_id = milestone_team_id;
       details.github_repo_link = github_repo_link;
       details.topics = agenda;
+      details.milestoneId = milestone_id;
     } else if (type === 'assessment') {
       details.topics = agenda;
+      details.milestoneId = milestone_id;
     }
     createNewBreakout(
       breakout_template_id,
@@ -641,6 +649,7 @@ export const updateMilestoneByDays = async (cohortId, updateByDays) => {
     where: {
       cohort_id: cohortId,
       type: 'lecture',
+      status: 'scheduled',
     },
   }).then((cohortBreakouts) => Promise.all(
     cohortBreakouts.map((cohortBreakout) => {

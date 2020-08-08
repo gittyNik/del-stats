@@ -228,7 +228,10 @@ export const createOrUpdateLearnerGithubDataForChallenge = (
       });
     }
 
-    learnerGithub.repository_commits.push(new_commits);
+    if (commits_count !== learnerGithub.commits) {
+      learnerGithub.repository_commits.push(...new_commits);
+    }
+
     return learnerGithub.update({
       number_of_lines: no_lines,
       repository_commits: learnerGithub.repository_commits,
