@@ -745,6 +745,9 @@ export const getRecentCommitByUser = async (user_id) => {
   if ((lastMilestone === null) && (lastChallenge)) {
     return lastChallenge;
   }
+  if ((lastMilestone === null) && (lastChallenge === null)) {
+    return {};
+  }
   latestCommit = lastChallenge.last_committed_at > lastMilestone.last_committed_at ? lastChallenge : lastMilestone;
   return latestCommit;
 };
@@ -760,14 +763,16 @@ export const getLatestCommitInCohort = async (cohort_milestone_id) => {
   if ((lastMilestone === null) && (lastChallenge)) {
     return lastChallenge;
   }
+  if ((lastMilestone === null) && (lastChallenge === null)) {
+    return {};
+  }
   latestCommit = lastChallenge.last_committed_at > lastMilestone.last_committed_at ? lastChallenge : lastMilestone;
   return latestCommit;
 };
 
 export const getAllStats = async (req, res) => {
   const { cohort_id, cohort_milestone_id } = req.params;
-  // const user_id = req.jwtData.user.id;
-  const user_id = '5ad468d0-ab54-46a6-8b50-06dd6e1f560e';
+  const user_id = req.jwtData.user.id;
   // Get Social connection of User
 
   try {
@@ -795,7 +800,7 @@ export const getAllStats = async (req, res) => {
 
     let lastMilestoneUpdatedAt;
     lastMilestoneUpdatedAt = await getLastUpdatedMilestoneCommit(user_id, cohort_milestone_id);
-    if (lastMilestoneUpdatedAt === null) {
+    if ((lastMilestoneUpdatedAt === null) || (lastMilestoneUpdatedAt.last_committed_at === null)) {
       lastMilestoneUpdatedAt = { last_committed_at: null };
     } else {
       // If last updated time is passed, it returns the last added commit also
