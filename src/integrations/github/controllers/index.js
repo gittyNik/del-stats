@@ -58,6 +58,7 @@ import {
   getCohortMilestoneTeamsBeforeDate,
   getCohortMilestone,
   findInCohortMilestones,
+  getCohortMilestoneIds,
 } from '../../../models/cohort_milestone';
 import { getProfile, getUserFromEmails } from '../../../models/user';
 import {
@@ -69,6 +70,7 @@ import {
   getLastUpdatedMilestoneCommitByUser,
   getTeamMilestoneCommitsCount,
   getUserMilestoneCommitsCount,
+  getLastMilestoneCommitInCohort,
 } from '../../../models/learner_github_milestones';
 import {
   createOrUpdateLearnerGithubDataForChallenge,
@@ -77,6 +79,7 @@ import {
   getChallengesForCohortMilestone,
   getLastUpdatedChallengeInCohort,
   getLastUpdatedChallengeByUser,
+  getLastChallengeInCohort,
 } from '../../../models/learner_github_challenges';
 import {
   getTopicById,
@@ -770,6 +773,28 @@ export const getLatestCommitInCohort = async (cohort_milestone_id) => {
   return latestCommit;
 };
 
+export const getLatestCommitCohort = async (cohort_id) => {
+  let latestCommit;
+  let cohort_milestone_ids = await getCohortMilestoneIds(cohort_id);
+  let cohort_milestones = cohort_milestone_ids.map(({ id }) => id);
+
+  let lastChallenge = await getLastChallengeInCohort(cohort_milestones);
+
+  let lastMilestone = await getLastMilestoneCommitInCohort(cohort_milestones);
+
+  if ((lastChallenge === null) && (lastMilestone)) {
+    return lastMilestone;
+  }
+  if ((lastMilestone === null) && (lastChallenge)) {
+    return lastChallenge;
+  }
+  if ((lastMilestone === null) && (lastChallenge === null)) {
+    return {};
+  }
+  latestCommit = lastChallenge.last_committed_at > lastMilestone.last_committed_at ? lastChallenge : lastMilestone;
+  return latestCommit;
+};
+
 export const getAllStats = async (req, res) => {
   const { cohort_id, cohort_milestone_id } = req.params;
   const user_id = req.jwtData.user.id;
@@ -801,7 +826,9 @@ export const getAllStats = async (req, res) => {
     let lastMilestoneUpdatedAt;
     lastMilestoneUpdatedAt = await getLastUpdatedMilestoneCommit(user_id, cohort_milestone_id);
     if ((lastMilestoneUpdatedAt === null) || (lastMilestoneUpdatedAt.last_committed_at === null)) {
-      lastMilestoneUpdatedAt = { last_committed_at: null };
+      let lastMilestoneUpdated = new Date();
+      lastMilestoneUpdated.setDate(lastMilestoneUpdated.getDate() - 2);
+      lastMilestoneUpdatedAt = { last_committed_at: lastMilestoneUpdated };
     } else {
       // If last updated time is passed, it returns the last added commit also
       // adding 10 seconds assuming that is enough buffer time
@@ -866,7 +893,7 @@ export const getAllStats = async (req, res) => {
 
       let LatestChallengeInCohortId = await latestChallengeInCohort(cohort_id);
 
-      let latestCommitInCohortId = await getLatestCommitInCohort(cohort_milestone_id);
+      let latestCommitInCohortId = await getLatestCommitCohort(cohort_id);
 
       // sorting descending order
       noOfCommitsAndLearnerDetails.sort((a, b) => ((a.noOfCommits > b.noOfCommits) ? -1 : 1));

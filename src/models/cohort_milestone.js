@@ -461,3 +461,11 @@ export const getCohortMilestone = (cohort_id, milestone_id) => CohortMilestone.f
     where: { cohort_id, milestone_id },
   },
 );
+
+export const getCohortMilestoneIds = (cohort_id) => CohortMilestone.findAll(
+  {
+    where: { cohort_id },
+    attributes: ['id'],
+    raw: true,
+  },
+);
