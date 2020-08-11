@@ -606,6 +606,8 @@ export const createStatForSingleLearner = async (
         cohort_milestone_id, totalCommits, last_committed_at,
       );
     });
+  } else {
+    console.warn(`Contributors in repo: ${contributorsRepo}`);
   }
   return createdStat;
 };
