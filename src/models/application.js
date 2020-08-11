@@ -141,6 +141,5 @@ export const getApplicationStage = (user_id) => Application.findOne({
   where: {
     user_id,
   },
-  attributes: ['user_id', 'stage'],
   raw: true,
 });
