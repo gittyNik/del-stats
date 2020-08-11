@@ -158,11 +158,14 @@ export const learnerChallengesFindOrCreate = async (
 
 export const getChallengesByUserId = (
   learner_id,
-  start_time = null,
-  end_time = null,
+  start_time,
+  end_time,
 ) => {
   let where = {
     learner_id,
+    created_at: {
+      [Sequelize.Op.ne]: null,
+    },
   };
   if ((start_time !== null) && (end_time !== null)) {
     where.created_at = { [between]: [start_time, end_time] };
