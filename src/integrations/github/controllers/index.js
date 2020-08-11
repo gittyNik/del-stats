@@ -527,83 +527,86 @@ export const createStatForSingleLearner = async (
       cohort_milestone_id, 0, null,
     );
   }
-  if ((contributorsRepo) && (_.isEmpty(milestoneData[0]))) {
-    let gitName = await getGithubNameByUserId(user_id);
+  let createdStat;
+  if (Array.isArray(contributorsRepo)) {
+    if ((contributorsRepo) && (_.isEmpty(milestoneData[0]))) {
+      let gitName = await getGithubNameByUserId(user_id);
 
-    if (gitName === null) {
-      // Insert Empty Stats
+      if (gitName === null) {
+        // Insert Empty Stats
+        if (learner_challenge_id) {
+          return createOrUpdateLearnerGithubDataForChallenge(
+            learner_challenge_id, 0, [], null, 0, cohort_milestone_id,
+          );
+        }
+        return createOrUpdteLearnerGithubDataForMilestone(
+          user_id, team_id, 0, [],
+          cohort_milestone_id, 0, null,
+        );
+      }
+
+      let userStats = contributorsRepo.filter((item) => item.author.login === gitName.username);
+      let numberOfLines;
+      let totalCommits;
+      let last_committed_at;
+      try {
+        numberOfLines = userStats[0].weeks.reduce(
+          getTotalNumberOfLines, 0,
+        );
+        totalCommits = userStats[0].weeks.reduce(getTotalCommits, 0);
+      } catch (err) {
+        numberOfLines = 0;
+        totalCommits = 0;
+      }
+      let allCommits = [];
+      try {
+        last_committed_at = new Date(userStats[0].weeks[0].w * 1000);
+      } catch (err3) {
+        last_committed_at = null;
+      }
+
       if (learner_challenge_id) {
         return createOrUpdateLearnerGithubDataForChallenge(
-          learner_challenge_id, 0, [], null, 0, cohort_milestone_id,
+          learner_challenge_id, numberOfLines, allCommits, last_committed_at, totalCommits,
+          cohort_milestone_id,
         );
       }
       return createOrUpdteLearnerGithubDataForMilestone(
-        user_id, team_id, 0, [],
-        cohort_milestone_id, 0, null,
+        user_id, team_id, numberOfLines, allCommits,
+        cohort_milestone_id, totalCommits, last_committed_at,
       );
     }
+    createdStat = milestoneData.map((eachCommit) => {
+      let author = eachCommit[0].author.login;
 
-    let userStats = contributorsRepo.filter((item) => item.author.login === gitName.username);
-    let numberOfLines;
-    let totalCommits;
-    let last_committed_at;
-    try {
-      numberOfLines = userStats[0].weeks.reduce(
-        getTotalNumberOfLines, 0,
-      );
-      totalCommits = userStats[0].weeks.reduce(getTotalCommits, 0);
-    } catch (err) {
-      numberOfLines = 0;
-      totalCommits = 0;
-    }
-    let allCommits = [];
-    try {
-      last_committed_at = new Date(userStats[0].weeks[0].w * 1000);
-    } catch (err3) {
-      last_committed_at = null;
-    }
+      // Get all User stats from All stats for repo
+      let userStats = contributorsRepo.filter((item) => item.author.login === author);
+      let numberOfLines;
+      let totalCommits;
+      try {
+        numberOfLines = userStats[0].weeks.reduce(
+          getTotalNumberOfLines, 0,
+        );
+        totalCommits = userStats[0].weeks.reduce(getTotalCommits, 0);
+      } catch (err) {
+        numberOfLines = 0;
+        totalCommits = 0;
+      }
+      let allCommits = reduced_commit_array(eachCommit);
+      let last_committed_at = allCommits[0].commit.commit_date;
 
-    if (learner_challenge_id) {
-      return createOrUpdateLearnerGithubDataForChallenge(
-        learner_challenge_id, numberOfLines, allCommits, last_committed_at, totalCommits,
-        cohort_milestone_id,
+      if (learner_challenge_id) {
+        return createOrUpdateLearnerGithubDataForChallenge(
+          learner_challenge_id, numberOfLines, allCommits, last_committed_at, totalCommits,
+          cohort_milestone_id,
+        );
+      }
+      return createOrUpdteLearnerGithubDataForMilestone(
+        user_id, team_id, numberOfLines, allCommits,
+        cohort_milestone_id, totalCommits, last_committed_at,
       );
-    }
-    return createOrUpdteLearnerGithubDataForMilestone(
-      user_id, team_id, numberOfLines, allCommits,
-      cohort_milestone_id, totalCommits, last_committed_at,
-    );
+    });
   }
-  let createdStat = milestoneData.map((eachCommit) => {
-    let author = eachCommit[0].author.login;
-
-    // Get all User stats from All stats for repo
-    let userStats = contributorsRepo.filter((item) => item.author.login === author);
-    let numberOfLines;
-    let totalCommits;
-    try {
-      numberOfLines = userStats[0].weeks.reduce(
-        getTotalNumberOfLines, 0,
-      );
-      totalCommits = userStats[0].weeks.reduce(getTotalCommits, 0);
-    } catch (err) {
-      numberOfLines = 0;
-      totalCommits = 0;
-    }
-    let allCommits = reduced_commit_array(eachCommit);
-    let last_committed_at = allCommits[0].commit.commit_date;
-
-    if (learner_challenge_id) {
-      return createOrUpdateLearnerGithubDataForChallenge(
-        learner_challenge_id, numberOfLines, allCommits, last_committed_at, totalCommits,
-        cohort_milestone_id,
-      );
-    }
-    return createOrUpdteLearnerGithubDataForMilestone(
-      user_id, team_id, numberOfLines, allCommits,
-      cohort_milestone_id, totalCommits, last_committed_at,
-    );
-  });
   return createdStat;
 };
 
