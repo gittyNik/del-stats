@@ -95,15 +95,21 @@ Meeting type:
 export const createScheduledMeeting = async (topic, start_time,
   millisecs_duration, agenda, type, catalyst_id = null,
   timezone = 'Asia/Calcutta') => {
-  let catalyst_email = 'delta@soal.io';
+  let catalyst_email;
+  let host_key;
   if (catalyst_id !== null) {
     let catalyst_details = await User.findByPk(catalyst_id, {
+      where: { role: { $not: 'catalyst' } },
       attributes: ['email'],
     });
+
     catalyst_email = catalyst_details.email;
   }
 
-  const { ZOOM_BASE_URL } = process.env;
+  const { ZOOM_BASE_URL, ZOOM_USER, HOST_KEYS } = process.env;
+  let zoom_user_array = ZOOM_USER.split(',');
+  let host_key_arrays = HOST_KEYS.split(',');
+
   const duration = millisecondsToMinutes(millisecs_duration);
   const meeting_object = {
     topic,
@@ -115,7 +121,36 @@ export const createScheduledMeeting = async (topic, start_time,
     agenda,
     settings: MEETING_SETTINGS,
   };
-  // console.log('trying to create meeting');
+
+  // Logic for using Pro Zoom accounts
+  if ((catalyst_email === null) || (catalyst_email === undefined)) {
+    // console.log('trying to create meeting');
+    // Calculate End time for Meeting
+    let end_time = new Date(start_time + (duration * 60 * 1000));
+
+    // Check if Meeting exist between same start and end time
+    let concurrent_meet = await VideoMeeting.findAll({
+      where: {
+        zoom_user: { [opIn]: zoom_user_array },
+        start_time: { [between]: [start_time, end_time] },
+      },
+    });
+    let zoom_user_index = 0;
+
+    // Meetings will be created in a particular order of user id
+    // All meetings will be created with 1st account
+    // If meeting at that time exist, with 2nd and so on
+    if (concurrent_meet) {
+      zoom_user_index = concurrent_meet.length;
+    }
+    try {
+      catalyst_email = zoom_user_array[zoom_user_index];
+      host_key = host_key_arrays[zoom_user_index];
+    } catch (err) {
+      [catalyst_email] = zoom_user_array;
+      [host_key] = host_key_arrays;
+    }
+  }
 
   return (request
     .post(`${ZOOM_BASE_URL}users/${catalyst_email}/meetings`) // todo: need to assign delta user to zoom user
@@ -147,6 +182,7 @@ export const createScheduledMeeting = async (topic, start_time,
             status,
             start_url,
             join_url,
+            host_key,
           }))
         .catch(err => {
           // todo: delete the meeting from Zoom.

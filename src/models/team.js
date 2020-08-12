@@ -51,53 +51,6 @@ export const Team = db.define('milestone_learner_teams', {
   },
 });
 
-const createFullStackTeams = (frontendLearners, backendLearners) => {
-  let teams = [];
-  let current = [];
-  while (frontendLearners.length > 0 && backendLearners.length > 0) {
-    if (current.length === 2) {
-      const f = allFrontend(current);
-      const b = allBackend(current);
-
-      if (f && !b) {
-        current.push({ id: backendLearners.pop(), stack: 'f' })
-      } else if (b && !f) {
-        current.push({ id: frontendLearners.pop(), stack: 'b' })
-      }
-    }
-    if (current.length === 3) {
-      teams.push(current);
-      current = [];
-    }
-    if (frontendLearners.length > backendLearners.length) {
-      current.push({ id: frontendLearners.pop(), stack: 'f' })
-    } else {
-      current.push({ id: backendLearners.pop(), stack: 'b' })
-    }
-  }
-
-
-
-
-  teams = teams.map(team => team.map(member => member.id));
-
-  current = current.map(member => member.id);
-
-  if (frontendLearners.length !== 0) {
-    current = current.concat(frontendLearners)
-  } else if (!backendLearners.length !== 0) {
-    current = current.concat(backendLearners)
-  }
-
-  current = splitTeams(current)
-
-  teams = teams.concat(current)
-
-  return teams;
-};
-
-
-
 const allFrontend = (current) => {
   if (current[0].stack !== current[1].stack) {
     return false;
@@ -131,6 +84,48 @@ export const splitTeams = users => {
   return teams;
 };
 
+const createFullStackTeams = (frontendLearners, backendLearners) => {
+  let teams = [];
+  let current = [];
+  while (frontendLearners.length > 0 && backendLearners.length > 0) {
+    if (current.length === 2) {
+      const f = allFrontend(current);
+      const b = allBackend(current);
+
+      if (f && !b) {
+        current.push({ id: backendLearners.pop(), stack: 'f' });
+      } else if (b && !f) {
+        current.push({ id: frontendLearners.pop(), stack: 'b' });
+      }
+    }
+    if (current.length === 3) {
+      teams.push(current);
+      current = [];
+    }
+    if (frontendLearners.length > backendLearners.length) {
+      current.push({ id: frontendLearners.pop(), stack: 'f' });
+    } else {
+      current.push({ id: backendLearners.pop(), stack: 'b' });
+    }
+  }
+
+  teams = teams.map(team => team.map(member => member.id));
+
+  current = current.map(member => member.id);
+
+  if (frontendLearners.length !== 0) {
+    current = current.concat(frontendLearners);
+  } else if (!backendLearners.length !== 0) {
+    current = current.concat(backendLearners);
+  }
+
+  current = splitTeams(current);
+
+  teams = teams.concat(current);
+
+  return teams;
+};
+
 export const deleteMilestoneTeams = (cohort_milestone_id, keepTeams = []) => Team.destroy({
   where: { cohort_milestone_id },
   id: {
@@ -158,118 +153,69 @@ const toGithubFormat = str => {
   return finalStr;
 };
 
+export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
+  let m = []; let
+    teams = [];
 
-export const splitFrontEndAndBackEnd = milestone => async mL =>{
-  let m = [], teams = [];
-  
-  // Fetch cohort milestone data
+  m = await Promise.all(mL.map(id => getProfile(id)));
 
-  let data = await getDataForMilestoneName(milestone.id);
-  
-  // Fetch attendance of last 5 breakouts for cohort learners
-  let attendanceList = await Promise.all (mL.map (learner_id => db.query(
-    `select attendance from learner_breakouts where id in (select l.id from learner_breakouts as l left join cohort_breakouts as c on l.cohort_breakout_id=c.id where l.learner_id in (\'${learner_id}\') and c.cohort_id=\'${data.cohort.id}\' and c.time_scheduled<=\'${new Date(new Date()).toUTCString()}\' and l.review_feedback is null) limit 5`,
-  ).then(a => a[0]).then(a => a.map(b => b.attendance))));
-  console.log(attendanceList, attendanceList[0])
-  let active = [], inactive = [];
+  let data = await getDataForMilestoneName(cohort_milestone_id);
+  let baseMilestoneName = `MS_${toSentenceCase(
+    data.milestone.name,
+  )}_${toSentenceCase(data.cohort.name)}_${toSentenceCase(
+    data.cohort.program_id,
+  )}_${toSentenceCase(
+    data.cohort.location === 'T-hub, IIIT Hyderabad'
+      ? 'Hyderabad'
+      : data.cohort.location,
+  )}_${new Date(data.cohort.start_date).getFullYear()}`;
+  let { starter_repo } = data.milestone;
 
-  // Segregate active learners from inactive learners based on their attendance
-  attendanceList = attendanceList.map ((att, i) => {
-    let at = false;
-    att.map (a => {
-      if (a) {
-        at = true;
+  if (m[0].status.includes('frontend') || m[0].status.includes('backend')) {
+    let frontendUsers = [];
+    let backendUsers = [];
+    m.map(ms => {
+      if (ms.status.includes('frontend')) {
+        frontendUsers.push(ms.id);
+      } else {
+        backendUsers.push(ms.id);
       }
-    })
-    if  (at) {
-      active.push (mL[i]);
-    } else {
-      inactive.push (mL[i]);
-    }
-  });
-  
-  teams.push (active);
-  teams.push (inactive);
+    });
 
-  // Creating teams separately
-  teams = await Promise.all(teams.map(async mL => {
-    let teams=[];
-    m = await Promise.all(mL.map(async id => getProfile(id)));
-  
-    
-    let baseMilestoneName = `MS_${toSentenceCase(
-      data.milestone.name,
-    )}_${toSentenceCase(data.cohort.name)}_${toSentenceCase(
-      data.cohort.program_id,
-    )}_${toSentenceCase(
-      data.cohort.location === 'T-hub, IIIT Hyderabad'
-        ? 'Hyderabad'
-        : data.cohort.location,
-    )}_${new Date(data.cohort.start_date).getFullYear()}`;
-    let { starter_repo } = data.milestone;
-    
-    // Checking whether paths have been assigned or not
-    if (m[0].status.includes ('frontend') || m[0].status.includes ('backend')) {
-      let frontendUsers = [];
-      let backendUsers = [];
-      m.map(ms => {
-        if (ms.status.includes ('frontend')) {
-          frontendUsers.push(ms.id);
-        } else {
-          backendUsers.push(ms.id);
-        }
-      });
-  
-      teams = createFullStackTeams(frontendUsers, backendUsers);
-    } else {
-      m = m.map(ms => ms.id);
-      teams = splitTeams(m);
+    teams = createFullStackTeams(frontendUsers, backendUsers);
+  } else {
+    m = m.map(ms => ms.id);
+    teams = splitTeams(m);
+  }
+
+  teams = await Promise.all(teams.map(async (team, i) => {
+    let msName = `${baseMilestoneName}_${i + 1}`;
+    msName = toGithubFormat(msName);
+    let existingRepo = await isExistingRepository(msName);
+    if (!existingRepo) {
+      await createGithubRepositoryFromTemplate(starter_repo, msName);
     }
-    
-    teams = await Promise.all(teams.map(async (team, i) => {
-  
-      let msName = `${baseMilestoneName}_${i + 1}`;
-      msName = toGithubFormat(msName);
-      let existingRepo = await isExistingRepository(msName);
-      let repo;
-      if (!existingRepo) {
-        repo = await createGithubRepositoryFromTemplate(starter_repo, msName);
-        msName = repo.name;
-      }
-      // if (!existingRepo) {
-      //   await createGithubRepositoryFromTemplate(starter_repo, msName);
-      // } else {
-      //   repo = existingRepo;
-      // }
-      
-      await Promise.all(team.map(async member => {
-        let u = await getGithubConnecionByUserId(member);
-        if (u) {
-          u = u.username;
-          try {
-            await addCollaboratorToRepository(u, repo.name);
-          } catch (err) {
-            console.warn(`Unable to give user access: ${u}`);
-          }
+    await Promise.all(team.map(async member => {
+      let u = await getGithubConnecionByUserId(member);
+      if (u) {
+        u = u.username;
+        try {
+          await addCollaboratorToRepository(u, msName);
+        } catch (err) {
+          console.warn(`Unable to give user access: ${u}\n${err}`);
         }
-  
-        // return {id: user, username: u.username}
-  
-      }));
-  
-      // Add Read-access to Reviewers
-      await addTeamAccessToRepo('reviewer', msName);
-      
-      return { team, repo: msName };
+      }
+
+      // return {id: user, username: u.username}
     }));
-    return teams;
+
+    // Add Read-access to Reviewers
+    await addTeamAccessToRepo('reviewer', msName);
+
+    return { team, repo: msName };
   }));
-
-  // Concatenating active and inactive teams
-  teams = teams[0].concat (teams[1]);
   return teams;
-}
-
+};
 
 const findTeamsByCohortMilestoneId = cohort_milestone_id => Team.findAll(
   {
@@ -280,25 +226,24 @@ const findTeamsByCohortMilestoneId = cohort_milestone_id => Team.findAll(
   { raw: true },
 );
 
-export const createMilestoneTeams = milestone => findTeamsByCohortMilestoneId(
-  milestone.milestone_id,
+export const createMilestoneTeams = cohort_milestone_id => findTeamsByCohortMilestoneId(
+  cohort_milestone_id,
 ).then(teams => {
   if (teams.length !== 0) {
     return teams;
   }
-  console.log(milestone, milestone.milestone_id)
-  return CohortMilestone.findByPk(milestone.id)
-       .then(m => m.getUsers())
-       .then(splitFrontEndAndBackEnd(milestone))
-       .then(cteams => Team.bulkCreate(
-         cteams.map(({ team, repo }) => ({
-           id: uuid(),
-           name: faker.commerce.productName(),
-           cohort_milestone_id,
-           learners: team,
-           github_repo_link: repo,
-         })),
-       ));
+  return CohortMilestone.findByPk(cohort_milestone_id)
+    .then(m => m.getUsers())
+    .then(splitFrontEndAndBackEnd(cohort_milestone_id))
+    .then(cteams => Team.bulkCreate(
+      cteams.map(({ team, repo }) => ({
+        id: uuid(),
+        name: faker.commerce.productName(),
+        cohort_milestone_id,
+        learners: team,
+        github_repo_link: repo,
+      })),
+    ));
 });
 
 export const getTeamsbyCohortMilestoneId = cohort_milestone_id => Team.findAll(
