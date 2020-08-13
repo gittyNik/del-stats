@@ -17,3 +17,5 @@ const router = Express.Router();
     payment_type Full/Loan
  */
 router.post('/', getTemplateId);
+
+export default router;

@@ -1,4 +1,3 @@
-'use strict';
 const APPLICATION_STAGE = [
   'firewall-test', 'isa-selection', 'cohort-selection_payment',
   'cohort-selection_job-guarantee',
@@ -10,26 +9,18 @@ const APPLICATION_STAGE = [
 ];
 
 module.exports = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.sequelize.transaction(t => {
-      return Promise.all([
-        queryInterface.addColumn('applications', 'is_isa', {
-          type: Sequelize.BOOLEAN,
-          defaultValue: false
-        }, { transaction: t }),
-        queryInterface.addColumn('applications', 'stage', {
-          type: Sequelize.ENUM(...APPLICATION_STAGE)
-        }, { transaction: t })
-      ]);
-    });
-  },
+  up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(t => Promise.all([
+    queryInterface.addColumn('applications', 'is_isa', {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+    }, { transaction: t }),
+    queryInterface.addColumn('applications', 'stage', {
+      type: Sequelize.ENUM(...APPLICATION_STAGE),
+    }, { transaction: t }),
+  ])),
 
-  down: (queryInterface, Sequelize) => {
-    return queryInterface.sequelize.transaction(t => {
-      return Promise.all([
-        queryInterface.removeColumn('applications', 'is_isa', { transaction: t }),
-        queryInterface.removeColumn('applications', 'stage', { transaction: t })
-      ]);
-    });
-  }
+  down: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(t => Promise.all([
+    queryInterface.removeColumn('applications', 'is_isa', { transaction: t }),
+    queryInterface.removeColumn('applications', 'stage', { transaction: t }),
+  ])),
 };

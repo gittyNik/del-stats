@@ -34,7 +34,7 @@ const migration = {
       default: false,
     },
     payment_type: {
-      type: Sequelize.string,
+      type: Sequelize.STRING,
     },
   }),
   down: queryInterface => queryInterface.dropTable('agreement_templates'),

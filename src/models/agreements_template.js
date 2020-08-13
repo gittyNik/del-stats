@@ -35,7 +35,7 @@ export const AgreementTemplates = db.define('agreement_templates', {
     default: false,
   },
   payment_type: {
-    type: Sequelize.string,
+    type: Sequelize.STRING,
   },
 });
 
@@ -57,3 +57,5 @@ export const getAgreementTemplate = (
     raw: true,
   },
 );
+
+export default AgreementTemplates;
