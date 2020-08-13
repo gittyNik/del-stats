@@ -94,7 +94,6 @@ export const updateMilestones = (id,
     });
   });
 
-
 export const deleteMilestones = (id) => Milestone.destroy(
   { where: { id } },
 );

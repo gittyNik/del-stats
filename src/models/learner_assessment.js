@@ -1,7 +1,6 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 
-
 export const LearnerAssessment = db.define('assessments', {
   id: {
     type: Sequelize.UUID,

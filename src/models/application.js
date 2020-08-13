@@ -142,4 +142,13 @@ export const getApplicationStage = (user_id) => Application.findOne({
     user_id,
   },
   raw: true,
+})
+  .then(data => data.stage);
+
+export const setApplicationStage = (user_id, stage) => Application.update({
+  stage,
+}, {
+  where: {
+    user_id,
+  },
 });

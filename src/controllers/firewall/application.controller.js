@@ -5,6 +5,7 @@ import {
   Application,
   submitApplication,
   getApplicationStage,
+  setApplicationStage,
 } from '../../models/application';
 import { Program } from '../../models/program';
 import { Cohort } from '../../models/cohort';
@@ -289,5 +290,13 @@ export const getApplicationStageAPI = (req, res) => {
   const user_id = req.jwtData.user.id;
 
   getApplicationStage(user_id).then(data => res.status(200).json(data))
+    .catch(() => res.sendStatus(500));
+};
+
+export const setApplicationStageAPI = (req, res) => {
+  const user_id = req.jwtData.user.id;
+  const { stage } = req.body;
+
+  setApplicationStage(user_id, stage).then(data => res.status(200).json(data))
     .catch(() => res.sendStatus(500));
 };

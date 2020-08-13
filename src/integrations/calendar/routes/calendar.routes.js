@@ -7,7 +7,6 @@ import {
 
 const router = Express.Router();
 
-
 /**
  * @api {get} /calendar Get all Calendar events for a user
  * @apiDescription get all Calendar events
@@ -64,7 +63,6 @@ router.patch('/:eventId', updateCalendarEvent);
  * @apiGroup CalendarEvent
  */
 router.delete('/:eventId', deleteOneEvent);
-
 
 /**
  * @api {post} /calendar/createEvent  Creates calendar events for a learner

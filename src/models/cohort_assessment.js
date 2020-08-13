@@ -1,7 +1,6 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 
-
 export const CohortAssessment = db.define('cohort_assessments', {
   id: {
     type: Sequelize.UUID,

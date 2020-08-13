@@ -286,7 +286,7 @@ export const moveLearnertoDifferentCohort = async (
   ),
   removeLearnerBreakouts(learner_id, current_cohort_id),
   createLearnerBreakouts(learner_id, future_cohort_id),
-  moveLearnerToNewSlackChannel(learner_id, current_cohort_id, future_cohort_id)
+  moveLearnerToNewSlackChannel(learner_id, current_cohort_id, future_cohort_id),
 ]));
 
 export const removeLearner = async (
@@ -299,7 +299,7 @@ export const removeLearner = async (
     current_cohort_id,
   ),
   removeLearnerBreakouts(learner_id, current_cohort_id),
-  changeUserRole(learner_id, USER_ROLES.GUEST)
+  changeUserRole(learner_id, USER_ROLES.GUEST),
 ])
   .then(async (data) => {
     try {

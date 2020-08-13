@@ -1,6 +1,6 @@
 import Express from 'express';
 import {
-  getAll, getOne, create, update, deleteOne, getGithubConnection
+  getAll, getOne, create, update, deleteOne, getGithubConnection,
 } from '../../controllers/community/social_connection.controller';
 
 const router = Express.Router();

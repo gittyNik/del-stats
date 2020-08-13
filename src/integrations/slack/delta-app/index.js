@@ -6,7 +6,6 @@ import command from './handlers/command.handler';
 import webRouter from './routes/webRouter';
 // import options from './options.controller';
 
-
 const router = Express.Router();
 
 router.use('/action-endpoint', event);
@@ -16,14 +15,14 @@ router.use('/command-endpoint', command);
 // Apply body Parser
 router.use(compression());
 router.use(Express.json({
-    limit: '20mb'
+  limit: '20mb',
 }));
 router.use(Express.urlencoded({
-    limit: '20mb',
-    extended: false
+  limit: '20mb',
+  extended: false,
 }));
 
-router.use('/web', webRouter)
+router.use('/web', webRouter);
 // router.use('/options-endpoint', options);
 
 export default router;

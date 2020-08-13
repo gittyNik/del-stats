@@ -47,5 +47,4 @@ export const showUpcomingCohorts = (user_id) => {
     });
 };
 
-
 export default SLACK_FIREWALL_WEBHOOK;

@@ -10,13 +10,12 @@ export const showMilestoneDetails = (payload, respond) => {
 
   getCurrentMilestoneOfCohortDelta(cohort_id)
     .then(composeMilestoneModal)
-    .then(view => {
+    .then(view =>
       // console.log(0);
-      return web.views.open({
+      web.views.open({
         view,
         trigger_id,
-      });
-    })
+      }))
     .catch(err => console.error(err));
 };
 

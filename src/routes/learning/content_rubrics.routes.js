@@ -41,10 +41,8 @@ router.get('/:id', getRubricsByIdAPI);
  */
 router.get('/review/:id', getRubricsByProgramAPI);
 
-
 // Restrict modifications for any applicant to the cohorts
 router.use(allowAdminsOnly);
-
 
 /**
  * @api {post} /learning/content/rubrics/ Add Rubrics
