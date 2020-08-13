@@ -3,6 +3,10 @@ import { apiNotReady } from '../api.controller';
 import {
   User, USER_ROLES, addUserStatus, updateUserData,
 } from '../../models/user';
+import {
+  lastNBreakoutsForLearner,
+  belowThresholdLearners,
+} from '../../models/team';
 import { createOrUpdateContact } from '../../integrations/hubspot/controllers/contacts.controller';
 import { createDeal, associateDealWithContact } from '../../integrations/hubspot/controllers/deals.controller';
 
@@ -132,9 +136,26 @@ export const updateUserStatus = (req, res) => {
   let {
     user_id, status, reason,
   } = req.body;
-  addUserStatus(user_id, status, reason).then(data => {
+  const updated_by = req.jwtData.user.id;
+
+  addUserStatus(user_id, status, reason, updated_by).then(data => {
     res.json({
       text: 'Added User status',
+      data,
+    });
+  }).catch(err => {
+    console.error(err);
+    res.sendStatus(500);
+  });
+};
+
+export const leastAttendanceInCohort = (req, res) => {
+  let {
+    cohort_id,
+  } = req.body;
+  belowThresholdLearners(cohort_id).then(data => {
+    res.json({
+      text: 'Cohort least attendees',
       data,
     });
   }).catch(err => {

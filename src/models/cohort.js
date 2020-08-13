@@ -4,9 +4,6 @@ import { Application, updateCohortJoining } from './application';
 import { User, USER_ROLES, changeUserRole } from './user';
 import db from '../database';
 import { createCohortMilestones, CohortMilestone } from './cohort_milestone';
-import {
-  getChallengesByUserId, deleteLearnerChallengesByLearnerId,
-} from './learner_challenge';
 // import { CohortBreakout } from "./cohort_breakout";
 // import { BreakoutTemplate, CreateBreakoutsInMilestone } from './breakout_template';
 import { createTypeBreakoutsInMilestone } from './breakout_template';

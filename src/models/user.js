@@ -2,6 +2,7 @@ import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import _ from 'lodash';
 import db from '../database';
+import LearnerBreakout from './learner_breakout';
 
 const { DEFAULT_USER } = process.env;
 
@@ -145,7 +146,7 @@ export const createSuperAdmin = () => User.findOrCreate({
   },
 });
 
-export const addUserStatus = (id, status, status_reason) => {
+export const addUserStatus = (id, status, status_reason, updated_by) => {
   if (AVAILABLE_USER_STATUS.indexOf(status) > -1) {
     return User.findOne({
       where: {
@@ -157,7 +158,12 @@ export const addUserStatus = (id, status, status_reason) => {
           throw Error('User does not exist');
         }
 
-        let statusDetails = { status_reason, status, date: new Date() };
+        let statusDetails = {
+          status_reason,
+          status,
+          date: new Date(),
+          updated_by,
+        };
 
         userStatus.status_reason.push(statusDetails);
         userStatus.status.push(status);

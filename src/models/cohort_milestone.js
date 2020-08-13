@@ -353,7 +353,7 @@ export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
     return Promise.all([
       findTopicsForCohortAndMilestone(cohort_id, milestone_id),
       findTopicsForCohortAndMilestone(cohort_id),
-      createMilestoneTeams(id),
+      createMilestoneTeams(milestone),
       findBreakoutsForMilestone(cohort_id, milestone_id),
     ])
       .then(populateTeamsWithLearnersWrapper)
@@ -459,5 +459,13 @@ export const markMilestoneReview = id => CohortMilestone.update(
 export const getCohortMilestone = (cohort_id, milestone_id) => CohortMilestone.findOne(
   {
     where: { cohort_id, milestone_id },
+  },
+);
+
+export const getCohortMilestoneIds = (cohort_id) => CohortMilestone.findAll(
+  {
+    where: { cohort_id },
+    attributes: ['id'],
+    raw: true,
   },
 );
