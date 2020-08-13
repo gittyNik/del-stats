@@ -107,7 +107,7 @@ export const getAllLiveCohortAttendance = async () => {
           })),
           last_five_breakouts: {
             lecture: getLearnersStatus(key, 'lecture', 5),
-            review: getLearnersStatus(key, 'review', 5),
+            review: getLearnersStatus(key, 'reviews', 5),
             assessment: getLearnersStatus(key, 'assessment', 5),
           },
         }))
