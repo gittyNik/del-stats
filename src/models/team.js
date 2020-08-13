@@ -155,10 +155,10 @@ const toGithubFormat = str => {
   return finalStr;
 };
 
-export const lastNBreakoutsForLearner = (learner_id, number) => LearnerBreakout.findAll({
+export const lastNBreakoutsForLearner = (learner_id, number, type = 'lecture') => LearnerBreakout.findAll({
   where: {
     learner_id,
-    '$cohort_breakout.type$': 'lecture',
+    '$cohort_breakout.type$': type,
     '$cohort_breakout.time_scheduled$': { [lte]: Sequelize.literal('NOW()') },
   },
   attributes: ['cohort_breakout_id', 'learner_id', 'attendance', 'cohort_breakout.time_scheduled'],
