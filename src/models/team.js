@@ -60,9 +60,9 @@ const createFullStackTeams = (frontendLearners, backendLearners) => {
       const b = allBackend(current);
 
       if (f && !b) {
-        current.push({ id: backendLearners.pop(), stack: 'f' })
+        current.push({ id: backendLearners.pop(), stack: 'f' });
       } else if (b && !f) {
-        current.push({ id: frontendLearners.pop(), stack: 'b' })
+        current.push({ id: frontendLearners.pop(), stack: 'b' });
       }
     }
     if (current.length === 3) {
@@ -70,33 +70,28 @@ const createFullStackTeams = (frontendLearners, backendLearners) => {
       current = [];
     }
     if (frontendLearners.length > backendLearners.length) {
-      current.push({ id: frontendLearners.pop(), stack: 'f' })
+      current.push({ id: frontendLearners.pop(), stack: 'f' });
     } else {
-      current.push({ id: backendLearners.pop(), stack: 'b' })
+      current.push({ id: backendLearners.pop(), stack: 'b' });
     }
   }
-
-
-
 
   teams = teams.map(team => team.map(member => member.id));
 
   current = current.map(member => member.id);
 
   if (frontendLearners.length !== 0) {
-    current = current.concat(frontendLearners)
+    current = current.concat(frontendLearners);
   } else if (!backendLearners.length !== 0) {
-    current = current.concat(backendLearners)
+    current = current.concat(backendLearners);
   }
 
-  current = splitTeams(current)
+  current = splitTeams(current);
 
-  teams = teams.concat(current)
+  teams = teams.concat(current);
 
   return teams;
 };
-
-
 
 const allFrontend = (current) => {
   if (current[0].stack !== current[1].stack) {
@@ -158,10 +153,10 @@ const toGithubFormat = str => {
   return finalStr;
 };
 
-
 export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
-  let m = [], teams = [];
-  
+  let m = []; let
+    teams = [];
+
   m = await Promise.all(mL.map(id => getProfile(id)));
 
   let data = await getDataForMilestoneName(cohort_milestone_id);
@@ -176,11 +171,11 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
   )}_${new Date(data.cohort.start_date).getFullYear()}`;
   let { starter_repo } = data.milestone;
 
-  if (m[0].status.includes ('frontend') || m[0].status.includes ('backend')) {
+  if (m[0].status.includes('frontend') || m[0].status.includes('backend')) {
     let frontendUsers = [];
     let backendUsers = [];
     m.map(ms => {
-      if (ms.status.includes ('frontend')) {
+      if (ms.status.includes('frontend')) {
         frontendUsers.push(ms.id);
       } else {
         backendUsers.push(ms.id);
@@ -192,9 +187,8 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
     m = m.map(ms => ms.id);
     teams = splitTeams(m);
   }
-  
-  teams = await Promise.all(teams.map(async (team, i) => {
 
+  teams = await Promise.all(teams.map(async (team, i) => {
     let msName = `${baseMilestoneName}_${i + 1}`;
     msName = toGithubFormat(msName);
     let existingRepo = await isExistingRepository(msName);
@@ -217,17 +211,15 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
       }
 
       // return {id: user, username: u.username}
-
     }));
 
     // Add Read-access to Reviewers
     await addTeamAccessToRepo('reviewer', msName);
-    
+
     return { team, repo: msName };
   }));
   return teams;
-}
-
+};
 
 const findTeamsByCohortMilestoneId = cohort_milestone_id => Team.findAll(
   {

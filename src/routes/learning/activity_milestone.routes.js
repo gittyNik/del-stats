@@ -19,7 +19,6 @@ const router = Express.Router();
 
 router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER]));
 
-
 /**
  * @api {get} /learning/activity/milestones/:milestone_id/teams Get milestone teams
  * @apiDescription Get teams in given cohort milestone.
@@ -41,7 +40,6 @@ router.get('/:milestone_id/teams', getMilestoneTeams);
  * @apiParam {String} milestone_id Id of Cohort milestone.
  */
 router.post('/:milestone_id/teams', generateMilestoneTeams);
-
 
 /**
  * @api {patch} /learning/activity/milestones/:milestone_id/teams Reset Milestone Teams
@@ -130,6 +128,5 @@ router.delete('/:milestone_id', deleteOne);
  * @apiName GetCurrentMilestoneOfCohort
  * @apiGroup TEP Milestone
  */
-
 
 export default router;

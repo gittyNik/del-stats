@@ -1,4 +1,6 @@
-import { listEvents, createEvent, updateEvent, deleteEvent } from '../calendar.model';
+import {
+  listEvents, createEvent, updateEvent, deleteEvent,
+} from '../calendar.model';
 import { getGoogleTokens } from '../../../models/social_connection';
 import { googleConfig, getGoogleOauthOfUser } from '../../../util/calendar-util';
 import { createCalendarEventsForLearner } from '../../../models/learner_breakout';
@@ -45,7 +47,6 @@ export const getAllCalendarEvents = async (req, res) => {
     res.sendStatus(500);
   }
 };
-
 
 export const createCalendarEvent = async (req, res) => {
   const { userId } = req.jwtData;
@@ -98,7 +99,6 @@ export const updateCalendarEvent = async (req, res) => {
       res.sendStatus(500);
     });
 };
-
 
 export const deleteOneEvent = async (req, res) => {
   const { userId } = req.jwtData;

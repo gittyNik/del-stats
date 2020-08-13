@@ -2,7 +2,6 @@ import { google } from 'googleapis';
 import dotenv from 'dotenv';
 import { getGoogleTokens } from '../models/social_connection';
 
-
 dotenv.config();
 const timeZone = 'Asia/Kolkata';
 
@@ -63,7 +62,6 @@ function getConnectionUrl(auth) {
     scope: defaultScope,
   });
 }
-
 
 // get auth url
 export const urlGoogle = () => {

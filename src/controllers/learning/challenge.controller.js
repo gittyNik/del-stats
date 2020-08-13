@@ -57,7 +57,6 @@ export const updateChallenge = (req, res) => {
     });
 };
 
-
 export const deleteChallenge = (req, res) => {
   const { id } = req.params;
   deleteAChallenge(id)

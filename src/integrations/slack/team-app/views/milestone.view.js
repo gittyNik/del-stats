@@ -1,4 +1,3 @@
-
 export const footerBlock = {
   type: 'context',
   elements: [
@@ -105,7 +104,6 @@ const buildMilestoneBlocks = (milestone) => {
   return blocks;
 };
 
-
 export const composeMilestoneModal = milestone => {
   const result = {
     type: 'modal',
@@ -123,7 +121,6 @@ export const composeMilestoneModal = milestone => {
   };
   return result;
 };
-
 
 export const milestoneReviewMessage = (milestone, cohort, username) => ({
   text: `Milestone review for ${milestone.name} is done for ${cohort.name}`,

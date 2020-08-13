@@ -45,7 +45,6 @@ router.get('/cohort_breakout/:cohort_breakout_id', getLearnerBreakoutsByBreakout
  */
 router.get('/upcoming', getUpcomingBreakouts);
 
-
 /**
  * @api {get} /learning/ops/breakouts/:cohort_id/all Get all Cohort breakouts in a Cohort
  * @apiDescription get all cohort breakouts scheduled for a cohort
