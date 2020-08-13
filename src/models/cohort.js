@@ -275,35 +275,39 @@ export const moveLearnertoDifferentCohort = async (
   learners,
   current_cohort_id,
   future_cohort_id,
-) => learners.map(learner_id => Promise.all ([
-    removeLearnerFromCohort(learner_id, current_cohort_id),
-    addLearnerToCohort(learner_id, future_cohort_id),
-    updateCohortJoining(learner_id, future_cohort_id),
-    moveLearnerToNewGithubTeam(
-        learner_id,
-        current_cohort_id,
-        future_cohort_id,
-      ),
-    removeLearnerBreakouts(learner_id, current_cohort_id),
-    createLearnerBreakouts(learner_id, future_cohort_id),
-    moveLearnerToNewSlackChannel(learner_id, current_cohort_id, future_cohort_id)
-  ])
-)
-  
-
+) => learners.map(learner_id => Promise.all([
+  removeLearnerFromCohort(learner_id, current_cohort_id),
+  addLearnerToCohort(learner_id, future_cohort_id),
+  updateCohortJoining(learner_id, future_cohort_id),
+  moveLearnerToNewGithubTeam(
+    learner_id,
+    current_cohort_id,
+    future_cohort_id,
+  ),
+  removeLearnerBreakouts(learner_id, current_cohort_id),
+  createLearnerBreakouts(learner_id, future_cohort_id),
+  moveLearnerToNewSlackChannel(learner_id, current_cohort_id, future_cohort_id)
+]));
 
 export const removeLearner = async (
   learner_id,
   current_cohort_id,
 ) => Promise.all([
-    removeLearnerFromCohort(learner_id, current_cohort_id),
-    removeLearnerFromGithubTeam(
-      learner_id,
-      current_cohort_id,
-    ),
-    removeLearnerFromSlackChannel(learner_id, current_cohort_id),
-    removeLearnerBreakouts(learner_id, current_cohort_id),
-    changeUserRole(learner_id, USER_ROLES.GUEST)
-    ]);
-  
-
+  removeLearnerFromCohort(learner_id, current_cohort_id),
+  removeLearnerFromGithubTeam(
+    learner_id,
+    current_cohort_id,
+  ),
+  removeLearnerBreakouts(learner_id, current_cohort_id),
+  changeUserRole(learner_id, USER_ROLES.GUEST)
+])
+  .then(async (data) => {
+    try {
+      const slackResponse = await removeLearnerFromSlackChannel(learner_id, current_cohort_id);
+      data.push(slackResponse);
+      return data;
+    } catch (err) {
+      data.push('Failed to remove learner from slack');
+      return data;
+    }
+  });
