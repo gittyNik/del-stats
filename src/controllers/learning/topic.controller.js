@@ -44,7 +44,6 @@ export const getTopic = (req, res) => {
     .catch(err => res.status(500).send(err));
 };
 
-
 export const deleteOne = (req, res) => {
   const { id } = req.params.id;
 

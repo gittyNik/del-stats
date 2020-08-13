@@ -1,6 +1,6 @@
 import Express from 'express';
 import {
-    getTag, getTags, updateTags, deleteTags, createTags, getTagIdName, getTagIdNames
+  getTag, getTags, updateTags, deleteTags, createTags, getTagIdName, getTagIdNames,
 } from '../../controllers/learning/tags.controller';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
@@ -30,7 +30,6 @@ router.get('/:id', getTag);
  */
 router.get('/tag/:tag_name', getTagIdName);
 
-
 /**
  * @api {post} /tags/ Get mutiple tags
  * @apiHeader {String} authorization JWT Token.
@@ -38,7 +37,6 @@ router.get('/tag/:tag_name', getTagIdName);
  * @apiGroup Tags
  */
 router.post('/search', getTagIdNames);
-
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowSuperAdminOnly);
@@ -58,7 +56,6 @@ router.post('/', createTags);
  * @apiGroup Tags
  */
 router.patch('/:id', updateTags);
-
 
 /**
  * @api {delete} /tags/:id Delete a cohort

@@ -4,7 +4,6 @@ import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
 
-
 // Restrict modifications for any applicant to the cohorts
 router.use(allowSuperAdminOnly);
 

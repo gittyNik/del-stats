@@ -62,7 +62,6 @@ export const updateAChallenge = (
   size,
 }, { where: { id } });
 
-
 export const deleteAChallenge = (id) => Challenge.destroy(
   { where: { id } },
 );

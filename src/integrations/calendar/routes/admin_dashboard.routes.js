@@ -7,5 +7,4 @@ router.get('/events/', getAllEvents);
 
 router.post('/events/', createEventForBreakout);
 
-
 export default router;

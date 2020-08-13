@@ -54,7 +54,6 @@ export const sendEmail = async (from_name, to_users, subject,
     html = replaceFields(key, replacement_fields[key], html);
   });
 
-
   // send mail with defined transport object
   const mailOptions = {
     from: `"${from_name}" <${auth.client_email}>`, // sender address,
@@ -80,7 +79,6 @@ export const sendEmail = async (from_name, to_users, subject,
     let key = 'attachments';
     mailOptions[key] = attachment_array;
   }
-
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {

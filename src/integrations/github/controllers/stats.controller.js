@@ -29,7 +29,7 @@ export const contributersInRepository = async (repo, socialConnection) => {
     .set('authorization', `token ${access_token}`)
     .then(data => JSON.parse(data.text))
     .catch(err => {
-      console.error(`Error while fetching contributors in Repo: ${err}`);
+      console.warning(`No contributions in repo: ${err}`);
       return null;
     });
 };

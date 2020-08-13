@@ -70,7 +70,6 @@ const buildMilestoneBlocks = (milestone) => {
   return blocks;
 };
 
-
 export const composeMilestoneModal = milestone => {
   const result = {
     type: 'modal',

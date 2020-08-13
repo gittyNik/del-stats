@@ -1,7 +1,6 @@
 import { google } from 'googleapis';
 import { convertToEventBody } from '../../util/calendar-util';
 
-
 export const listEvents = (auth) => {
   const calendar = google.calendar({ version: 'v3', auth });
   return calendar.events.list({
@@ -20,7 +19,6 @@ export const listEvents = (auth) => {
       return false;
     });
 };
-
 
 export const createEvent = (auth, event_details) => {
   const calendar = google.calendar({ version: 'v3', auth });

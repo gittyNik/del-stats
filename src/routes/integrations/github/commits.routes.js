@@ -10,6 +10,3 @@ router.get('/latestUserCommitOnRepository/:username/:repo_name', getRecentCommit
 router.get('/latestCommitInCohort/:cohort_milestone_id', getRecentCommitInCohort);
 
 export default router;
-
-
-
