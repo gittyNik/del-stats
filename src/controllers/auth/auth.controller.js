@@ -14,7 +14,8 @@ export const authenticateRequest = (req, res, next) => {
   const token = req.headers.authorization.split(' ').pop();
   jwt.verify(token, process.env.JWT_SECRET, (err, jwtData) => {
     if (err || !jwtData) {
-      console.error(err);
+      // console.error(err);
+      console.warn('User is not authorized');
       sendAuthFailure(res);
     } else {
       User.findByPk(jwtData.userId, { raw: true })
@@ -22,7 +23,8 @@ export const authenticateRequest = (req, res, next) => {
           req.jwtData = { user, ...jwtData };
           return next();
         }).catch((e) => {
-          console.error(e);
+          // console.error(e);
+          console.warn('User is not authorized');
           sendAuthFailure(res);
         });
     }

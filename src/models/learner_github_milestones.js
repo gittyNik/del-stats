@@ -99,6 +99,7 @@ export const getLastUpdatedMilestoneCommit = (user_id,
   where: {
     user_id,
     cohort_milestone_id,
+    commits: { [gt]: 0 },
   },
   attributes: ['last_committed_at'],
   order: [
@@ -112,6 +113,19 @@ export const getLastUpdatedMilestoneCommitInCohort = (
 ) => LearnerGithubMilestones.findOne({
   where: {
     cohort_milestone_id,
+    commits: { [gt]: 0 },
+  },
+  order: [
+    ['last_committed_at', 'DESC'],
+  ],
+  raw: true,
+});
+
+export const getLastMilestoneCommitInCohort = (
+  cohort_milestone_ids,
+) => LearnerGithubMilestones.findOne({
+  where: {
+    cohort_milestone_id: { [Sequelize.Op.in]: cohort_milestone_ids },
     commits: { [gt]: 0 },
   },
   order: [
