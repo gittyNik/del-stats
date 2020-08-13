@@ -16,8 +16,10 @@ import {
   isExistingRepository,
 } from '../integrations/github/controllers/repository.controller';
 import { getGithubConnecionByUserId } from './social_connection';
+import LearnerBreakout from './learner_breakout';
+import CohortBreakout from './cohort_breakout';
 
-const { contains } = Sequelize.Op;
+const { contains, lte } = Sequelize.Op;
 
 export const Team = db.define('milestone_learner_teams', {
   id: {
@@ -151,6 +153,35 @@ const toGithubFormat = str => {
     }
   }
   return finalStr;
+};
+
+export const lastNBreakoutsForLearner = (learner_id, number) => LearnerBreakout.findAll({
+  where: {
+    learner_id,
+    '$cohort_breakout.type$': 'lecture',
+    '$cohort_breakout.time_scheduled$': { [lte]: Sequelize.literal('NOW()') },
+  },
+  attributes: ['cohort_breakout_id', 'learner_id', 'attendance', 'cohort_breakout.time_scheduled'],
+  include: [
+    {
+      model: CohortBreakout,
+      attributes: [],
+      required: false,
+    },
+  ],
+  order: Sequelize.literal('cohort_breakout.time_scheduled DESC'),
+  limit: number,
+  raw: true,
+});
+
+export const getLeastAttendingLearners = learners => Promise.all(learners.map(id => {
+  let last5Breakouts = lastNBreakoutsForLearner(id, 5);
+  return last5Breakouts.filter(({ attendance }) => attendance === false);
+}));
+
+export const belowThresholdLearners = async (learners) => {
+  let absentLearners = await getLeastAttendingLearners(learners);
+  console.log(absentLearners);
 };
 
 export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
