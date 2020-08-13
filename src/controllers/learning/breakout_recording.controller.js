@@ -3,7 +3,6 @@ import {
   createRecordingEntry, updateRecordings, getRecordingVideoUrl,
 } from '../../models/breakout_recordings';
 
-
 export const getAllRecordingsAPI = (req, res) => {
   let { skip, limit, sort_by } = req.query;
   if (typeof skip !== 'undefined') {
@@ -56,7 +55,6 @@ export const createRecording = (req, res) => {
     topics).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
-
 
 export const updateRecordingsAPI = (req, res) => {
   const {

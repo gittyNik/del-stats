@@ -81,7 +81,6 @@ export const getSocialConnecionByUsername = (username, provider) => SocialConnec
   },
 });
 
-
 export const getGithubNameByUserId = (user_id) => SocialConnection.findOne({
   where: {
     user_id,

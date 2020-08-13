@@ -29,17 +29,15 @@ export const createSlackChannelRow = (cohort_id, channelId) => SlackChannel
     cohort_id,
     channels: [channelId],
   })
-  .then(data => {
+  .then(data =>
     // console.log(data.toJSON());
-    return data.toJSON();
-  });
+    data.toJSON());
 
 export const getChannelIdForCohort = (cohort_id) => SlackChannel
   .findOne({ attributes: ['channels'], where: { cohort_id }, raw: true })
-  .then(data => {
+  .then(data =>
     // console.log(data.channels);
-    return data.channels[0];
-  });
+    data.channels[0]);
 
 const getChannelName = async (cohort_id) => {
   const cohort = await Cohort.findByPk(cohort_id);
@@ -102,7 +100,6 @@ export const getEducatorsSlackID = async () => {
   });
   return Promise.all(userIdSPE);
 };
-
 
 export const getTeamSlackIDs = async () => {
   const redis = new Redis(process.env.REDIS_URL);
@@ -192,7 +189,6 @@ export const createChannel = async (cohort_id) => {
   return emptyChannel.body;
 };
 
-
 // channelId :  channel Id's
 // learnersId : Array of slackLearner Id's
 export const addLearnerToAChannel = async (channelId, learnerIds) => {
@@ -221,9 +217,7 @@ export const addLearnerToChannels = async (cohort_id, learnerSlackID) => {
       raw: true,
     });
   let { channels } = slackChannels;
-  let channelResponses = await channels.map(async (channelId) => {
-    return addLearnerToAChannel(channelId, learnerSlackID);
-  });
+  let channelResponses = await channels.map(async (channelId) => addLearnerToAChannel(channelId, learnerSlackID));
   // TODO: test whether learner is added to all the channels;
   return channelResponses;
 };

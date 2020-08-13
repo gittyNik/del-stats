@@ -8,11 +8,9 @@ const nlu = new NaturalLanguageUnderstandingV1({
   url: 'https://gateway.watsonplatform.net/natural-language-understanding/api',
 });
 
-
 const getWatsonData = (link) => {
   const urlFormat = /[-a-zA-Z0-9@:%_+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_+.~#?&//=]*)?/gi;
   const urlRegex = new RegExp(urlFormat);
-
 
   return new Promise((resolve, reject) => {
     console.log('$$$$$$$$$$$$$$');
@@ -48,6 +46,6 @@ const getWatsonData = (link) => {
   });
 };
 
-//getWatsonData("https://stackoverflow.com/questions/43099808/bash-sequelize-command-not-found").then(d => console.log(d)).catch(e => console.log(e))
+// getWatsonData("https://stackoverflow.com/questions/43099808/bash-sequelize-command-not-found").then(d => console.log(d)).catch(e => console.log(e))
 
-//export default getWatsonData;
+// export default getWatsonData;

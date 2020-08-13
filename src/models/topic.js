@@ -47,7 +47,6 @@ export const getTopicById = topic_id => Topic.findByPk(topic_id, {
 
 export const getTopics = () => Topic.findAll({});
 
-
 export const getTopicsByMilestone = (milestone_id, program) => Topic.findAll(
   { where: { milestone_id, program } },
 );
@@ -80,10 +79,8 @@ export const updateATopic = (id, title,
   domain,
 }, { where: { id } });
 
-
 export const deleteTopic = (id) => Topic.destroy(
   { where: { id } },
 );
-
 
 export default Topic;

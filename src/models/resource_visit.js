@@ -31,13 +31,12 @@ export const logResourceVisitByFirewallUser = (resource_id, user_id) => Resource
   },
 });
 
-export const getFirewallResourceVisitsByUser = user_id => {
+export const getFirewallResourceVisitsByUser = user_id =>
   // console.log(user_id);
-  return ResourceVisit.aggregate('resource_id', 'count', {
+  ResourceVisit.aggregate('resource_id', 'count', {
     where: {
       user_id,
       'details.isFirewall': true,
     },
     distinct: true,
   });
-};

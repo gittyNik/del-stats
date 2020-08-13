@@ -52,9 +52,9 @@ export const getGithubConnection = (req, res) => {
         res.sendStatus(404);
       } else {
         res.json({
-          text: "Github Social Connection",
+          text: 'Github Social Connection',
           data,
-        })
+        });
       }
     })
     .catch(err => res.status(500).send(err));

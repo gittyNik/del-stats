@@ -49,13 +49,12 @@ export const createTemplate = (template, embed_options) => {
     .send(template)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
-    .then(response => {
+    .then(response =>
       // console.log(response.text);
-      return {
+      ({
         text: 'Id of newly created codesandbox, used to redirect ex: https://codesanbox.io/embed/<id>',
         data: response.text,
-      };
-    })
+      }))
     .catch(err => {
       console.error(err);
       return err;
