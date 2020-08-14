@@ -928,7 +928,7 @@ export const getAllStats = async (req, res) => {
       });
     }
   } catch (err) {
-    console.warning(`while fetching Github Stats for User ${user_id} ${cohort_milestone_id}: ${err}`);
+    console.warn(`while fetching Github Stats for User ${user_id} ${cohort_milestone_id}: ${err}`);
     // console.warning(err.stack);
     res.send({
       data: {

@@ -29,7 +29,7 @@ export const contributersInRepository = async (repo, socialConnection) => {
     .set('authorization', `token ${access_token}`)
     .then(data => JSON.parse(data.text))
     .catch(err => {
-      console.warning(`No contributions in repo: ${err}`);
+      console.warn(`No contributions in repo: ${err}`);
       return null;
     });
 };
