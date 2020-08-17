@@ -31,7 +31,7 @@ async function downloadFile(bucket, objectKey) {
   }
 }
 
-export const replaceFields = (key, value, htmlFile) => htmlFile.replace(`((${key}))`, value);
+export const replaceFields = (key, value, htmlFile) => htmlFile.replace(`{{${key}}}`, value);
 
 export const sendEmail = async (from_name, to_users, subject,
   html_path, auth, email_attachments, replacement_fields) => {

@@ -13,9 +13,9 @@ const getWatsonData = (link) => {
   const urlRegex = new RegExp(urlFormat);
 
   return new Promise((resolve, reject) => {
-    console.log('$$$$$$$$$$$$$$');
-    console.log(link);
-    console.log(urlRegex);
+    // console.log('$$$$$$$$$$$$$$');
+    // console.log(link);
+    // console.log(urlRegex);
 
     if (link.match(urlRegex)) {
       const options = {

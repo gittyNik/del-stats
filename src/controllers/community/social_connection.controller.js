@@ -42,7 +42,7 @@ export const update = (req, res) => {
 export const deleteOne = (req, res) => {
   SocialConnection.destroy({ _id: req.params.id })
     .then(() => res.sendStatus(204))
-    .catch(err => res.sendStatus(500).send(err));
+    .catch(err => res.status(500).send(err));
 };
 
 export const getGithubConnection = (req, res) => {
