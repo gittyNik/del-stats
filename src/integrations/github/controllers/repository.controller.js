@@ -127,7 +127,7 @@ export const addCollaboratorToRepository = async (
 export const removeCollaboratorFromRepository = (collaborater, repo) => octokit.repos.removeCollaborator({
   owner: org,
   repo,
-  username: collaborater
+  username: collaborater,
 });
 
 export const addTeamAccessToRepo = async (
