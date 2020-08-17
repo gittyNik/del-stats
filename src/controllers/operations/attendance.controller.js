@@ -26,7 +26,7 @@ export const getLearnersLastFiveBreakouts = async (learner_id) => LearnerBreakou
   limit: 5,
 });
 
-export const getLearnersStatus = async (
+export const getLearnersStatus = (
   learner_id, type, limit,
 ) => LearnerBreakout.findAll({
   where: {
@@ -37,7 +37,7 @@ export const getLearnersStatus = async (
   include: [
     {
       model: CohortBreakout,
-      attributes: ['id'],
+      attributes: ['id', 'cohort_id'],
     },
   ],
   order: Sequelize.literal('cohort_breakout.time_scheduled DESC'),
@@ -50,70 +50,86 @@ export const getAllLiveCohortAttendance = async () => {
       status: 'live',
     },
     raw: true,
-    attributes: ['id', 'name'],
+    attributes: ['id', 'name', 'location', 'duration'],
   });
   let cohort = arrayToObject(allCohorts);
   return LearnerBreakout.findAll({
-    attributes: [
-      [Sequelize.fn('count', Sequelize.col('attendance')), 'attendance_count'],
-      'attendance',
-      'learner_id',
-      'user.name',
-      'user.phone',
-      'cohort_breakout.cohort_id',
-      'cohort_breakout.type',
-    ],
-    where: {
-      learner_id: {
-        [Sequelize.Op.in]: Sequelize.literal(
-          "(SELECT unnest(learners) as learner FROM cohorts WHERE status='live')",
-        ),
+      attributes: [
+        [Sequelize.fn('count', Sequelize.col('attendance')), 'attendance_count'],
+        'attendance',
+        'learner_id',
+        'user.name',
+        'user.phone',
+        'user.status',
+        // Groupby can't compare json. Parse it to json string 
+        Sequelize.cast(Sequelize.col('user.status_reason'), 'varchar'),
+        'cohort_breakout.cohort_id',
+        'cohort_breakout.type',
+      ],
+      where: {
+        learner_id: {
+          [Sequelize.Op.in]: Sequelize.literal(
+            "(SELECT unnest(learners) as learner FROM cohorts WHERE status='live')",
+          ),
+        },
+        cohort_breakout_id: {
+          [Sequelize.Op.in]: Sequelize.literal(
+            '(SELECT id from cohort_breakouts where time_scheduled<NOW())',
+          ),
+        },
       },
-      cohort_breakout_id: {
-        [Sequelize.Op.in]: Sequelize.literal(
-          '(SELECT id from cohort_breakouts where time_scheduled<NOW())',
-        ),
-      },
-    },
-    include: [
-      {
-        model: User,
-        attributes: [],
-        required: false,
-      },
-      {
-        model: CohortBreakout,
-        attributes: [],
-        required: false,
-      },
-    ],
-    group: ['attendance', 'learner_id', 'user.name',
-      'cohort_breakout.cohort_id', 'cohort_breakout.type',
-      'user.phone',
-    ],
-    raw: true,
-    order: Sequelize.literal('learner_id, attendance_count DESC'),
-  })
-    .then((learnerBreakout) => {
+      include: [{
+          model: User,
+          attributes: [],
+          required: false,
+        },
+        {
+          model: CohortBreakout,
+          attributes: [],
+          required: false,
+        },
+      ],
+      group: ['attendance', 'learner_id', 'user.name',
+        'cohort_breakout.cohort_id', 'cohort_breakout.type',
+        'user.phone', 'user.status', Sequelize.cast(Sequelize.col('user.status_reason'), 'varchar'),
+      ],
+      raw: true,
+      order: Sequelize.literal('learner_id, attendance_count DESC'),
+    })
+    .then(async (learnerBreakout) => {
       const grouped = _.chain(learnerBreakout)
         // Group the elements of Array based on `learner_id` property
         .groupBy('learner_id')
-        // `key` is group's name (learner_id), `value` is the array of objects
-        .map((value, key) => ({
-          learner_id: key,
-          attendance: value.map(v => ({
-            ...v,
-            cohort_name: cohort[v.cohort_id],
-          })),
-          last_five_breakouts: {
-            lecture: getLearnersStatus(key, 'lecture', 5),
-            review: getLearnersStatus(key, 'reviews', 5),
-            assessment: getLearnersStatus(key, 'assessment', 5),
-          },
-        }))
-        .value();
-      return grouped;
-      // console.log(grouped);
+      // `key` is group's name (learner_id), `value` is the array of objects
+      const attendance = await Promise.all(grouped.map(async (value, key) => ({
+        learner_id: key,
+        attendance: value.map(v => ({
+          ...v,
+          cohort_name: cohort[v.cohort_id],
+          status_reason: JSON.parse(v.status_reason)
+        })),
+        last_five_breakouts: {
+          lecture: await getLearnersStatus(key, 'lecture', 10).map(bk => {
+            const obj = JSON.parse(JSON.stringify(bk));
+            obj.cohort = cohort[bk.cohort_breakout.cohort_id];
+            return obj;
+          }),
+          review: await getLearnersStatus(key, 'reviews', 10).map(bk => {
+            const obj = JSON.parse(JSON.stringify(bk));
+            obj.cohort = cohort[bk.cohort_breakout.cohort_id];
+            return obj;
+          }),
+          assessment: await getLearnersStatus(key, 'assessment', 10).map(bk => {
+            const obj = JSON.parse(JSON.stringify(bk));
+            obj.cohort = cohort[bk.cohort_breakout.cohort_id];
+            return obj;
+          }),
+        }
+      })))
+      return {
+        attendance, 
+        liveCohorts: Object.values(cohort)
+      };
     })
     .catch((err) => {
       console.warn(err);
