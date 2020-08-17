@@ -890,7 +890,7 @@ export const getAllStats = async (req, res) => {
         message = commitDetails.commit.message;
         commit_date = commitDetails.commit.commit_date;
       } catch (err) {
-        console.warn(`Unable to get committer details: ${err}`);
+        console.warn(`Unable to get committer details: ${user_id}`);
       }
 
       res.send({

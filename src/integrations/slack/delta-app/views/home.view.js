@@ -32,7 +32,7 @@ export const buildLiveCohorts = (cohorts) => {
 };
 
 export const composeHome = (cohorts) => {
-  console.log(cohorts);
+  // console.log(cohorts);
   const result = {
     type: 'home',
     blocks: [

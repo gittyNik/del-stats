@@ -353,7 +353,7 @@ export const updateVideoMeeting = async (meetingId, updatedTime) => {
     }
     return false;
   } catch (err) {
-    console.log(`Error updating zoom meeting ${err}`);
+    console.error(`Error updating zoom meeting ${err}`);
     return false;
   }
 };

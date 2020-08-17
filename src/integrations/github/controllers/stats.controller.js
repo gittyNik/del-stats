@@ -22,14 +22,14 @@ export const contributersInRepository = async (repo, socialConnection) => {
   let access_token = getAccessTokenPerUser(
     socialConnection,
   );
-  console.log(`Org: ${org}, Repo: ${repo}`);
+  console.log(`Fetching Contributors Org: ${org}, Repo: ${repo}`);
   return request
     .get(`https://api.github.com/repos/${org}/${repo}/stats/contributors`)
     .set('accept', 'application/vnd.github.baptiste-preview+json')
     .set('authorization', `token ${access_token}`)
     .then(data => JSON.parse(data.text))
     .catch(err => {
-      console.warn(`No contributions in repo: ${err}`);
+      console.warn(`No contributions in repo: ${repo}`);
       return null;
     });
 };
@@ -46,6 +46,6 @@ export const weeklyCommitActivityData = async (repo, socialConnection) => {
     .set('authorization', `token ${access_token}`)
     .then(data => (data.text === '' ? [] : JSON.parse(data.text)))
     .catch(err => {
-      console.error(`Error while fetching commit activity: ${err}`);
+      console.error(`Error while fetching commit activity: ${repo}`);
     });
 };
