@@ -21,5 +21,3 @@
 ### Documentation
 
 API documentation is available at path `/api/doc` of the api-server in `development` environment. Update the host in package.json's `apidoc.sampleUrl`.
-
-
