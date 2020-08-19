@@ -890,7 +890,19 @@ export const getAllStats = async (req, res) => {
         message = commitDetails.commit.message;
         commit_date = commitDetails.commit.commit_date;
       } catch (err) {
+        author = "You haven't";
         console.warn(`Unable to get committer details: ${user_id}`);
+      }
+
+      let challenge_user;
+      let challenge_user_id;
+      try {
+        challenge_user_id = LatestChallengeInCohortId['user.id'];
+        challenge_user = LatestChallengeInCohortId['user.name'];
+      } catch (err) {
+        // Reads No one has created challenge recently on frontend
+        challenge_user_id = user_id;
+        challenge_user = 'No one';
       }
 
       res.send({
@@ -901,8 +913,8 @@ export const getAllStats = async (req, res) => {
           LatestChallengeInCohort: {
             challenge: LatestChallengeInCohortId,
             user: {
-              id: LatestChallengeInCohortId['user.id'],
-              name: LatestChallengeInCohortId['user.name'],
+              id: challenge_user_id,
+              name: challenge_user,
             },
             cohort: cohortDetails,
           },
