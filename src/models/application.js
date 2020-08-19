@@ -149,8 +149,14 @@ export const getApplicationStage = (user_id) => Application.findOne({
   raw: true,
 });
 
-export const setApplicationStage = (user_id, stage) => Application.update({
+export const setApplicationStage = (
+  user_id, stage, cohort_applied,
+  is_isa, is_job_guarantee,
+) => Application.update({
   stage,
+  cohort_applied,
+  is_isa,
+  is_job_guarantee,
 }, {
   where: {
     user_id,
