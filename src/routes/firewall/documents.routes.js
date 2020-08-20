@@ -2,7 +2,7 @@ import Express from 'express';
 import {
   getDocumentsByID, getDocumentsByUserId,
   getDocumentsStatus, updateUser, createUser,
-  getDocumentsAll, EsignRequest,
+  getDocumentsAll, EsignRequest, getSignUrl,
 } from '../../controllers/firewall/documents.controller';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 // import { apiNotReady } from '../../controllers/api.controller';
@@ -107,5 +107,14 @@ router.patch('/:id', updateUser);
  * @apiParam {Json} signers signer details
  */
 router.post('/:id/esign', EsignRequest);
+
+/**
+ * @api {get} /firewall/documents/sign-request/ Upload files to AWS
+ * @apiDescription upload Document by status
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetUserDocumentResources
+ * @apiGroup Documents
+ */
+router.post('/sign-request', getSignUrl);
 
 export default router;

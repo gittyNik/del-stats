@@ -85,7 +85,7 @@ export const sendEmail = async (from_name, to_users, subject,
       console.error(error);
       return 'Error occurred';
     }
-    // console.log('Email sent: %s', info.response);
+    console.log('Email sent: %s', info.response);
     // console.log('Message sent: %s', info.messageId);
     return info.messageId;
   });
