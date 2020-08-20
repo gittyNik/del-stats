@@ -134,11 +134,14 @@ export const getEducators = (req, res) => {
 
 export const updateUserStatus = (req, res) => {
   let {
-    user_id, status, reason,
+    user_id, status, reason, milestone_id, milestone_name,
+    cohort_id, cohort_name,
   } = req.body;
-  const updated_by = req.jwtData.user.id;
+  let { id, name } = req.jwtData.user;
 
-  addUserStatus(user_id, status, reason, updated_by).then(data => {
+  addUserStatus(user_id, status, reason, id, name,
+    milestone_id, milestone_name,
+    cohort_id, cohort_name).then(data => {
     res.json({
       text: 'Added User status',
       data,
