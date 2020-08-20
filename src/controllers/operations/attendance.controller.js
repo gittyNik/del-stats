@@ -55,7 +55,7 @@ export const getAllLiveCohortAttendance = async () => {
       status: 'live',
     },
     raw: true,
-    attributes: ['id', 'name', 'location', 'duration'],
+    attributes: ['id', 'name', 'location', 'duration', 'learners'],
   });
   let cohort = arrayToObject(allCohorts);
   return LearnerBreakout.findAll({
@@ -108,6 +108,7 @@ export const getAllLiveCohortAttendance = async () => {
       // `key` is group's name (learner_id), `value` is the array of objects
       const attendance = await Promise.all(grouped.map(async (value, key) => ({
         learner_id: key,
+        currentCohort: allCohorts.filter(c => c.learners.includes(key))[0],
         attendance: value.map(v => ({
           ...v,
           cohort_name: cohort[v.cohort_id],
