@@ -7,6 +7,7 @@ import {
   toSentenceCase,
   moveLearnerToNewGithubTeam,
   removeLearnerFromGithubTeam,
+  addLearnerToGithubTeam,
 } from './teams.controller';
 import { sendInvitesToNewMembers } from './orgs.controller';
 import {
@@ -993,4 +994,5 @@ export {
   moveLearnerToNewGithubTeam,
   deleteGithubRepository,
   removeLearnerFromGithubTeam,
+  addLearnerToGithubTeam,
 };

@@ -247,6 +247,20 @@ export const findBreakoutsForMilestone = async (cohort_id, milestone_id) => {
   return breakouts.filter((breakout) => (breakout != null));
 };
 
+export const getLiveCohortMilestone = (cohort_id) => {
+  const now = Sequelize.literal('NOW()');
+  return CohortMilestone.findOne({
+    order: Sequelize.col('release_time'),
+    where: {
+      release_time: { [lte]: now },
+      review_scheduled: { [gt]: now },
+      cohort_id,
+    },
+    // include: [Cohort, Milestone],
+    raw: true,
+  });
+};
+
 export const getCurrentMilestoneOfCohortDelta = (cohort_id) => {
   const now = Sequelize.literal('NOW()');
   return CohortMilestone.findOne({

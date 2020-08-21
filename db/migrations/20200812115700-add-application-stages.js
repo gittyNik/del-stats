@@ -16,6 +16,7 @@ module.exports = {
     }, { transaction: t }),
     queryInterface.addColumn('applications', 'stage', {
       type: Sequelize.ENUM(...APPLICATION_STAGE),
+      defaultValue: 'firewall-test'
     }, { transaction: t }),
   ])),
 

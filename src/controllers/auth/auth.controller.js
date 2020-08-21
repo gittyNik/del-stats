@@ -23,7 +23,6 @@ export const authenticateRequest = (req, res, next) => {
           req.jwtData = { user, ...jwtData };
           return next();
         }).catch((e) => {
-          // console.error(e);
           console.warn('User is not authorized');
           sendAuthFailure(res);
         });

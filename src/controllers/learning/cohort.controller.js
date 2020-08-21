@@ -7,6 +7,7 @@ import {
   getCohortFromLearnerId,
   moveLearnertoDifferentCohort,
   removeLearner,
+  addLearner,
 } from '../../models/cohort';
 import {
   createOrUpdateCohortBreakout,
@@ -188,5 +189,15 @@ export const removeLearnerEndpoint = async (req, res) => {
   let bk = await removeLearner(learner_id, current_cohort_id);
   res.send({
     data: bk,
+  });
+};
+
+export const addLearnerEndpoint = (req, res) => {
+  const { learners, cohort_id } = req.body;
+  addLearner(learners, cohort_id).then(data => res.status(200).send({
+    desc: 'Add Learner Endpoint Result',
+    data,
+  })).catch(err => {
+    res.status(500).send(err);
   });
 };
