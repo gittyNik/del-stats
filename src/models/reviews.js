@@ -217,7 +217,7 @@ export const calculateReviewTime = (reviewDate, reviewForTeam) => {
 
   scheduled_time.setDate(reviewDate.getDate() + ((
     WEEK_VALUES[reviewForTeam.review_day.toLowerCase()]
-    + (7 * reviewForTeam.week) - reviewDate.getDay()) % 7));
+    + 7 - reviewDate.getDay()) % 7));
 
   scheduled_time.setHours(time_split[0], time_split[1], time_split[2]);
 

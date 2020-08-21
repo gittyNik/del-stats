@@ -63,7 +63,8 @@ const getChannelName = async (cohort_id) => {
   const locationName = location.toLowerCase();
   const year = start_date.getFullYear();
   const month = monthNames[start_date.getMonth()];
-  return `${cohortName}-${locationName}-${duration}-${month}-${year}`;
+  const cohortType = cohort.type.toLowerCase();
+  return `${cohortName}-${locationName}-${duration}-${cohortType}-${month}-${year}`;
 };
 
 // currently not working due to irregularities.
