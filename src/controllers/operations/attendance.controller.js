@@ -66,8 +66,8 @@ export const getAllLiveCohortAttendance = async () => {
       'user.name',
       'user.phone',
       'user.status',
-      // Groupby can't compare json. Parse it to json string
-      Sequelize.cast(Sequelize.col('user.status_reason'), 'varchar'),
+      // Groupby can't compare json. Parse it to jsonb[]
+      Sequelize.cast(Sequelize.col('user.status_reason'),'jsonb[]'),
       'cohort_breakout.cohort_id',
       'cohort_breakout.type',
     ],
@@ -96,7 +96,7 @@ export const getAllLiveCohortAttendance = async () => {
     ],
     group: ['attendance', 'learner_id', 'user.name',
       'cohort_breakout.cohort_id', 'cohort_breakout.type',
-      'user.phone', 'user.status', Sequelize.cast(Sequelize.col('user.status_reason'), 'varchar'),
+      'user.phone', 'user.status', Sequelize.cast(Sequelize.col('user.status_reason'),'jsonb[]'),
     ],
     raw: true,
     order: Sequelize.literal('learner_id, attendance_count DESC'),
@@ -108,11 +108,12 @@ export const getAllLiveCohortAttendance = async () => {
       // `key` is group's name (learner_id), `value` is the array of objects
       const attendance = await Promise.all(grouped.map(async (value, key) => ({
         learner_id: key,
+        status: value[0].status,
+        status_reason: value[0].status_reason,
         currentCohort: allCohorts.filter(c => c.learners.includes(key))[0],
         attendance: value.map(v => ({
           ...v,
           cohort_name: cohort[v.cohort_id],
-          status_reason: JSON.parse(v.status_reason),
         })),
         last_five_breakouts: {
           lecture: await lastNBreakoutsForLearner(key, 10, 'lecture').map(bk => {
