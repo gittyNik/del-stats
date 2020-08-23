@@ -55,7 +55,7 @@ export const getAllLiveCohortAttendance = async () => {
       status: 'live',
     },
     raw: true,
-    attributes: ['id', 'name', 'location', 'duration', 'learners'],
+    attributes: ['id', 'name', 'location', 'duration', 'learners', 'type'],
   });
   let cohort = arrayToObject(allCohorts);
   return LearnerBreakout.findAll({
@@ -66,6 +66,7 @@ export const getAllLiveCohortAttendance = async () => {
       'user.name',
       'user.phone',
       'user.status',
+      'user.email',
       // Groupby can't compare json. Parse it to jsonb[]
       Sequelize.cast(Sequelize.col('user.status_reason'),'jsonb[]'),
       'cohort_breakout.cohort_id',
@@ -94,7 +95,7 @@ export const getAllLiveCohortAttendance = async () => {
       required: false,
     },
     ],
-    group: ['attendance', 'learner_id', 'user.name',
+    group: ['attendance', 'learner_id', 'user.name','user.email',
       'cohort_breakout.cohort_id', 'cohort_breakout.type',
       'user.phone', 'user.status', Sequelize.cast(Sequelize.col('user.status_reason'),'jsonb[]'),
     ],
@@ -116,17 +117,17 @@ export const getAllLiveCohortAttendance = async () => {
           cohort_name: cohort[v.cohort_id],
         })),
         last_five_breakouts: {
-          lecture: await lastNBreakoutsForLearner(key, 10, 'lecture').map(bk => {
+          lecture: await lastNBreakoutsForLearner(key, 5, 'lecture').map(bk => {
             const obj = JSON.parse(JSON.stringify(bk));
             obj.cohort = cohort[bk.cohort_id];
             return obj;
           }),
-          review: await lastNBreakoutsForLearner(key, 10, 'reviews').map(bk => {
+          review: await lastNBreakoutsForLearner(key, 5, 'reviews').map(bk => {
             const obj = JSON.parse(JSON.stringify(bk));
             obj.cohort = cohort[bk.cohort_id];
             return obj;
           }),
-          assessment: await lastNBreakoutsForLearner(key, 10, 'assessment').map(bk => {
+          assessment: await lastNBreakoutsForLearner(key, 5, 'assessment').map(bk => {
             const obj = JSON.parse(JSON.stringify(bk));
             obj.cohort = cohort[bk.cohort_id];
             return obj;
