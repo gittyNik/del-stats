@@ -18,6 +18,7 @@ import { sendSms, TEMPLATE_FIREWALL_REVIEWED } from '../../util/sms';
 import { sendFirewallResult } from '../../integrations/slack/team-app/controllers/firewall.controller';
 import { scheduleFirewallRetry } from '../queue.controller';
 import { updateDealApplicationStatus } from '../../integrations/hubspot/controllers/deals.controller';
+import { PAYMENT_TYPES } from '../../integrations/instamojo/instamojo.controller';
 
 export const getAllApplications = (req, res) => {
   Application.findAll({
@@ -194,19 +195,18 @@ export const deleteApplication = (req, res) => {
     .catch(() => res.sendStatus(500));
 };
 
-export const payment = (req, res) => {
+export const payment = async (req, res) => {
   let { paymentDetails } = req.body;
   const { id } = req.params;
   const {
     INSTAMOJO_API_KEY, INSTAMOJO_AUTH_TOKEN,
     INSTAMOJO_URL, INSTAMOJO_WEBHOOK, WEBSERVER_REDIRECT_URL,
     INSTAMOJO_SEND_SMS, INSTAMOJO_SEND_EMAIL, INSTAMOJO_ALLOW_RE,
-    INSTAMOJO_AMOUNT,
   } = process.env;
 
   const payload = {
     purpose: paymentDetails.purpose,
-    amount: INSTAMOJO_AMOUNT,
+    amount: paymentDetails.amount,
     phone: paymentDetails.phone,
     buyer_name: paymentDetails.name,
     email: paymentDetails.email,
@@ -216,6 +216,11 @@ export const payment = (req, res) => {
     send_sms: INSTAMOJO_SEND_SMS,
     allow_repeated_payments: INSTAMOJO_ALLOW_RE,
   };
+  const application = await Application
+    .findByPk(id)
+    .then(_application => _application.get({ plain: true }));
+  console.log(application);
+  const { payment_details } = application;
   request
     .post(`${INSTAMOJO_URL}/payment-requests/`)
     .send(payload)
@@ -223,20 +228,25 @@ export const payment = (req, res) => {
     .set('X-Auth-Token', INSTAMOJO_AUTH_TOKEN)
     .then((response) => {
       // console.log('Status:', response.status);
-      let pd = {
-        source: 'instamojo webhook',
-        payment_request: response.body.payment_request,
-        response_data: [],
-      };
-
+      let pd = { ...payment_details };
+      if (PAYMENT_TYPES.pe_first_tranche === paymentDetails.purpose) {
+        pd.pe_first_tranche = response.body.payment_request;
+      }
+      if (PAYMENT_TYPES.pe_second_tranche === paymentDetails.purpose) {
+        pd.pe_second_tranche = response.body.payment_request;
+      }
+      // let pd = {
+      //   payment_request_1: response.body.payment_request,
+      //   // response_data: [],
+      // };
       Application.update({
         payment_details: pd,
       }, { where: { id }, returning: true, plain: true })
         .then((result) => {
           // console.log(result[1].dataValues);
           res.status(200).send({
-            text: 'Redirecting to the payment link and payment_details',
-            data: result[1].dataValues.payment_details,
+            text: 'Payment Details containing the instamojo redirect url',
+            data: response.body.payment_request,
           });
         })
         .catch(() => res.sendStatus(500));
