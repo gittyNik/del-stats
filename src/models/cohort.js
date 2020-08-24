@@ -57,6 +57,24 @@ export const Cohort = db.define('cohorts', {
 
 });
 
+export const findAllCohorts = (
+  where, attributes, include, order,
+) => Cohort.findAll({
+  where,
+  include,
+  order,
+  attributes,
+});
+
+export const findOneCohort = (
+  where, attributes, include, order,
+) => Cohort.findAll({
+  where,
+  include,
+  order,
+  attributes,
+});
+
 export const getCohortsStartingToday = () => {
   const today = new Date();
   const tonight = new Date();
