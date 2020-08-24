@@ -1,5 +1,7 @@
 import uuid from 'uuid/v4';
-import { Tags, getResourcesByTag, getTagIdbyName, getTagIdbyNames } from '../../models/tags';
+import {
+  Tags, getResourcesByTag, getTagIdbyName, getTagIdbyNames,
+} from '../../models/tags';
 
 export const getTags = (req, res) => {
   Tags.findAll({})
@@ -26,35 +28,34 @@ export const getTagIdName = (req, res) => {
   const { tag_name } = req.params;
   getTagIdbyName(tag_name)
     .then(data => {
-      //console.log(data);
+      // console.log(data);
       res.send({ data });
     })
     .catch(err => {
       console.error(err);
       res.sendStatus(500);
     });
-}
+};
 
 export const getTagIdNames = (req, res) => {
   const { tag_name } = req.body;
   getTagIdbyNames(tag_name)
     .then(data => {
-      //console.log(data);
+      // console.log(data);
       res.send({ data });
     })
     .catch(err => {
       console.error(err);
       res.sendStatus(500);
     });
-}
-
+};
 
 export const createTags = (req, res) => {
   const {
     tag_name, add_time, topic_id,
     owner, moderator, description,
     source, details, parent_tags,
-    child_tags, similar_tags
+    child_tags, similar_tags,
   } = req.body;
 
   Tags.create({
@@ -69,7 +70,7 @@ export const createTags = (req, res) => {
     details,
     parent_tags,
     child_tags,
-    similar_tags
+    similar_tags,
   })
     .then(data => {
       // console.log(data);
@@ -92,7 +93,7 @@ export const updateTags = (req, res) => {
     details,
     parent_tags,
     child_tags,
-    similar_tags
+    similar_tags,
   } = req.body;
   const { id } = req.params;
 
@@ -106,7 +107,7 @@ export const updateTags = (req, res) => {
     details,
     parent_tags,
     child_tags,
-    similar_tags
+    similar_tags,
   }, {
     where: { id },
   })

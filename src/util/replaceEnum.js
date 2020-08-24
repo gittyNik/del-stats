@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Since PostgreSQL still does not support remove values from an ENUM,
  * the workaround is to create a new ENUM with the new values and use it
@@ -20,13 +18,13 @@ module.exports = function replaceEnum({
   defaultValue,
   newValues,
   queryInterface,
-  enumName = `enum_${tableName}_${columnName}`
+  enumName = `enum_${tableName}_${columnName}`,
 }) {
   const newEnumName = `${enumName}_new`;
 
-  return queryInterface.sequelize.transaction((t) => {
+  return queryInterface.sequelize.transaction((t) =>
     // Create a copy of the type
-    return queryInterface.sequelize.query(`
+    queryInterface.sequelize.query(`
       CREATE TYPE ${newEnumName}
         AS ENUM ('${newValues.join('\', \'')}')
     `, { transaction: t })
@@ -56,6 +54,5 @@ module.exports = function replaceEnum({
         ALTER TABLE ${tableName}
           ALTER COLUMN ${columnName}
             SET DEFAULT '${defaultValue}'::${enumName}
-      `, { transaction: t }));
-  });
-}
+      `, { transaction: t })));
+};

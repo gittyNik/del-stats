@@ -1,6 +1,5 @@
 import Resource from '../../models/note';
 
-
 export const getStudentNotes = (req, res) => {
   Resource.find({
     user: req.params.studentID,

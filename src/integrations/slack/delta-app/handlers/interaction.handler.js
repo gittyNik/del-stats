@@ -5,7 +5,6 @@ import { saveLink } from '../controllers/resource.controller';
 
 // Authenticate higher order function
 const authenticate = next => (payload, respond) => {
-  console.log(payload);
   const { user, team } = payload;
   authSlack(user.id, team.id)
     .then(authData => {
@@ -13,7 +12,7 @@ const authenticate = next => (payload, respond) => {
       next(payload, respond, authData);
     })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       respond({
         text: 'You are not authorized. Try `/delta register` command',
       })

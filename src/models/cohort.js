@@ -23,6 +23,11 @@ export const COHORT_STATUS = [
   'fast-filling',
 ];
 
+const COHORT_TYPE = [
+  'hybrid',
+  'remote',
+];
+
 export const Cohort = db.define('cohorts', {
   id: {
     type: Sequelize.UUID,
@@ -30,6 +35,10 @@ export const Cohort = db.define('cohorts', {
   },
   status: {
     type: Sequelize.ENUM(...COHORT_STATUS),
+    defaultValue: 'upcoming',
+  },
+  type: {
+    type: Sequelize.ENUM(...COHORT_TYPE),
     defaultValue: 'upcoming',
   },
   name: Sequelize.STRING,
@@ -316,7 +325,16 @@ export const removeLearner = async (
     learner_id,
     current_cohort_id,
   ),
-  removeLearnerFromSlackChannel(learner_id, current_cohort_id),
   removeLearnerBreakouts(learner_id, current_cohort_id),
   changeUserRole(learner_id, USER_ROLES.GUEST),
-]);
+])
+  .then(async (data) => {
+    try {
+      const slackResponse = await removeLearnerFromSlackChannel(learner_id, current_cohort_id);
+      data.push(slackResponse);
+      return data;
+    } catch (err) {
+      data.push('Failed to remove learner from slack');
+      return data;
+    }
+  });

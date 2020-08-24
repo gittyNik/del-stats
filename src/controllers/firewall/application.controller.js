@@ -1,7 +1,12 @@
 import uuid from 'uuid/v4';
 import request from 'superagent';
 import Sequelize from 'sequelize';
-import { Application, submitApplication } from '../../models/application';
+import {
+  Application,
+  submitApplication,
+  getApplicationStage,
+  setApplicationStage,
+} from '../../models/application';
 import { Program } from '../../models/program';
 import { Cohort } from '../../models/cohort';
 import { User } from '../../models/user';
@@ -67,7 +72,7 @@ export const getLiveApplications = (req, res) => {
       status: ['applied', 'review_pending', 'offered', 'rejected'],
     },
     include: [Cohort, User],
-    order: [[Sequelize.col('created_at'), Sequelize.literal('DESC')]]
+    order: [[Sequelize.col('created_at'), Sequelize.literal('DESC')]],
   })
     .then(data => res.status(200).json(data))
     .catch(() => res.sendStatus(500));
@@ -107,11 +112,10 @@ export const addApplication = (req, res) => {
         console.error(err);
         res.sendStatus(500);
       });
-
   }).catch(err => {
     console.error(err);
     res.sendStatus(500);
-  })
+  });
 };
 
 // This is redundant, use the instance method from Application model
@@ -136,15 +140,18 @@ export const submitApplicationAndNotify = (id, phone) => submitApplication(id)
 
 // TODO: send all sms using worker. Reduce the delay on web services
 export const notifyApplicationReview = (phone, status) => (application) => {
-  if (status === 'offered' || status === 'rejected')
+  if (status === 'offered' || status === 'rejected') {
     return User.findByPk(application.user_id)
       .then(user => sendSms(phone, TEMPLATE_FIREWALL_REVIEWED(user.name)))
-      .then(() => application)
+      .then(() => application);
+  }
   return application;
 };
 
 export const updateApplication = (req, res) => {
-  const { cohort_joining, status, phone, profile } = req.body;
+  const {
+    cohort_joining, status, phone, profile,
+  } = req.body;
   const { id } = req.params;
 
   if (cohort_joining && status === 'review_pending') {
@@ -162,12 +169,10 @@ export const updateApplication = (req, res) => {
       .then(data => res.send({ data }))
       .catch(() => res.sendStatus(500));
   } else if (status) {
-    updateDealApplicationStatus(profile.hubspotDealId, status).then(result => {
-      return Application.update({
-        status,
-        updated_at: new Date(),
-      }, { where: { id }, returning: true })
-    })
+    updateDealApplicationStatus(profile.hubspotDealId, status).then(result => Application.update({
+      status,
+      updated_at: new Date(),
+    }, { where: { id }, returning: true }))
       .then(result => result[1][0])
       .then(notifyApplicationReview(req.body.phone, status))
       .then(application => res.send(application))
@@ -279,4 +284,19 @@ export const getApplicationStats = (req, res) => {
       console.error(err);
       res.sendStatus(500);
     });
+};
+
+export const getApplicationStageAPI = (req, res) => {
+  const user_id = req.jwtData.user.id;
+
+  getApplicationStage(user_id).then(data => res.status(200).json(data))
+    .catch(() => res.sendStatus(500));
+};
+
+export const setApplicationStageAPI = (req, res) => {
+  const user_id = req.jwtData.user.id;
+  const { stage } = req.body;
+
+  setApplicationStage(user_id, stage).then(data => res.status(200).json(data))
+    .catch(() => res.sendStatus(500));
 };

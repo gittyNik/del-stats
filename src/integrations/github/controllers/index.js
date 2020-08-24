@@ -647,11 +647,9 @@ export const fillGithubStats = async (req, res) => {
   res.send(savedCommitsDB);
 };
 
-export const fillGithubChallengesStats = async (req, res) => {
-  const { cohort_id, start_date, end_date } = req.query;
-
+export const getChallengesData = async (cohort_id, start_date, end_date) => {
   let allMilestoneCommits = await getGithubChallengesStats(cohort_id, start_date, end_date);
-  let savedCommitsDB = allMilestoneCommits.map(singleMilestoneCommits => {
+  let savedCommitsDB = await Promise.all(allMilestoneCommits.map(singleMilestoneCommits => {
     let teamCommits = singleMilestoneCommits.map(teamMilestoneCommit => {
       let {
         challengeId: learner_challenge_id,
@@ -666,7 +664,14 @@ export const fillGithubChallengesStats = async (req, res) => {
       return commitsData;
     });
     return teamCommits;
-  });
+  }));
+  return savedCommitsDB;
+};
+
+export const fillGithubChallengesStats = async (req, res) => {
+  const { cohort_id, start_date, end_date } = req.query;
+
+  let savedCommitsDB = await getChallengesData(cohort_id, start_date, end_date);
   res.send(savedCommitsDB);
 };
 
@@ -818,10 +823,6 @@ export const getAllStats = async (req, res) => {
     if (lastChallengeUpdated === null) {
       lastChallengeUpdated = new Date();
       lastChallengeUpdated.setDate(lastChallengeUpdated.getDate() - 2);
-    } else {
-      // If last updated time is passed, it returns the last added commit also
-      // adding 10 seconds assuming that is enough buffer time
-      lastChallengeUpdated.setSeconds(lastChallengeUpdated.getSeconds() + 10);
     }
     let updateChallenges = await getLearnerChallengesAfterDate(
       lastChallengeUpdated,
@@ -834,44 +835,20 @@ export const getAllStats = async (req, res) => {
       let lastMilestoneUpdated = new Date();
       lastMilestoneUpdated.setDate(lastMilestoneUpdated.getDate() - 2);
       lastMilestoneUpdatedAt = { last_committed_at: lastMilestoneUpdated };
-    } else {
-      // If last updated time is passed, it returns the last added commit also
-      // adding 10 seconds assuming that is enough buffer time
-      let updatedTime = lastMilestoneUpdatedAt.last_committed_at;
-      updatedTime.setSeconds(
-        updatedTime.getSeconds() + 10,
-      );
-      lastMilestoneUpdatedAt.last_committed_at = updatedTime;
     }
 
     if (socialConnection !== null) {
       // Update any new changes to Milestone Repo
-      let { github_repo_link, id } = await getLearnerMilestoneTeam(user_id, cohort_milestone_id);
-      let contributorsRepo = await getContributorsInRepo(github_repo_link, socialConnection);
-
-      let eachLearnerCommit = await apiForOneLearnerGithubMilestone(user_id,
-        github_repo_link, socialConnection, lastMilestoneUpdatedAt.last_committed_at);
-
-      await createStatForSingleLearner(
-        eachLearnerCommit,
-        id,
-        cohort_milestone_id,
-        contributorsRepo,
-      );
+      const TWO_HOURS = 2 * 60 * 60 * 1000;
+      const NOW = new Date();
+      if ((NOW - lastMilestoneUpdatedAt) > TWO_HOURS) {
+        await getGithubStats(cohort_id, NOW, lastMilestoneUpdatedAt);
+      }
 
       if (updateChallenges) {
         // Update any new changes to Challenges
-        let newChallengesRepo = updateChallenges.repo;
-
-        let eachLearnerChallengeCommit = await apiForOneLearnerGithubMilestone(user_id,
-          newChallengesRepo, socialConnection, lastChallengeUpdated);
-
-        await createStatForSingleLearner(
-          eachLearnerChallengeCommit,
-          null, cohort_milestone_id,
-          contributorsRepo,
-          updateChallenges.id,
-        );
+        let currentDate = new Date();
+        await getChallengesData(cohort_id, lastChallengeUpdated, currentDate);
       }
 
       let cohortDetails = await getCohortFromId(cohort_id);
@@ -913,7 +890,19 @@ export const getAllStats = async (req, res) => {
         message = commitDetails.commit.message;
         commit_date = commitDetails.commit.commit_date;
       } catch (err) {
-        console.warn(`Unable to get committer details: ${err}`);
+        author = "You haven't";
+        console.warn(`Unable to get committer details: ${user_id}`);
+      }
+
+      let challenge_user;
+      let challenge_user_id;
+      try {
+        challenge_user_id = LatestChallengeInCohortId['user.id'];
+        challenge_user = LatestChallengeInCohortId['user.name'];
+      } catch (err) {
+        // Reads No one has created challenge recently on frontend
+        challenge_user_id = user_id;
+        challenge_user = 'No one';
       }
 
       res.send({
@@ -924,8 +913,8 @@ export const getAllStats = async (req, res) => {
           LatestChallengeInCohort: {
             challenge: LatestChallengeInCohortId,
             user: {
-              id: LatestChallengeInCohortId['user.id'],
-              name: LatestChallengeInCohortId['user.name'],
+              id: challenge_user_id,
+              name: challenge_user,
             },
             cohort: cohortDetails,
           },
@@ -951,8 +940,8 @@ export const getAllStats = async (req, res) => {
       });
     }
   } catch (err) {
-    console.error(`Error while fetching Github Stats for User ${user_id} ${cohort_milestone_id}: ${err}`);
-    console.error(err.stack);
+    console.warn(`while fetching Github Stats for User ${user_id} ${cohort_milestone_id}: ${err}`);
+    // console.warning(err.stack);
     res.send({
       data: {
         noOfCommitsLinesOfEachMS: 0,

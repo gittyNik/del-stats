@@ -46,7 +46,6 @@ export const Tags = db.define('tags', {
   },
 });
 
-
 export const getTagIdbyName = tag_name => Tags.findOne({
   where: {
     tag_name,

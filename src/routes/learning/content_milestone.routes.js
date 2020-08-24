@@ -9,7 +9,6 @@ import {
 import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
-
 const router = Express.Router();
 
 const {
@@ -25,7 +24,6 @@ router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER]));
  * @apiGroup ContentMilestone
  */
 router.get('/:milestone_id', getCohortMilestoneWithDetails);
-
 
 /**
  * @api {get} /learning/content/milestones Get all Content Milestones

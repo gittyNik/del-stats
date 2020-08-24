@@ -1,6 +1,11 @@
 require('dotenv').config();
 require('@babel/register');
 
+let db_logs = false;
+if (process.env.DB_LOGGING === 'true') {
+  db_logs = true;
+}
+
 const common = {
   dialect: 'postgres',
   pool: {
@@ -13,7 +18,8 @@ const common = {
     underscored: true,
     underscoredAll: true,
   },
-}
+  logging: db_logs,
+};
 
 const settings = {
   development: {
@@ -22,8 +28,8 @@ const settings = {
     database: process.env.DEV_DB_NAME || 'delta_development',
     host: process.env.DEV_DB_HOST || '127.0.0.1',
     port: process.env.DEV_DB_PORT || 5432,
-    ...common
- },
+    ...common,
+  },
   test: {
     username: process.env.TEST_DB_USERNAME || 'postgres',
     password: process.env.TEST_DB_PASSWORD || '',
@@ -31,7 +37,7 @@ const settings = {
     host: process.env.TEST_DB_HOST || '127.0.0.1',
     port: process.env.TEST_DB_PORT || 5432,
     logging: false,
-    ...common
+    ...common,
   },
   production: {
     username: process.env.DATABASE_USERNAME,
@@ -39,11 +45,11 @@ const settings = {
     database: process.env.DATABASE_NAME,
     host: process.env.DATABASE_HOST,
     port: process.env.DATABASE_PORT || 5432,
-    ...common
+    ...common,
   },
 };
 
-switch(process.env.NODE_ENV) {
+switch (process.env.NODE_ENV) {
   case 'test':
   case 'production':
     settings.default = settings[process.env.NODE_ENV];

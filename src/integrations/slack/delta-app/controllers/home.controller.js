@@ -61,30 +61,28 @@ export const inviteUsersToChannel = async (channelID, users) => {
 };
 
 // invite a user to workspace - spe.
-export const inviteToSlackSPE = async (emailList) => {
-  return Promise.all(emailList.map(async (email) => {
-    try {
-      let response = await request
-        .post('https://slack.com/api/admin.users.invite')
-        .set('Authorization', `Bearer ${SLACK_DELTA_BOT_TOKEN}`)
-        .set('Content-Type', 'application/json')
-        .send({
-          channel_ids: '',
-          email: '',
-          team_id: '', // team_id or workspace_id.
-          guest_expiration_ts: '',
-          is_restricted: false, // default false
-          real_name: '',
-          resend: true,
-        });
-      if (response.body.ok === true) {
-        return `${email} : OK`;
-      }
-      console.error(response.body);
-      return `${email}: Failed`;
-    } catch (e) {
-      console.error(e);
-      return `Failed to send invite to ${email}`;
+export const inviteToSlackSPE = async (emailList) => Promise.all(emailList.map(async (email) => {
+  try {
+    let response = await request
+      .post('https://slack.com/api/admin.users.invite')
+      .set('Authorization', `Bearer ${SLACK_DELTA_BOT_TOKEN}`)
+      .set('Content-Type', 'application/json')
+      .send({
+        channel_ids: '',
+        email: '',
+        team_id: '', // team_id or workspace_id.
+        guest_expiration_ts: '',
+        is_restricted: false, // default false
+        real_name: '',
+        resend: true,
+      });
+    if (response.body.ok === true) {
+      return `${email} : OK`;
     }
-  }));
-};
+    console.error(response.body);
+    return `${email}: Failed`;
+  } catch (e) {
+    console.error(e);
+    return `Failed to send invite to ${email}`;
+  }
+}));

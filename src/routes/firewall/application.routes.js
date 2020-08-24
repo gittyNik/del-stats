@@ -2,7 +2,7 @@ import Express from 'express';
 import {
   getAllApplications, getApplicationsByUserId, getApplicationById,
   getLiveApplications, addApplication, updateApplication, deleteApplication,
-  payment, getLatestApplication, getApplicationStats,
+  payment, getLatestApplication, getApplicationStats, getApplicationStageAPI, setApplicationStageAPI,
 } from '../../controllers/firewall/application.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 
@@ -23,7 +23,19 @@ router.get('/', getAllApplications);
  * @apiName GetLiveApplications
  * @apiGroup Application
  */
+
 router.get('/live', getLiveApplications);
+
+/**
+ * @api {get} /firewall/applications/stage  Get Application STAGE
+ * @apiDescription Update an application
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UpdateApplication
+ * @apiGroup Application
+ *
+ */
+
+router.get('/stage', getApplicationStageAPI);
 
 /**
  * @api {get} /firewall/applications/latest Get latest application by current user
@@ -73,6 +85,18 @@ router.get('/:id/stats', getApplicationStats);
 router.post('/', addApplication);
 
 /**
+ * @api {patch} /firewall/applications/stage  Update Application STAGE
+ * @apiDescription Update an application
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UpdateApplication
+ * @apiGroup Application
+ *
+ * @apiParam {String} stage
+ */
+
+router.patch('/stage', setApplicationStageAPI);
+
+/**
  * @api {patch} /firewall/applications/:id  Update Application
  * @apiDescription Update an application
  * @apiHeader {String} authorization JWT Token.
@@ -82,6 +106,7 @@ router.post('/', addApplication);
  * @apiParam {String} cohort_joining
  * @apiParam {String} status
  */
+
 router.patch('/:id', updateApplication);
 
 /**

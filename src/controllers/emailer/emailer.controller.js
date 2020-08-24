@@ -31,7 +31,7 @@ async function downloadFile(bucket, objectKey) {
   }
 }
 
-export const replaceFields = (key, value, htmlFile) => htmlFile.replace(`((${key}))`, value);
+export const replaceFields = (key, value, htmlFile) => htmlFile.replace(`{{${key}}}`, value);
 
 export const sendEmail = async (from_name, to_users, subject,
   html_path, auth, email_attachments, replacement_fields) => {
@@ -53,7 +53,6 @@ export const sendEmail = async (from_name, to_users, subject,
   Object.keys(replacement_fields).forEach((key) => {
     html = replaceFields(key, replacement_fields[key], html);
   });
-
 
   // send mail with defined transport object
   const mailOptions = {
@@ -80,7 +79,6 @@ export const sendEmail = async (from_name, to_users, subject,
     let key = 'attachments';
     mailOptions[key] = attachment_array;
   }
-
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {

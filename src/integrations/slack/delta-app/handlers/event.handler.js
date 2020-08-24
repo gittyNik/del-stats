@@ -11,13 +11,13 @@ slackEvents.on('message', (event) => {
 slackEvents.on('app_home_opened', (event) => {
   if (event.tab === 'home') {
     publishHome(event.user).catch(err => {
-      console.log(err);
+      console.error(err);
     });
   }
 });
 
 slackEvents.on('error', (error) => {
-  console.log(error);
+  console.error(error);
 });
 
 export default slackEvents.expressMiddleware();

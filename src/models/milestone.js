@@ -13,6 +13,12 @@ export const Milestone = db.define('milestones', {
     allowNull: false,
     type: Sequelize.STRING,
   },
+  duration: {
+    type: Sequelize.INTEGER,
+  },
+  alias: {
+    type: Sequelize.STRING,
+  },
   prerequisite_milestones: Sequelize.ARRAY(Sequelize.UUID),
   problem_statement: Sequelize.TEXT,
   learning_competencies: Sequelize.ARRAY(Sequelize.STRING),
@@ -93,7 +99,6 @@ export const updateMilestones = (id,
       },
     });
   });
-
 
 export const deleteMilestones = (id) => Milestone.destroy(
   { where: { id } },

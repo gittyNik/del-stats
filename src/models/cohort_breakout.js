@@ -375,6 +375,9 @@ export const createCohortBreakouts = (
         breakout_schedule, details,
       } = breakoutTemplate;
 
+      if (secondary_catalysts === null) {
+        secondary_catalysts = [];
+      }
       secondary_catalysts.push(primary_catalyst);
       let catalyst = secondary_catalysts[Math.floor(Math.random() * secondary_catalysts.length)];
 

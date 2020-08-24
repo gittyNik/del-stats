@@ -83,7 +83,6 @@ export const createUserEntry = (user_id, document_details, status, payment_statu
   },
 );
 
-
 export const updateUserEntry = (user_id, document_details, status, payment_status,
   is_isa = false, is_verified = false) => Documents.update({
   document_details,

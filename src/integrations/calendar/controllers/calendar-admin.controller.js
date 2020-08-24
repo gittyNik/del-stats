@@ -1,12 +1,10 @@
-import { listEvents, createEvent, } from '../calendar.model';
+import { listEvents, createEvent } from '../calendar.model';
 import { getGoogleOauthOfUser } from '../../../util/calendar-util';
 import { CohortBreakout, getCalendarDetailsOfCohortBreakout } from '../../../models/cohort_breakout';
 import { Cohort } from '../../../models/cohort';
 
-
 export const getAllEvents = async (req, res) => {
   const { user } = req.jwtData;
-  console.log(user);
   const oauth = await getGoogleOauthOfUser(user.id);
   const events = await listEvents(oauth);
   res.json(events);
