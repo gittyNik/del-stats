@@ -147,6 +147,54 @@ export const createSuperAdmin = () => User.findOrCreate({
   },
 });
 
+export const removeUserStatus = (
+  id, existing_status, status_reason, updated_by_id, updated_by_name, milestone_id, milestone_name,
+  cohort_id, cohort_name,
+) => {
+  User.findOne({
+    where: {
+      id,
+    },
+  }).then((userStatus) => {
+    if (_.isEmpty(userStatus)) {
+      throw Error('User does not exist');
+    }
+    const removeIndex = userStatus.status.indexOf(existing_status);
+    if (removeIndex > -1) {
+      throw Error('User status does not exist');
+    } else {
+      userStatus.status.splice(removeIndex, 1);
+
+      let statusDetails = {
+        status_reason,
+        removed_status: existing_status,
+        date: new Date(),
+        updated_by: { id: updated_by_id, name: updated_by_name },
+      };
+
+      if ((milestone_id) && (milestone_name)) {
+        statusDetails.milestone = { id: milestone_id, name: milestone_name };
+      }
+      if ((cohort_id) && (cohort_name)) {
+        statusDetails.cohort = { id: cohort_id, name: cohort_name };
+      }
+
+      userStatus.status_reason.push(statusDetails);
+
+      return userStatus.update({
+        status_reason: userStatus.status_reason,
+        status: userStatus.status,
+      }, {
+        where: {
+          id,
+        },
+        returning: true,
+        raw: true,
+      });
+    }
+  });
+};
+
 export const addUserStatus = (
   id, status, status_reason, updated_by_id, updated_by_name, milestone_id, milestone_name,
   cohort_id, cohort_name,
@@ -185,6 +233,8 @@ export const addUserStatus = (
           where: {
             id,
           },
+          returning: true,
+          raw: true,
         });
       });
   }

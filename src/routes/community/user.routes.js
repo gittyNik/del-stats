@@ -4,6 +4,7 @@ import {
   getEducators,
   updateUserStatus,
   leastAttendanceInCohort,
+  removeUserStatusApi,
 } from '../../controllers/community/user.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -17,6 +18,8 @@ const router = express.Router();
 router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER]));
 
 router.post('/', updateUserStatus);
+
+router.post('/remove-status', removeUserStatusApi);
 
 router.post('/least-attendance', leastAttendanceInCohort);
 

@@ -2,6 +2,7 @@ import Sequelize from 'sequelize';
 import { apiNotReady } from '../api.controller';
 import {
   User, USER_ROLES, addUserStatus, updateUserData,
+  removeUserStatus,
 } from '../../models/user';
 import {
   lastNBreakoutsForLearner,
@@ -124,6 +125,26 @@ export const getEducators = (req, res) => {
   }).then(data => {
     res.json({
       text: 'Teaching users',
+      data,
+    });
+  }).catch(err => {
+    console.error(err);
+    res.sendStatus(500);
+  });
+};
+
+export const removeUserStatusApi = (req, res) => {
+  let {
+    user_id, status, reason, milestone_id, milestone_name,
+    cohort_id, cohort_name,
+  } = req.body;
+  let { id, name } = req.jwtData.user;
+
+  removeUserStatus(user_id, status, reason, id, name,
+    milestone_id, milestone_name,
+    cohort_id, cohort_name).then(data => {
+    res.json({
+      text: `Removed User status: ${status}`,
       data,
     });
   }).catch(err => {
