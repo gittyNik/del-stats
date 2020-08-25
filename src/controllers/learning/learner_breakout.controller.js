@@ -70,7 +70,11 @@ export const getLearnerBreakoutsByBreakoutId = (req, res) => {
     where: {
       cohort_breakout_id,
     },
-    include: [User],
+    include: [{
+      model: User,
+      attributes: ['name'],
+      required: false,
+    }],
   })
     .then((data) => res.json({
       text: 'Learner breakouts for a cohort breakout',

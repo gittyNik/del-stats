@@ -78,40 +78,39 @@ export const LearnerBreakout = db.define('learner_breakouts', {
 export const createLearnerBreakoutsForCohortMilestones = (
   cohort_breakout_id,
   cohort_id,
-) =>
-  // console.log(cohort_breakout_id, cohort_id);
-  Cohort.findOne({
-    attributes: ['id', 'learners'],
-    where: {
-      id: cohort_id,
-    },
-    raw: true,
-  })
-    .then((cohort) => {
-      let learnerBreakouts = cohort.learners.map((learner) => {
-        // console.log(learner, cohort_breakout_id);
-        let learnerBreakout = LearnerBreakout.create({
-          id: uuid(),
-          cohort_breakout_id,
-          learner_id: learner,
-          attendance: false,
-        })
-          .then((data) => data.get({ plain: true }))
-          .catch((err) => {
-            console.error(err);
-            return null;
-          });
-        return learnerBreakout;
-      });
-      // console.log(
-      //   `${learnerBreakouts.length} learner_breakouts created for a cohort_breakout_id: ${cohort_breakout_id}`,
-      // );
-      return learnerBreakouts;
-    })
-    .catch((err) => {
-      console.error(err);
-      return null;
+) => Cohort.findOne({
+  attributes: ['id', 'learners'],
+  where: {
+    id: cohort_id,
+  },
+  raw: true,
+})
+  .then((cohort) => {
+    let learnerBreakouts = cohort.learners.map((learner) => {
+      // console.log(learner, cohort_breakout_id);
+      let learnerBreakout = LearnerBreakout.create({
+        id: uuid(),
+        cohort_breakout_id,
+        learner_id: learner,
+        attendance: false,
+      })
+        .then((data) => data.get({ plain: true }))
+        .catch((err) => {
+          console.error(err);
+          return null;
+        });
+      return learnerBreakout;
     });
+      // console.log(
+    //   `${learnerBreakouts.length} learner_breakouts created
+    // for a cohort_breakout_id: ${ cohort_breakout_id }`,
+      // );
+    return learnerBreakouts;
+  })
+  .catch((err) => {
+    console.error(err);
+    return null;
+  });
 
 export const createLearnerBreakoutsForLearners = (
   cohort_breakout_id,
@@ -335,5 +334,3 @@ export const updateCalendarEventInLearnerBreakout = async (cohort_breakout_id) =
       return false;
     });
 };
-
-export default LearnerBreakout;
