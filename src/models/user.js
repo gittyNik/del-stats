@@ -151,7 +151,7 @@ export const removeUserStatus = (
   id, existing_status, status_reason, updated_by_id, updated_by_name, milestone_id, milestone_name,
   cohort_id, cohort_name,
 ) => {
-  User.findOne({
+  return User.findOne({
     where: {
       id,
     },
@@ -160,7 +160,7 @@ export const removeUserStatus = (
       throw Error('User does not exist');
     }
     const removeIndex = userStatus.status.indexOf(existing_status);
-    if (removeIndex > -1) {
+    if (removeIndex === -1) {
       throw Error('User status does not exist');
     } else {
       userStatus.status.splice(removeIndex, 1);
@@ -181,7 +181,7 @@ export const removeUserStatus = (
 
       userStatus.status_reason.push(statusDetails);
 
-      return userStatus.update({
+      return User.update({
         status_reason: userStatus.status_reason,
         status: userStatus.status,
       }, {
@@ -226,7 +226,7 @@ export const addUserStatus = (
 
         userStatus.status_reason.push(statusDetails);
         userStatus.status.push(status);
-        return userStatus.update({
+        return User.update({
           status_reason: userStatus.status_reason,
           status: userStatus.status,
         }, {
