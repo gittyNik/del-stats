@@ -72,8 +72,6 @@ export const getLearnerBreakoutsByBreakoutId = (req, res) => {
     },
     include: [{
       model: User,
-      attributes: ['name'],
-      required: false,
     }],
   })
     .then((data) => res.json({
