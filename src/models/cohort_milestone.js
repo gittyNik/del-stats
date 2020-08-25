@@ -353,7 +353,7 @@ export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
     return Promise.all([
       findTopicsForCohortAndMilestone(cohort_id, milestone_id),
       findTopicsForCohortAndMilestone(cohort_id),
-      createMilestoneTeams(milestone),
+      createMilestoneTeams(id),
       findBreakoutsForMilestone(cohort_id, milestone_id),
     ])
       .then(populateTeamsWithLearnersWrapper)
