@@ -37,12 +37,16 @@ export const notifyLearnersInChannel = async (req, res) => {
   let {
     learner_id, text, cohort_id, type, team_number,
   } = req.body;
-  const learner = await getProfile(learner_id);
-  const { email } = learner;
+  if(learner_id) {
+    var learner = await getProfile(learner_id);
+    var { email } = learner;
+  }
   let slackUserResponse;
   try {
-    slackUserResponse = await web.users.lookupByEmail({ email });
-    const slackUserId = slackUserResponse.user.id;
+    if(learner_id) {
+      slackUserResponse = await web.users.lookupByEmail({ email });
+      var slackUserId = slackUserResponse.user.id;
+    }
     if (typeof cohort_id === 'undefined') {
       cohort_id = await getCohortIdFromLearnerId(learner_id);
     }
@@ -50,13 +54,13 @@ export const notifyLearnersInChannel = async (req, res) => {
     // console.log(channel_id);
 
     switch (type) {
-      case 'review':
+      case 'reviews':
         text = REVIEW_TEMPLATE(team_number);
         break;
       case 'assessment':
         text = ASSESSMENT_TEMPLATE;
         break;
-      case 'breakout':
+      case 'lecture':
         text = BREAKOUT_TEMPLATE;
         break;
       case 'question_hour':
