@@ -15,11 +15,20 @@ export const getOne = (req, res) => {
 export const create = (req, res) => {
   // console.log('In create Prompt');
   const {
-    name, duration, pings, type,
+    provider, username, email,
+    profile,
+    access_token,
+    expiry,
   } = req.body;
-  // console.log(req);
+  const { id } = req.jwtData.user;
   SocialConnection.create({
-    name, duration, pings, type,
+    user_id: id,
+    provider,
+    username,
+    email,
+    profile,
+    access_token,
+    expiry,
   })
     .then(data => res.status(201).json({ data }))
     .catch((err) => {
@@ -30,10 +39,19 @@ export const create = (req, res) => {
 
 export const update = (req, res) => {
   const {
-    name, type, duration, pings, tags,
+    provider, username, email,
+    profile,
+    access_token,
+    expiry,
   } = req.body;
+  const { id } = req.jwtData.user;
   SocialConnection.update(req.params.id, {
-    name, type, duration, pings, tags,
+    provider,
+    username,
+    email,
+    profile,
+    access_token,
+    expiry,
   })
     .then(data => res.json({ data }))
     .catch(err => res.status(500).send(err));
