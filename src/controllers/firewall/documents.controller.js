@@ -24,7 +24,13 @@ AWS.config.update(
     region: AWS_REGION,
   },
 );
-const s3 = new AWS.S3();
+const s3 = new AWS.S3({
+  endpoint: 's3-ap-south-1.amazonaws.com',
+  accessKeyId: AWS_ACCESS_KEY,
+  secretAccessKey: AWS_SECRET,
+  signatureVersion: 'v4',
+  region: AWS_REGION,
+});
 
 const type_upload = {
   video: {
@@ -209,8 +215,6 @@ export const signedUploadUrl = async (
     Bucket: bucket,
     Key: filePath,
     Expires: 500,
-    ContentType: fileType,
-    ACL: 'public-read',
   };
   // Make a request to the S3 API to get a signed URL which we can use to upload our file
   try {
