@@ -8,6 +8,8 @@ import learningRouter from './learning';
 import toolsetRouter from './toolset';
 import emailer from './emailer';
 
+import operations from './operations';
+
 import authRouter from './auth';
 import adminRouter from './admin.routes';
 import profileRouter from './community/profile.routes';
@@ -45,6 +47,9 @@ router.use('/toolset', toolsetRouter);
 router.use('/admin', adminRouter);
 router.use('/profile', profileRouter);
 router.use('/email', emailer);
+
+// Operations route
+router.use('/operations', operations);
 
 // Calendar
 router.use('/calendar', calendarRouter);

@@ -16,8 +16,7 @@ import {
   isExistingRepository,
 } from '../integrations/github/controllers/repository.controller';
 import { getGithubConnecionByUserId } from './social_connection';
-
-const { contains } = Sequelize.Op;
+import lastNBreakoutsForLearner from '../controllers/operations/attendance.controller';
 
 export const Team = db.define('milestone_learner_teams', {
   id: {
@@ -151,6 +150,16 @@ const toGithubFormat = str => {
     }
   }
   return finalStr;
+};
+
+export const getLeastAttendingLearners = learners => Promise.all(learners.map(id => {
+  let last5Breakouts = lastNBreakoutsForLearner(id, 5);
+  return last5Breakouts.filter(({ attendance }) => attendance === false);
+}));
+
+export const belowThresholdLearners = async (learners) => {
+  let absentLearners = await getLeastAttendingLearners(learners);
+  console.log(absentLearners);
 };
 
 export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {

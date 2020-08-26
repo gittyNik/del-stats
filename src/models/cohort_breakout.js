@@ -656,3 +656,5 @@ export const updateCohortBreakouts = ({ whereObject, updateObject }) => CohortBr
     console.error(err);
     return 'Error updating cohort breakout';
   });
+
+export default CohortBreakout;

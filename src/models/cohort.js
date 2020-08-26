@@ -23,6 +23,11 @@ export const COHORT_STATUS = [
   'fast-filling',
 ];
 
+const COHORT_TYPE = [
+  'hybrid',
+  'remote',
+];
+
 export const Cohort = db.define('cohorts', {
   id: {
     type: Sequelize.UUID,
@@ -30,6 +35,10 @@ export const Cohort = db.define('cohorts', {
   },
   status: {
     type: Sequelize.ENUM(...COHORT_STATUS),
+    defaultValue: 'upcoming',
+  },
+  type: {
+    type: Sequelize.ENUM(...COHORT_TYPE),
     defaultValue: 'upcoming',
   },
   name: Sequelize.STRING,
@@ -46,6 +55,24 @@ export const Cohort = db.define('cohorts', {
   },
   duration: Sequelize.INTEGER,
 
+});
+
+export const findAllCohorts = (
+  where, attributes, include, order,
+) => Cohort.findAll({
+  where,
+  include,
+  order,
+  attributes,
+});
+
+export const findOneCohort = (
+  where, attributes, include, order,
+) => Cohort.findAll({
+  where,
+  include,
+  order,
+  attributes,
 });
 
 export const getCohortsStartingToday = () => {
