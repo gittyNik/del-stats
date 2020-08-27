@@ -344,13 +344,17 @@ export const addLearner = async (learners, cohort_id) => {
   let cohort_breakouts = await getCohortBreakoutsBetweenDates(cohort_id, cohort_milestone.release_time, cohort_milestone.review_scheduled);
   let data = [];
 
-  for (let i = 0; i < learners.length; i++) {
-    let learner_id = learners[i];
-    let a = await addLearnerToCohort(learner_id, cohort_id);
-    let b = await updateCohortJoining(learner_id, cohort_id);
-    let c = await addLearnerToGithubTeam(learner_id, cohort_id);
-    let d = await createLearnerBreakoutsForCurrentMS(learner_id, cohort_breakouts);
-    data.push([a, b, c, d]);
+  try {
+    for (let i = 0; i < learners.length; i++) {
+      let learner_id = learners[i];
+      let cohort = await addLearnerToCohort(learner_id, cohort_id);
+      let application = await updateCohortJoining(learner_id, cohort_id);
+      let team = await addLearnerToGithubTeam(learner_id, cohort_id);
+      let lBreakout = await createLearnerBreakoutsForCurrentMS(learner_id, cohort_breakouts);
+      data.push([cohort, application, team, lBreakout]);
+    }
+    return data;
+  } catch (err) {
+    return err;
   }
-  return data;
 };
