@@ -1,3 +1,4 @@
+import { uuid } from 'uuid/v4';
 import { SocialConnection, getGithubConnecionByUserId } from '../../models/social_connection';
 
 export const getAll = (req, res) => {
@@ -22,6 +23,7 @@ export const create = (req, res) => {
   } = req.body;
   const { id } = req.jwtData.user;
   SocialConnection.create({
+    id: uuid(),
     user_id: id,
     provider,
     username,
