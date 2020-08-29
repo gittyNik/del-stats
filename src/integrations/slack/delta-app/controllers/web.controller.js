@@ -6,10 +6,10 @@ import { CohortBreakout } from '../../../../models/cohort_breakout';
 import { postMessage } from '../utility/chat';
 import { getChannelIdForCohort } from '../../../../models/slack_channels';
 
-const REVIEW_TEMPLATE = (team_number) => `Team: ${team_number} join the review`;
-const ASSESSMENT_TEMPLATE = 'Join the Assement now';
-const BREAKOUT_TEMPLATE = 'Join the Breakout now';
-const QUESTIONAIRE_TEMPLATE = 'Join the Question Hour now';
+const REVIEW_TEMPLATE = (team_number) => `Team: ${team_number}, Reviewer is reminding you to join the review. Please join from DELTA`;
+const ASSESSMENT_TEMPLATE = 'Reviewer is reminding you to join the review. Please join from DELTA';
+const BREAKOUT_TEMPLATE = 'Catalyst is reminding you to join the Breakout. Please join from DELTA';
+const QUESTIONAIRE_TEMPLATE = 'Catalyst is reminding you to join the Question Hour. Please join from DELTA';
 
 export const sendMessage = (req, res) => {
   const {
