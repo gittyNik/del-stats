@@ -30,17 +30,12 @@ export const Documents = db.define('documents', {
     type: Sequelize.JSON,
     allowNull: true,
   },
-  payment_status: {
-    type: Sequelize.JSON,
-    allowNull: true,
-  },
-  is_isa: {
-    type: Sequelize.BOOLEAN,
-    defaultValue: false,
-  },
   status: {
     type: Sequelize.ENUM(...application_status),
     allowNull: false,
+  },
+  updated_by: {
+    type: Sequelize.ARRAY(Sequelize.JSON),
   },
 });
 
