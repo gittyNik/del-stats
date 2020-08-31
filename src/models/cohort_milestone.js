@@ -188,11 +188,11 @@ export const findTopicsForCohortAndMilestone = (cohort_id, milestone_id = null) 
 const populateTeamsWithLearnersWrapper = async ([
   topics,
   programTopics,
-  teams,
   breakouts,
+  teams,
 ]) => {
   teams = await populateTeamsWithLearners(teams);
-  return [topics, programTopics, teams, breakouts];
+  return [topics, programTopics, breakouts, teams];
 };
 
 export const populateLearnerStats = (
@@ -347,31 +347,44 @@ export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
     },
     include: [Cohort, Milestone],
     raw: true,
-  }).then(milestone => {
-    if (!milestone) return milestone;
+  }).then(async milestone => {
+    if (!milestone) {
+      milestone = await CohortMilestone.findOne({
+        order: [[Sequelize.col('release_time'), Sequelize.literal('DESC')]],
+        where: {
+          release_time: {
+            [lte]: now,
+          },
+          cohort_id,
+        },
+        include: [Cohort, Milestone],
+        raw: true,
+      });
+    }
     const { milestone_id, id } = milestone;
-    return Promise.all([
+    const cohortMilestonePromises = [
       findTopicsForCohortAndMilestone(cohort_id, milestone_id),
       findTopicsForCohortAndMilestone(cohort_id),
-      createMilestoneTeams(id),
       findBreakoutsForMilestone(cohort_id, milestone_id),
-    ])
-      .then(populateTeamsWithLearnersWrapper)
+    ];
+    if (milestone['milestone.starter_repo']) {
+      cohortMilestonePromises.push(createMilestoneTeams(id));
+    }
+    const cohortData = await Promise.all(cohortMilestonePromises);
+    if (milestone['milestone.starter_repo']) {
+      return populateTeamsWithLearnersWrapper(cohortData);
+    }
+    const [topics, programTopics,
       // UNCOMMENT THIS ONCE THE STATS ARE READY
-      // .then(populateLearnerStats(user_id, cohort_id, milestone.id))
-      .then(([topics, programTopics, teams,
-        // UNCOMMENT THIS ONCE THE STATS ARE READY
-        // stats,
-        breakouts]) => { // add breakouts
-        milestone.topics = topics;
-        milestone.programTopics = programTopics;
-        milestone.teams = teams;
-        // UNCOMMENT THIS ONCE THE STATS ARE READY
-        // milestone.stats = stats;
-        milestone.breakouts = breakouts;
-        //  milestone.breakouts = milestones;
-        return milestone;
-      });
+      // stats,
+      breakouts, teams] = cohortData;
+    milestone.topics = topics;
+    milestone.programTopics = programTopics;
+    milestone.teams = teams;
+    // UNCOMMENT THIS ONCE THE STATS ARE READY
+    // milestone.stats = stats;
+    milestone.breakouts = breakouts;
+    return milestone;
   });
 };
 
@@ -383,7 +396,8 @@ export const getCohortMilestoneById = (milestone_id, user_id) => CohortMilestone
   raw: true,
 }).then(milestone => populateMilestone(milestone, user_id));
 
-function* calculateReleaseTime(cohort_start, pending, cohort_duration, cohort_program) {
+function* calculateReleaseTime(cohort_start, pending,
+  cohort_duration, cohort_program, duration) {
   const DAY_MSEC = 86400000;
   let milestone_duration = 0;
   const start = new Date(cohort_start);
@@ -426,7 +440,7 @@ export const createCohortMilestones = cohort_id => Cohort.findByPk(cohort_id, {
   const cohort_duration = cohort.duration;
   const cohort_program_id = cohort.program_id;
   const release = calculateReleaseTime(cohort.start_date,
-    milestones.length, cohort_duration, cohort_program_id);
+    milestones.length, cohort_duration, cohort_program_id, milestones.duration);
   const cohort_milestones = milestones.map(milestone_id => {
     const { value } = release.next();
 
