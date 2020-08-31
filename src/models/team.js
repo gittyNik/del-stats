@@ -16,8 +16,7 @@ import {
   isExistingRepository,
 } from '../integrations/github/controllers/repository.controller';
 import { getGithubConnecionByUserId } from './social_connection';
-
-const { contains } = Sequelize.Op;
+import lastNBreakoutsForLearner from '../controllers/operations/attendance.controller';
 
 export const Team = db.define('milestone_learner_teams', {
   id: {
@@ -153,6 +152,16 @@ const toGithubFormat = str => {
   return finalStr;
 };
 
+export const getLeastAttendingLearners = learners => Promise.all(learners.map(id => {
+  let last5Breakouts = lastNBreakoutsForLearner(id, 5);
+  return last5Breakouts.filter(({ attendance }) => attendance === false);
+}));
+
+export const belowThresholdLearners = async (learners) => {
+  let absentLearners = await getLeastAttendingLearners(learners);
+  console.log(absentLearners);
+};
+
 export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
   let m = []; let
     teams = [];
@@ -232,18 +241,26 @@ export const createMilestoneTeams = cohort_milestone_id => findTeamsByCohortMile
   if (teams.length !== 0) {
     return teams;
   }
-  return CohortMilestone.findByPk(cohort_milestone_id)
-    .then(m => m.getUsers())
-    .then(splitFrontEndAndBackEnd(cohort_milestone_id))
-    .then(cteams => Team.bulkCreate(
-      cteams.map(({ team, repo }) => ({
-        id: uuid(),
-        name: faker.commerce.productName(),
-        cohort_milestone_id,
-        learners: team,
-        github_repo_link: repo,
-      })),
-    ));
+  // Temp fix so that learners can see Delta
+  // Needs to be replaced with a logic checking for Milestones
+  // which only require team creation
+  try {
+    return CohortMilestone.findByPk(cohort_milestone_id)
+      .then(m => m.getUsers())
+      .then(splitFrontEndAndBackEnd(cohort_milestone_id))
+      .then(cteams => Team.bulkCreate(
+        cteams.map(({ team, repo }) => ({
+          id: uuid(),
+          name: faker.commerce.productName(),
+          cohort_milestone_id,
+          learners: team,
+          github_repo_link: repo,
+        })),
+      ));
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
 });
 
 export const getTeamsbyCohortMilestoneId = cohort_milestone_id => Team.findAll(

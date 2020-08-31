@@ -98,12 +98,16 @@ export const createScheduledMeeting = async (topic, start_time,
   let catalyst_email;
   let host_key;
   if (catalyst_id !== null) {
-    let catalyst_details = await User.findByPk(catalyst_id, {
-      where: { role: { $not: 'catalyst' } },
+    let catalyst_details = await User.findOne({
+      where: {
+        role: { [Sequelize.Op.not]: 'catalyst' },
+        id: catalyst_id,
+      },
       attributes: ['email'],
     });
-
-    catalyst_email = catalyst_details.email;
+    if (catalyst_details) {
+      catalyst_email = catalyst_details.email;
+    }
   }
 
   const { ZOOM_BASE_URL, ZOOM_USER, HOST_KEYS } = process.env;
@@ -111,10 +115,14 @@ export const createScheduledMeeting = async (topic, start_time,
   let host_key_arrays = HOST_KEYS.split(',');
 
   const duration = millisecondsToMinutes(millisecs_duration);
+
+  let db_update_time = start_time.toISOString();
+  let zoom_start_time = start_time.toLocaleString().split(' ').join('T');
+
   const meeting_object = {
     topic,
     type: type || 2, // defaults to scheduled Meeting
-    start_time,
+    start_time: zoom_start_time,
     duration,
     timezone,
     password: 'soal',
@@ -126,13 +134,15 @@ export const createScheduledMeeting = async (topic, start_time,
   if ((catalyst_email === null) || (catalyst_email === undefined)) {
     // console.log('trying to create meeting');
     // Calculate End time for Meeting
-    let end_time = new Date(start_time + (duration * 60 * 1000));
+    let starting_time = new Date(start_time);
+    let end_time = new Date(start_time);
+    end_time.setMinutes(end_time.getMinutes() + duration);
 
     // Check if Meeting exist between same start and end time
     let concurrent_meet = await VideoMeeting.findAll({
       where: {
         zoom_user: { [opIn]: zoom_user_array },
-        start_time: { [between]: [start_time, end_time] },
+        start_time: { [between]: [starting_time, end_time] },
       },
     });
     let zoom_user_index = 0;
@@ -171,7 +181,7 @@ export const createScheduledMeeting = async (topic, start_time,
         start_url,
         join_url,
         duration,
-        start_time,
+        start_time: db_update_time,
         zoom_user: catalyst_email,
       })
         .then(video =>
@@ -189,7 +199,7 @@ export const createScheduledMeeting = async (topic, start_time,
           deleteMeetingFromZoom(id);
           console.error('meeting created on zoom but error in storing to DB', err);
           return {
-            text: 'Failed to save the vide details on DB.',
+            text: 'Failed to save the video details on DB.',
           };
         });
     })
@@ -331,6 +341,7 @@ export const updateVideoMeeting = async (meetingId, updatedTime) => {
     let dateupdatedTime = new Date(updatedTime);
     let updatedTimeZoneTime = changeTimezone(dateupdatedTime, 'Asia/Kolkata');
 
+    let db_update_time = updatedTimeZoneTime.toISOString();
     let time = updatedTimeZoneTime.toLocaleString().split(' ').join('T');
 
     let response = await request
@@ -344,7 +355,7 @@ export const updateVideoMeeting = async (meetingId, updatedTime) => {
 
     if (response.status === 204) {
       await VideoMeeting.update({
-        start_time: time,
+        start_time: db_update_time,
       }, {
         where: { video_id: meetingId },
         raw: true,
@@ -365,6 +376,7 @@ export const updateCohortMeeting = async (cohort_breakout_id, updatedTime,
   }
   let { details, catalyst_id, duration } = cohort_breakout.toJSON();
   let updated;
+  updatedTime = new Date(updatedTime);
   let data = {};
   if (typeof details.zoom !== 'undefined') {
     if (typeof details.zoom.id === 'undefined') {

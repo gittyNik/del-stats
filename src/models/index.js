@@ -62,14 +62,14 @@ CohortBreakout.belongsTo(BreakoutTemplate);
 CohortBreakout.belongsTo(User, { as: 'catalyst', foreignKey: 'catalyst_id' });
 
 LearnerBreakout.belongsTo(User, { foreignKey: 'learner_id' });
+// User.hasMany(LearnerBreakout);
 
 LearnerChallenge.belongsTo(Challenge);
 
 Milestone.hasMany(Topic);
 
 CohortBreakout.hasMany(LearnerBreakout, { foreignKey: 'cohort_breakout_id' });
-
-LearnerBreakout.belongsTo(User, { foreignKey: 'learner_id' });
+LearnerBreakout.belongsTo(CohortBreakout);
 
 LearnerGithubMilestones.belongsTo(User, { foreignKey: 'user_id' });
 User.hasMany(LearnerGithubMilestones);

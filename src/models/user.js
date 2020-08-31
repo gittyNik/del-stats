@@ -14,6 +14,7 @@ export const USER_ROLES = Object.freeze({
   GUEST: 'guest',
   SUPERADMIN: 'superadmin',
   REVIEWER: 'reviewer',
+  OPERATIONS: 'operations',
 });
 
 const AVAILABLE_USER_STATUS = [
@@ -32,6 +33,7 @@ const AVAILABLE_USER_STATUS = [
   'joining later',
   'prefers hindi',
   'back after absence',
+  'other',
 ];
 
 export const User = db.define(
@@ -144,7 +146,56 @@ export const createSuperAdmin = () => User.findOrCreate({
   },
 });
 
-export const addUserStatus = (id, status, status_reason) => {
+export const removeUserStatus = (
+  id, existing_status, status_reason, updated_by_id, updated_by_name, milestone_id, milestone_name,
+  cohort_id, cohort_name,
+) => User.findOne({
+  where: {
+    id,
+  },
+}).then((userStatus) => {
+  if (_.isEmpty(userStatus)) {
+    throw Error('User does not exist');
+  }
+  const removeIndex = userStatus.status.indexOf(existing_status);
+  if (removeIndex === -1) {
+    throw Error('User status does not exist');
+  } else {
+    userStatus.status.splice(removeIndex, 1);
+
+    let statusDetails = {
+      status_reason,
+      removed_status: existing_status,
+      date: new Date(),
+      updated_by: { id: updated_by_id, name: updated_by_name },
+    };
+
+    if ((milestone_id) && (milestone_name)) {
+      statusDetails.milestone = { id: milestone_id, name: milestone_name };
+    }
+    if ((cohort_id) && (cohort_name)) {
+      statusDetails.cohort = { id: cohort_id, name: cohort_name };
+    }
+
+    userStatus.status_reason.push(statusDetails);
+
+    return User.update({
+      status_reason: userStatus.status_reason,
+      status: userStatus.status,
+    }, {
+      where: {
+        id,
+      },
+      returning: true,
+      raw: true,
+    });
+  }
+});
+
+export const addUserStatus = (
+  id, status, status_reason, updated_by_id, updated_by_name, milestone_id, milestone_name,
+  cohort_id, cohort_name,
+) => {
   if (AVAILABLE_USER_STATUS.indexOf(status) > -1) {
     return User.findOne({
       where: {
@@ -156,17 +207,31 @@ export const addUserStatus = (id, status, status_reason) => {
           throw Error('User does not exist');
         }
 
-        let statusDetails = { status_reason, status, date: new Date() };
+        let statusDetails = {
+          status_reason,
+          status,
+          date: new Date(),
+          updated_by: { id: updated_by_id, name: updated_by_name },
+        };
+
+        if ((milestone_id) && (milestone_name)) {
+          statusDetails.milestone = { id: milestone_id, name: milestone_name };
+        }
+        if ((cohort_id) && (cohort_name)) {
+          statusDetails.cohort = { id: cohort_id, name: cohort_name };
+        }
 
         userStatus.status_reason.push(statusDetails);
         userStatus.status.push(status);
-        return userStatus.update({
+        return User.update({
           status_reason: userStatus.status_reason,
           status: userStatus.status,
         }, {
           where: {
             id,
           },
+          returning: true,
+          raw: true,
         });
       });
   }
