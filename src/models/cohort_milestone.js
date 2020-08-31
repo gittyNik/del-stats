@@ -247,37 +247,6 @@ export const findBreakoutsForMilestone = async (cohort_id, milestone_id) => {
   return breakouts.filter((breakout) => (breakout != null));
 };
 
-export const getCurrentMilestoneOfCohortDelta = (cohort_id) => {
-  const now = Sequelize.literal('NOW()');
-  return CohortMilestone.findOne({
-    order: Sequelize.col('release_time'),
-    where: {
-      release_time: { [lte]: now },
-      review_scheduled: { [gt]: now },
-      cohort_id,
-    },
-    include: [Cohort, Milestone],
-    raw: true,
-  })
-    .then(milestone => {
-      if (!milestone) return milestone;
-      const { milestone_id, id } = milestone;
-      return Promise.all([
-        findTopicsForCohortAndMilestone(cohort_id, milestone_id),
-        findTopicsForCohortAndMilestone(cohort_id),
-        getOrCreateMilestoneTeams(id),
-      ])
-        .then(([topics, programTopics, teams]) => {
-          // console.log(`Milestone topics: ${topics.length},
-          // Program topics: ${ programTopics.length }`);
-          milestone.topics = topics;
-          milestone.programTopics = programTopics;
-          milestone.teams = teams;
-          return milestone;
-        });
-    });
-};
-
 // TODO: Add filters here for Milestone and see if it solves bug
 export const getLiveMilestones = (program, cohort_duration) => {
   const now = Sequelize.literal('NOW()');
@@ -299,37 +268,76 @@ export const getLiveMilestones = (program, cohort_duration) => {
   });
 };
 
-export const populateMilestone = async (milestone, user_id) => {
-  if (!milestone) return milestone;
-  const {
-    cohort_id,
-    milestone_id,
-    id,
-    release_time,
-  } = milestone;
-  return Promise.all([
+export const getMilestoneBreakoutsTeams = async (milestone, cohort_id) => {
+  const { milestone_id, id } = milestone;
+  const cohortMilestonePromises = [
     findTopicsForCohortAndMilestone(cohort_id, milestone_id),
     findTopicsForCohortAndMilestone(cohort_id),
-    createMilestoneTeams(id, release_time),
     findBreakoutsForMilestone(cohort_id, milestone_id),
-  ])
-    .then(populateTeamsWithLearnersWrapper)
+  ];
+  if (milestone['milestone.starter_repo']) {
+    cohortMilestonePromises.push(createMilestoneTeams(id));
+  }
+  let cohortData = await Promise.all(cohortMilestonePromises);
+  if (milestone['milestone.starter_repo']) {
+    cohortData = await populateTeamsWithLearnersWrapper(cohortData);
+  }
+
+  const [topics, programTopics,
     // UNCOMMENT THIS ONCE THE STATS ARE READY
-    // .then(populateLearnerStats(user_id, cohort_id, milestone.id))
-    .then(([topics, programTopics, teams,
-      // UNCOMMENT THIS ONCE THE STATS ARE READY
-      // stats,
-      breakouts,
-    ]) => { // add breakouts
-      milestone.topics = topics;
-      milestone.programTopics = programTopics;
-      milestone.teams = teams;
-      // UNCOMMENT THIS ONCE THE STATS ARE READY
-      // milestone.stats = stats;
-      milestone.breakouts = breakouts;
-      //  milestone.breakouts = milestones;
+    // stats,
+    breakouts, teams] = cohortData;
+  milestone.topics = topics;
+  milestone.programTopics = programTopics;
+  milestone.teams = teams;
+  // UNCOMMENT THIS ONCE THE STATS ARE READY
+  // milestone.stats = stats;
+  milestone.breakouts = breakouts;
+  return milestone;
+};
+
+export const getMilestoneData = async (milestone, cohort_id) => {
+  const now = Sequelize.literal('NOW()');
+  if (!milestone) {
+    milestone = await CohortMilestone.findOne({
+      order: [[Sequelize.col('release_time'), Sequelize.literal('DESC')]],
+      where: {
+        release_time: {
+          [lte]: now,
+        },
+        cohort_id,
+      },
+      include: [Cohort, Milestone],
+      raw: true,
+    });
+  }
+  milestone = await getMilestoneBreakoutsTeams(milestone, cohort_id);
+  return milestone;
+};
+
+export const getCurrentMilestoneOfCohortDelta = (cohort_id) => {
+  const now = Sequelize.literal('NOW()');
+  return CohortMilestone.findOne({
+    order: Sequelize.col('release_time'),
+    where: {
+      release_time: { [lte]: now },
+      review_scheduled: { [gt]: now },
+      cohort_id,
+    },
+    include: [Cohort, Milestone],
+    raw: true,
+  })
+    .then(async milestone => {
+      if (!milestone) return milestone;
+      milestone = await getMilestoneBreakoutsTeams(milestone, cohort_id);
       return milestone;
     });
+};
+
+export const populateMilestone = async (milestone, user_id) => {
+  let { cohort_id } = milestone;
+  milestone = await getMilestoneData(milestone, cohort_id);
+  return milestone;
 };
 
 export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
@@ -348,42 +356,7 @@ export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
     include: [Cohort, Milestone],
     raw: true,
   }).then(async milestone => {
-    if (!milestone) {
-      milestone = await CohortMilestone.findOne({
-        order: [[Sequelize.col('release_time'), Sequelize.literal('DESC')]],
-        where: {
-          release_time: {
-            [lte]: now,
-          },
-          cohort_id,
-        },
-        include: [Cohort, Milestone],
-        raw: true,
-      });
-    }
-    const { milestone_id, id } = milestone;
-    const cohortMilestonePromises = [
-      findTopicsForCohortAndMilestone(cohort_id, milestone_id),
-      findTopicsForCohortAndMilestone(cohort_id),
-      findBreakoutsForMilestone(cohort_id, milestone_id),
-    ];
-    if (milestone['milestone.starter_repo']) {
-      cohortMilestonePromises.push(createMilestoneTeams(id));
-    }
-    const cohortData = await Promise.all(cohortMilestonePromises);
-    if (milestone['milestone.starter_repo']) {
-      return populateTeamsWithLearnersWrapper(cohortData);
-    }
-    const [topics, programTopics,
-      // UNCOMMENT THIS ONCE THE STATS ARE READY
-      // stats,
-      breakouts, teams] = cohortData;
-    milestone.topics = topics;
-    milestone.programTopics = programTopics;
-    milestone.teams = teams;
-    // UNCOMMENT THIS ONCE THE STATS ARE READY
-    // milestone.stats = stats;
-    milestone.breakouts = breakouts;
+    milestone = await getMilestoneData(milestone);
     return milestone;
   });
 };
