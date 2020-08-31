@@ -356,7 +356,7 @@ export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
     include: [Cohort, Milestone],
     raw: true,
   }).then(async milestone => {
-    milestone = await getMilestoneData(milestone);
+    milestone = await getMilestoneData(milestone, cohort_id);
     return milestone;
   });
 };
