@@ -88,5 +88,10 @@ export const attachZoomToBreakout = (req, res) => {
       text: 'Updated Meeting',
       data,
     }),
-  ).catch(err => res.json(err));
+  ).catch(
+    err => {
+      console.log(err);
+      res.json(err);
+    },
+  );
 };

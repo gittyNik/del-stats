@@ -133,7 +133,7 @@ export const createBreakout = (req, res) => {
     teamId, milestone_team_id, github_repo_link,
     milestone_id,
   } = req.body;
-  let time = time_scheduled.toLocaleString().split(' ').join('T');
+  let time = time_scheduled;
   // console.group(time);
 
   if (isCodeSandbox && isVideoMeeting) {
