@@ -376,6 +376,7 @@ export const updateCohortMeeting = async (cohort_breakout_id, updatedTime,
   }
   let { details, catalyst_id, duration } = cohort_breakout.toJSON();
   let updated;
+  updatedTime = new Date(updatedTime);
   let data = {};
   if (typeof details.zoom !== 'undefined') {
     if (typeof details.zoom.id === 'undefined') {
