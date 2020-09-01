@@ -6,10 +6,11 @@ import { CohortBreakout } from '../../../../models/cohort_breakout';
 import { postMessage } from '../utility/chat';
 import { getChannelIdForCohort } from '../../../../models/slack_channels';
 
-const REVIEW_TEMPLATE = (team_number) => `Team: ${team_number} join the review`;
-const ASSESSMENT_TEMPLATE = 'Join the Assement now';
-const BREAKOUT_TEMPLATE = 'Join the Breakout now';
-const QUESTIONAIRE_TEMPLATE = 'Join the Question Hour now';
+const REVIEW_TEMPLATE = (team_number) => `Team: ${team_number}, Reviewer is reminding you to join the review. Please join from DELTA`;
+const ASSESSMENT_TEMPLATE = 'Reviewer is reminding you to join the assessment. Please join from DELTA';
+const LEARNER_REVIEW_TEMPLATE = 'Reviewer is reminding you to join the review. Please join from DELTA';
+const BREAKOUT_TEMPLATE = 'Catalyst is reminding you to join the Breakout. Please join from DELTA';
+const QUESTIONAIRE_TEMPLATE = 'Catalyst is reminding you to join the Question Hour. Please join from DELTA';
 
 export const sendMessage = (req, res) => {
   const {
@@ -40,6 +41,9 @@ export const notifyLearnersInChannel = async (req, res) => {
   if(learner_id) {
     var learner = await getProfile(learner_id);
     var { email } = learner;
+    if(type === "reviews") {
+      text = LEARNER_REVIEW_TEMPLATE;
+    }
   }
   let slackUserResponse;
   try {
@@ -52,21 +56,22 @@ export const notifyLearnersInChannel = async (req, res) => {
     }
     const channel_id = await getChannelIdForCohort(cohort_id);
     // console.log(channel_id);
-
-    switch (type) {
-      case 'reviews':
-        text = REVIEW_TEMPLATE(team_number);
-        break;
-      case 'assessment':
-        text = ASSESSMENT_TEMPLATE;
-        break;
-      case 'lecture':
-        text = BREAKOUT_TEMPLATE;
-        break;
-      case 'question_hour':
-        text = QUESTIONAIRE_TEMPLATE;
-        break;
-      // no default
+    if(!text) {
+      switch (type) {
+        case 'reviews':
+          text = REVIEW_TEMPLATE(team_number);
+          break;
+        case 'assessment':
+          text = ASSESSMENT_TEMPLATE;
+          break;
+        case 'lecture':
+          text = BREAKOUT_TEMPLATE;
+          break;
+        case 'question_hour':
+          text = QUESTIONAIRE_TEMPLATE;
+          break;
+        // no default
+      }
     }
     const updatedText = (req.body.cohort_id) ? `<!channel> ${text}` : `<@${slackUserId}> ${text}`;
     const post_res = await postMessage({ channel: channel_id, text: updatedText });
