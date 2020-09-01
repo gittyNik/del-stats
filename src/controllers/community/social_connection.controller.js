@@ -1,4 +1,4 @@
-import { uuid } from 'uuid/v4';
+import uuid from 'uuid/v4';
 import { SocialConnection, getGithubConnecionByUserId } from '../../models/social_connection';
 
 export const getAll = (req, res) => {
