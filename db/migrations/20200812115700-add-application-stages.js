@@ -10,12 +10,13 @@ const APPLICATION_STAGE = [
 
 module.exports = {
   up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(t => Promise.all([
-    queryInterface.addColumn('applications', 'is_isa', {
+    queryInterface.changeColumn('applications', 'is_isa', {
       type: Sequelize.BOOLEAN,
       defaultValue: false,
     }, { transaction: t }),
-    queryInterface.addColumn('applications', 'stage', {
+    queryInterface.changeColumn('applications', 'stage', {
       type: Sequelize.ENUM(...APPLICATION_STAGE),
+      defaultValue: 'firewall-test'
     }, { transaction: t }),
   ])),
 

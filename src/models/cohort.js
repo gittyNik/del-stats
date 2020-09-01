@@ -3,12 +3,12 @@ import Sequelize from 'sequelize';
 import { Application, updateCohortJoining } from './application';
 import { User, USER_ROLES, changeUserRole } from './user';
 import db from '../database';
-import { createCohortMilestones, CohortMilestone } from './cohort_milestone';
-// import { CohortBreakout } from "./cohort_breakout";
+import { createCohortMilestones, CohortMilestone, getLiveCohortMilestone } from './cohort_milestone';
+import { getCohortBreakoutsBetweenDates } from './cohort_breakout';
 // import { BreakoutTemplate, CreateBreakoutsInMilestone } from './breakout_template';
 import { createTypeBreakoutsInMilestone } from './breakout_template';
-import { removeLearnerBreakouts, createLearnerBreakouts } from './learner_breakout';
-import { moveLearnerToNewGithubTeam, deleteGithubRepository } from '../integrations/github/controllers';
+import { removeLearnerBreakouts, createLearnerBreakouts, createLearnerBreakoutsForCurrentMS } from './learner_breakout';
+import { moveLearnerToNewGithubTeam, deleteGithubRepository, addLearnerToGithubTeam } from '../integrations/github/controllers';
 import { removeLearnerFromSlackChannel, moveLearnerToNewSlackChannel } from './slack_channels';
 import { removeLearnerFromGithubTeam } from '../integrations/github/controllers/teams.controller';
 
@@ -338,3 +338,23 @@ export const removeLearner = async (
       return data;
     }
   });
+
+export const addLearner = async (learners, cohort_id) => {
+  let cohort_milestone = await getLiveCohortMilestone(cohort_id);
+  let cohort_breakouts = await getCohortBreakoutsBetweenDates(cohort_id, cohort_milestone.release_time, cohort_milestone.review_scheduled);
+  let data = [];
+
+  try {
+    for (let i = 0; i < learners.length; i++) {
+      let learner_id = learners[i];
+      let cohort = await addLearnerToCohort(learner_id, cohort_id);
+      let application = await updateCohortJoining(learner_id, cohort_id);
+      let team = await addLearnerToGithubTeam(learner_id, cohort_id);
+      let lBreakout = await createLearnerBreakoutsForCurrentMS(learner_id, cohort_breakouts);
+      data.push([cohort, application, team, lBreakout]);
+    }
+    return data;
+  } catch (err) {
+    return err;
+  }
+};
