@@ -2,7 +2,6 @@ import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import _ from 'lodash';
 import faker from 'faker';
-import moment from 'moment';
 import db from '../database';
 import { CohortMilestone, getDataForMilestoneName } from './cohort_milestone';
 import { getProfile } from './user';
@@ -16,7 +15,9 @@ import {
   isExistingRepository,
 } from '../integrations/github/controllers/repository.controller';
 import { getGithubConnecionByUserId } from './social_connection';
-import lastNBreakoutsForLearner from '../controllers/operations/attendance.controller';
+import {
+  lastNBreakoutsForLearner,
+} from '../controllers/operations/attendance.controller';
 
 export const Team = db.define('milestone_learner_teams', {
   id: {
@@ -152,21 +153,41 @@ const toGithubFormat = str => {
   return finalStr;
 };
 
-export const getLeastAttendingLearners = learners => Promise.all(learners.map(id => {
-  let last5Breakouts = lastNBreakoutsForLearner(id, 5);
+export const getLeastAttendingLearners = (
+  learners, threshold = 5,
+) => Promise.all(learners.map(id => {
+  let last5Breakouts = lastNBreakoutsForLearner(id, threshold);
   return last5Breakouts.filter(({ attendance }) => attendance === false);
 }));
 
-export const belowThresholdLearners = async (learners) => {
-  let absentLearners = await getLeastAttendingLearners(learners);
-  console.log(absentLearners);
+export const belowThresholdLearners = async (learners, threshold) => {
+  let absentLearners = await getLeastAttendingLearners(learners, threshold);
+  let reduceLearner = absentLearners.reduce((a, b) => {
+    a.push(a.length + b.length); return a;
+  }, []);
+  let active_learners = [];
+  let inactive_learners = [];
+  reduceLearner.forEach((eachLearner, learnerIndex) => {
+    if (eachLearner > 3) {
+      inactive_learners.push(learners[learnerIndex]);
+    } else {
+      active_learners.push(learners[learnerIndex]);
+    }
+  });
+  return { active_learners, inactive_learners };
 };
 
-export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
-  let m = []; let
-    teams = [];
+export const splitFrontEndAndBackEnd = cohort_milestone_id => async learnerIds => {
+  let activelearnersProfile = [];
+  let inactivelearnersProfile = [];
+  let teams = [];
 
-  m = await Promise.all(mL.map(id => getProfile(id)));
+  // Separate Active and In-active learners,
+  // Inactive having more than 4 last attended breakouts as false
+  let allLearners = await belowThresholdLearners(learnerIds);
+  let { active_learners, inactive_learners } = allLearners;
+  activelearnersProfile = await Promise.all(active_learners.map(id => getProfile(id)));
+  inactivelearnersProfile = await Promise.all(inactive_learners.map(id => getProfile(id)));
 
   let data = await getDataForMilestoneName(cohort_milestone_id);
   let baseMilestoneName = `MS_${toSentenceCase(
@@ -180,21 +201,50 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async mL => {
   )}_${new Date(data.cohort.start_date).getFullYear()}`;
   let { starter_repo } = data.milestone;
 
-  if (m[0].status.includes('frontend') || m[0].status.includes('backend')) {
-    let frontendUsers = [];
-    let backendUsers = [];
-    m.map(ms => {
-      if (ms.status.includes('frontend')) {
-        frontendUsers.push(ms.id);
-      } else {
-        backendUsers.push(ms.id);
-      }
-    });
+  // Create Teams for active Learners
+  if (activelearnersProfile.length > 0) {
+    if (activelearnersProfile[0].status.includes('frontend')
+      || activelearnersProfile[0].status.includes('backend')) {
+      let frontendUsers = [];
+      let backendUsers = [];
+      activelearnersProfile.map(ms => {
+        if (ms.status.includes('frontend')) {
+          frontendUsers.push(ms.id);
+        } else {
+          backendUsers.push(ms.id);
+        }
+      });
 
-    teams = createFullStackTeams(frontendUsers, backendUsers);
-  } else {
-    m = m.map(ms => ms.id);
-    teams = splitTeams(m);
+      teams = createFullStackTeams(frontendUsers, backendUsers);
+    } else {
+      activelearnersProfile = activelearnersProfile.map(ms => ms.id);
+      teams = splitTeams(activelearnersProfile);
+    }
+  }
+
+  // Create Teams for inactive learners
+  let inactiveTeams;
+
+  if (inactivelearnersProfile.length > 0) {
+    if (inactivelearnersProfile[0].status.includes('frontend')
+      || inactivelearnersProfile[0].status.includes('backend')) {
+      let frontendUsers = [];
+      let backendUsers = [];
+      inactivelearnersProfile.map(ms => {
+        if (ms.status.includes('frontend')) {
+          frontendUsers.push(ms.id);
+        } else {
+          backendUsers.push(ms.id);
+        }
+      });
+
+      inactiveTeams = createFullStackTeams(frontendUsers, backendUsers);
+      teams.push(...inactiveTeams);
+    } else {
+      inactivelearnersProfile = inactivelearnersProfile.map(ms => ms.id);
+      inactiveTeams = splitTeams(inactivelearnersProfile);
+      teams.push(...inactiveTeams);
+    }
   }
 
   teams = await Promise.all(teams.map(async (team, i) => {
