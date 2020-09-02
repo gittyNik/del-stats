@@ -288,7 +288,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
     type, team_feedback, catalyst_notes,
   } = breakoutObject;
 
-  let time = time_scheduled.toLocaleString().split(' ').join('T');
+  let time = time_scheduled;
   let currentDateTime = new Date();
 
   if (time_scheduled < currentDateTime) {
@@ -486,11 +486,11 @@ export const updateZoomMeetingForBreakout = (
   id,
 ) => CohortBreakout.findByPk(id)
   .then(async (cohort_breakout) => {
-    let meetingTime = cohort_breakout.time_scheduled.toLocaleString().split(' ').join('T');
+    let meetingTime = cohort_breakout.time_scheduled;
     return createScheduledMeeting(
       cohort_breakout.topic_id,
       meetingTime,
-      cohort_breakout.breakout_duration,
+      cohort_breakout.duration,
       '',
       2,
       cohort_breakout.catalyst_id,
