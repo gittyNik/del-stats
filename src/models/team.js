@@ -364,5 +364,5 @@ export const getLearnerMilestoneTeam = (user_id, cohort_milestone_id) => Team.fi
     },
     cohort_milestone_id,
   },
-  attributes: ['github_repo_link', 'id'],
+  attributes: ['github_repo_link', 'id', 'learners'],
 });
