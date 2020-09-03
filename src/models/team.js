@@ -51,6 +51,16 @@ export const Team = db.define('milestone_learner_teams', {
   },
 });
 
+export const getLearnerTeam = (
+  cohort_milestone_id, learner_id,
+) => Team.findOne({
+  where: {
+    cohort_milestone_id,
+    learners: { [Sequelize.Op.contains]: [learner_id] },
+  },
+  raw: true,
+});
+
 const allFrontend = (current) => {
   if (current[0].stack !== current[1].stack) {
     return false;
@@ -195,9 +205,11 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async learnerIds =
   )}_${toSentenceCase(data.cohort.name)}_${toSentenceCase(
     data.cohort.program_id,
   )}_${toSentenceCase(
-    data.cohort.location === 'T-hub, IIIT Hyderabad'
-      ? 'Hyderabad'
-      : data.cohort.location,
+    data.cohort.location,
+  )}_${toSentenceCase(
+    data.cohort.duration === 16
+      ? 'Full-Time'
+      : 'Part-Time',
   )}_${new Date(data.cohort.start_date).getFullYear()}`;
   let { starter_repo } = data.milestone;
 
