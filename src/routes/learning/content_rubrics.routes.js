@@ -2,6 +2,7 @@ import Express from 'express';
 import {
   getAllRubricsAPI, getRubricsByIdAPI, getRubricsByProgramAPI,
   createRubricsAPI, updateRubricsAPI, deleteRubricAPI,
+  getRubricsByMilestoneAPI,
 } from '../../controllers/learning/content_rubrics.controller';
 import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -39,7 +40,16 @@ router.get('/:id', getRubricsByIdAPI);
  * @apiName GetRubrics
  * @apiGroup Rubrics
  */
-router.get('/review/:id', getRubricsByProgramAPI);
+router.get('/program/:id', getRubricsByProgramAPI);
+
+/**
+ * @api {get} /learning/content/rubrics/program/:program/milestone Get rubrics by Milestone
+ * @apiDescription get rubrics by milestone
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetRubrics
+ * @apiGroup Rubrics
+ */
+router.get('/milestone/:id/', getRubricsByMilestoneAPI);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowAdminsOnly);

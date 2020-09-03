@@ -34,6 +34,7 @@ res.status(500).json({
 
 Every model that you create should have CRUD Operations
 And should have controllers and routes for the same
+All CRUD Operations such be created only in the model file
 This will help us to create Content management systems quickly for the same
 
 Every model should have the following fields
