@@ -60,6 +60,7 @@ export const getAgreementTemplate = (
       is_job_guarantee,
       payment_type,
     },
+    attributes: ['document_identifier'],
     raw: true,
   },
 );
@@ -72,6 +73,7 @@ export const createAgreementTemplates = (
   payment_type,
   payment_details,
   updated_user,
+  document_identifier,
 ) => {
   let modified_by = { user: updated_user, time: NOW() };
   return AgreementTemplates.create(
@@ -83,6 +85,7 @@ export const createAgreementTemplates = (
       payment_type,
       payment_details,
       modified_by,
+      document_identifier,
       created_at: Sequelize.literal('NOW()'),
       updated_at: Sequelize.literal('NOW()'),
     },
@@ -97,6 +100,7 @@ export const updateAgreementTemplates = (
   payment_type,
   payment_details,
   updated_user,
+  document_identifier,
 ) => {
   let modified_by = { user: updated_user, time: NOW() };
   return AgreementTemplates.update({
@@ -106,6 +110,7 @@ export const updateAgreementTemplates = (
     is_job_guarantee,
     payment_type,
     payment_details,
+    document_identifier,
     modified_by: Sequelize.fn('array_append', Sequelize.col('modified_by'), modified_by),
   }, { where: { id } });
 };

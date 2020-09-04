@@ -60,6 +60,9 @@ export const Application = db.define('applications', {
     allowNull: false,
     type: Sequelize.DATE,
   },
+  payment_type: {
+    type: Sequelize.STRING,
+  },
 });
 
 Application.prototype.populateTestResponses = () => Test.findAll({
@@ -145,18 +148,20 @@ export const getApplicationStage = (user_id) => Application.findOne({
   where: {
     user_id,
   },
-  attributes: ['stage', 'is_isa', 'is_job_guarantee', 'cohort_applied', 'cohort_joining', 'status'],
+  attributes: ['stage', 'is_isa', 'is_job_guarantee',
+    'cohort_applied', 'cohort_joining', 'status', 'payment_type'],
   raw: true,
 });
 
 export const setApplicationStage = (
   user_id, stage, cohort_applied,
-  is_isa, is_job_guarantee,
+  is_isa, is_job_guarantee, payment_type,
 ) => Application.update({
   stage,
   cohort_applied,
   is_isa,
   is_job_guarantee,
+  payment_type,
 }, {
   where: {
     user_id,

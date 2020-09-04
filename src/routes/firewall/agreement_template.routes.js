@@ -30,7 +30,7 @@ const router = Express.Router();
     is_job_guarantee boolean,
     payment_type Full/Loan
  */
-router.post('/', getTemplateId);
+router.get('/', getTemplateId);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowMultipleRoles([ADMIN, OPERATIONS]));
