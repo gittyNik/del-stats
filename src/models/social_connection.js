@@ -7,6 +7,8 @@ export const PROVIDERS = Object.freeze({
   GOOGLE: 'google',
   FACEBOOK: 'facebook',
   LINKEDIN: 'linkedin',
+  ZOOM: 'zoom',
+  STACKOVERFLOW: 'stackoverflow',
 });
 
 export const SocialConnection = db.define(

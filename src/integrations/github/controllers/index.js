@@ -442,6 +442,35 @@ export const getGithubStats = async (cohort_id, before_date, after_date) => {
   return allMilestoneCommitsPromises;
 };
 
+export const getGithubStatsForUser = async (
+  cohort_milestone_id, user_id,
+) => {
+  // Fetch Cohort Milestone Teams
+  let cohortMilestonesTeams = await getLearnerMilestoneTeam(
+    user_id,
+    cohort_milestone_id,
+  );
+  // For Every Cohort fetch Teams
+  // For each team get Milestone repo
+  let github_repo = cohortMilestonesTeams.github_repo_link;
+  let teamLearners = cohortMilestonesTeams.learners;
+  let team_id = cohortMilestonesTeams.id;
+
+  // Get Github token for one learner and use it to get all commits
+  let socialConnection = await getGithubConnecionByUserId(teamLearners[0]);
+  let contributorsRepo = await getContributorsInRepo(github_repo, socialConnection);
+
+  // For every learner fetch commits from a milestone repo
+  let learnerCommits = await Promise.all(teamLearners.map(
+    async oneLearner => apiForOneLearnerGithubMilestone(oneLearner,
+      github_repo,
+      socialConnection),
+  ));
+  return {
+    learnerCommits, cohort_milestone_id, contributorsRepo, team_id,
+  };
+};
+
 export const getGithubChallengesStats = async (cohort_id, start_date, end_date) => {
   // Fetch Learner details
   let cohortDetails = await getCohortFromId(cohort_id);
@@ -480,6 +509,40 @@ export const getGithubChallengesStats = async (cohort_id, start_date, end_date) 
   );
 
   return allMilestoneCommitsPromises;
+};
+
+export const getGithubChallengesStatsPerUser = async (
+  cohort_id, start_date, end_date, learner,
+) => {
+  // Fetch Learner details
+
+  // For Every Learner fetch Challenges commit
+  let allLearnerChallenges = await getChallengesByUserId(learner, start_date, end_date);
+  let learnerCommitPromises = [];
+  if (!(_.isEmpty(allLearnerChallenges))) {
+    learnerCommitPromises = await Promise.all(allLearnerChallenges.map(async eachChallenge => {
+      // For each challenge, get stats
+      let github_repo = eachChallenge.repo;
+      let challengeId = eachChallenge.id;
+
+      // Get Cohort Milestone id
+      let { milestone_id } = await getTopicById(eachChallenge.challenge.topic_id);
+      let { id: cohort_milestone_id } = await getCohortMilestone(cohort_id, milestone_id);
+
+      // Get Github token for one learner and use it to get all commits
+      let socialConnection = await getGithubConnecionByUserId(learner);
+      let contributorsRepo = await getContributorsInRepo(github_repo, socialConnection);
+
+      // For every learner fetch commits from a challenge repo
+      let learnerCommits = await apiForOneLearnerGithubMilestone(learner,
+        github_repo,
+        socialConnection);
+      return {
+        learnerCommits, challengeId, contributorsRepo, user_id: learner, cohort_milestone_id,
+      };
+    }));
+  }
+  return learnerCommitPromises;
 };
 
 // export const fillGithubStats = async (req, res) => {
@@ -822,7 +885,7 @@ export const getAllStats = async (req, res) => {
     }
     if (lastChallengeUpdated === null) {
       lastChallengeUpdated = new Date();
-      lastChallengeUpdated.setDate(lastChallengeUpdated.getDate() - 2);
+      lastChallengeUpdated.setDate(lastChallengeUpdated.getDate() - 1);
     }
     let updateChallenges = await getLearnerChallengesAfterDate(
       lastChallengeUpdated,
@@ -839,16 +902,17 @@ export const getAllStats = async (req, res) => {
 
     if (socialConnection !== null) {
       // Update any new changes to Milestone Repo
-      const TWO_HOURS = 2 * 60 * 60 * 1000;
+      const ONE_HOUR = 1 * 60 * 60 * 1000;
       const NOW = new Date();
-      if ((NOW - lastMilestoneUpdatedAt) > TWO_HOURS) {
-        await getGithubStats(cohort_id, NOW, lastMilestoneUpdatedAt);
+      if ((NOW - lastMilestoneUpdatedAt) > ONE_HOUR) {
+        await getGithubStatsForUser(cohort_milestone_id, user_id);
       }
 
       if (updateChallenges) {
         // Update any new changes to Challenges
         let currentDate = new Date();
-        await getChallengesData(cohort_id, lastChallengeUpdated, currentDate);
+        await getGithubChallengesStatsPerUser(cohort_id, lastChallengeUpdated,
+          currentDate, user_id);
       }
 
       let cohortDetails = await getCohortFromId(cohort_id);
