@@ -657,4 +657,18 @@ export const updateCohortBreakouts = ({ whereObject, updateObject }) => CohortBr
     return 'Error updating cohort breakout';
   });
 
+// End date inclusive, start_date excluded
+export const getCohortBreakoutsBetweenDates = (cohort_id, start_date, end_date) => CohortBreakout.findAll({
+  where: {
+    cohort_id,
+    time_scheduled: {
+      [Op.and]: {
+        [Op.lte]: end_date,
+        [Op.gt]: start_date,
+      },
+    },
+  },
+  raw: true,
+});
+
 export default CohortBreakout;

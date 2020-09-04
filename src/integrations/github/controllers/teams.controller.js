@@ -169,3 +169,19 @@ export const removeLearnerFromGithubTeam = async (
   let sc = await getGithubConnecionByUserId(learner_id);
   return removeMemberFromTeam(current_team_name, sc.username);
 };
+
+export const addLearnerToGithubTeam = async (
+  learner_id,
+  current_cohort_id,
+) => {
+  let current_cohort = await getCohortFromId(current_cohort_id);
+  let current_team_name = teamNameFormat(
+    current_cohort.name,
+    current_cohort.program_id,
+    current_cohort.location,
+    current_cohort.start_date,
+  );
+
+  let sc = await getGithubConnecionByUserId(learner_id);
+  return addMemberToTeam(current_team_name, sc.username);
+};

@@ -327,6 +327,7 @@ export const findBreakoutsForMilestone = async (cohort_id, milestone_id) => {
   return breakouts.filter((breakout) => (breakout != null));
 };
 
+
 // TODO: Add filters here for Milestone and see if it solves bug
 export const getLiveMilestones = (program, cohort_duration) => {
   const now = Sequelize.literal('NOW()');

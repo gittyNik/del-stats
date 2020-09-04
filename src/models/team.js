@@ -13,6 +13,7 @@ import {
 import {
   addTeamAccessToRepo,
   isExistingRepository,
+  removeCollaboratorFromRepository,
 } from '../integrations/github/controllers/repository.controller';
 import { getGithubConnecionByUserId } from './social_connection';
 import {
@@ -366,3 +367,47 @@ export const getLearnerMilestoneTeam = (user_id, cohort_milestone_id) => Team.fi
   },
   attributes: ['github_repo_link', 'id', 'learners'],
 });
+
+export const addLearnerToMSTeam = (user_id, team_id) => Team.findOne({
+  where: {
+    id: team_id,
+  },
+})
+  .then(team => { team.learners.push(user_id); return team; })
+  .then(async team => {
+    let sc = await getGithubConnecionByUserId(user_id);
+    await addCollaboratorToRepository(sc.username, team.github_repo_link);
+    return Team.update({
+      learners: team.learners,
+    }, {
+      where: {
+        id: team.id,
+      },
+    });
+  });
+
+export const removeLearnerFromMSTeam = (user_id, team_id) => Team.findOne({
+  where: {
+    id: team_id,
+  },
+})
+  .then(team => {
+    team.learners = team.learners.filter(t => t !== user_id);
+    return team;
+  })
+  .then(async team => {
+    let sc = await getGithubConnecionByUserId(user_id);
+    await removeCollaboratorFromRepository(sc.username, team.github_repo_link);
+    return Team.update({
+      learners: team.learners,
+    }, {
+      where: {
+        id: team.id,
+      },
+    });
+  });
+
+export const moveLearnerBetweenMSTeam = (current_team_id, user_id, future_team_id) => Promise.all([
+  removeLearnerFromMSTeam(user_id, current_team_id),
+  addLearnerToMSTeam(user_id, future_team_id),
+]);

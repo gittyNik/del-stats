@@ -9,6 +9,7 @@ import {
   getCalendarDetailsOfCohortBreakout,
   getCohortBreakoutsByCohortId,
 } from './cohort_breakout';
+
 import { createEvent, deleteEvent } from '../integrations/calendar/calendar.model';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 import { logger } from '../util/logger';
@@ -334,3 +335,12 @@ export const updateCalendarEventInLearnerBreakout = async (cohort_breakout_id) =
       return false;
     });
 };
+
+export const createLearnerBreakoutsForCurrentMS = async (learner_id, cohort_breakouts) => LearnerBreakout.bulkCreate(cohort_breakouts.map(cohort_breakout => ({
+  id: uuid(),
+  cohort_breakout_id: cohort_breakout.id,
+  learner_id,
+  attendance: false,
+})));
+
+export default LearnerBreakout;
