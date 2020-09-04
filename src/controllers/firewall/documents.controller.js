@@ -4,7 +4,7 @@ import AWS from 'aws-sdk';
 import {
   getDocumentsByStatus, getDocumentsByUser,
   getDocumentsFromId, createUserEntry, updateUserEntry,
-  getAllDocuments,
+  getAllDocuments, insertIndividualDocument,
 } from '../../models/documents';
 import { User } from '../../models/user';
 
@@ -245,6 +245,25 @@ export const getSignUrl = async (req, res) => {
     console.log(err);
     return res.status(500).json({
       message: 'Unable to generate sign request',
+      type: 'failure',
+    });
+  }
+};
+
+export const insertUserDocument = async (req, res) => {
+  const { document } = req.body;
+  const user_id = req.jwtData.user.id;
+  try {
+    let response = await insertIndividualDocument(user_id, document);
+    return res.json({
+      message: 'Document added successfully!',
+      data: response,
+      type: 'success',
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      message: 'Unable to save document',
       type: 'failure',
     });
   }

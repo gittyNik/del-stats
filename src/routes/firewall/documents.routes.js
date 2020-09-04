@@ -3,6 +3,7 @@ import {
   getDocumentsByID, getDocumentsByUserId,
   getDocumentsStatus, updateUser, createUser,
   getDocumentsAll, EsignRequest, getSignUrl,
+  insertUserDocument,
 } from '../../controllers/firewall/documents.controller';
 import { allowMultipleRoles, allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -43,6 +44,15 @@ router.post('/:id/esign', EsignRequest);
  * @apiGroup Documents
  */
 router.post('/sign-request', getSignUrl);
+
+/**
+ * @api {get} /firewall/documents/save/ save document
+ * @apiDescription upload Document
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetUserDocumentResources
+ * @apiGroup Documents
+ */
+router.post('/save', insertUserDocument);
 
 /**
  * @api {get} /firewall/documents Get all Documents

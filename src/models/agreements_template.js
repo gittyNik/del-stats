@@ -40,7 +40,7 @@ export const AgreementTemplates = db.define('agreement_templates', {
   payment_details: {
     type: Sequelize.JSON,
   },
-  updated_by: {
+  modified_by: {
     type: Sequelize.ARRAY(Sequelize.JSON),
   },
 });
@@ -60,6 +60,7 @@ export const getAgreementTemplate = (
       is_job_guarantee,
       payment_type,
     },
+    attributes: ['document_identifier'],
     raw: true,
   },
 );
@@ -72,8 +73,9 @@ export const createAgreementTemplates = (
   payment_type,
   payment_details,
   updated_user,
+  document_identifier,
 ) => {
-  let updated_by = { user: updated_user, time: NOW() };
+  let modified_by = { user: updated_user, time: NOW() };
   return AgreementTemplates.create(
     {
       program,
@@ -82,7 +84,8 @@ export const createAgreementTemplates = (
       is_job_guarantee,
       payment_type,
       payment_details,
-      updated_by,
+      modified_by,
+      document_identifier,
       created_at: Sequelize.literal('NOW()'),
       updated_at: Sequelize.literal('NOW()'),
     },
@@ -97,8 +100,9 @@ export const updateAgreementTemplates = (
   payment_type,
   payment_details,
   updated_user,
+  document_identifier,
 ) => {
-  let updated_by = { user: updated_user, time: NOW() };
+  let modified_by = { user: updated_user, time: NOW() };
   return AgreementTemplates.update({
     program,
     cohort_duration,
@@ -106,7 +110,8 @@ export const updateAgreementTemplates = (
     is_job_guarantee,
     payment_type,
     payment_details,
-    updated_by: Sequelize.fn('array_append', Sequelize.col('updated_by'), updated_by),
+    document_identifier,
+    modified_by: Sequelize.fn('array_append', Sequelize.col('modified_by'), modified_by),
   }, { where: { id } });
 };
 

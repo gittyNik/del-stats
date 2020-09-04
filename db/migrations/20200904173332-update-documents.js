@@ -1,11 +1,11 @@
 const migration = {
   up: (iface, Sequelize) => iface.sequelize.transaction(transaction => Promise.all([
-    iface.addColumn('documents', 'updated_by', {
+    iface.addColumn('documents', 'user_documents', {
       type: Sequelize.ARRAY(Sequelize.JSON),
     }, { transaction }),
   ])),
   down: (iface) => iface.sequelize.transaction(transaction => Promise.all([
-    iface.removeColumn('documents', 'updated_by', { transaction }),
+    iface.removeColumn('documents', 'user_documents', { transaction }),
   ])),
 };
 
