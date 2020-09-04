@@ -59,19 +59,19 @@ export const getDocumentsAll = (req, res) => {
 };
 
 export const getDocumentsStatus = (req, res) => {
-  const { status } = req.body;
+  const { status } = req.query;
   getDocumentsByStatus(status).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
 export const getDocumentsByUserId = (req, res) => {
-  const { user_id } = req.body;
+  const { user_id } = req.query;
   getDocumentsByUser(user_id).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
 export const getDocumentsByID = (req, res) => {
-  const { id } = req.params;
+  const { id } = req.query;
   getDocumentsFromId(id).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
