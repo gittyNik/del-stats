@@ -14,6 +14,7 @@ import {
   moveLearnertoDifferentCohortEndpoint,
   markCompleteBreakout,
   removeLearnerEndpoint,
+  addLearnerEndpoint,
 } from '../../controllers/learning/cohort.controller';
 import {
   createBreakouts,
@@ -78,6 +79,14 @@ router.get('/:year/:location/:name', getCohortByName);
 router.get('/user/:id', getCohortByLearnerId);
 
 router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR, REVIEWER]));
+
+/**
+ * @api {post} /cohorts/addLearner Add learner to a new cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName addLearnerToCohort
+ * @apiGroup Cohort
+ */
+router.post('/addLearner', addLearnerEndpoint);
 
 /**
  * @api {patch} /cohorts/movelearner move learner to a new cohort
