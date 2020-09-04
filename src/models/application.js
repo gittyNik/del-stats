@@ -48,6 +48,10 @@ export const Application = db.define('applications', {
     type: Sequelize.BOOLEAN,
     defaultValue: false,
   },
+  is_job_guarantee: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: false,
+  },
   created_at: {
     allowNull: false,
     type: Sequelize.DATE,
@@ -141,12 +145,18 @@ export const getApplicationStage = (user_id) => Application.findOne({
   where: {
     user_id,
   },
+  attributes: ['stage', 'is_isa', 'is_job_guarantee', 'cohort_applied', 'cohort_joining', 'status'],
   raw: true,
-})
-  .then(data => data.stage);
+});
 
-export const setApplicationStage = (user_id, stage) => Application.update({
+export const setApplicationStage = (
+  user_id, stage, cohort_applied,
+  is_isa, is_job_guarantee,
+) => Application.update({
   stage,
+  cohort_applied,
+  is_isa,
+  is_job_guarantee,
 }, {
   where: {
     user_id,

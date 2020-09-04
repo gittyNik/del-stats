@@ -121,6 +121,16 @@ export const getLastUpdatedMilestoneCommitInCohort = (
   raw: true,
 });
 
+export const getTeamCommitsForMilestone = (
+  team_id,
+) => LearnerGithubMilestones.findAll({
+  where: {
+    team_id,
+    commits: { [gt]: 0 },
+  },
+  raw: true,
+});
+
 export const getLastMilestoneCommitInCohort = (
   cohort_milestone_ids,
 ) => LearnerGithubMilestones.findOne({

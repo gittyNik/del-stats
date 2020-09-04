@@ -112,6 +112,9 @@ const addTeamToExponentSoftware = async userProfile => {
         ? 'Hyderabad'
         : cohort.location,
       cohort.start_date,
+      cohort.duration === 16
+        ? 'Full-Time'
+        : 'Part-Time',
       parent_team_id,
     ))
     .then(teamName => ({ userProfile, teamName }));
