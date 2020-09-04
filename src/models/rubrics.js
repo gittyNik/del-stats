@@ -46,15 +46,9 @@ export const getRubricsByProgram = (program, type) => Rubrics.findAll(
   { where: { program, type } },
 );
 
-export const getRubricsByMilestone = (
-  milestone_id, program, type,
-) => db.query('select * from rubrics where program=:program and type=:type and (milestone_id is null or milestone_id=:milestone_id);', {
-  model: Rubrics,
-  replacements: { program: `${program}`, type: `${type}`, milestone_id: `${milestone_id}` },
-}).then(data => data).catch(err => {
-  console.error(err);
-  throw Error(err);
-});
+export const getReviewsByMilestone = (milestone_id, program, type) => Rubrics.findAll(
+  { where: { milestone_id, program, type } },
+);
 
 export const getRubricsById = id => Rubrics.findOne(
   { where: { id } },

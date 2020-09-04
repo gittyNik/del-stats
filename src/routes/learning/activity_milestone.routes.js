@@ -4,10 +4,7 @@ import {
   getAllMilestones, getMilestone, getTeam, getMilestoneTeams, resetMilestoneTeams,
   generateMilestoneTeams,
 } from '../../controllers/learning/milestone.controller';
-import {
-  getCohortLiveMilestone, getAllCohortMilestones,
-  getCohortMilestoneStats,
-} from '../../controllers/learning/cohort_milestone.controller';
+import { getCohortLiveMilestone, getAllCohortMilestones } from '../../controllers/learning/cohort_milestone.controller';
 import {
   allowMultipleRoles,
   allowAdminsOnly,
@@ -93,8 +90,6 @@ router.get('/:milestone_id/resources', getMilestoneResources);
 router.get('/cohort/:cohort_id', getAllCohortMilestones);
 
 router.get('/cohort/:cohort_id/live', getCohortLiveMilestone);
-
-router.get('/cohort/:cohort_milestone_id/stats', getCohortMilestoneStats);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowAdminsOnly);

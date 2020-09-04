@@ -1,55 +1,11 @@
 import request from 'superagent';
 import _ from 'lodash';
-import AWS from 'aws-sdk';
 import {
   getDocumentsByStatus, getDocumentsByUser,
   getDocumentsFromId, createUserEntry, updateUserEntry,
-  getAllDocuments, insertIndividualDocument,
+  getAllDocuments,
 } from '../../models/documents';
 import { User } from '../../models/user';
-
-const {
-  AWS_DOCUMENT_BUCKET,
-  AWS_DOCUMENT_BASE_PATH,
-  AWS_AGREEMENTS_BASE_PATH, AWS_ACCESS_KEY,
-  AWS_SECRET, AWS_REGION, AWS_BASE_PATH,
-  AWS_BREAKOUTS_BASE_PATH, AWS_BREAKOUTS_BUCKET_NAME,
-  AWS_AGREEMENTS_BUCKET_NAME, AWS_BUCKET_NAME,
-} = process.env;
-
-AWS.config.update(
-  {
-    accessKeyId: AWS_ACCESS_KEY,
-    secretAccessKey: AWS_SECRET,
-    region: AWS_REGION,
-  },
-);
-const s3 = new AWS.S3({
-  endpoint: 's3-ap-south-1.amazonaws.com',
-  accessKeyId: AWS_ACCESS_KEY,
-  secretAccessKey: AWS_SECRET,
-  signatureVersion: 'v4',
-  region: AWS_REGION,
-});
-
-const type_upload = {
-  video: {
-    bucketName: AWS_BREAKOUTS_BUCKET_NAME,
-    basePath: AWS_BREAKOUTS_BASE_PATH,
-  },
-  agreement: {
-    bucketName: AWS_AGREEMENTS_BUCKET_NAME,
-    basePath: AWS_AGREEMENTS_BASE_PATH,
-  },
-  emailer: {
-    bucketName: AWS_BUCKET_NAME,
-    basePath: AWS_BASE_PATH,
-  },
-  document: {
-    bucketName: AWS_DOCUMENT_BUCKET,
-    basePath: AWS_DOCUMENT_BASE_PATH,
-  },
-};
 
 const { DIGIO_BASE_URL, DIGIO_CLIENT, DIGIO_SECRET } = process.env;
 
@@ -203,68 +159,4 @@ export const EsignRequest = (req, res) => {
       return res.json(esignStatus);
     });
   });
-};
-
-export const signedUploadUrl = async (
-  fileName, fileType, bucket = AWS_DOCUMENT_BUCKET,
-  base_path = AWS_DOCUMENT_BASE_PATH,
-) => {
-  let filePath = `${base_path}/${fileName}`;
-  // Set up the payload of what we are sending to the S3 api
-  const s3Params = {
-    Bucket: bucket,
-    Key: filePath,
-    Expires: 500,
-  };
-  // Make a request to the S3 API to get a signed URL which we can use to upload our file
-  try {
-    let s3Response = await s3.getSignedUrl('putObject', s3Params);
-    const returnData = {
-      signedRequest: s3Response,
-      url: `https://${bucket}.s3.amazonaws.com/${filePath}`,
-    };
-    return returnData;
-  } catch (err) {
-    return err;
-  }
-};
-
-export const getSignUrl = async (req, res) => {
-  const { fileName, fileType, type } = req.body;
-
-  try {
-    let { bucketName, basePath } = type_upload[type];
-
-    let response = await signedUploadUrl(fileName, fileType, bucketName, basePath);
-    return res.json({
-      message: 'Signed url created successfully!',
-      data: response,
-      type: 'success',
-    });
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({
-      message: 'Unable to generate sign request',
-      type: 'failure',
-    });
-  }
-};
-
-export const insertUserDocument = async (req, res) => {
-  const { document } = req.body;
-  const user_id = req.jwtData.user.id;
-  try {
-    let response = await insertIndividualDocument(user_id, document);
-    return res.json({
-      message: 'Document added successfully!',
-      data: response,
-      type: 'success',
-    });
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({
-      message: 'Unable to save document',
-      type: 'failure',
-    });
-  }
 };
