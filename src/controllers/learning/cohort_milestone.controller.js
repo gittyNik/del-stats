@@ -4,7 +4,6 @@ import {
   getCurrentMilestoneOfCohort,
   getCohortMilestones,
   getCohortMilestoneById,
-  populateLearnerStats,
 } from '../../models/cohort_milestone';
 
 export const getUpcomingReviews = (req, res) => {
@@ -66,22 +65,6 @@ export const getCohortMilestoneWithDetails = (req, res) => {
     .then(milestone => {
       res.json({
         text: 'GET Milestone',
-        data: milestone,
-      });
-    })
-    .catch(e => {
-      console.error(e);
-      res.sendStatus(500);
-    });
-};
-
-export const getCohortMilestoneStats = (req, res) => {
-  const user_id = req.jwtData.user.id;
-  const { cohort_milestone_id } = req.params;
-  populateLearnerStats(user_id, cohort_milestone_id)
-    .then(milestone => {
-      res.send({
-        text: 'Cohort Milestone Stats',
         data: milestone,
       });
     })

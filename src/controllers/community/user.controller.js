@@ -5,11 +5,9 @@ import {
   removeUserStatus,
 } from '../../models/user';
 import {
+  lastNBreakoutsForLearner,
   belowThresholdLearners,
 } from '../../models/team';
-import {
-  getCohortFromId,
-} from '../../models/cohort';
 import { createOrUpdateContact } from '../../integrations/hubspot/controllers/contacts.controller';
 import { createDeal, associateDealWithContact } from '../../integrations/hubspot/controllers/deals.controller';
 
@@ -175,12 +173,11 @@ export const updateUserStatus = (req, res) => {
   });
 };
 
-export const leastAttendanceInCohort = async (req, res) => {
+export const leastAttendanceInCohort = (req, res) => {
   let {
     cohort_id,
   } = req.body;
-  let cohortDetails = await getCohortFromId(cohort_id);
-  belowThresholdLearners(cohortDetails.learners).then(data => {
+  belowThresholdLearners(cohort_id).then(data => {
     res.json({
       text: 'Cohort least attendees',
       data,

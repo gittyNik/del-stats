@@ -1,4 +1,3 @@
-import uuid from 'uuid/v4';
 import { SocialConnection, getGithubConnecionByUserId } from '../../models/social_connection';
 
 export const getAll = (req, res) => {
@@ -16,21 +15,11 @@ export const getOne = (req, res) => {
 export const create = (req, res) => {
   // console.log('In create Prompt');
   const {
-    provider, username, email,
-    profile,
-    access_token,
-    expiry,
+    name, duration, pings, type,
   } = req.body;
-  const { id } = req.jwtData.user;
+  // console.log(req);
   SocialConnection.create({
-    id: uuid(),
-    user_id: id,
-    provider,
-    username,
-    email,
-    profile,
-    access_token,
-    expiry,
+    name, duration, pings, type,
   })
     .then(data => res.status(201).json({ data }))
     .catch((err) => {
@@ -41,19 +30,10 @@ export const create = (req, res) => {
 
 export const update = (req, res) => {
   const {
-    provider, username, email,
-    profile,
-    access_token,
-    expiry,
+    name, type, duration, pings, tags,
   } = req.body;
-  const { id } = req.jwtData.user;
   SocialConnection.update(req.params.id, {
-    provider,
-    username,
-    email,
-    profile,
-    access_token,
-    expiry,
+    name, type, duration, pings, tags,
   })
     .then(data => res.json({ data }))
     .catch(err => res.status(500).send(err));

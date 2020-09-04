@@ -1,4 +1,4 @@
-import uuid from 'uuid/v4';
+import { uuid } from 'uuid/v4';
 import { Portfolio } from '../../models/portfolio';
 
 export const getAllPortfolios = (req, res) => {
