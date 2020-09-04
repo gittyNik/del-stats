@@ -2,15 +2,57 @@ import Express from 'express';
 import {
   getDocumentsByID, getDocumentsByUserId,
   getDocumentsStatus, updateUser, createUser,
-  getDocumentsAll, EsignRequest,
+  getDocumentsAll, EsignRequest, getSignUrl,
+  insertUserDocument,
 } from '../../controllers/firewall/documents.controller';
-import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
+import { allowMultipleRoles, allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
+
+const {
+  ADMIN, EDUCATOR, LEARNER, OPERATIONS,
+} = USER_ROLES;
 // import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
 
-// Restrict modifications for any applicant to the cohorts
-router.use(allowSuperAdminOnly);
+router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR]));
+
+/**
+ * @api {patch} /firewall/documents/:id/esign Send Esign Request to User
+ * @apiDescription Send Esign Request to a User
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName SendESignRequest
+ * @apiGroup Documents
+ *
+ * @apiParam {String} id user id
+ * @apiParam {Json} template_values
+ * @apiParam {String} template_id Template to send
+ * @apiParam {Json} sign_coordinates co-ordinates where sign is required
+ * @apiParam {String} expire_in_days for document expiry
+ * @apiParam {Boolean} notify_signers notify via email
+ * @apiParam {Boolean} send_sign_link send link
+ * @apiParam {String} file_name file name to save doc as
+ * @apiParam {Json} signers signer details
+ */
+router.post('/:id/esign', EsignRequest);
+
+/**
+ * @api {get} /firewall/documents/sign-request/ Upload files to AWS
+ * @apiDescription upload Document by status
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetUserDocumentResources
+ * @apiGroup Documents
+ */
+router.post('/sign-request', getSignUrl);
+
+/**
+ * @api {get} /firewall/documents/save/ save document
+ * @apiDescription upload Document
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetUserDocumentResources
+ * @apiGroup Documents
+ */
+router.post('/save', insertUserDocument);
 
 /**
  * @api {get} /firewall/documents Get all Documents
@@ -47,6 +89,9 @@ router.get('/docid/:id', getDocumentsByID);
  * @apiGroup Documents
  */
 router.get('/status/:id', getDocumentsStatus);
+
+// Restrict modifications for any applicant to the cohorts
+router.use(allowMultipleRoles([ADMIN, OPERATIONS, EDUCATOR]));
 
 /**
  * @api {post} /firewall/documents/ Add Users Documents
@@ -88,24 +133,5 @@ router.patch('/:id', updateUser);
  * @apiGroup Documents
  */
 // router.delete('/:id', deleteOne);
-
-/**
- * @api {patch} /firewall/documents/:id/esign Send Esign Request to User
- * @apiDescription Send Esign Request to a User
- * @apiHeader {String} authorization JWT Token.
- * @apiName SendESignRequest
- * @apiGroup Documents
- *
- * @apiParam {String} id user id
- * @apiParam {Json} template_values
- * @apiParam {String} template_id Template to send
- * @apiParam {Json} sign_coordinates co-ordinates where sign is required
- * @apiParam {String} expire_in_days for document expiry
- * @apiParam {Boolean} notify_signers notify via email
- * @apiParam {Boolean} send_sign_link send link
- * @apiParam {String} file_name file name to save doc as
- * @apiParam {Json} signers signer details
- */
-router.post('/:id/esign', EsignRequest);
 
 export default router;

@@ -5,17 +5,16 @@ import {
 } from '../../controllers/learning/content_assessment_slots.controller';
 import {
   allowMultipleRoles,
-  allowAdminsOnly,
 } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, CATALYST, EDUCATOR,
+  ADMIN, OPERATIONS,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, OPERATIONS]));
 
 /**
  * @api {get} /learning/content/assessment-slots Get all AssessmentSlots
@@ -45,7 +44,7 @@ router.get('/:id', getAssessmentSlotsByIdAPI);
 router.get('/assessment/:id', getAssessmentSlotsByProgramAPI);
 
 // Restrict modifications for any applicant to the cohorts
-router.use(allowAdminsOnly);
+// router.use(allowAdminsOnly);
 
 /**
  * @api {post} /learning/content/assessment-slots/ Add AssessmentSlots

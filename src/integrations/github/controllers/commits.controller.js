@@ -7,21 +7,6 @@ import { getAccessTokenPerUser } from './stats.controller';
 
 const SOALOctokit = Octokit.plugin(retry);
 
-export const getRecentCommitByUser = async (username, repository_name, socialConnection) => {
-  let access_token = getAccessTokenPerUser(socialConnection);
-  let newOctokit = new SOALOctokit({
-    auth: access_token,
-  });
-
-  return newOctokit.repos.listCommits({
-    owner: org,
-    repo: repository_name,
-    author: username,
-  })
-    .then(commits => commits.data)
-    .then(commits => (commits.length > 0 ? commits[0] : {}));
-};
-
 export const getAllCommitsByRepo = async (repository_name, socialConnection) => {
   let access_token = getAccessTokenPerUser(socialConnection);
   let newOctokit = new Octokit({
