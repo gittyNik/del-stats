@@ -1,19 +1,30 @@
-import { getAgreementTemplate } from '../../models/agreements_template';
+import {
+  getAgreementTemplate,
+  createAgreementTemplates,
+  updateAgreementTemplates,
+  deleteAgreementTemplate,
+} from '../../models/agreements_template';
+import {
+  getApplicationStage,
+} from '../../models/application';
+import {
+  getCohortFromId,
+} from '../../models/cohort';
 
-const getTemplateId = (req, res) => {
-  let {
-    program,
-    cohort_duration,
-    is_isa,
-    is_job_guarantee,
-    payment_type,
-  } = req.body;
+export const getTemplateId = async (req, res) => {
+  const { id } = req.jwtData.user;
+  let applicationDetails = await getApplicationStage(id);
+
+  let { cohort_applied } = applicationDetails;
+
+  let cohortDetails = await getCohortFromId(cohort_applied);
+
   getAgreementTemplate(
-    program,
-    cohort_duration,
-    is_isa,
-    is_job_guarantee,
-    payment_type,
+    cohortDetails.program_id,
+    cohortDetails.duration,
+    applicationDetails.is_isa,
+    applicationDetails.is_job_guarantee,
+    applicationDetails.payment_type,
   )
     .then(data => {
       if (data !== null) {
@@ -35,4 +46,60 @@ const getTemplateId = (req, res) => {
     }));
 };
 
-export default getTemplateId;
+export const createAgreementTemplatesAPI = (req, res) => {
+  const {
+    program,
+    cohort_duration,
+    is_isa,
+    is_job_guarantee,
+    payment_type,
+    payment_details,
+    document_identifier,
+  } = req.body;
+  const updated_by = req.jwtData.user.id;
+
+  createAgreementTemplates(
+    program,
+    cohort_duration,
+    is_isa,
+    is_job_guarantee,
+    payment_type,
+    payment_details,
+    updated_by,
+    document_identifier,
+  ).then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
+
+export const updateAgreementTemplatesAPI = (req, res) => {
+  const {
+    program,
+    cohort_duration,
+    is_isa,
+    is_job_guarantee,
+    payment_type,
+    payment_details,
+    document_identifier,
+  } = req.body;
+  const { id } = req.params;
+  const updated_by = req.jwtData.user.id;
+
+  updateAgreementTemplates(
+    id, program,
+    cohort_duration,
+    is_isa,
+    is_job_guarantee,
+    payment_type,
+    payment_details,
+    updated_by,
+    document_identifier,
+  ).then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
+
+export const deleteAgreementTemplateAPI = (req, res) => {
+  const { id } = req.params;
+
+  deleteAgreementTemplate(id).then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};

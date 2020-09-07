@@ -8,7 +8,7 @@ import { getCohortFromId } from '../../../models/cohort';
 
 export const toSentenceCase = (str) => `${str.charAt(0).toUpperCase()}${str.substring(1).toLowerCase()}`;
 
-const teamNameFormat = (cohort_name, program_id, location, start_date) => `${cohort_name}_${toSentenceCase(program_id)}_${location}_${new Date(
+const teamNameFormat = (cohort_name, program_id, location, start_date, duration) => `${cohort_name}_${toSentenceCase(program_id)}_${location}_${duration}_${new Date(
   start_date,
 ).getFullYear()}`;
 
@@ -108,9 +108,10 @@ export const createTeam = (
   program_id,
   location,
   start_date,
+  duration,
   parent_team_id = null,
 ) => {
-  const teamName = teamNameFormat(name, program_id, location, start_date);
+  const teamName = teamNameFormat(name, program_id, location, start_date, duration);
   return teamPresentOrNot(teamName)
     .then((present) => (present ? {} : createGitHubTeam(teamName, parent_team_id)))
     .then(() => teamName);
@@ -128,17 +129,23 @@ export const moveLearnerToNewGithubTeam = async (
 
   let current_cohort = await getCohortFromId(current_cohort_id);
   let future_cohort = await getCohortFromId(future_cohort_id);
+
+  let current_duration = current_cohort.duration === 16 ? 'Full-Time' : 'Part-Time';
+  let future_duration = future_cohort.duration === 16 ? 'Full-Time' : 'Part-Time';
+
   let current_team_name = teamNameFormat(
     current_cohort.name,
     current_cohort.program_id,
     current_cohort.location,
     current_cohort.start_date,
+    current_duration,
   );
   let future_team_name = teamNameFormat(
     future_cohort.name,
     future_cohort.program_id,
     future_cohort.location,
     future_cohort.start_date,
+    future_duration,
   );
 
   await removeMemberFromTeam(current_team_name, sc.username);
@@ -146,6 +153,24 @@ export const moveLearnerToNewGithubTeam = async (
 };
 
 export const removeLearnerFromGithubTeam = async (
+  learner_id,
+  current_cohort_id,
+) => {
+  let current_cohort = await getCohortFromId(current_cohort_id);
+  let current_duration = current_cohort.duration === 16 ? 'Full-Time' : 'Part-Time';
+  let current_team_name = teamNameFormat(
+    current_cohort.name,
+    current_cohort.program_id,
+    current_cohort.location,
+    current_cohort.start_date,
+    current_duration,
+  );
+
+  let sc = await getGithubConnecionByUserId(learner_id);
+  return removeMemberFromTeam(current_team_name, sc.username);
+};
+
+export const addLearnerToGithubTeam = async (
   learner_id,
   current_cohort_id,
 ) => {
@@ -158,5 +183,5 @@ export const removeLearnerFromGithubTeam = async (
   );
 
   let sc = await getGithubConnecionByUserId(learner_id);
-  return removeMemberFromTeam(current_team_name, sc.username);
+  return addMemberToTeam(current_team_name, sc.username);
 };
