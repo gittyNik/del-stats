@@ -58,7 +58,8 @@ export const getMilestonesById = id => Milestone.findOne(
 );
 
 export const createMilestones = (name, prerequisite_milestones,
-  problem_statement, learning_competencies, releases, starter_repo) => Milestone.create(
+  problem_statement, learning_competencies, releases, starter_repo,
+  alias, duration, updated_by) => Milestone.create(
   {
     id: uuid(),
     name,
@@ -67,13 +68,17 @@ export const createMilestones = (name, prerequisite_milestones,
     learning_competencies,
     releases,
     starter_repo,
+    alias,
+    duration,
+    updated_by,
     created_at: Date.now(),
   },
 );
 
 export const updateMilestones = (id,
   name, problem_statement, starter_repo, user_id,
-  releases, learning_competencies, prerequisite_milestones, guidelines) => Milestone.findOne({
+  releases, learning_competencies, prerequisite_milestones, guidelines,
+  alias, duration) => Milestone.findOne({
   where: {
     id,
   },
@@ -93,6 +98,8 @@ export const updateMilestones = (id,
       learning_competencies,
       prerequisite_milestones,
       guidelines,
+      alias,
+      duration,
     }, {
       where: {
         id,

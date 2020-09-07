@@ -658,7 +658,10 @@ export const updateMilestoneByDays = async (cohortId, updateByDays) => {
         updateByDays,
       );
       if (updatedScheduledTime > currentDateTime) {
-        let zoomMeetingId = cohortBreakout.details.zoom.id;
+        let zoomMeetingId;
+        if ('zoom' in cohortBreakout.details) {
+          zoomMeetingId = cohortBreakout.details.zoom.id;
+        }
         // Update breakout time and Zoom meeting
         return CohortBreakout.update(
           {
@@ -689,5 +692,8 @@ export const updateMilestonesBreakoutTimelines = async (req, res) => {
     .then((data) => {
       res.status(201).json({ data });
     })
-    .catch((err) => res.status(500).send({ err }));
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send({ err });
+    });
 };

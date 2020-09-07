@@ -38,7 +38,7 @@ const getGithubAccessToken = async code => {
 };
 
 const fetchProfileFromGithub = ({ githubToken, expiry }) =>
-// TODO: reject if expired
+  // TODO: reject if expired
 
   // fetching profile details from github
   request
@@ -304,7 +304,7 @@ export const checkGoogleOrSendRedirectUrl = async (req, res) => {
           },
         };
       }
-      logger.info('Google access token doesn\'t');
+      logger.info('Google access token doesn\'t exist');
       return {
         text: 'Google access Token doesnt exist',
         data: {

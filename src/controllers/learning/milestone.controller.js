@@ -180,10 +180,14 @@ export const createMilestone = (req, res) => {
   const {
     name, prerequisite_milestones,
     problem_statement, learning_competencies, releases, starter_repo,
+    alias, duration,
   } = req.body;
+  const { id } = req.jwtData.user;
+  let updated_by = [id];
 
   createMilestones(name, prerequisite_milestones,
-    problem_statement, learning_competencies, releases, starter_repo)
+    problem_statement, learning_competencies, releases, starter_repo,
+    alias, duration, updated_by)
     .then((data) => { res.json(data); })
     .catch(err => console.error(err));
 };
@@ -192,13 +196,15 @@ export const updateMilestone = (req, res) => {
   const {
     name, prerequisite_milestones, starter_repo,
     learning_competencies, releases, guidelines, problem_statement,
+    alias, duration,
   } = req.body;
   const user_id = req.jwtData.user.id;
   const { id } = req.params;
 
   updateMilestones(id,
     name, problem_statement, starter_repo, user_id,
-    releases, learning_competencies, prerequisite_milestones, guidelines)
+    releases, learning_competencies, prerequisite_milestones, guidelines,
+    alias, duration)
     .then(() => { res.send('Milestone Updated'); })
     .catch(err => console.error(err));
 };

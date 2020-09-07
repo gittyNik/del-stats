@@ -140,5 +140,5 @@ export const milestoneReviewMessage = (milestone, cohort, username) => ({
       },
     },
   ],
-  channel: process.env.CLOCKWORK,
+  channel: process.env.SLACK_CLOCKWORK,
 });
