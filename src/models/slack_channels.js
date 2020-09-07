@@ -7,6 +7,7 @@ import { Cohort, getCohortIdFromLearnerId } from './cohort';
 import { SocialConnection } from './social_connection';
 import { User } from './user';
 import { logger } from '../util/logger';
+import { getProfile } from './user';
 
 export const SlackChannel = db.define('slack_channels', {
   id: {
@@ -248,6 +249,15 @@ const getSlackIdsFromEmails = async (emailIds) => {
   let slackIds = await Promise.all(emailIds.map(email => slackId(email)));
   // console.log(slackIds);
   return slackIds;
+};
+
+// paramets: cohort_id and arary of user_ids
+export const addLearnersToCohortChannel = async (cohort_id, learners) => {
+  const emails = await Promise.all(learners.map(learner => getProfile(learner)
+    .then(user => user.email)));
+  const learnerSlackIds = await getSlackIdsFromEmails(emails);
+  const result = await addLearnerToChannels(cohort_id, learnerSlackIds);
+  return result;
 };
 
 const createChannelFromSlackIds = async (cohort_id, channelName, slackIds) => {
