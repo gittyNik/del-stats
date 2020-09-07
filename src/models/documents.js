@@ -1,4 +1,5 @@
 import Sequelize from 'sequelize';
+import _ from 'lodash';
 import db from '../database';
 
 export const application_status = ['requested', 'signed', 'payment-pending', 'payment-partial', 'payment-complete'];
@@ -30,17 +31,15 @@ export const Documents = db.define('documents', {
     type: Sequelize.JSON,
     allowNull: true,
   },
-  payment_status: {
-    type: Sequelize.JSON,
-    allowNull: true,
-  },
-  is_isa: {
-    type: Sequelize.BOOLEAN,
-    defaultValue: false,
-  },
   status: {
     type: Sequelize.ENUM(...application_status),
     allowNull: false,
+  },
+  updated_by: {
+    type: Sequelize.ARRAY(Sequelize.JSON),
+  },
+  user_documents: {
+    type: Sequelize.ARRAY(Sequelize.JSON),
   },
 });
 
@@ -82,6 +81,33 @@ export const createUserEntry = (user_id, document_details, status, payment_statu
     is_verified,
   },
 );
+
+export const insertIndividualDocument = (
+  user_id,
+  document,
+) => Documents.findOne({
+  where: {
+    user_id,
+  },
+})
+  .then((learnerDocument) => {
+    if (_.isEmpty(learnerDocument)) {
+      return Documents.create({
+        user_id,
+        user_documents: [document],
+      });
+    }
+
+    learnerDocument.user_documents.push(...document);
+
+    return learnerDocument.update({
+      user_documents: learnerDocument.user_documents,
+    }, {
+      where: {
+        user_id,
+      },
+    });
+  });
 
 export const updateUserEntry = (user_id, document_details, status, payment_status,
   is_isa = false, is_verified = false) => Documents.update({
