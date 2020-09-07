@@ -13,6 +13,7 @@ import { User } from '../../models/user';
 import { getFirewallResourceCount } from '../../models/resource';
 import { getFirewallResourceVisitsByUser } from '../../models/resource_visit';
 import { Test, getSubmissionTimesByApplication } from '../../models/test';
+import { AgreementTemplates } from '../../models/agreements_template'
 import { generateTestSeries, populateTestSeries } from './test.controller';
 import { sendSms, TEMPLATE_FIREWALL_REVIEWED } from '../../util/sms';
 import { sendFirewallResult } from '../../integrations/slack/team-app/controllers/firewall.controller';
@@ -198,7 +199,8 @@ export const deleteApplication = (req, res) => {
 
 export const payment = async (req, res) => {
   let {
-    purpose, amount, phone, buyer_name, email, redirect_url,
+    purpose, phone, buyer_name, email, redirect_url,
+    program, cohort_duration, is_isa, is_job_guarantee, payment_type,
   } = req.body.paymentDetails;
   const { id } = req.params;
   const {
@@ -206,7 +208,28 @@ export const payment = async (req, res) => {
     INSTAMOJO_URL, INSTAMOJO_WEBHOOK,
     INSTAMOJO_SEND_SMS, INSTAMOJO_SEND_EMAIL, INSTAMOJO_ALLOW_RE,
   } = process.env;
-
+  let amount;
+  try {
+    amount = await AgreementTemplates
+      .findOne({
+        where: {
+          program,
+          cohort_duration,
+          is_isa,
+          is_job_guarantee,
+          payment_type,
+        },
+        attributes: ['payment_details'],
+        raw: true,
+      })
+      .then(agreement => agreement.payment_details.amount);
+  } catch (err) {
+    logger.error(err);
+    return res.status(500).json({
+      message: 'Failed to fetch amount',
+      type: 'failure',
+    });
+  }
   const payload = {
     purpose,
     amount,
@@ -224,7 +247,7 @@ export const payment = async (req, res) => {
     .then(_application => _application.get({ plain: true }));
 
   const { payment_details } = application;
-  request
+  return request
     .post(`${INSTAMOJO_URL}/payment-requests/`)
     .send(payload)
     .set('X-Api-Key', INSTAMOJO_API_KEY)
