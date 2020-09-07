@@ -17,6 +17,8 @@ export const SlackChannel = db.define('slack_channels', {
   cohort_id: {
     type: Sequelize.UUID,
     references: { model: 'cohorts' },
+    unique: true,
+    allowNull: false,
   },
   channels: Sequelize.ARRAY({
     type: Sequelize.STRING,
