@@ -66,7 +66,7 @@ export const showCompletedBreakoutOnSlack = (topic_id, cohort_id, username) => P
         },
       },
     ],
-    channel: process.env.SLACK_CLOCKWORK,
+    channel: process.env.SLACK_CLOCKWORK_CHANNEL,
   }))
   .catch(err => console.log('SEND SLACK MESSAGE ERROR', err));
 
