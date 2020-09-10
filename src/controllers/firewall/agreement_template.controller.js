@@ -68,7 +68,10 @@ export const createAgreementTemplatesAPI = (req, res) => {
     updated_by,
     document_identifier,
   ).then((data) => { res.json(data); })
-    .catch(err => res.status(500).send(err));
+    .catch(err => {
+      console.log(err);
+      res.status(500).send(err);
+    });
 };
 
 export const updateAgreementTemplatesAPI = (req, res) => {

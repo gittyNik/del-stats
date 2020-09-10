@@ -38,8 +38,7 @@ router.get('/', getAllBreakoutTemplatesAPI);
  */
 router.get('/:id', getBreakoutTemplateByIdAPI);
 
-// Restrict modifications for any applicant to the cohorts
-router.use(allowAdminsOnly);
+router.use(allowMultipleRoles([ADMIN]));
 
 /**
  * @api {post} /learning/content/breakouts/templates/ Insert Breakout recording

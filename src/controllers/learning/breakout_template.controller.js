@@ -47,7 +47,10 @@ export const createBreakoutTemplateAPI = (req, res) => {
     cohort_duration,
     program_id,
     user_id).then((data) => { res.json(data); })
-    .catch(err => res.status(500).send(err));
+    .catch(err => {
+      console.log(err);
+      res.status(500).send(err);
+    });
 };
 
 export const updateBreakoutTemplateAPI = (req, res) => {

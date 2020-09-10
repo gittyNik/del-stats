@@ -75,7 +75,7 @@ export const createAgreementTemplates = (
   updated_user,
   document_identifier,
 ) => {
-  let modified_by = { user: updated_user, time: NOW() };
+  let modified_by = [{ user: updated_user, time: NOW() }];
   return AgreementTemplates.create(
     {
       program,
@@ -102,7 +102,7 @@ export const updateAgreementTemplates = (
   updated_user,
   document_identifier,
 ) => {
-  let modified_by = { user: updated_user, time: NOW() };
+  let modified_by = { user: updated_user, time: new Date() };
   return AgreementTemplates.update({
     program,
     cohort_duration,
