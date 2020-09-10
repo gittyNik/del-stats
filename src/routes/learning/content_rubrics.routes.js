@@ -8,12 +8,12 @@ import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/role
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, CATALYST, EDUCATOR,
+  ADMIN, CATALYST, EDUCATOR, REVIEWER
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER]));
 
 /**
  * @api {get} /learning/content/rubrics Get all Rubrics

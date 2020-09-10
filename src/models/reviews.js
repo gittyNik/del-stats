@@ -143,16 +143,16 @@ export const updateTeamReview = (
 });
 
 export const updateReviewForLearner = (
-  review_feedback, learner_id, cohort_breakout_id,
+  review_feedback,
   learner_feedback,
+  id
 ) => LearnerBreakout.update({
   review_feedback,
   learner_feedback,
   attendance: true,
 }, {
   where: {
-    cohort_breakout_id,
-    learner_id,
+    id,
   },
   returning: true,
   raw: true,
@@ -179,7 +179,6 @@ export const createReviewEntry = (milestone_team_id, cohort_id,
   };
   return BreakoutWithOptions(reviewDetails);
 };
-
 export const addReviewsForTeam = (milestone_team_id, learner_feedbacks, status, team_feedback,
   additional_details) => CohortBreakout.update({
   team_feedback,
