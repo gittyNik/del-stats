@@ -22,7 +22,7 @@ export const sendFirewallDailyStats = () => getStatsForDay()
   .then(stats => {
     const msg = {
       text: `Firewall statistics: ${JSON.stringify(stats)}`,
-      channel: process.env.SLACK_LEARNER_INTERVIEWS,
+      channel: process.env.SLACK_LEARNER_INTERVIEWS_CHANNEL,
     };
     console.log(msg);
     return web.chat.postMessage(msg);
