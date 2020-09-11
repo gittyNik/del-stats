@@ -326,8 +326,7 @@ export const getApplicationStats = (req, res) => {
 };
 
 export const getApplicationStageAPI = (req, res) => {
-  // const user_id = req.jwtData.user.id;
-  const user_id = '98361b80-c6a7-4045-8e03-00a62bb58cdb';
+  const user_id = req.jwtData.user.id;
   getApplicationStage(user_id).then(data => res.status(200).json(data))
     .catch(() => res.sendStatus(500));
 };
