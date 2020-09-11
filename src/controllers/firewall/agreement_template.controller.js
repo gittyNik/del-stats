@@ -11,35 +11,39 @@ import {
   getCohortFromId,
 } from '../../models/cohort';
 
-export const getTemplateId = async (req, res) => {
-  const { id } = req.jwtData.user;
+export const getApplicationDetails = async (id) => {
   let applicationDetails = await getApplicationStage(id);
 
   let { cohort_applied } = applicationDetails;
 
   let cohortDetails = await getCohortFromId(cohort_applied);
 
-  getAgreementTemplate(
+  return getAgreementTemplate(
     cohortDetails.program_id,
     cohortDetails.duration,
     applicationDetails.is_isa,
     applicationDetails.is_job_guarantee,
     applicationDetails.payment_type,
-  )
-    .then(data => {
-      if (data !== null) {
-        res.status(200).json({
-          message: 'Template id found',
-          data,
-          type: 'success',
-        });
-      } else {
-        res.status(404).json({
-          message: 'Template id not found',
-          type: 'failure',
-        });
-      }
-    })
+  );
+};
+
+export const getTemplateId = async (req, res) => {
+  const { id } = req.jwtData.user;
+
+  getApplicationDetails(id).then(data => {
+    if (data !== null) {
+      res.status(200).json({
+        message: 'Template id found',
+        data,
+        type: 'success',
+      });
+    } else {
+      res.status(404).json({
+        message: 'Template id not found',
+        type: 'failure',
+      });
+    }
+  })
     .catch((err) => res.status(500).json({
       message: `Reason for error: ${err}`,
       type: 'failure',
