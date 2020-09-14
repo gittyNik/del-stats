@@ -66,9 +66,31 @@ export const showCompletedBreakoutOnSlack = (topic_id, cohort_id, username) => P
         },
       },
     ],
-    channel: process.env.CLOCKWORK,
+    channel: process.env.SLACK_CLOCKWORK_CHANNEL,
   }))
   .catch(err => console.log('SEND SLACK MESSAGE ERROR', err));
+
+export const sendMessageToSlackChannel = (text, context, channel) => web.chat.postMessage({
+  text,
+  blocks: [
+    {
+      type: 'context',
+      elements: [{
+        type: 'mrkdwn',
+        text: context,
+      }],
+    },
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text,
+      },
+    },
+  ],
+  channel,
+})
+  .catch(err => console.log(err));
 
 export const markTopicAsFinished = (topic_id, cohort_id, username) => {
   const sendMessageToSlack = Promise.all([
@@ -93,7 +115,7 @@ export const markTopicAsFinished = (topic_id, cohort_id, username) => {
           },
         },
       ],
-      channel: process.env.CLOCKWORK,
+      channel: process.env.SLACK_CLOCKWORK,
     })
       .catch(err => console.log(err)));
 

@@ -327,7 +327,6 @@ export const findBreakoutsForMilestone = async (cohort_id, milestone_id) => {
   return breakouts.filter((breakout) => (breakout != null));
 };
 
-
 // TODO: Add filters here for Milestone and see if it solves bug
 export const getLiveMilestones = (program, cohort_duration) => {
   const now = Sequelize.literal('NOW()');
@@ -343,6 +342,9 @@ export const getLiveMilestones = (program, cohort_duration) => {
       review_scheduled: { [between]: [now, nextSevenDays] },
       '$cohort.program_id$': program,
       '$cohort.duration$': cohort_duration,
+      '$milestone.starter_repo$': {
+        [Sequelize.Op.ne]: null,
+      },
     },
     include: [Cohort, Milestone],
     raw: true,
@@ -451,7 +453,9 @@ function* calculateReleaseTime(cohort_start, pending,
   let milestone_duration = 0;
   const start = new Date(cohort_start);
   let end;
-  if (cohort_duration === 16) {
+  if (duration) {
+    milestone_duration = duration;
+  } else if (cohort_duration === 16) {
     milestone_duration = 7;
   } else {
     milestone_duration = 14;

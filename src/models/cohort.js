@@ -11,6 +11,7 @@ import { removeLearnerBreakouts, createLearnerBreakouts, createLearnerBreakoutsF
 import { moveLearnerToNewGithubTeam, deleteGithubRepository, addLearnerToGithubTeam } from '../integrations/github/controllers';
 import { removeLearnerFromSlackChannel, moveLearnerToNewSlackChannel } from './slack_channels';
 import { removeLearnerFromGithubTeam } from '../integrations/github/controllers/teams.controller';
+import { addLearnersToCohortChannel } from './slack_channels';
 
 export const COHORT_STATUS = [
   'upcoming',
@@ -353,6 +354,7 @@ export const addLearner = async (learners, cohort_id) => {
       let lBreakout = await createLearnerBreakoutsForCurrentMS(learner_id, cohort_breakouts);
       data.push([cohort, application, team, lBreakout]);
     }
+    await addLearnersToCohortChannel(cohort_id, learners);
     return data;
   } catch (err) {
     return err;

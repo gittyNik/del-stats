@@ -7,6 +7,7 @@ import { LearnerBreakout } from './learner_breakout';
 import { getReviewSlotsByProgram } from './review_slots';
 import { changeTimezone } from './breakout_template';
 import { User } from './user';
+import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
 
 const GITHUB_BASE = process.env.GITHUB_TEAM_BASE;
 
@@ -225,12 +226,14 @@ export const calculateReviewTime = (reviewDate, reviewForTeam) => {
   return reviewScheduledUTC;
 };
 
-export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
+export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => {
   let milestonecohort = cohortMilestone;
-  let defaultSlot;
-  return getTeamsbyCohortMilestoneId(
+  let defaultSlot = reviewSlots[0];
+  let learnerTeams = await getTeamsbyCohortMilestoneId(
     milestonecohort.id,
-  ).then(learnerTeams => learnerTeams.forEach((eachTeam, teamIndex) => {
+  );
+  let count = 0;
+  learnerTeams.forEach((eachTeam, teamIndex) => {
     let {
       cohort_id,
       'cohort.name': cohortName,
@@ -282,9 +285,6 @@ export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
 
     try {
       reviewForTeam = reviewSlots[indexForReview];
-      if (defaultSlot === undefined) {
-        defaultSlot = { ...reviewForTeam };
-      }
       // Remove assessment that gets assigned
       reviewSlots.splice(indexForReview, 1);
     } catch (err) {
@@ -293,7 +293,8 @@ export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
 
     let timeSlot = calculateReviewTime(milestonecohort.review_scheduled, reviewForTeam);
     let { review_duration, reviewer } = reviewForTeam;
-    return createReviewEntry(
+    count += 1;
+    createReviewEntry(
       id,
       cohort_id,
       timeSlot,
@@ -314,7 +315,17 @@ export const createTeamReviewBreakout = (reviewSlots, cohortMilestone) => {
       }));
       return createReviewBreakout;
     });
-  }));
+  });
+  let duration = milestonecohort['cohort.duration'];
+  let name = milestonecohort['cohort.name'];
+  let location = milestonecohort['cohort.location'];
+  let context = `Reviews created for ${name} ${duration} ${location}`;
+  let message = `Created reviews for ${count} teams`;
+  try {
+    sendMessageToSlackChannel(message, context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
+  } catch (err2) {
+    console.warn('Unable to send message to slack');
+  }
 };
 
 export const createReviewSchedule = (program, cohort_duration) => getReviewSlotsByProgram(program,
@@ -322,9 +333,12 @@ export const createReviewSchedule = (program, cohort_duration) => getReviewSlots
   .then(reviewSlots => {
     let slotsForReview = reviewSlots;
     return getLiveMilestones(program, cohort_duration)
-      .then((deadlineMilestones) => deadlineMilestones.forEach(
-        cohortMilestone => createTeamReviewBreakout(
-          slotsForReview, cohortMilestone,
-        ),
-      ));
+      .then((deadlineMilestones) => {
+        console.log(`Scheduling Reviews for ${deadlineMilestones.length} Cohorts`);
+        deadlineMilestones.forEach(
+          cohortMilestone => createTeamReviewBreakout(
+            slotsForReview, cohortMilestone,
+          ),
+        );
+      });
   });
