@@ -223,7 +223,7 @@ export const addLearnerToChannels = async (cohort_id, learnerSlackID) => {
   return channelResponses;
 };
 
-const getSlackIdsFromEmails = async (emailIds) => {
+export const getSlackIdsFromEmails = async (emailIds) => {
   const { SLACK_DELTA_BOT_TOKEN } = process.env;
   const slackId = async (emailId) => {
     try {
@@ -343,13 +343,27 @@ export const getSlackIdForLearner = async (learner_id) => {
     .findByPk(learner_id)
     .then(_learner => _learner.get({ plain: true }))
     .catch(err => {
-      logger.error('Failed to get learner email id');
+      logger.error('Failed to get user email id');
       logger.error(err);
     });
   const { email } = learner;
   const slackId = await getSlackIdsFromEmails([email]);
   logger.info(slackId[0]);
   return slackId[0];
+};
+
+export const getSlackIdsForUsersInSPE = async (user_ids) => {
+  const user_emails = await User
+    .findAll({
+      where: {
+        id: {
+          [Op.in]: user_ids,
+        },
+      },
+      raw: true,
+    })
+    .then(_users => _users.map(u => u.email));
+  return getSlackIdsFromEmails(user_emails);
 };
 
 export const removeLearnerFromSlackChannel = async (learner_id, cohort_id) => {

@@ -1,10 +1,13 @@
 import { composeCatalystBreakoutMessage } from '../views/breakout.view';
 import web from '../client';
 import { User, getProfile } from '../../../../models/user';
-import { Cohort, getCohortIdFromLearnerId } from '../../../../models/cohort';
-import { CohortBreakout } from '../../../../models/cohort_breakout';
+import { Cohort, getCohortIdFromLearnerId, getLearnersFromCohorts } from '../../../../models/cohort';
+import { CohortBreakout, getCohortBreakoutById } from '../../../../models/cohort_breakout';
 import { postMessage } from '../utility/chat';
-import { getChannelIdForCohort } from '../../../../models/slack_channels';
+import { getChannelIdForCohort, getSlackIdsForUsersInSPE } from '../../../../models/slack_channels';
+
+import { getLearnerBreakoutsForACohortBreakout } from '../../../../models/learner_breakout';
+import { logger } from '../../../../util/logger';
 
 const REVIEW_TEMPLATE = (team_number) => `Team: ${team_number}, Reviewer is reminding you to join the review. Please join from DELTA`;
 const ASSESSMENT_TEMPLATE = 'Reviewer is reminding you to join the assessment. Please join from DELTA';
@@ -38,16 +41,16 @@ export const notifyLearnersInChannel = async (req, res) => {
   let {
     learner_id, text, cohort_id, type, team_number,
   } = req.body;
-  if(learner_id) {
+  if (learner_id) {
     var learner = await getProfile(learner_id);
     var { email } = learner;
-    if(type === "reviews") {
+    if (type === "reviews") {
       text = LEARNER_REVIEW_TEMPLATE;
     }
   }
   let slackUserResponse;
   try {
-    if(learner_id) {
+    if (learner_id) {
       slackUserResponse = await web.users.lookupByEmail({ email });
       var slackUserId = slackUserResponse.user.id;
     }
@@ -56,7 +59,7 @@ export const notifyLearnersInChannel = async (req, res) => {
     }
     const channel_id = await getChannelIdForCohort(cohort_id);
     // console.log(channel_id);
-    if(!text) {
+    if (!text) {
       switch (type) {
         case 'reviews':
           text = REVIEW_TEMPLATE(team_number);
@@ -88,5 +91,99 @@ export const notifyLearnersInChannel = async (req, res) => {
     return res.status(500).json({
       text: 'Failed to notify on the slack channel',
     });
+  }
+};
+
+export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
+  const cohortBreakout = await getCohortBreakoutById(cohort_breakout_id);
+  const {
+    type, cohort_id, catalyst_id, details,
+  } = cohortBreakout;
+  const cohortSlackChannel = await getChannelIdForCohort(cohort_id);
+  const learner_breakouts = await getLearnerBreakoutsForACohortBreakout(cohort_breakout_id);
+  const cohortLearners = await getLearnersFromCohorts([cohort_id])
+    .then(data => JSON.stringify(data))
+    .then(_data => JSON.parse(_data)[0].learners);
+  // console.log(cohortLearners);
+  const attendedLearners = learner_breakouts
+    .filter(learner_breakout => {
+      const { learner_id, attendance } = learner_breakout;
+      // console.log(learner_id, cohortLearners.includes(learner_id));
+      if (cohortLearners.includes(learner_id) && attendance === true) {
+        return true;
+      }
+      return false;
+    }).map(lb => lb.learner_id);
+  const absentLearners = learner_breakouts
+    .filter(learner_breakout => {
+      const { learner_id, attendance } = learner_breakout;
+      if (cohortLearners.includes(learner_id) && attendance === false) {
+        return true;
+      }
+      return false;
+    }).map(lb => lb.learner_id);
+  const inactiveLearners = learner_breakouts
+    .filter(learner_breakout => {
+      const { learner_id } = learner_breakout;
+      return !cohortLearners.includes(learner_id);
+    }).map(lb => lb.learner_id);
+  let slackIdsOfAttendedLearners = await getSlackIdsForUsersInSPE(attendedLearners);
+  let slackIdsOfAbsentLearners = await getSlackIdsForUsersInSPE(absentLearners);
+  let slackIdOfInactiveLearner = await getSlackIdsForUsersInSPE(inactiveLearners);
+
+  let title;
+
+  if (type === 'lecture') {
+    const slackIdOfCatalyst = await getSlackIdsForUsersInSPE([catalyst_id]);
+    title = `Attendance Report for *<@${slackIdOfCatalyst}>*'s breakout on \n${details.topics}`;
+  }
+  if (type === 'reviews') {
+    title = `Attendance of ${details.topics}`;
+  }
+  if (type === 'assessment') {
+    title = `Attendance of ${details.topics}`;
+  }
+  // no return statement
+
+  const payloadBlocks = [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: title,
+      },
+      fields: [
+        {
+          type: 'mrkdwn',
+          text: `*PRESENT*\n ${slackIdsOfAttendedLearners.map(l => `<@${l}>`).join('\n')}`,
+        },
+        {
+          type: 'mrkdwn',
+          text: `ABSENT:\n ${slackIdsOfAbsentLearners.map(l => `<@${l}>`).join('\n')}`,
+        },
+      ]
+    },
+    {
+      type: 'divider',
+    },
+  ];
+  if (type === 'lecture') {
+    payloadBlocks.push({
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `*Inactive* ${slackIdOfInactiveLearner.map(l => `<@${l}>`).join(' ')}`,
+      },
+    });
+  }
+  try {
+    const slackResponse = await postMessage({
+      channel: cohortSlackChannel,
+      blocks: payloadBlocks,
+    });
+    return slackResponse;
+  } catch (err) {
+    logger.error(err);
+    return false;
   }
 };
