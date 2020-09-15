@@ -38,7 +38,7 @@ const getGithubAccessToken = async code => {
 };
 
 const fetchProfileFromGithub = ({ githubToken, expiry }) =>
-  // TODO: reject if expired
+// TODO: reject if expired
 
   // fetching profile details from github
   request
@@ -144,7 +144,8 @@ export const linkWithGithub = (req, res) => {
     .then(({ profile, githubToken, expiry }) => {
       // If the current user's email is not found with github emails,
       // then authentication error should be sent as resopnse
-      if (profile.emails.includes(user.email)) {
+      let profileEmails = profile.emails.map(email => email.toLowerCase());
+      if (profileEmails.includes(user.email)) {
         return {
           profile,
           githubToken,
@@ -213,7 +214,8 @@ export const signinWithGithub = (req, res) => {
         if (socialConnection) {
           return getProfile(socialConnection.user_id);
         }
-        return getUserFromEmails(profile.emails);
+        let profileEmails = profile.emails.map(email => email.toLowerCase());
+        return getUserFromEmails(profileEmails);
       })
       .then(user => {
         if (user === null || user.role === USER_ROLES.GUEST) {

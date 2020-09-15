@@ -16,7 +16,7 @@ import {
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, CATALYST, EDUCATOR, REVIEWER, SUPERADMIN
+  ADMIN, CATALYST, EDUCATOR, REVIEWER, SUPERADMIN,
 } = USER_ROLES;
 
 const router = Express.Router();
@@ -137,8 +137,7 @@ router.post('/', createReview);
  * @apiGroup Reviews
  *
  * @apiParam {String} cohort_breakout_id Cohort breakout ID
- * @apiParam {String} team_feedback Array of Learner feedbacks
- * @apiParam {String} team_feedback Team Feedbackx
+ * @apiParam {String} team_feedback Team Feedback
  * @apiParam {String} attendance_count Attendance count of learners
  * @apiParam {String} catalyst_notes Team notes by Reviewer
  */
@@ -157,7 +156,7 @@ router.patch('/:id', updateTeamReviewAPI);
  * @apiParam {String} status ID of the Milestone
  * @apiParam {String} additional_details Details regarding the review
  */
-router.patch('/:id', addReviewsForTeamAPI);
+router.patch('/team/:id', addReviewsForTeamAPI);
 
 /**
  * @api {delete} /learning/ops/topics/:id Delete Content Topic
