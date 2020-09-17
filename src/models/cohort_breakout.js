@@ -242,6 +242,7 @@ export const markBreakoutFinished = (
       completeBreakout[1].topicId,
       completeBreakout[1].cohortId,
       name,
+      cohort_breakout_id,
     ),
   ]))
   .then(async (data) => {

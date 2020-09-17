@@ -1,10 +1,12 @@
 import { WebClient } from '@slack/web-api';
 import { getCurrentMilestoneOfCohortDelta, markMilestoneReview } from '../../../../models/cohort_milestone';
-import { Cohort } from '../../../../models/cohort';
+import { Cohort, getLearnersFromCohorts } from '../../../../models/cohort';
 import { Milestone } from '../../../../models/milestone';
 import { createOrUpdateCohortBreakout } from '../../../../models/cohort_breakout';
 import { Topic } from '../../../../models/topic';
 import { composeMilestoneModal, milestoneReviewMessage } from '../views/milestone.view';
+import { getLearnerBreakoutsForACohortBreakout } from '../../../../models/learner_breakout';
+import { getProfile } from '../../../../models/user';
 
 const { SLACK_TEAM_BOT_TOKEN } = process.env;
 
@@ -44,30 +46,49 @@ export const markMilestoneAsReviewed = (payload, respond) => {
         }));
 };
 
-export const showCompletedBreakoutOnSlack = (topic_id, cohort_id, username) => Promise.all([
+export const showCompletedBreakoutOnSlack = (
+  topic_id, cohort_id, username, cohort_breakout_id,
+) => Promise.all([
   Topic.findByPk(topic_id),
   Cohort.findByPk(cohort_id),
+  getLearnersFromCohorts([cohort_id])
+    .then(data => JSON.stringify(data))
+    .then(_data => JSON.parse(_data)[0].learners),
+  getLearnerBreakoutsForACohortBreakout(cohort_breakout_id),
 ])
-  .then(([topic, cohort]) => web.chat.postMessage({
-    text: `Breakout on ${topic.title} is done for ${cohort.name}`,
-    blocks: [
-      {
-        type: 'context',
-        elements: [{
-          type: 'mrkdwn',
-          text: `${cohort.name}-${cohort.start_date.getFullYear()} @${cohort.location}`,
-        }],
-      },
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `Breakout on *${topic.title}* is done (marked by @${username})`,
+  .then(async ([topic, cohort, cohortLearners, learnerBreakouts]) => {
+    const inactiveLearners = await Promise.all(learnerBreakouts
+      .filter(lb => !cohortLearners.includes(lb.learner_id))
+      .map(_lb => getProfile(_lb.learner_id).then(_data => _data.get({ plain: true }))));
+
+    return web.chat.postMessage({
+      text: `Breakout on ${topic.title} is done for ${cohort.name}`,
+      blocks: [
+        {
+          type: 'context',
+          elements: [{
+            type: 'mrkdwn',
+            text: `${cohort.name}-${cohort.start_date.getFullYear()} @${cohort.location}`,
+          }],
         },
-      },
-    ],
-    channel: process.env.SLACK_CLOCKWORK_CHANNEL,
-  }))
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `Breakout on *${topic.title}* is done (marked by @${username})`,
+          },
+        },
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: (inactiveLearners.length > 0) ? `Inactive Learners : ${inactiveLearners.map(il => il.email).join(', ')}` : '',
+          },
+        },
+      ],
+      channel: process.env.SLACK_CLOCKWORK_CHANNEL,
+    })
+  })
   .catch(err => console.log('SEND SLACK MESSAGE ERROR', err));
 
 export const sendMessageToSlackChannel = (text, context, channel) => web.chat.postMessage({

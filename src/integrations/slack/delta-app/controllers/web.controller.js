@@ -104,11 +104,9 @@ export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
   const cohortLearners = await getLearnersFromCohorts([cohort_id])
     .then(data => JSON.stringify(data))
     .then(_data => JSON.parse(_data)[0].learners);
-  // console.log(cohortLearners);
   const attendedLearners = learner_breakouts
     .filter(learner_breakout => {
       const { learner_id, attendance } = learner_breakout;
-      // console.log(learner_id, cohortLearners.includes(learner_id));
       if (cohortLearners.includes(learner_id) && attendance === true) {
         return true;
       }
@@ -122,20 +120,12 @@ export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
       }
       return false;
     }).map(lb => lb.learner_id);
-  const inactiveLearners = learner_breakouts
-    .filter(learner_breakout => {
-      const { learner_id } = learner_breakout;
-      return !cohortLearners.includes(learner_id);
-    }).map(lb => lb.learner_id);
   let slackIdsOfAttendedLearners = await getSlackIdsForUsersInSPE(attendedLearners);
   let slackIdsOfAbsentLearners = await getSlackIdsForUsersInSPE(absentLearners);
-  let slackIdOfInactiveLearner = await getSlackIdsForUsersInSPE(inactiveLearners);
-
   let title;
-
   if (type === 'lecture') {
     const slackIdOfCatalyst = await getSlackIdsForUsersInSPE([catalyst_id]);
-    title = `Attendance Report for *<@${slackIdOfCatalyst}>*'s breakout on \n${details.topics}`;
+    title = `Attendance record for *<@${slackIdOfCatalyst}>*'s breakout on \n${details.topics}`;
   }
   if (type === 'reviews') {
     title = `Attendance of ${details.topics}`;
@@ -143,7 +133,6 @@ export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
   if (type === 'assessment') {
     title = `Attendance of ${details.topics}`;
   }
-  // no return statement
 
   const payloadBlocks = [
     {
@@ -161,21 +150,12 @@ export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
           type: 'mrkdwn',
           text: `ABSENT:\n ${slackIdsOfAbsentLearners.map(l => `<@${l}>`).join('\n')}`,
         },
-      ]
+      ],
     },
     {
       type: 'divider',
     },
   ];
-  if (type === 'lecture') {
-    payloadBlocks.push({
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `*Inactive* ${slackIdOfInactiveLearner.map(l => `<@${l}>`).join(' ')}`,
-      },
-    });
-  }
   try {
     const slackResponse = await postMessage({
       channel: cohortSlackChannel,
