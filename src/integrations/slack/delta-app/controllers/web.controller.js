@@ -10,10 +10,10 @@ import { getLearnerBreakoutsForACohortBreakout } from '../../../../models/learne
 import { logger } from '../../../../util/logger';
 
 const REVIEW_TEMPLATE = (team_number) => `Team: ${team_number}, Reviewer is reminding you to join the review. Please join from DELTA`;
-const ASSESSMENT_TEMPLATE = 'Reviewer is reminding you to join the assessment. Please join from DELTA';
+const ASSESSMENT_TEMPLATE = (learner) => `Psst! Looks like it’s time for your Assessment, <@${learner}>. Please join from DELTA right away; your reviewer is waiting.`;
 const LEARNER_REVIEW_TEMPLATE = 'Reviewer is reminding you to join the review. Please join from DELTA';
-const BREAKOUT_TEMPLATE = 'Catalyst is reminding you to join the Breakout. Please join from DELTA';
-const QUESTIONAIRE_TEMPLATE = 'Catalyst is reminding you to join the Question Hour. Please join from DELTA';
+const BREAKOUT_TEMPLATE = 'It’s time to get your thinking hats on! Please join the BreakOut from DELTA now';
+const QUESTIONAIRE_TEMPLATE = 'The Question Hour is upon us. Please join the session from DELTA and ask away!';
 
 export const sendMessage = (req, res) => {
   const {
