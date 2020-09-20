@@ -2,6 +2,12 @@ import Sequelize from 'sequelize';
 import uuid from 'uuid';
 import db from '../database';
 
+const BREAKOUT_PATH = [
+  'frontend',
+  'backend',
+  'common',
+];
+
 export const Topic = db.define('topics', {
   id: {
     allowNull: false,
@@ -38,6 +44,10 @@ export const Topic = db.define('topics', {
     type: Sequelize.DATE,
     defaultValue: Sequelize.literal('NOW()'),
   },
+  path: {
+    type: Sequelize.ENUM(...BREAKOUT_PATH),
+    defaultValue: 'common',
+  },
 });
 
 export const getTopicById = topic_id => Topic.findByPk(topic_id, {
@@ -51,8 +61,24 @@ export const getTopicsByMilestone = (milestone_id, program) => Topic.findAll(
   { where: { milestone_id, program } },
 );
 
+export const getTopicIdsByMilestone = (milestone_id, program, path) => Topic.findAll(
+  {
+    where: { milestone_id, program, path },
+    attributes: ['id'],
+    raw: true,
+  },
+);
+
+export const getTopicIdsByPath = (milestone_id, program, path) => Topic.findAll(
+  {
+    where: { milestone_id, program, path },
+    raw: true,
+  },
+);
+
 export const createTopic = (title, description,
-  milestone_id, program, optional, domain) => Topic.create(
+  milestone_id, program, optional, domain,
+  path = 'common') => Topic.create(
   {
     id: uuid(),
     title,
@@ -61,6 +87,7 @@ export const createTopic = (title, description,
     program,
     optional,
     domain,
+    path,
     created_at: Date.now(),
   },
 );
@@ -70,13 +97,15 @@ export const updateATopic = (id, title,
   program,
   milestone_id,
   optional,
-  domain) => Topic.update({
+  domain,
+  path = 'common') => Topic.update({
   title,
   description,
   program,
   milestone_id,
   optional,
   domain,
+  path,
 }, { where: { id } });
 
 export const deleteTopic = (id) => Topic.destroy(

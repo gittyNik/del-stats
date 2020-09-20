@@ -145,7 +145,7 @@ export const updateTeamReview = (
 export const updateReviewForLearner = (
   review_feedback,
   learner_feedback,
-  id
+  id,
 ) => LearnerBreakout.update({
   review_feedback,
   learner_feedback,
@@ -282,11 +282,10 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
     let indexForReview = 0;
     let reviewForTeam;
 
-    try {
-      reviewForTeam = reviewSlots[indexForReview];
-      // Remove assessment that gets assigned
-      reviewSlots.splice(indexForReview, 1);
-    } catch (err) {
+    reviewForTeam = reviewSlots[indexForReview];
+    // Remove assessment that gets assigned
+    reviewSlots.splice(indexForReview, 1);
+    if (reviewForTeam === undefined) {
       reviewForTeam = { ...defaultSlot };
     }
 
@@ -316,9 +315,15 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
     });
   });
   let duration = milestonecohort['cohort.duration'];
+  let cohort_duration;
+  if (duration >= 26) {
+    cohort_duration = 'Part-time';
+  } else {
+    cohort_duration = 'Full-time';
+  }
   let name = milestonecohort['cohort.name'];
   let location = milestonecohort['cohort.location'];
-  let context = `Reviews created for ${name} ${duration} ${location}`;
+  let context = `Reviews created for ${name} ${cohort_duration} ${location}`;
   let message = `Created reviews for ${count} teams`;
   try {
     sendMessageToSlackChannel(message, context, process.env.SLACK_PE_SCHEDULING_CHANNEL);

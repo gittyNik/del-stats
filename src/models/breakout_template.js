@@ -8,6 +8,11 @@ import { createLearnerBreakoutsForCohortMilestones } from './learner_breakout';
 
 export const BREAKOUT_LEVEL = ['beginner', 'intermediate', 'advanced'];
 
+const TEMPLATE_STATUS = [
+  'active',
+  'inactive',
+];
+
 export const BreakoutTemplate = db.define('breakout_templates', {
   id: {
     type: Sequelize.UUID,
@@ -81,6 +86,10 @@ export const BreakoutTemplate = db.define('breakout_templates', {
   program_id: {
     type: Sequelize.UUID,
     references: { model: 'programs' },
+  },
+  status: {
+    type: Sequelize.ENUM(...TEMPLATE_STATUS),
+    defaultValue: 'active',
   },
 });
 
@@ -186,7 +195,7 @@ export const createBreakoutsInMilestone = (
     attributes: ['id', 'name', 'topic_id', 'details',
       'duration', 'time_scheduled', 'after_days',
       'primary_catalyst', 'level', 'secondary_catalysts'],
-    where: { program_id, cohort_duration },
+    where: { program_id, cohort_duration, status: 'active' },
     raw: true,
   })
   .then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
@@ -205,20 +214,21 @@ export const createTypeBreakoutsInMilestone = (cohort_id, program_id,
       program_id,
       cohort_duration,
       [Sequelize.Op.and]: Sequelize.literal(`details->>'type'='${type}'`),
+      status: 'active',
     },
     raw: true,
   },
 ).then(breakoutTemplates => updateBreakoutTemplates(breakoutTemplates, cohort_id))
   .then(updatedBreakoutTemplates => scheduling(updatedBreakoutTemplates))
   .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates,
-    cohort_id, codeSandBox, videoMeet))
-  .then(createdBreakouts => createLearnerBreakouts(createdBreakouts, cohort_id));
+    cohort_id, codeSandBox, videoMeet));
 
 export const getAllBreakoutTemplates = () => BreakoutTemplate.findAll({});
 
 export const getBreakoutTemplateById = id => BreakoutTemplate.findByPk(id);
 
-export const createBreakoutTemplate = (name, topic_id,
+export const createBreakoutTemplate = (
+  name, topic_id,
   mandatory,
   level,
   primary_catalyst,
@@ -229,7 +239,9 @@ export const createBreakoutTemplate = (name, topic_id,
   after_days,
   cohort_duration,
   program_id,
-  user_id) => BreakoutTemplate.create(
+  user_id,
+  status,
+) => BreakoutTemplate.create(
   {
     id: uuid(),
     name,
@@ -245,6 +257,7 @@ export const createBreakoutTemplate = (name, topic_id,
     cohort_duration,
     program_id,
     updated_by: [user_id],
+    status,
   },
 );
 
@@ -261,7 +274,8 @@ export const updateBreakoutTemplate = (id,
   after_days,
   user_id,
   cohort_duration,
-  program_id) => BreakoutTemplate.findOne({
+  program_id,
+  status) => BreakoutTemplate.findOne({
   where: {
     id,
   },
@@ -282,6 +296,7 @@ export const updateBreakoutTemplate = (id,
       after_days,
       cohort_duration,
       program_id,
+      status,
     }, {
       where: {
         id,

@@ -3,7 +3,13 @@ import uuid from 'uuid/v4';
 import _ from 'lodash';
 import faker from 'faker';
 import db from '../database';
-import { CohortMilestone, getDataForMilestoneName } from './cohort_milestone';
+import {
+  CohortMilestone,
+  getDataForMilestoneName,
+} from './cohort_milestone';
+import {
+  createLearnerBreakoutsForMilestone,
+} from './cohort_breakout';
 import { getProfile } from './user';
 import {
   toSentenceCase,
@@ -192,13 +198,21 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async learnerIds =
   let inactivelearnersProfile = [];
   let teams = [];
 
-  // Separate Active and In-active learners,
+  // Separate Active and In-active learners if count of learners > 4,
   // Inactive having more than 4 last attended breakouts as false
-  let allLearners = await belowThresholdLearners(learnerIds);
-  let { active_learners, inactive_learners } = allLearners;
-  activelearnersProfile = await Promise.all(active_learners.map(id => getProfile(id)));
-  inactivelearnersProfile = await Promise.all(inactive_learners.map(id => getProfile(id)));
-
+  if (learnerIds.length > 4) {
+    let allLearners = await belowThresholdLearners(learnerIds);
+    let { active_learners, inactive_learners } = allLearners;
+    // if only 1 or 2 active learners, add them to teams with inactive
+    if (active_learners.length < 3) {
+      active_learners = [...active_learners, ...inactive_learners];
+      inactive_learners = [];
+    }
+    activelearnersProfile = await Promise.all(active_learners.map(id => getProfile(id)));
+    inactivelearnersProfile = await Promise.all(inactive_learners.map(id => getProfile(id)));
+  } else {
+    activelearnersProfile = await Promise.all(learnerIds.map(id => getProfile(id)));
+  }
   let data = await getDataForMilestoneName(cohort_milestone_id);
   let baseMilestoneName = `MS_${toSentenceCase(
     data.milestone.name,
@@ -213,6 +227,7 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async learnerIds =
   )}_${new Date(data.cohort.start_date).getFullYear()}`;
   let { starter_repo } = data.milestone;
 
+  let learnerBreakouts = [];
   // Create Teams for active Learners
   if (activelearnersProfile.length > 0) {
     if (activelearnersProfile[0].status.includes('frontend')
@@ -221,14 +236,17 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async learnerIds =
       let backendUsers = [];
       activelearnersProfile.map(ms => {
         if (ms.status.includes('frontend')) {
-          // Add FE learner Breakout creation
           frontendUsers.push(ms.id);
         } else {
-          // Add BE learner Breakout creation
           backendUsers.push(ms.id);
         }
       });
 
+      // Add FE learner + Backend Breakout creation
+      learnerBreakouts.push(createLearnerBreakoutsForMilestone(frontendUsers,
+        cohort_milestone_id, 'frontend'));
+      learnerBreakouts.push(createLearnerBreakoutsForMilestone(backendUsers,
+        cohort_milestone_id, 'backend'));
       teams = createFullStackTeams(frontendUsers, backendUsers);
     } else {
       // Non FE BE learners
@@ -247,14 +265,17 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async learnerIds =
       let backendUsers = [];
       inactivelearnersProfile.map(ms => {
         if (ms.status.includes('frontend')) {
-          // Add FE learner Breakout creation
           frontendUsers.push(ms.id);
         } else {
-          // Add BE learner Breakout creation
           backendUsers.push(ms.id);
         }
       });
 
+      // Add FE learner + Backend Breakout creation
+      learnerBreakouts.push(createLearnerBreakoutsForMilestone(frontendUsers,
+        cohort_milestone_id, 'frontend'));
+      learnerBreakouts.push(createLearnerBreakoutsForMilestone(backendUsers,
+        cohort_milestone_id, 'backend'));
       inactiveTeams = createFullStackTeams(frontendUsers, backendUsers);
       teams.push(...inactiveTeams);
     } else {
@@ -264,6 +285,9 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async learnerIds =
       teams.push(...inactiveTeams);
     }
   }
+  // Create common breakouts for all
+  learnerBreakouts.push(createLearnerBreakoutsForMilestone(learnerIds, cohort_milestone_id, 'common'));
+  await Promise.all(learnerBreakouts);
 
   teams = await Promise.all(teams.map(async (team, i) => {
     let msName = `${baseMilestoneName}_${i + 1}`;
