@@ -6,7 +6,7 @@ import {
 } from '../../models/user';
 import { getSoalToken } from '../../util/token';
 import { createOrUpdateContact } from '../../integrations/hubspot/controllers/contacts.controller';
-import { createDeal } from '../../integrations/hubspot/controllers/deals.controller';
+import { sendMessageToSlackChannel } from '../../integrations/slack/team-app/controllers/milestone.controller';
 
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, 'Use {{otp}} to login with DELTA. Please do not share it with anybody! {SOAL Team}');
 
@@ -124,6 +124,13 @@ export const verifyOTP = (req, res) => {
       console.warn(`Data received from MSG91 api: ${data.message}`);
       console.warn(`Data type from MSG91 api: ${data.type}`);
       console.warn(`Error received from MSG91 api: ${error}`);
+      try {
+        let message = `Phone Number: ${phone}. Reason:  ${data.message}`;
+        let context = 'Failed OTP verification';
+        sendMessageToSlackChannel(message, context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
+      } catch (err2) {
+        console.warn('Unable to send message to slack');
+      }
       res.sendStatus(401);
     }
   });
