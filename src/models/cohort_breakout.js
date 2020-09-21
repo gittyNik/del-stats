@@ -12,6 +12,7 @@ import { Topic } from './topic';
 import { BreakoutTemplate } from './breakout_template';
 import { createLearnerBreakoutsForCohortMilestones } from './learner_breakout';
 import { showCompletedBreakoutOnSlack } from '../integrations/slack/team-app/controllers/milestone.controller';
+import { postAttendaceInCohortChannel } from '../integrations/slack/delta-app/controllers/web.controller';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 import { createEvent, deleteEvent } from '../integrations/calendar/calendar.model';
 import { logger } from '../util/logger';
@@ -237,9 +238,18 @@ export const markBreakoutFinished = (
 ) => markBreakoutComplete(cohort_breakout_id)
   .then((completeBreakout) => Promise.all([
     markZoomAttendance(completeBreakout[1]),
-    showCompletedBreakoutOnSlack(completeBreakout[1].topicId,
-      completeBreakout[1].cohortId, name),
-  ]));
+    showCompletedBreakoutOnSlack(
+      completeBreakout[1].topicId,
+      completeBreakout[1].cohortId,
+      name,
+      cohort_breakout_id,
+    ),
+  ]))
+  .then(async (data) => {
+    const slackResponse = await postAttendaceInCohortChannel(cohort_breakout_id);
+    data.slackNotify = (slackResponse.ok) ? 'Notified on Slack' : slackResponse.error;
+    return data;
+  });
 
 export const createNewBreakout = (
   breakout_template_id,
@@ -530,6 +540,12 @@ export const updateZoomMeetingForBreakout = (
         .then(data => data[1]);
     });
   });
+export const getCohortBreakoutById = (cohort_breakout_id) => CohortBreakout.findOne({
+  where: {
+    id: cohort_breakout_id,
+  },
+  raw: true,
+});
 
 export const getCohortBreakoutsByCohortId = (cohort_id) => CohortBreakout.findAll({
   where: {

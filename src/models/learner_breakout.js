@@ -102,10 +102,10 @@ export const createLearnerBreakoutsForCohortMilestones = (
         });
       return learnerBreakout;
     });
-      // console.log(
+    // console.log(
     //   `${learnerBreakouts.length} learner_breakouts created
     // for a cohort_breakout_id: ${ cohort_breakout_id }`,
-      // );
+    // );
     return learnerBreakouts;
   })
   .catch((err) => {
@@ -342,5 +342,13 @@ export const createLearnerBreakoutsForCurrentMS = async (learner_id, cohort_brea
   learner_id,
   attendance: false,
 })));
+
+export const getLearnerBreakoutsForACohortBreakout = (cohort_breakout_id) => LearnerBreakout
+  .findAll({
+    where: {
+      cohort_breakout_id,
+    },
+    raw: true,
+  });
 
 export default LearnerBreakout;
