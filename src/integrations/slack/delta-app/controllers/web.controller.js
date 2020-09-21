@@ -1,16 +1,19 @@
 import { composeCatalystBreakoutMessage } from '../views/breakout.view';
 import web from '../client';
 import { User, getProfile } from '../../../../models/user';
-import { Cohort, getCohortIdFromLearnerId } from '../../../../models/cohort';
-import { CohortBreakout } from '../../../../models/cohort_breakout';
+import { Cohort, getCohortIdFromLearnerId, getLearnersFromCohorts } from '../../../../models/cohort';
+import { CohortBreakout, getCohortBreakoutById } from '../../../../models/cohort_breakout';
 import { postMessage } from '../utility/chat';
-import { getChannelIdForCohort } from '../../../../models/slack_channels';
+import { getChannelIdForCohort, getSlackIdsForUsersInSPE } from '../../../../models/slack_channels';
+
+import { getLearnerBreakoutsForACohortBreakout } from '../../../../models/learner_breakout';
+import { logger } from '../../../../util/logger';
 
 const REVIEW_TEMPLATE = (team_number) => `Team: ${team_number}, Reviewer is reminding you to join the review. Please join from DELTA`;
-const ASSESSMENT_TEMPLATE = 'Reviewer is reminding you to join the assessment. Please join from DELTA';
+const ASSESSMENT_TEMPLATE = (learner) => `Psst! Looks like it’s time for your Assessment, <@${learner}>. Please join from DELTA right away; your reviewer is waiting.`;
 const LEARNER_REVIEW_TEMPLATE = 'Reviewer is reminding you to join the review. Please join from DELTA';
-const BREAKOUT_TEMPLATE = 'Catalyst is reminding you to join the Breakout. Please join from DELTA';
-const QUESTIONAIRE_TEMPLATE = 'Catalyst is reminding you to join the Question Hour. Please join from DELTA';
+const BREAKOUT_TEMPLATE = 'It’s time to get your thinking hats on! Please join the BreakOut from DELTA now';
+const QUESTIONAIRE_TEMPLATE = 'The Question Hour is upon us. Please join the session from DELTA and ask away!';
 
 export const sendMessage = (req, res) => {
   const {
@@ -88,5 +91,79 @@ export const notifyLearnersInChannel = async (req, res) => {
     return res.status(500).json({
       text: 'Failed to notify on the slack channel',
     });
+  }
+};
+
+export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
+  const cohortBreakout = await getCohortBreakoutById(cohort_breakout_id);
+  const {
+    type, cohort_id, catalyst_id, details,
+  } = cohortBreakout;
+  const cohortSlackChannel = await getChannelIdForCohort(cohort_id);
+  const learner_breakouts = await getLearnerBreakoutsForACohortBreakout(cohort_breakout_id);
+  const cohortLearners = await getLearnersFromCohorts([cohort_id])
+    .then(data => JSON.stringify(data))
+    .then(_data => JSON.parse(_data)[0].learners);
+  const attendedLearners = learner_breakouts
+    .filter(learner_breakout => {
+      const { learner_id, attendance } = learner_breakout;
+      if (cohortLearners.includes(learner_id) && attendance === true) {
+        return true;
+      }
+      return false;
+    }).map(lb => lb.learner_id);
+  const absentLearners = learner_breakouts
+    .filter(learner_breakout => {
+      const { learner_id, attendance } = learner_breakout;
+      if (cohortLearners.includes(learner_id) && attendance === false) {
+        return true;
+      }
+      return false;
+    }).map(lb => lb.learner_id);
+  let slackIdsOfAttendedLearners = await getSlackIdsForUsersInSPE(attendedLearners);
+  let slackIdsOfAbsentLearners = await getSlackIdsForUsersInSPE(absentLearners);
+  let title;
+  if (type === 'lecture') {
+    const slackIdOfCatalyst = await getSlackIdsForUsersInSPE([catalyst_id]);
+    title = `Attendance record for *<@${slackIdOfCatalyst}>*'s breakout on \n${details.topics}`;
+  }
+  if (type === 'reviews') {
+    title = `Attendance of ${details.topics}`;
+  }
+  if (type === 'assessment') {
+    title = `Attendance of ${details.topics}`;
+  }
+
+  const payloadBlocks = [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: title,
+      },
+      fields: [
+        {
+          type: 'mrkdwn',
+          text: `*PRESENT*\n ${slackIdsOfAttendedLearners.map(l => `<@${l}>`).join('\n')}`,
+        },
+        {
+          type: 'mrkdwn',
+          text: `ABSENT:\n ${slackIdsOfAbsentLearners.map(l => `<@${l}>`).join('\n')}`,
+        },
+      ],
+    },
+    {
+      type: 'divider',
+    },
+  ];
+  try {
+    const slackResponse = await postMessage({
+      channel: cohortSlackChannel,
+      blocks: payloadBlocks,
+    });
+    return slackResponse;
+  } catch (err) {
+    logger.error(err);
+    return false;
   }
 };
