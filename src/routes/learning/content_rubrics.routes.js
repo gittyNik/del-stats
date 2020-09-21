@@ -8,12 +8,21 @@ import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/role
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, CATALYST, EDUCATOR,
+  ADMIN, CATALYST, EDUCATOR, REVIEWER,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER]));
+
+/**
+ * @api {get} /learning/content/rubrics/milestone Get rubrics by Milestone
+ * @apiDescription get rubrics by milestone
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetRubrics
+ * @apiGroup Rubrics
+ */
+router.get('/milestone', getRubricsByMilestoneAPI);
 
 /**
  * @api {get} /learning/content/rubrics Get all Rubrics
@@ -41,15 +50,6 @@ router.get('/:id', getRubricsByIdAPI);
  * @apiGroup Rubrics
  */
 router.get('/program/:id', getRubricsByProgramAPI);
-
-/**
- * @api {get} /learning/content/rubrics/program/:program/milestone Get rubrics by Milestone
- * @apiDescription get rubrics by milestone
- * @apiHeader {String} authorization JWT Token.
- * @apiName GetRubrics
- * @apiGroup Rubrics
- */
-router.get('/milestone/:id/', getRubricsByMilestoneAPI);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowAdminsOnly);

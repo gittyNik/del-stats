@@ -16,12 +16,12 @@ import {
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, CATALYST, EDUCATOR,
+  ADMIN, CATALYST, EDUCATOR, REVIEWER, SUPERADMIN,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER, SUPERADMIN]));
 
 /**
  * @api {get} /learning/ops/reviews Get all Reviews
@@ -86,6 +86,19 @@ router.get('/user/team/:id', getUserAndTeamReviewsAPI);
  */
 router.get('/status/:id', getReviewsByStatusAPI);
 
+/**
+ * @api {patch} /learning/ops/reviews/learner/:id  Update Team Reviews
+ * @apiDescription Update a Learner Review
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UpdateLearnerReview
+ * @apiGroup Reviews
+ *
+ * @apiParam {String} id Learner breakout ID
+ * @apiParam {String} review_feedback Object of rubric key and score
+ * @apiParam {String} learner_feedback Notes by Reviewer for Learner
+ */
+router.patch('/learner/:id', updateReviewForLearnerAPI);
+
 // Restrict modifications for any applicant to the cohorts
 router.use(allowAdminsOnly);
 
@@ -124,26 +137,11 @@ router.post('/', createReview);
  * @apiGroup Reviews
  *
  * @apiParam {String} cohort_breakout_id Cohort breakout ID
- * @apiParam {String} team_feedback Array of Learner feedbacks
- * @apiParam {String} team_feedback Team Feedbackx
+ * @apiParam {String} team_feedback Team Feedback
  * @apiParam {String} attendance_count Attendance count of learners
  * @apiParam {String} catalyst_notes Team notes by Reviewer
  */
 router.patch('/:id', updateTeamReviewAPI);
-
-/**
- * @api {patch} /learning/ops/reviews/:id/:learner_id  Update Team Reviews
- * @apiDescription Update a Learner Review
- * @apiHeader {String} authorization JWT Token.
- * @apiName UpdateLearnerReview
- * @apiGroup Reviews
- *
- * @apiParam {String} id Cohort breakout ID
- * @apiParam {String} learner_id Learner ID
- * @apiParam {String} review_feedback Object of rubric key and score
- * @apiParam {String} learner_feedback Notes by Reviewer for Learner
- */
-router.patch('/:id/:learner_id', updateReviewForLearnerAPI);
 
 /**
  * @api {patch} /learning/ops/reviews/:id  Update Team Reviews
@@ -158,7 +156,7 @@ router.patch('/:id/:learner_id', updateReviewForLearnerAPI);
  * @apiParam {String} status ID of the Milestone
  * @apiParam {String} additional_details Details regarding the review
  */
-router.patch('/:id', addReviewsForTeamAPI);
+router.patch('/team/:id', addReviewsForTeamAPI);
 
 /**
  * @api {delete} /learning/ops/topics/:id Delete Content Topic

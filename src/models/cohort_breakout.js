@@ -2,16 +2,30 @@ import { Sequelize, Op } from 'sequelize';
 import uuid from 'uuid/v4';
 import _ from 'lodash';
 import db from '../database';
-import { Cohort } from './cohort';
+import {
+  Cohort,
+} from './cohort';
+import {
+  getTopicIdsByMilestone,
+  Topic,
+} from './topic';
 import { createSandbox } from './code_sandbox';
 import {
   createScheduledMeeting,
   markAttendanceFromZoom,
 } from './video_meeting';
-import { Topic } from './topic';
+
 import { BreakoutTemplate } from './breakout_template';
-import { createLearnerBreakoutsForCohortMilestones } from './learner_breakout';
-import { showCompletedBreakoutOnSlack } from '../integrations/slack/team-app/controllers/milestone.controller';
+import {
+  createLearnerBreakoutsForCohortMilestones,
+  createAllLearnerBreakoutsForCurrentMS,
+} from './learner_breakout';
+import {
+  getDataForMilestoneName,
+} from './cohort_milestone';
+import {
+  showCompletedBreakoutOnSlack,
+} from '../integrations/slack/team-app/controllers/milestone.controller';
 import { postAttendaceInCohortChannel } from '../integrations/slack/delta-app/controllers/web.controller';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 import { createEvent, deleteEvent } from '../integrations/calendar/calendar.model';
@@ -83,6 +97,15 @@ export const CohortBreakout = db.define('cohort_breakouts', {
     defaultValue: Sequelize.literal('NOW()'),
   },
   team_feedback: Sequelize.JSON,
+  updated_by: {
+    type: Sequelize.ARRAY(
+      {
+        type: Sequelize.UUID,
+        references: { model: 'users' },
+      },
+    ),
+    allowNull: true,
+  },
 });
 
 export const scheduleBreakoutLecture = (
@@ -674,7 +697,9 @@ export const updateCohortBreakouts = ({ whereObject, updateObject }) => CohortBr
   });
 
 // End date inclusive, start_date excluded
-export const getCohortBreakoutsBetweenDates = (cohort_id, start_date, end_date) => CohortBreakout.findAll({
+export const getCohortBreakoutsBetweenDates = (
+  cohort_id, start_date, end_date,
+) => CohortBreakout.findAll({
   where: {
     cohort_id,
     time_scheduled: {
@@ -686,5 +711,40 @@ export const getCohortBreakoutsBetweenDates = (cohort_id, start_date, end_date) 
   },
   raw: true,
 });
+
+export const getCohortBreakoutsForTopics = async (
+  topics, cohort_id,
+) => CohortBreakout.findAll({
+  where: {
+    topic_id: {
+      [Sequelize.Op.in]: topics,
+    },
+    cohort_id,
+    type: 'lecture',
+  },
+});
+
+export const createLearnerBreakoutsForMilestone = async (
+  learner_ids,
+  cohort_milestone_id,
+  path = 'common',
+) => {
+  if (learner_ids && learner_ids.length) {
+    // Get Cohort and Milestone details
+    let cohortMilestone = await getDataForMilestoneName(cohort_milestone_id);
+
+    let milestoneTopics = await getTopicIdsByMilestone(cohortMilestone.milestone_id,
+      cohortMilestone.cohort.program_id, path);
+    // Get topics from milestones
+    let topics = milestoneTopics.map(a => a.id);
+    let milestoneBreakouts = await getCohortBreakoutsForTopics(topics,
+      cohortMilestone.cohort_id);
+    // Create Learner Breakouts
+    let learnerBreakouts = await createAllLearnerBreakoutsForCurrentMS(learner_ids,
+      milestoneBreakouts);
+    return learnerBreakouts;
+  }
+  return null;
+};
 
 export default CohortBreakout;

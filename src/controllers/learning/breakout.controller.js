@@ -6,6 +6,7 @@ import {
   createSingleBreakoutAndLearnerBreakout,
   updateBreakoutCalendarEventForCatalyst,
   updateCohortBreakouts,
+  createLearnerBreakoutsForMilestone,
 } from '../../models/cohort_breakout';
 import { updateCalendarEventInLearnerBreakout } from '../../models/learner_breakout';
 import {
@@ -386,6 +387,7 @@ export const updateBreakout = (req, res) => {
     catalyst_feedback,
     attendence_count,
   } = req.body;
+  const user_id = req.jwtData.user.id;
   const { id } = req.params;
 
   CohortBreakout.update(
@@ -402,6 +404,7 @@ export const updateBreakout = (req, res) => {
       catalyst_notes,
       catalyst_feedback,
       attendence_count,
+      updated_by: [user_id],
     },
     {
       where: { id },
@@ -610,7 +613,7 @@ export const calculateAfterDays = (previousTime, afterDays) => {
 };
 
 // TODO: Make this transactional, if one fails, all should revert
-export const updateMilestoneByDays = async (cohortId, updateByDays) => {
+export const updateMilestoneByDays = async (cohortId, updateByDays, user_id = null) => {
   let currentDateTime = new Date();
   await CohortMilestone.findAll({
     where: {
@@ -666,6 +669,7 @@ export const updateMilestoneByDays = async (cohortId, updateByDays) => {
         return CohortBreakout.update(
           {
             time_scheduled: updatedScheduledTime,
+            updated_by: [user_id],
           },
           {
             where: {
@@ -688,7 +692,22 @@ export const updateMilestoneByDays = async (cohortId, updateByDays) => {
 export const updateMilestonesBreakoutTimelines = async (req, res) => {
   let { updated_time } = req.body;
   const { id: cohort_id } = req.params;
-  await updateMilestoneByDays(cohort_id, updated_time)
+  const user_id = req.jwtData.user.id;
+  await updateMilestoneByDays(cohort_id, updated_time, user_id)
+    .then((data) => {
+      res.status(201).json({ data });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send({ err });
+    });
+};
+
+export const createCohortMilestoneLearnerBreakouts = async (req, res) => {
+  let {
+    id: cohort_milestone_id,
+  } = req.params;
+  await createLearnerBreakoutsForMilestone(cohort_milestone_id)
     .then((data) => {
       res.status(201).json({ data });
     })

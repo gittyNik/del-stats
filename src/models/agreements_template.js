@@ -51,19 +51,35 @@ export const getAgreementTemplate = (
   is_isa,
   is_job_guarantee,
   payment_type,
-) => AgreementTemplates.findOne(
-  {
-    where: {
-      program,
-      cohort_duration,
-      is_isa,
-      is_job_guarantee,
-      payment_type,
+) => {
+  cohort_duration = String(cohort_duration);
+  if (is_job_guarantee === null || payment_type === null) {
+    return AgreementTemplates.findOne(
+      {
+        where: {
+          program,
+          cohort_duration,
+          is_isa,
+        },
+        attributes: ['document_identifier', 'payment_details'],
+        raw: true,
+      },
+    );
+  }
+  return AgreementTemplates.findOne(
+    {
+      where: {
+        program,
+        cohort_duration,
+        is_isa,
+        is_job_guarantee,
+        payment_type,
+      },
+      attributes: ['document_identifier', 'payment_details'],
+      raw: true,
     },
-    attributes: ['document_identifier'],
-    raw: true,
-  },
-);
+  );
+};
 
 export const createAgreementTemplates = (
   program,
@@ -75,7 +91,7 @@ export const createAgreementTemplates = (
   updated_user,
   document_identifier,
 ) => {
-  let modified_by = { user: updated_user, time: NOW() };
+  let modified_by = [{ user: updated_user, time: NOW() }];
   return AgreementTemplates.create(
     {
       program,
@@ -102,7 +118,7 @@ export const updateAgreementTemplates = (
   updated_user,
   document_identifier,
 ) => {
-  let modified_by = { user: updated_user, time: NOW() };
+  let modified_by = { user: updated_user, time: new Date() };
   return AgreementTemplates.update({
     program,
     cohort_duration,

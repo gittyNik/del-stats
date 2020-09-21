@@ -31,10 +31,12 @@ export const createBreakoutTemplateAPI = (req, res) => {
     after_days,
     cohort_duration,
     program_id,
+    status,
   } = req.body;
   const user_id = req.jwtData.user.id;
 
-  createBreakoutTemplate(name,
+  createBreakoutTemplate(
+    name,
     topic_id,
     mandatory,
     level,
@@ -46,8 +48,13 @@ export const createBreakoutTemplateAPI = (req, res) => {
     after_days,
     cohort_duration,
     program_id,
-    user_id).then((data) => { res.json(data); })
-    .catch(err => res.status(500).send(err));
+    user_id,
+    status,
+  ).then((data) => { res.json(data); })
+    .catch(err => {
+      console.log(err);
+      res.status(500).send(err);
+    });
 };
 
 export const updateBreakoutTemplateAPI = (req, res) => {
@@ -64,6 +71,7 @@ export const updateBreakoutTemplateAPI = (req, res) => {
     after_days,
     cohort_duration,
     program_id,
+    status,
   } = req.body;
   const { id } = req.params;
   const user_id = req.jwtData.user.id;
@@ -81,7 +89,8 @@ export const updateBreakoutTemplateAPI = (req, res) => {
     after_days,
     user_id,
     cohort_duration,
-    program_id).then((data) => { res.json(data); })
+    program_id,
+    status).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 

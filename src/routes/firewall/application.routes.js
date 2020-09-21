@@ -2,7 +2,8 @@ import Express from 'express';
 import {
   getAllApplications, getApplicationsByUserId, getApplicationById,
   getLiveApplications, addApplication, updateApplication, deleteApplication,
-  payment, getLatestApplication, getApplicationStats, getApplicationStageAPI, setApplicationStageAPI,
+  payment, getLatestApplication, getApplicationStats, getApplicationStageAPI,
+  setApplicationStageAPI, getPaymentAmount,
 } from '../../controllers/firewall/application.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 
@@ -139,5 +140,16 @@ router.delete('/:id', deleteApplication);
  * @apiParam {json} payment_details Payment details
  */
 router.patch('/:id/payment', payment);
+
+/**
+ * @api {get} /firewall/applications/payment-amount Get payment amount
+ * @apiDescription Get payment amount for both tranches
+ * @apiHeader {String} authorization JWT Token
+ * @apiName ApplicatoinPayment
+ * @apiGroup Application
+ *
+ * @apiParam {String} purpose Purpose of Payment
+ */
+router.get('/payment-amount', getPaymentAmount);
 
 export default router;

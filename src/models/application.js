@@ -151,6 +151,15 @@ export const getApplicationStage = (user_id) => Application.findOne({
   attributes: ['stage', 'is_isa', 'is_job_guarantee',
     'cohort_applied', 'cohort_joining', 'status', 'payment_type'],
   raw: true,
+}).then(async data => {
+  let cohortDetails = await Cohort.findOne({
+    where: {
+      id: data.cohort_applied,
+    },
+    raw: true,
+  });
+  data.cohort_details = cohortDetails;
+  return data;
 });
 
 export const setApplicationStage = (
