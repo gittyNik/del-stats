@@ -57,9 +57,6 @@ router.get('/:id/video', getVideoUrl);
  */
 router.get('/catalyst/:id', getRecordingsByCatalystAPI);
 
-// Restrict modifications for any applicant to the cohorts
-router.use(allowAdminsOnly);
-
 /**
  * @api {post} /learning/content/breakouts/recordings/ Insert Breakout recording
  * @apiDescription get all Content Breakouts recordings
