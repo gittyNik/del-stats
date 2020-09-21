@@ -127,7 +127,7 @@ export const verifyOTP = (req, res) => {
       try {
         let message = `Phone Number: ${phone}. Reason:  ${data.message}`;
         let context = 'Failed OTP verification';
-        sendMessageToSlackChannel(message, context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
+        sendMessageToSlackChannel(message, context, process.env.SLACK_MSG91_CHANNEL);
       } catch (err2) {
         console.warn('Unable to send message to slack');
       }
