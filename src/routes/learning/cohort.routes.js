@@ -23,6 +23,7 @@ import {
   updateCohortBreakout,
   updateMilestonesBreakoutTimelines,
   createBreakoutsOfType,
+  createCohortMilestoneLearnerBreakouts,
 } from '../../controllers/learning/breakout.controller';
 import {
   allowSuperAdminOnly,
@@ -77,6 +78,14 @@ router.get('/:year/:location/:name', getCohortByName);
  * @apiGroup Cohort
  */
 router.get('/user/:id', getCohortByLearnerId);
+
+/**
+ * @api {get} /cohorts/milestone/:id Get a cohort milestone topics
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetCohotMilestoneTopics
+ * @apiGroup Cohort
+ */
+router.get('/milestone/:id', createCohortMilestoneLearnerBreakouts);
 
 router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR, REVIEWER]));
 

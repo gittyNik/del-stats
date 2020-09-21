@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import async from 'async';
+import _ from 'lodash';
 import db from '../database';
 import { Cohort, getCohortFromLearnerId } from './cohort';
 import {
@@ -102,10 +103,10 @@ export const createLearnerBreakoutsForCohortMilestones = (
         });
       return learnerBreakout;
     });
-      // console.log(
+    // console.log(
     //   `${learnerBreakouts.length} learner_breakouts created
     // for a cohort_breakout_id: ${ cohort_breakout_id }`,
-      // );
+    // );
     return learnerBreakouts;
   })
   .catch((err) => {
@@ -336,11 +337,42 @@ export const updateCalendarEventInLearnerBreakout = async (cohort_breakout_id) =
     });
 };
 
-export const createLearnerBreakoutsForCurrentMS = async (learner_id, cohort_breakouts) => LearnerBreakout.bulkCreate(cohort_breakouts.map(cohort_breakout => ({
+export const createLearnerBreakoutsForCurrentMS = async (learner_id,
+  cohort_breakouts) => LearnerBreakout.bulkCreate(cohort_breakouts.map(cohort_breakout => ({
   id: uuid(),
   cohort_breakout_id: cohort_breakout.id,
   learner_id,
   attendance: false,
 })));
+
+export const createAllLearnerBreakoutsForCurrentMS = async (learners,
+  cohort_breakouts) => {
+  let learnerBreakout = await LearnerBreakout.findOne({
+    where: {
+      learner_id: learners[0],
+      cohort_breakout_id: cohort_breakouts[0].id,
+    },
+    raw: true,
+  });
+  if (_.isEmpty(learnerBreakout)) {
+    return learners.map(
+      learner_id => LearnerBreakout.bulkCreate(cohort_breakouts.map(cohort_breakout => ({
+        id: uuid(),
+        cohort_breakout_id: cohort_breakout.id,
+        learner_id,
+        attendance: false,
+      }
+      ))),
+    );
+  }
+  return LearnerBreakout;
+};
+export const getLearnerBreakoutsForACohortBreakout = (cohort_breakout_id) => LearnerBreakout
+  .findAll({
+    where: {
+      cohort_breakout_id,
+    },
+    raw: true,
+  });
 
 export default LearnerBreakout;

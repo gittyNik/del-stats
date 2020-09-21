@@ -97,11 +97,10 @@ export const updateReviewForLearnerAPI = (req, res) => {
   } = req.body;
 
   const {
-    learner_id, id,
+    id,
   } = req.params;
-
-  updateReviewForLearner(review_feedback, learner_id, id,
-    learner_feedback).then((data) => { res.json(data); })
+  updateReviewForLearner(review_feedback,
+    learner_feedback, id).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 

@@ -9,11 +9,11 @@ import {
 } from '../../models/application';
 import { Program } from '../../models/program';
 import { Cohort } from '../../models/cohort';
-import { User } from '../../models/user';
+import { User, getProfile } from '../../models/user';
 import { getFirewallResourceCount } from '../../models/resource';
 import { getFirewallResourceVisitsByUser } from '../../models/resource_visit';
 import { Test, getSubmissionTimesByApplication } from '../../models/test';
-import { AgreementTemplates } from '../../models/agreements_template'
+import { getApplicationDetails } from './agreement_template.controller';
 import { generateTestSeries, populateTestSeries } from './test.controller';
 import { sendSms, TEMPLATE_FIREWALL_REVIEWED } from '../../util/sms';
 import { sendFirewallResult } from '../../integrations/slack/team-app/controllers/firewall.controller';
@@ -197,32 +197,54 @@ export const deleteApplication = (req, res) => {
     .catch(() => res.sendStatus(500));
 };
 
+export const getPaymentAmount = async (req, res) => {
+  let { purpose } = req.body;
+  // const { id } = req.params;
+  const user_id = req.jwtData.user.id;
+  let amount;
+  let paymentDetails;
+  try {
+    paymentDetails = await getApplicationDetails(user_id);
+    if (PAYMENT_TYPES.pe_first_tranche === purpose) {
+      amount = paymentDetails.payment_details.initial_amount;
+    }
+    if (PAYMENT_TYPES.pe_second_tranche === purpose) {
+      amount = paymentDetails.payment_details.amount;
+    }
+  } catch (err) {
+    logger.error(err);
+    return res.status(500).json({
+      message: 'Failed to fetch amount',
+      type: 'failure',
+    });
+  }
+  return res.status(200).json({
+    message: `Amount for ${purpose}`,
+    data: amount,
+    type: 'success',
+  });
+};
+
 export const payment = async (req, res) => {
-  let {
-    purpose, phone, buyer_name, email, redirect_url,
-    program, cohort_duration, is_isa, is_job_guarantee, payment_type,
-  } = req.body.paymentDetails;
+  let { purpose, cohort_applied } = req.body;
   const { id } = req.params;
+  const user_id = req.jwtData.user.id;
   const {
     INSTAMOJO_API_KEY, INSTAMOJO_AUTH_TOKEN,
-    INSTAMOJO_URL, INSTAMOJO_WEBHOOK,
+    INSTAMOJO_URL, INSTAMOJO_WEBHOOK, INSTAMOJO_URL_REDIRECT,
     INSTAMOJO_SEND_SMS, INSTAMOJO_SEND_EMAIL, INSTAMOJO_ALLOW_RE,
   } = process.env;
+  const { name: buyer_name, phone, email } = await getProfile(user_id);
   let amount;
+  let paymentDetails;
   try {
-    amount = await AgreementTemplates
-      .findOne({
-        where: {
-          program,
-          cohort_duration,
-          is_isa,
-          is_job_guarantee,
-          payment_type,
-        },
-        attributes: ['payment_details'],
-        raw: true,
-      })
-      .then(agreement => agreement.payment_details.amount);
+    paymentDetails = await getApplicationDetails(user_id);
+    if (PAYMENT_TYPES.pe_first_tranche === purpose) {
+      amount = paymentDetails.payment_details.initial_amount;
+    }
+    if (PAYMENT_TYPES.pe_second_tranche === purpose) {
+      amount = paymentDetails.payment_details.amount;
+    }
   } catch (err) {
     logger.error(err);
     return res.status(500).json({
@@ -236,7 +258,7 @@ export const payment = async (req, res) => {
     phone,
     buyer_name,
     email,
-    redirect_url, // redirecting url after payment
+    redirect_url: INSTAMOJO_URL_REDIRECT, // redirecting url after payment
     send_email: INSTAMOJO_SEND_EMAIL,
     webhook: INSTAMOJO_WEBHOOK,
     send_sms: INSTAMOJO_SEND_SMS,
@@ -263,20 +285,23 @@ export const payment = async (req, res) => {
       }
 
       Application.update({
+        cohort_applied,
         payment_details: pd,
       }, { where: { id }, returning: true, plain: true })
         .then(() => {
           // console.log(result[1].dataValues);
           res.status(200).send({
-            text: 'Payment Details containing the instamojo redirect url',
+            message: 'Payment Details containing the instamojo redirect url',
             data: response.body.payment_request,
+            type: 'success',
           });
         })
         .catch((err) => {
           logger.error(err);
           res.status(500).json({
-            text: `Failed to update the payment_details on application_id: ${id}`,
-            err,
+            message: `Failed to update the payment_details on application_id: ${id}`,
+            error: err,
+            type: 'failure',
           });
         });
     })
@@ -286,14 +311,16 @@ export const payment = async (req, res) => {
         logger.error(statusCode, 'Bad Request');
         logger.error(text);
         res.status(statusCode).json({
-          text: `${statusCode} : Bad Request`,
-          data: JSON.parse(text),
+          message: `${statusCode} : Bad Request`,
+          error: JSON.parse(text),
+          type: 'success',
         });
       } else if (err.status === 401) {
         logger.error('Invalid Auth token');
         res.status(statusCode).json({
-          text: `${statusCode} : Unauthorization`,
-          data: JSON.parse(text),
+          message: `${statusCode} : Unauthorization`,
+          error: JSON.parse(text),
+          type: 'failure',
         });
       }
     });
@@ -327,7 +354,6 @@ export const getApplicationStats = (req, res) => {
 
 export const getApplicationStageAPI = (req, res) => {
   const user_id = req.jwtData.user.id;
-
   getApplicationStage(user_id).then(data => res.status(200).json(data))
     .catch(() => res.sendStatus(500));
 };

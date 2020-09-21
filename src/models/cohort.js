@@ -9,9 +9,8 @@ import { getCohortBreakoutsBetweenDates } from './cohort_breakout';
 import { createTypeBreakoutsInMilestone } from './breakout_template';
 import { removeLearnerBreakouts, createLearnerBreakouts, createLearnerBreakoutsForCurrentMS } from './learner_breakout';
 import { moveLearnerToNewGithubTeam, deleteGithubRepository, addLearnerToGithubTeam } from '../integrations/github/controllers';
-import { removeLearnerFromSlackChannel, moveLearnerToNewSlackChannel } from './slack_channels';
+import { removeLearnerFromSlackChannel, moveLearnerToNewSlackChannel, addLearnersToCohortChannel } from './slack_channels';
 import { removeLearnerFromGithubTeam } from '../integrations/github/controllers/teams.controller';
-import { addLearnersToCohortChannel } from './slack_channels';
 
 export const COHORT_STATUS = [
   'upcoming',
@@ -342,7 +341,8 @@ export const removeLearner = async (
 
 export const addLearner = async (learners, cohort_id) => {
   let cohort_milestone = await getLiveCohortMilestone(cohort_id);
-  let cohort_breakouts = await getCohortBreakoutsBetweenDates(cohort_id, cohort_milestone.release_time, cohort_milestone.review_scheduled);
+  let cohort_breakouts = await getCohortBreakoutsBetweenDates(cohort_id,
+    cohort_milestone.release_time, cohort_milestone.review_scheduled);
   let data = [];
 
   try {

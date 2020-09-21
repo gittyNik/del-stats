@@ -6,6 +6,7 @@ import { LearnerBreakout } from './learner_breakout';
 import { getAssessmentSlotsByProgram } from './assessment_slots';
 import { changeTimezone } from './breakout_template';
 import { User, getProfile } from './user';
+import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
 
 const WEEK_VALUES = {
   monday: 1,
@@ -230,12 +231,13 @@ export const createLearnerAssessmentBreakout = (
   excluded_learners,
 ) => {
   let {
-    learners, name, id, duration,
+    learners, name, id, duration, location,
   } = cohortLearners;
   // skipSlots is to skip if the slot is for
   // different Cohort duration
-  let defaultSlot;
-  return learners.forEach(async (eachLearner, teamIndex) => {
+  let defaultSlot = assessmentSlots[0];
+  let count = 0;
+  learners.forEach(async (eachLearner, teamIndex) => {
     let toExcludeLearner = false;
     if (Array.isArray(excluded_learners)) {
       toExcludeLearner = excluded_learners.includes(eachLearner);
@@ -252,14 +254,12 @@ export const createLearnerAssessmentBreakout = (
 
       let indexForReview = 0;
       let assessmentForLearner;
-      try {
-        assessmentForLearner = assessmentSlots[indexForReview];
-        if (defaultSlot === undefined) {
-          defaultSlot = { ...assessmentForLearner };
-        }
-        // Remove assessment that gets assigned
-        assessmentSlots.splice(indexForReview, 1);
-      } catch (err) {
+
+      assessmentForLearner = assessmentSlots[indexForReview];
+
+      // Remove assessment that gets assigned
+      assessmentSlots.splice(indexForReview, 1);
+      if (assessmentForLearner === undefined) {
         assessmentForLearner = { ...defaultSlot };
       }
 
@@ -267,8 +267,9 @@ export const createLearnerAssessmentBreakout = (
 
       let timeSlot = calculateAssessmentTime(assessment_start,
         assessmentForLearner);
+      count += 1;
       let { assessment_duration, reviewer, phase } = assessmentForLearner;
-      return createAssessmentEntry(
+      createAssessmentEntry(
         learnerDetails.name,
         id,
         timeSlot,
@@ -290,6 +291,20 @@ export const createLearnerAssessmentBreakout = (
         });
         return createReviewBreakout;
       });
+    }
+
+    let cohort_duration;
+    if (duration >= 26) {
+      cohort_duration = 'Part-time';
+    } else {
+      cohort_duration = 'Full-time';
+    }
+    let context = `Assessments created for ${name} ${cohort_duration} ${location}`;
+    let message = `Created assessments for ${count} learners`;
+    try {
+      sendMessageToSlackChannel(message, context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
+    } catch (err2) {
+      console.warn('Unable to send message to slack');
     }
     return null;
   });

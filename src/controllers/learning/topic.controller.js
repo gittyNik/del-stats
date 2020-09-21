@@ -7,8 +7,9 @@ import { Resource } from '../../models/resource';
 export const create = (req, res) => {
   const {
     title, description, milestone_id, program, optional, domain,
+    path,
   } = req.body;
-  createTopic(title, description, milestone_id, program, optional, domain)
+  createTopic(title, description, milestone_id, program, optional, domain, path)
     .then((tepTopic) => {
       res.send({
         data: tepTopic,
@@ -60,6 +61,7 @@ export const updateTopic = (req, res) => {
     milestone_id,
     optional,
     domain,
+    path,
   } = req.body;
   updateATopic(
     title,
@@ -68,6 +70,7 @@ export const updateTopic = (req, res) => {
     milestone_id,
     optional,
     domain,
+    path,
   )
     .then(() => {
       res.send('Topic Updated');
