@@ -5,14 +5,15 @@ import {
 } from '../../controllers/learning/breakout_recording.controller';
 import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
+import LearnerBreakout from '../../models/learner_breakout';
 
 const {
-  ADMIN, CATALYST, EDUCATOR,
+  ADMIN, CATALYST, EDUCATOR, LEARNER,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER]));
 
 /**
  * @api {get} /learning/content/breakouts/recordings Get all Content Breakouts recordings
@@ -56,6 +57,8 @@ router.get('/:id/video', getVideoUrl);
  * @apiGroup ContentBreakoutsRecordings
  */
 router.get('/catalyst/:id', getRecordingsByCatalystAPI);
+
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
 
 /**
  * @api {post} /learning/content/breakouts/recordings/ Insert Breakout recording
