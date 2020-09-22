@@ -49,10 +49,11 @@ export const notifyLearnersInChannel = async (req, res) => {
     }
   }
   let slackUserResponse;
+  let slackUserId;
   try {
     if (learner_id) {
       slackUserResponse = await web.users.lookupByEmail({ email });
-      var slackUserId = slackUserResponse.user.id;
+      slackUserId = slackUserResponse.user.id;
     }
     if (typeof cohort_id === 'undefined') {
       cohort_id = await getCohortIdFromLearnerId(learner_id);
@@ -65,7 +66,7 @@ export const notifyLearnersInChannel = async (req, res) => {
           text = REVIEW_TEMPLATE(team_number);
           break;
         case 'assessment':
-          text = ASSESSMENT_TEMPLATE;
+          text = ASSESSMENT_TEMPLATE(slackUserId);
           break;
         case 'lecture':
           text = BREAKOUT_TEMPLATE;
@@ -76,7 +77,7 @@ export const notifyLearnersInChannel = async (req, res) => {
         // no default
       }
     }
-    const updatedText = (req.body.cohort_id) ? `<!channel> ${text}` : `<@${slackUserId}> ${text}`;
+    const updatedText = (req.body.cohort_id) ? `<!channel> ${text}` : text;
     const post_res = await postMessage({ channel: channel_id, text: updatedText });
     return res.status(200).json({
       text: 'Message posted on the channel',
