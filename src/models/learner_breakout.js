@@ -347,6 +347,9 @@ export const createLearnerBreakoutsForCurrentMS = async (learner_id,
 
 export const createAllLearnerBreakoutsForCurrentMS = async (learners,
   cohort_breakouts) => {
+  console.log('XXXXXXXXXXXXXXXXXXXXX');
+  console.log(`Learners: ${learners}`);
+  console.log(`Cohort Breakout: ${cohort_breakouts}`);
   let learnerBreakout = await LearnerBreakout.findOne({
     where: {
       learner_id: learners[0],
