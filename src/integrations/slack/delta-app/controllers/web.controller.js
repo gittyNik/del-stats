@@ -10,9 +10,9 @@ import { getLearnerBreakoutsForACohortBreakout } from '../../../../models/learne
 import { logger } from '../../../../util/logger';
 
 const REVIEW_TEMPLATE = (team_number) => `Team: ${team_number}, Reviewer is reminding you to join the review. Please join from DELTA`;
-const ASSESSMENT_TEMPLATE = (learner) => `Psst! Looks like it’s time for your Assessment, <@${learner}>. Please join from DELTA right away; your reviewer is waiting.`;
+const ASSESSMENT_TEMPLATE = (learner) => `Psst! Looks like it's time for your Assessment, <@${learner}>. Please join from DELTA right away; your reviewer is waiting.`;
 const LEARNER_REVIEW_TEMPLATE = 'Reviewer is reminding you to join the review. Please join from DELTA';
-const BREAKOUT_TEMPLATE = 'It’s time to get your thinking hats on! Please join the BreakOut from DELTA now';
+const BREAKOUT_TEMPLATE = "It's time to get your thinking hats on! Please join the BreakOut from DELTA now";
 const QUESTIONAIRE_TEMPLATE = 'The Question Hour is upon us. Please join the session from DELTA and ask away!';
 
 export const sendMessage = (req, res) => {
@@ -42,9 +42,9 @@ export const notifyLearnersInChannel = async (req, res) => {
     learner_id, text, cohort_id, type, team_number,
   } = req.body;
   if (learner_id) {
-    var learner = await getProfile(learner_id);
+    let learner = await getProfile(learner_id);
     var { email } = learner;
-    if (type === "reviews") {
+    if (type === 'reviews') {
       text = LEARNER_REVIEW_TEMPLATE;
     }
   }
