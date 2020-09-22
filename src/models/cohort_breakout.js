@@ -729,7 +729,7 @@ export const createLearnerBreakoutsForMilestone = async (
   cohort_milestone_id,
   path = 'common',
 ) => {
-  if (learner_ids && learner_ids.length) {
+  if (learner_ids && learner_ids.length > 0) {
     // Get Cohort and Milestone details
     let cohortMilestone = await getDataForMilestoneName(cohort_milestone_id);
 
