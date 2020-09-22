@@ -232,22 +232,22 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async learnerIds =
   if (activelearnersProfile.length > 0) {
     if (activelearnersProfile[0].status.includes('frontend')
       || activelearnersProfile[0].status.includes('backend')) {
-      let frontendUsers = [];
-      let backendUsers = [];
+      let activefrontendUsers = [];
+      let activebackendUsers = [];
       activelearnersProfile.map(ms => {
         if (ms.status.includes('frontend')) {
-          frontendUsers.push(ms.id);
+          activefrontendUsers.push(ms.id);
         } else {
-          backendUsers.push(ms.id);
+          activebackendUsers.push(ms.id);
         }
       });
 
       // Add FE learner + Backend Breakout creation
-      learnerBreakouts.push(createLearnerBreakoutsForMilestone(frontendUsers,
+      learnerBreakouts.push(createLearnerBreakoutsForMilestone(activefrontendUsers,
         cohort_milestone_id, 'frontend'));
-      learnerBreakouts.push(createLearnerBreakoutsForMilestone(backendUsers,
+      learnerBreakouts.push(createLearnerBreakoutsForMilestone(activebackendUsers,
         cohort_milestone_id, 'backend'));
-      teams = createFullStackTeams(frontendUsers, backendUsers);
+      teams = createFullStackTeams(activefrontendUsers, activebackendUsers);
     } else {
       // Non FE BE learners
       activelearnersProfile = activelearnersProfile.map(ms => ms.id);
