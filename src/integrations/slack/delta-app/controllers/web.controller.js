@@ -12,7 +12,7 @@ import { logger } from '../../../../util/logger';
 const REVIEW_TEMPLATE = (team_number) => `Team: ${team_number}, Reviewer is reminding you to join the review. Please join from DELTA`;
 const ASSESSMENT_TEMPLATE = (learner) => `Psst! Looks like it's time for your Assessment, <@${learner}>. Please join from DELTA right away; your reviewer is waiting.`;
 const LEARNER_REVIEW_TEMPLATE = 'Reviewer is reminding you to join the review. Please join from DELTA';
-const BREAKOUT_TEMPLATE = "It's time to get your thinking hats on! Please join the BreakOut from DELTA now";
+const BREAKOUT_TEMPLATE = 'It\'s time to get your thinking hats on! Please join the BreakOut from DELTA now';
 const QUESTIONAIRE_TEMPLATE = 'The Question Hour is upon us. Please join the session from DELTA and ask away!';
 
 export const sendMessage = (req, res) => {
@@ -41,18 +41,20 @@ export const notifyLearnersInChannel = async (req, res) => {
   let {
     learner_id, text, cohort_id, type, team_number,
   } = req.body;
+  let email;
   if (learner_id) {
     let learner = await getProfile(learner_id);
-    var { email } = learner;
+    email = learner.email;
     if (type === 'reviews') {
       text = LEARNER_REVIEW_TEMPLATE;
     }
   }
   let slackUserResponse;
+  let slackUserId;
   try {
     if (learner_id) {
       slackUserResponse = await web.users.lookupByEmail({ email });
-      var slackUserId = slackUserResponse.user.id;
+      slackUserId = slackUserResponse.user.id;
     }
     if (typeof cohort_id === 'undefined') {
       cohort_id = await getCohortIdFromLearnerId(learner_id);
@@ -65,7 +67,7 @@ export const notifyLearnersInChannel = async (req, res) => {
           text = REVIEW_TEMPLATE(team_number);
           break;
         case 'assessment':
-          text = ASSESSMENT_TEMPLATE;
+          text = ASSESSMENT_TEMPLATE(slackUserId);
           break;
         case 'lecture':
           text = BREAKOUT_TEMPLATE;
@@ -76,7 +78,7 @@ export const notifyLearnersInChannel = async (req, res) => {
         // no default
       }
     }
-    const updatedText = (req.body.cohort_id) ? `<!channel> ${text}` : `<@${slackUserId}> ${text}`;
+    const updatedText = (req.body.cohort_id) ? `<!channel> ${text}` : text;
     const post_res = await postMessage({ channel: channel_id, text: updatedText });
     return res.status(200).json({
       text: 'Message posted on the channel',
