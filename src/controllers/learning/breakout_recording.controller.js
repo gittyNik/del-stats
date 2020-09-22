@@ -48,19 +48,30 @@ export const createRecording = (req, res) => {
     recording_url,
     recording_details,
     topics,
+    breakout_template_id,
+    cohort_breakout_id,
   } = req.body;
-  createRecordingEntry(catalyst_id,
+  createRecordingEntry(
+    catalyst_id,
     recording_url,
     recording_details,
-    topics).then((data) => { res.json(data); })
-    .catch(err => res.status(500).send(err));
+    topics,
+    breakout_template_id,
+    cohort_breakout_id,
+  )
+    .then((data) => { res.json(data); })
+    .catch(err => {
+      console.log(err);
+      res.status(500).send(err);
+    });
 };
 
 export const updateRecordingsAPI = (req, res) => {
   const {
-    likes, recording_details, views,
+    likes, recording_details, views, breakout_template_id,
   } = req.body;
   const { id } = req.params;
-  updateRecordings(id, likes, views, recording_details).then((data) => { res.json(data); })
+  updateRecordings(id, likes, views,
+    recording_details, breakout_template_id).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
