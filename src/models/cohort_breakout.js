@@ -136,6 +136,14 @@ export const updateOneCohortBreakouts = (details, id) => CohortBreakout
     details,
   }, { where: { id } });
 
+export const updateSanboxUrl = async (id, sandbox_id, sandbox_url) => {
+  let breakout = await findOneCohortBreakout({ id });
+
+  let breakoutDetails = breakout.details;
+  breakoutDetails.sandbox = { sandbox_id, sandbox_url };
+  return updateOneCohortBreakouts(breakoutDetails, id);
+};
+
 export const scheduleBreakoutLecture = (
   topic_id,
   cohort_id,

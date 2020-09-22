@@ -7,6 +7,7 @@ import {
   updateBreakoutCalendarEventForCatalyst,
   updateCohortBreakouts,
   createLearnerBreakoutsForMilestone,
+  updateSanboxUrl,
 } from '../../models/cohort_breakout';
 import { updateCalendarEventInLearnerBreakout } from '../../models/learner_breakout';
 import {
@@ -708,6 +709,23 @@ export const createCohortMilestoneLearnerBreakouts = async (req, res) => {
     id: cohort_milestone_id,
   } = req.params;
   await createLearnerBreakoutsForMilestone(cohort_milestone_id)
+    .then((data) => {
+      res.status(201).json({ data });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send({ err });
+    });
+};
+
+export const updateSanboxDetails = async (req, res) => {
+  let {
+    id,
+  } = req.params;
+  let {
+    sandbox_id, url,
+  } = req.body;
+  await updateSanboxUrl(id, sandbox_id, url)
     .then((data) => {
       res.status(201).json({ data });
     })
