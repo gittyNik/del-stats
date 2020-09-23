@@ -1,6 +1,10 @@
 import AWS from 'aws-sdk';
 import Sequelize from 'sequelize';
 import db from '../database';
+import {
+  updateOneCohortBreakouts,
+  findOneCohortBreakout,
+} from './cohort_breakout';
 
 const privateKey = process.env.CLOUDFRONT_KEY.replace(/\\n/g, '\n');
 const publicKey = process.env.PUBLIC_KEY;
@@ -44,6 +48,10 @@ export const BreakoutRecordings = db.define('breakout_recordings', {
     type: Sequelize.UUID,
     references: { model: 'users', key: 'id' },
   },
+  breakout_template_id: {
+    type: Sequelize.UUID,
+    references: { model: 'breakout_templates', key: 'id' },
+  },
 });
 
 const cloudFront = new AWS.CloudFront.Signer(publicKey, privateKey);
@@ -70,8 +78,11 @@ export const getAllRecordings = (skip = 0, limit = 10, sort_by = 'likes') => Bre
   ],
 });
 
-export const updateRecordings = (id, likes, views, recording_details) => BreakoutRecordings.update({
-  likes, recording_details, views,
+export const updateRecordings = (
+  id, likes, views, recording_details,
+  breakout_template_id,
+) => BreakoutRecordings.update({
+  likes, recording_details, views, breakout_template_id,
 }, {
   where: {
     id,
@@ -104,8 +115,21 @@ export const getRecordingsByCatalyst = (catalyst_id, skip = 0,
   },
 );
 
+export const updateRecordingInCohortBreakout = async (
+  video_id,
+  cohort_breakout_id,
+) => {
+  let id = cohort_breakout_id;
+  let breakout = await findOneCohortBreakout({ id });
+
+  let breakoutDetails = breakout.details;
+  breakoutDetails.recording = { id: video_id };
+  updateOneCohortBreakouts(breakoutDetails, cohort_breakout_id);
+};
+
 export const createRecordingEntry = (catalyst_id,
-  recording_url, recording_details, topics) => BreakoutRecordings.create(
+  recording_url, recording_details, topics,
+  breakout_template_id, cohort_breakout_id) => BreakoutRecordings.create(
   {
     catalyst_id,
     recording_url,
@@ -113,5 +137,10 @@ export const createRecordingEntry = (catalyst_id,
     created_at: Sequelize.literal('NOW()'),
     topics_array: topics,
     likes: 0,
+    breakout_template_id,
   },
-);
+).then(async data => {
+  await updateRecordingInCohortBreakout(data.id, cohort_breakout_id);
+  data.cohort_breakout_id = cohort_breakout_id;
+  return data;
+});

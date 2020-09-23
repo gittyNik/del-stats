@@ -108,6 +108,42 @@ export const CohortBreakout = db.define('cohort_breakouts', {
   },
 });
 
+export const findOneCohortBreakout = (
+  whereObject, attributesObj, includeObj, orderObj,
+) => CohortBreakout.findOne({
+  where: whereObject,
+  include: includeObj,
+  order: orderObj,
+  attributes: attributesObj,
+})
+  .then(data => data)
+  .catch(err => console.log(err));
+
+export const findAllCohortBreakout = (
+  where, attributes, include, order,
+  skip = 0, limit = 10,
+) => CohortBreakout.findAll({
+  where,
+  include,
+  order,
+  attributes,
+  offset: skip,
+  limit,
+});
+
+export const updateOneCohortBreakouts = (details, id) => CohortBreakout
+  .update({
+    details,
+  }, { where: { id } });
+
+export const updateSanboxUrl = async (id, sandbox_id, sandbox_url) => {
+  let breakout = await findOneCohortBreakout({ id });
+
+  let breakoutDetails = breakout.details;
+  breakoutDetails.sandbox = { sandbox_id, sandbox_url };
+  return updateOneCohortBreakouts(breakoutDetails, id);
+};
+
 export const scheduleBreakoutLecture = (
   topic_id,
   cohort_id,

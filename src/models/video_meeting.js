@@ -11,6 +11,9 @@ import { SocialConnection } from './social_connection';
 import { CohortBreakout } from './cohort_breakout';
 import { User } from './user';
 import { changeTimezone } from './breakout_template';
+import {
+  notifyAttendanceLearnerInChannel,
+} from '../integrations/slack/delta-app/controllers/web.controller';
 
 const { in: opIn, between } = Sequelize.Op;
 
@@ -235,6 +238,12 @@ export const learnerAttendance = async (participant, catalyst_id,
       attendanceCount += 1;
       attendance = true;
     } else {
+      try {
+        let inTime = durationTime / 60;
+        notifyAttendanceLearnerInChannel(cohort_breakout_id, user_email, inTime);
+      } catch (err) {
+        console.error(`Error while sending message to learner: ${err}`);
+      }
       attendance = false;
     }
     try {
@@ -264,6 +273,26 @@ export const learnerAttendance = async (participant, catalyst_id,
 
 export const markIndividualAttendance = async (participants, catalyst_id,
   cohort_breakout_id, attentiveness_threshold, duration_threshold) => {
+  let seen = {};
+  participants = participants.filter((entry) => {
+    let previous;
+
+    // Have we seen this email before?
+    if (entry.user_email in seen) {
+      // Yes, grab it and add this data to it
+      previous = seen[entry.user_email];
+      previous.duration += entry.duration;
+
+      // Don't keep this entry, we've merged it into the previous one
+      return false;
+    }
+
+    // Remember that we've seen it
+    seen[entry.user_email] = entry;
+
+    // Keep this one, we'll merge any others that match into it
+    return true;
+  });
   const attendanceCount = Promise.all(participants.map(async (participant) => {
     try {
       let attendance_count = await learnerAttendance(participant, catalyst_id,
