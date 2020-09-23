@@ -14,6 +14,7 @@ const ASSESSMENT_TEMPLATE = (learner) => `Psst! Looks like it's time for your As
 const LEARNER_REVIEW_TEMPLATE = 'Reviewer is reminding you to join the review. Please join from DELTA';
 const BREAKOUT_TEMPLATE = 'It\'s time to get your thinking hats on! Please join the BreakOut from DELTA now';
 const QUESTIONAIRE_TEMPLATE = 'The Question Hour is upon us. Please join the session from DELTA and ask away!';
+const ATTENDANCE_TEMPLATE = (learner, topics, timeMinutes) => `<@${learner}> Looks like you have been in the breakout on ${topics} for only ${timeMinutes} minutes.`;
 
 export const sendMessage = (req, res) => {
   const {
@@ -35,6 +36,30 @@ export const sendMessage = (req, res) => {
       console.error(err);
       res.sendStatus(500);
     });
+};
+
+export const notifyAttendanceLearnerInChannel = async (
+  cohort_breakout_id,
+  learnerEmail,
+  attendedTime,
+) => {
+  try {
+    const cohortBreakout = await getCohortBreakoutById(cohort_breakout_id);
+    const {
+      cohort_id, details,
+    } = cohortBreakout;
+
+    let slackUserResponse = await web.users.lookupByEmail({ learnerEmail });
+    let slackUserId = slackUserResponse.user.id;
+    let text = ATTENDANCE_TEMPLATE(slackUserId, details.topics, attendedTime);
+    const channel_id = await getChannelIdForCohort(cohort_id);
+    const updatedText = (cohort_id) ? `<!channel> ${text}` : text;
+    await postMessage({ channel: channel_id, text: updatedText });
+    return true;
+  } catch (err) {
+    console.error(`Error while sending attendance status to slack: ${err}`);
+    return false;
+  }
 };
 
 export const notifyLearnersInChannel = async (req, res) => {
