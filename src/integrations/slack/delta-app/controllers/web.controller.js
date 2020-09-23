@@ -40,7 +40,7 @@ export const sendMessage = (req, res) => {
 
 export const notifyAttendanceLearnerInChannel = async (
   cohort_breakout_id,
-  learnerEmail,
+  email,
   attendedTime,
 ) => {
   try {
@@ -48,12 +48,11 @@ export const notifyAttendanceLearnerInChannel = async (
     const {
       cohort_id, details,
     } = cohortBreakout;
-
-    let slackUserResponse = await web.users.lookupByEmail({ learnerEmail });
+    let slackUserResponse = await web.users.lookupByEmail({ email });
     let slackUserId = slackUserResponse.user.id;
     let text = ATTENDANCE_TEMPLATE(slackUserId, details.topics, attendedTime);
     const channel_id = await getChannelIdForCohort(cohort_id);
-    const updatedText = (cohort_id) ? `<!channel> ${text}` : text;
+    const updatedText = (cohort_id) ? `${text}` : text;
     await postMessage({ channel: channel_id, text: updatedText });
     return true;
   } catch (err) {

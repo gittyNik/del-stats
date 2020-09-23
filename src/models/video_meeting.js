@@ -233,41 +233,47 @@ export const learnerAttendance = async (participant, catalyst_id,
       email: user_email,
     },
   }).then(data => {
-    let attendance;
-    if ((durationTime >= duration_threshold) && (data.user_id !== catalyst_id)) {
-      attendanceCount += 1;
-      attendance = true;
-    } else {
-      try {
-        let inTime = durationTime / 60;
-        notifyAttendanceLearnerInChannel(cohort_breakout_id, user_email, inTime);
-      } catch (err) {
-        console.error(`Error while sending message to learner: ${err}`);
+    if (data) {
+      if (data.user_id !== catalyst_id) {
+        let attendance;
+        if ((durationTime >= duration_threshold)) {
+          attendanceCount += 1;
+          attendance = true;
+        } else {
+          try {
+            let inTime = Math.floor(durationTime / 60);
+            notifyAttendanceLearnerInChannel(cohort_breakout_id, user_email, inTime);
+          } catch (err) {
+            console.error(`Error while sending message to learner: ${err}`);
+          }
+          attendance = false;
+        }
+        try {
+          LearnerBreakout.update({
+            attendance,
+          }, {
+            where: {
+              cohort_breakout_id,
+              learner_id: data.user_id,
+            },
+          });
+        } catch (err) {
+          if (attendance) {
+            attendanceCount -= 1;
+          }
+          if (err instanceof TypeError) {
+            console.error(`${user_email} not present in social connections`);
+            console.error(err);
+          } else {
+            console.error(`${user_email} does not have learner breakout ${cohort_breakout_id}`);
+            console.error(err);
+          }
+        }
       }
-      attendance = false;
+
+      return attendanceCount;
     }
-    try {
-      LearnerBreakout.update({
-        attendance,
-      }, {
-        where: {
-          cohort_breakout_id,
-          learner_id: data.user_id,
-        },
-      });
-    } catch (err) {
-      if (attendance) {
-        attendanceCount -= 1;
-      }
-      if (err instanceof TypeError) {
-        console.error(`${user_email} not present in social connections`);
-        console.error(err);
-      } else {
-        console.error(`${user_email} does not have learner breakout ${cohort_breakout_id}`);
-        console.error(err);
-      }
-    }
-    return attendanceCount;
+    return 0;
   });
 };
 
