@@ -82,7 +82,7 @@ export const showCompletedBreakoutOnSlack = (
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: (inactiveLearners.length > 0) ? `Inactive Learners : ${inactiveLearners.map(il => il.email).join(', ')}` : '',
+            text: (inactiveLearners.length > 0) ? `Inactive Learners : ${inactiveLearners.map(il => il.email).join(', ')}` : '  ',
           },
         },
       ],
