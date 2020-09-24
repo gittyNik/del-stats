@@ -9,6 +9,8 @@ import {
   getTopicIdsByMilestone,
   Topic,
 } from './topic';
+import { LearnerBreakout } from './learner_breakout';
+import { User } from './user';
 import { createSandbox } from './code_sandbox';
 import {
   createScheduledMeeting,
@@ -457,8 +459,7 @@ export const getAllBreakoutsInCohort = (cohort_id) => CohortBreakout.findAll({
     console.error('Unable to find all breakouts in the cohort', err);
     return null;
   });
-
-export const getAllBreakoutsInCohortMilestone = (cohort_id, milestone_id) => Topic.findAll({
+export const getAllBreakoutsInCohortMilestone = (cohort_id, milestone_id, cohortMilestoneId) => Topic.findAll({
   where: {
     milestone_id,
   },
@@ -482,9 +483,20 @@ export const getAllBreakoutsInCohortMilestone = (cohort_id, milestone_id) => Top
         });
       return breakout;
     });
-    // console.log('BREAKOUTS: ', (breakouts));
+    const reviews = await CohortBreakout.findAll({
+        where: {
+          type: {
+            [Sequelize.Op.in]: ['reviews', 'assessment'],
+          },
+          [Sequelize.Op.and]: Sequelize.literal(`details->>'cohort_milestone_id'='${cohortMilestoneId}'`),
+        },
+        include: [Topic],
+        raw: true,
+      })
+      .then(data => data)
+    breakouts = [...breakouts, ...reviews];
     return Promise.all(breakouts);
-  })
+    })
   .catch(err => {
     console.error('Unable to find topics for the milestone', err);
     return null;

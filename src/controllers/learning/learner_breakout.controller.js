@@ -124,3 +124,22 @@ export const createLearnerBreakoutsForLearnersEndpoint = async (req, res) => {
     res.status(500).send(err);
   }
 };
+
+export const getLearnerBreakoutsByUserId = (req, res) => {
+  const { cohort_breakout_id } = req.query;
+  const { learner_id } = req.params;
+  LearnerBreakout.findOne({
+    where: {
+      cohort_breakout_id,
+      learner_id
+    }
+  })
+    .then((data) => res.json({
+      text: 'Learner breakouts by learner and cohort',
+      data,
+    }))
+    .catch((err) => {
+      console.error(err.stack);
+      res.status(500);
+    });
+};
