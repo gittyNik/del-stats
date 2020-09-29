@@ -393,6 +393,20 @@ export const getMilestoneData = async (milestone, cohort_id) => {
   return milestone;
 };
 
+export const getLiveCohortMilestone = (cohort_id) => {
+  const now = Sequelize.literal('NOW()');
+  return CohortMilestone.findOne({
+    order: Sequelize.col('release_time'),
+    where: {
+      release_time: { [lte]: now },
+      review_scheduled: { [gt]: now },
+      cohort_id,
+    },
+    // include: [Cohort, Milestone],
+    raw: true,
+  });
+};
+
 export const getCurrentMilestoneOfCohortDelta = (cohort_id) => {
   const now = Sequelize.literal('NOW()');
   return CohortMilestone.findOne({

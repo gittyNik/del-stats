@@ -216,13 +216,12 @@ export const addLearnerToAChannel = async (channelId, learnerIds) => {
 
 export const addLearnerToChannels = async (cohort_id, learnerSlackID) => {
   const slackChannels = await SlackChannel
-    .findAll({
+    .findOne({
       where: { cohort_id },
       raw: true,
     });
   let { channels } = slackChannels;
   let channelResponses = await channels.map(async (channelId) => addLearnerToAChannel(channelId, learnerSlackID));
-  // TODO: test whether learner is added to all the channels;
   return channelResponses;
 };
 
