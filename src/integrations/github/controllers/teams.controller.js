@@ -8,7 +8,7 @@ import { getCohortFromId } from '../../../models/cohort';
 
 export const toSentenceCase = (str) => `${str.charAt(0).toUpperCase()}${str.substring(1).toLowerCase()}`;
 
-const teamNameFormat = (cohort_name, program_id, location, start_date, duration) => `${cohort_name}_${toSentenceCase(program_id)}_${location}_${duration}_${new Date(
+export const teamNameFormat = (cohort_name, program_id, location, start_date, duration) => `${cohort_name}_${toSentenceCase(program_id)}_${location}_${duration}_${new Date(
   start_date,
 ).getFullYear()}`;
 
@@ -20,14 +20,12 @@ export const removeMemberFromTeam = (name, githubUsername) => octokit.teams.remo
 
 // Adds new member to team, has to be organisation
 // assigns role = "member" by default
-export const addMemberToTeam = (name, githubUsername, role = 'member') => {
-  octokit.teams.addOrUpdateMembershipInOrg({
-    org,
-    team_slug: name,
-    username: githubUsername,
-    role,
-  });
-};
+export const addMemberToTeam = (name, githubUsername, role = 'member') => octokit.teams.addOrUpdateMembershipInOrg({
+  org,
+  team_slug: name,
+  username: githubUsername,
+  role,
+});
 
 //* ******************//
 // Utility functions //
@@ -183,5 +181,10 @@ export const addLearnerToGithubTeam = async (
   );
 
   let sc = await getGithubConnecionByUserId(learner_id);
-  return addMemberToTeam(current_team_name, sc.username);
+  try {
+    const res = addMemberToTeam(current_team_name, sc.username);
+    return res;
+  } catch (err) {
+    return `Unable to add member to Github Team: ${current_team_name}`;
+  }
 };
