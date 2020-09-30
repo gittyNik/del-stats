@@ -8,6 +8,7 @@ import {
   moveLearnertoDifferentCohort,
   removeLearner,
   addLearner,
+  beginParallelCohorts,
 } from '../../models/cohort';
 import {
   createOrUpdateCohortBreakout,
@@ -146,6 +147,24 @@ export const beginCohort = (req, res) => {
   // schedule beginMilestone
 };
 
+export const beginParallelCohort = (req, res) => {
+  const { ids } = req.body;
+
+  beginParallelCohorts(ids)
+    .then((cohort) => {
+      res.send(cohort);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(404);
+    });
+
+  // add cohort.learners
+  // update cohort_joining on firewall_application
+  // notify learning_ops_manager
+  // schedule beginMilestone
+};
+
 export const beginMilestone = () => {
   // update cohort_milestone.learners from cohort
 };
@@ -179,7 +198,7 @@ export const moveLearnertoDifferentCohortEndpoint = async (req, res) => {
     res.send({
       message: 'Move Learner Endpoint',
       data: bk,
-      type: 'success'
+      type: 'success',
     });
   } catch (err) {
     res.status(500).send(err);
@@ -192,7 +211,7 @@ export const removeLearnerEndpoint = async (req, res) => {
   res.send({
     message: 'Remove Learner Endpoint',
     data: bk,
-    type: 'success'
+    type: 'success',
   });
 };
 
@@ -201,7 +220,7 @@ export const addLearnerEndpoint = (req, res) => {
   addLearner(learners, cohort_id).then(data => res.status(200).send({
     message: 'Add Learner Endpoint Result',
     data,
-    type: 'success'
+    type: 'success',
   })).catch(err => {
     res.status(500).send(err);
   });
