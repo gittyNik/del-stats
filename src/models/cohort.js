@@ -135,7 +135,7 @@ export const getLearnersFromCohorts = (ids) => Cohort.findAll({
       [Sequelize.Op.in]: ids,
     },
   },
-  attributes: ['learners', 'name', 'id', 'duration'],
+  attributes: ['learners', 'name', 'id', 'duration', 'location'],
 });
 
 // TODO: Optimize this later
