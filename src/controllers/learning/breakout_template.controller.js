@@ -8,7 +8,7 @@ import {
 export const getAllBreakoutTemplatesAPI = (req, res) => {
   getAllBreakoutTemplates().then((data) => { res.json(data); })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       res.status(500).send(err);
     });
 };
