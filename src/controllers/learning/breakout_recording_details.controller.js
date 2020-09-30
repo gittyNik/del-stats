@@ -59,20 +59,16 @@ export const getVideoByCatalystAPI = (req, res) => {
 
 export const createRecording = (req, res) => {
   const {
-    catalyst_id,
-    recording_url,
-    recording_details,
-    topics,
-    breakout_template_id,
-    cohort_breakout_id,
+    video_id,
+    liked_by_user,
+    breakout_rating,
   } = req.body;
+  const user_id = req.jwtData.user.id;
   createRecordingEntry(
-    catalyst_id,
-    recording_url,
-    recording_details,
-    topics,
-    breakout_template_id,
-    cohort_breakout_id,
+    video_id,
+    liked_by_user,
+    user_id,
+    breakout_rating,
   )
     .then((data) => { res.json(data); })
     .catch(err => {
@@ -83,11 +79,10 @@ export const createRecording = (req, res) => {
 
 export const updateRecordingsAPI = (req, res) => {
   const {
-    breakout_rating, likedByUser,
+    breakout_rating, liked_by_user, video_id,
   } = req.body;
   const user_id = req.jwtData.user.id;
-  const { id } = req.params;
-  updateRecordingDetails(id, likedByUser, breakout_rating,
+  updateRecordingDetails(video_id, liked_by_user, breakout_rating,
     user_id).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
