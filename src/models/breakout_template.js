@@ -250,7 +250,14 @@ export const getAllBreakoutTemplates = async () => {
       }),
     ));
     eachTemplate.topics = topicsData;
-
+    let cohortDuration;
+    if (eachTemplate.cohort_duration === 16) {
+      cohortDuration = 'Full-time';
+    } else {
+      cohortDuration = 'Part-time';
+    }
+    eachTemplate.duration /= 60000;
+    eachTemplate.cohortDuration = cohortDuration;
     return eachTemplate;
   }));
   return allBreakoutTemplates;

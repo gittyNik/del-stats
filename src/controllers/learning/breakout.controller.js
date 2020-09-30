@@ -96,6 +96,7 @@ export const getLiveCohortsBreakouts = (req, res) => {
         include: [
           {
             model: User,
+            attributes: ['name'],
             as: 'catalyst',
           },
           Cohort,
