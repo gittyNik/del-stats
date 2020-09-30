@@ -75,7 +75,7 @@ router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
 router.post('/', createRecording);
 
 /**
- * @api {patch} /learning/content/breakouts/recordings/details/:id Update Breakout recording
+ * @api {patch} /learning/content/breakouts/recordings/details/ Update Breakout recording
  * @apiDescription get all Content Breakouts recordings
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetContentBreakouts
@@ -84,6 +84,6 @@ router.post('/', createRecording);
  * @apiParam {likes} likes count of likes on video
  * @apiParam {recording_details} recording details
  */
-router.patch('/:id', updateRecordingsAPI);
+router.patch('/', updateRecordingsAPI);
 
 export default router;

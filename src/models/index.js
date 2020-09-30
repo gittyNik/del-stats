@@ -88,6 +88,8 @@ LearnerChallenge.hasMany(LearnerGithubChallenge);
 LearnerChallenge.belongsTo(User, { foreignKey: 'learner_id' });
 
 BreakoutRecordingsDetails.belongsTo(BreakoutRecordings, { foreignKey: 'video_id' });
+
+BreakoutTemplate.belongsTo(User, { foreignKey: 'primary_catalyst' });
 // User.hasMany(LearnerChallenge);
 
 // User.belongsTo(Cohort);

@@ -2,9 +2,11 @@ import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import db from '../database';
 import { Topic } from './topic';
+import { User } from './user';
 import { CohortMilestone } from './cohort_milestone';
 import { createCohortBreakouts } from './cohort_breakout';
 import { createLearnerBreakoutsForCohortMilestones } from './learner_breakout';
+import { Milestone } from './milestone';
 
 export const BREAKOUT_LEVEL = ['beginner', 'intermediate', 'advanced'];
 
@@ -223,7 +225,46 @@ export const createTypeBreakoutsInMilestone = (cohort_id, program_id,
   .then(breakoutTemplates => createCohortBreakouts(breakoutTemplates,
     cohort_id, codeSandBox, videoMeet));
 
-export const getAllBreakoutTemplates = () => BreakoutTemplate.findAll({});
+export const getAllBreakoutTemplates = async () => {
+  let breakoutTemplates = await BreakoutTemplate.findAll({
+    where: {
+      status: 'active',
+    },
+    include: [
+      {
+        model: User,
+        attributes: ['name'],
+      },
+    ],
+    raw: true,
+  });
+  let allBreakoutTemplates = await Promise.all(breakoutTemplates.map(async eachTemplate => {
+    let topicsData = await Promise.all(eachTemplate.topic_id.map(
+      eachTopic => Topic.findByPk(eachTopic, {
+        attributes: ['title', 'path', 'optional'],
+        include: [{
+          model: Milestone,
+          attributes: ['name', 'alias'],
+        }],
+        raw: true,
+      }),
+    ));
+    eachTemplate.topics = topicsData;
+
+    return eachTemplate;
+  }));
+  return allBreakoutTemplates;
+};
+
+export const getAllBreakoutTemplatesByProgram = (program_id,
+  cohort_duration) => BreakoutTemplate.findAll({
+  where: {
+    program_id,
+    cohort_duration,
+    status: 'active',
+  },
+  raw: true,
+});
 
 export const getBreakoutTemplateById = id => BreakoutTemplate.findByPk(id);
 

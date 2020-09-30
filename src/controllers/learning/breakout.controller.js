@@ -438,7 +438,14 @@ export const getAllCohortBreakouts = (req, res) => {
     where: {
       cohort_id,
     },
-    include: [Topic],
+    include: [
+      Topic,
+      {
+        model: User,
+        attributes: ['name'],
+        as: 'catalyst',
+      },
+    ],
     raw: true,
   })
     .then((breakouts) => {
