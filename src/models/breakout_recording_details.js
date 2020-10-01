@@ -3,6 +3,7 @@ import db from '../database';
 import {
   BreakoutRecordings,
 } from './breakout_recordings';
+import { User } from './user';
 
 export const BreakoutRecordingsDetails = db.define('breakout_recordings_details', {
   id: {
@@ -135,8 +136,7 @@ export const getVideoByCatalyst = (catalyst_id, skip = 0,
   });
 };
 
-export const getVideoLikesRating = (video_id, skip = 0,
-  limit = 10, sort_by = 'likes') => {
+export const getVideoLikesRating = async (video_id, user_id, sort_by = 'likes') => {
   let where;
   let order;
   if (sort_by === 'date') {
@@ -154,7 +154,7 @@ export const getVideoLikesRating = (video_id, skip = 0,
     order = Sequelize.literal(`${sort_by} DESC`);
   }
   where.video_id = video_id;
-  return BreakoutRecordingsDetails.findAll({
+  let breakoutDetails = await BreakoutRecordingsDetails.findAll({
     attributes: [
       'video_id',
       [Sequelize.fn('count', Sequelize.col('liked_by_user')), 'likes'],
@@ -168,17 +168,32 @@ export const getVideoLikesRating = (video_id, skip = 0,
       'breakout_recording.created_at',
     ],
     where,
-    offset: skip,
-    limit,
     include: [
       {
         model: BreakoutRecordings,
+        include: [{
+          model: User,
+          attributes: ['name'],
+        }],
         attributes: ['catalyst_id', 'video_views', 'recording_url', 'created_at'],
       },
     ],
     raw: true,
     order,
   });
+  let userInfo = await BreakoutRecordingsDetails.findOne({
+    where: {
+      video_id,
+      user_id,
+    },
+    include: [{
+      model: User,
+      attributes: ['name'],
+    }],
+    raw: true,
+  });
+  breakoutDetails.user_info = userInfo;
+  return breakoutDetails;
 };
 
 export const getVideoLikedByUser = async (user_id, skip = 0,
