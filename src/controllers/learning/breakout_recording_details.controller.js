@@ -19,15 +19,11 @@ export const getAllRecordingsAPI = (req, res) => {
 };
 
 export const getVideoLikesRatingAPI = (req, res) => {
-  let { skip, limit, sort_by } = req.query;
+  let { sort_by } = req.query;
+  const user_id = req.jwtData.user.id;
   let { id } = req.params;
-  if (typeof skip !== 'undefined') {
-    skip = parseInt(skip, 10);
-  }
-  if (typeof limit !== 'undefined') {
-    limit = parseInt(limit, 10);
-  }
-  getVideoLikesRating(id, skip, limit, sort_by).then((data) => { res.json(data); })
+
+  getVideoLikesRating(id, user_id, sort_by).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
