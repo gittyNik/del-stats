@@ -10,9 +10,10 @@ import { getLearnerBreakoutsForACohortBreakout } from '../../../../models/learne
 import { logger } from '../../../../util/logger';
 
 const REVIEW_TEMPLATE = (team_number) => `Team: ${team_number}, Reviewer is reminding you to join the review. Please join from DELTA`;
-const ASSESSMENT_TEMPLATE = (learner) => `Psst! Looks like it's time for your Assessment, <@${learner}>. Please join from DELTA right away; your reviewer is waiting.`;
 const LEARNER_REVIEW_TEMPLATE = 'Reviewer is reminding you to join the review. Please join from DELTA';
+const ASSESSMENT_TEMPLATE = (learner) => `Psst! Looks like it's time for your Assessment, <@${learner}>. Please join from DELTA right away; your reviewer is waiting.`;
 const BREAKOUT_TEMPLATE = 'It\'s time to get your thinking hats on! Please join the BreakOut from DELTA now';
+const LEARNER_BREAKOUT_TEMPLATE = (learner) => `Catalyst is reminding <@${learner}> to join the breakout. Please join from Delta`;
 const QUESTIONAIRE_TEMPLATE = 'The Question Hour is upon us. Please join the session from DELTA and ask away!';
 const ATTENDANCE_TEMPLATE = (learner, topics, timeMinutes) => `<@${learner}> Looks like you have been in the breakout on ${topics} for only ${timeMinutes} minutes.`;
 
@@ -94,7 +95,7 @@ export const notifyLearnersInChannel = async (req, res) => {
           text = ASSESSMENT_TEMPLATE(slackUserId);
           break;
         case 'lecture':
-          text = BREAKOUT_TEMPLATE;
+          text = (learner_id) ? LEARNER_BREAKOUT_TEMPLATE(slackUserId) : BREAKOUT_TEMPLATE;
           break;
         case 'question_hour':
           text = QUESTIONAIRE_TEMPLATE;
