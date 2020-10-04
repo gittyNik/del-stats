@@ -472,6 +472,9 @@ export const getAllBreakoutsInCohortMilestone = (cohort_id, milestone_id, cohort
         where: {
           topic_id: topic.id,
           cohort_id,
+          type: {
+            [Sequelize.Op.notIn]: ['reviews', 'assessment']
+          }
         },
         include: [Topic],
         raw: true,
