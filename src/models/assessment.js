@@ -250,6 +250,7 @@ export const createLearnerAssessmentBreakout = (
 
       let details = {
         topics,
+        learner_id: eachLearner,
       };
 
       let indexForReview = 0;
