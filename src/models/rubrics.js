@@ -66,16 +66,15 @@ export const getRubricsByProgram = (program, type) => Rubrics.findAll(
 );
 
 export const getRubricsByMilestone = (
-  milestone_id, program, type, rubric_for, path = 'common',
+  milestone_id, program, type, rubric_for
 ) => {
   if (rubric_for) {
-    return db.query('select * from rubrics where program=:program and type=:type and rubric_for=:rubric_for and path=:path and (milestone_id is null or milestone_id=:milestone_id);', {
+    return db.query('select * from rubrics where program=:program and type=:type and rubric_for=:rubric_for and (milestone_id is null or milestone_id=:milestone_id);', {
       model: Rubrics,
       replacements: {
         program: `${program}`,
         type: `${type}`,
         rubric_for: `${rubric_for}`,
-        path: `${path}`,
         milestone_id: `${milestone_id}`,
       },
     }).then(data => data).catch(err => {
@@ -83,12 +82,11 @@ export const getRubricsByMilestone = (
       throw Error(err);
     });
   }
-  return db.query('select * from rubrics where program=:program and type=:type and path=:path and (milestone_id is null or milestone_id=:milestone_id);', {
+  return db.query('select * from rubrics where program=:program and type=:type and (milestone_id is null or milestone_id=:milestone_id);', {
     model: Rubrics,
     replacements: {
       program: `${program}`,
       type: `${type}`,
-      path: `${path}`,
       milestone_id: `${milestone_id}`,
     },
   }).then(data => data).catch(err => {
