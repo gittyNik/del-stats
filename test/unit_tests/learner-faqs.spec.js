@@ -28,17 +28,18 @@ describe('Learner Faqs', () => {
 
   describe('Basic crud', () => {
 
-    test('create a faq,', async () => {
+    test.only('create a faq,', async () => {
       const program_id = 'tep';
       const title = faker.lorem.sentence();
       const body = faker.lorem.sentence();
       const user_id = '46c721b0-3a0a-487a-bc69-bc39311b7f7c';
-
+      const topic = 'isa'
       const res = await createLearnerFaq({
         program_id,
         title,
         body,
-        user_id
+        user_id,
+        topic
       }).then(data => data.get({ plain: true }));
       console.log(res);
       expect(res).toBeDefined();
@@ -50,7 +51,7 @@ describe('Learner Faqs', () => {
       });
     })
 
-    test.only('get all learner faqs', async () => {
+    test('get all learner faqs', async () => {
       const faqs = await getAllLearnerFaqs();
       console.log(faqs);
       expect(faqs).toBeDefined();

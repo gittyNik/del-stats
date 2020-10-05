@@ -45,11 +45,11 @@ export const getAllFaqs = async (req, res) => {
 };
 
 export const createAlearnerFaq = async (req, res) => {
-  const { program_id, title, body } = req.body;
+  const { program_id, title, body, topic } = req.body;
   const user_id = req.jwtData.user.id;
   try {
     const learnerFaq = await createLearnerFaq({
-      program_id, title, body, user_id,
+      program_id, title, body, user_id, topic
     });
     res.status(201).json({
       text: 'Successfully created a learnerFaq',
@@ -66,7 +66,7 @@ export const createAlearnerFaq = async (req, res) => {
 };
 
 export const updateAlearnerFaq = async (req, res) => {
-  const { program_id, title, body } = req.body;
+  const { program_id, title, body, topic } = req.body;
   const { id } = req.params;
   const user_id = req.jwtData.user.id;
   try {
@@ -75,6 +75,7 @@ export const updateAlearnerFaq = async (req, res) => {
       program_id,
       title,
       body,
+      topic,
       user_id,
     });
     res.status(200).json({
