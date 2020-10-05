@@ -38,6 +38,7 @@ import { LearnerGithubMilestones } from './learner_github_milestones';
 import { LearnerGithubChallenge } from './learner_github_challenges';
 import { BreakoutRecordingsDetails } from './breakout_recording_details';
 import { BreakoutRecordings } from './breakout_recordings';
+import { ReviewSlots } from './review_slots';
 
 // TODO: describe all associations here
 
@@ -93,6 +94,8 @@ BreakoutTemplate.belongsTo(User, { foreignKey: 'primary_catalyst' });
 
 BreakoutRecordings.belongsTo(User, { foreignKey: 'catalyst_id' });
 BreakoutRecordingsDetails.belongsTo(User, { foreignKey: 'user_id' });
+
+ReviewSlots.belongsTo(User, { foreignKey: 'reviewer' });
 // User.hasMany(LearnerChallenge);
 
 // User.belongsTo(Cohort);
