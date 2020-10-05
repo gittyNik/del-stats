@@ -47,7 +47,7 @@ const { gt } = Sequelize.Op;
 // When sort by views or
 export const getAllLikesRating = (skip = 0,
   limit = 10, sort_by = 'likes') => {
-  let where;
+  let where = {};
   let order;
   if (sort_by === 'date') {
     sort_by = 'breakout_recording.created_at';
@@ -75,6 +75,7 @@ export const getAllLikesRating = (skip = 0,
       'breakout_recording.video_views',
       'breakout_recording.recording_url',
       'breakout_recording.created_at',
+      'breakout_recording.user.id',
     ],
     where,
     offset: skip,
@@ -82,6 +83,10 @@ export const getAllLikesRating = (skip = 0,
     include: [
       {
         model: BreakoutRecordings,
+        include: [{
+          model: User,
+          attributes: ['name'],
+        }],
         attributes: ['catalyst_id', 'video_views', 'recording_url', 'created_at'],
       },
     ],
@@ -92,7 +97,7 @@ export const getAllLikesRating = (skip = 0,
 
 export const getVideoByCatalyst = (catalyst_id, skip = 0,
   limit = 10, sort_by = 'likes') => {
-  let where;
+  let where = {};
   let order;
   if (sort_by === 'date') {
     sort_by = 'breakout_recording.created_at';
@@ -121,6 +126,7 @@ export const getVideoByCatalyst = (catalyst_id, skip = 0,
       'breakout_recording.video_views',
       'breakout_recording.recording_url',
       'breakout_recording.created_at',
+      'breakout_recording.user.id',
     ],
     where,
     offset: skip,
@@ -128,6 +134,10 @@ export const getVideoByCatalyst = (catalyst_id, skip = 0,
     include: [
       {
         model: BreakoutRecordings,
+        include: [{
+          model: User,
+          attributes: ['name'],
+        }],
         attributes: ['catalyst_id', 'video_views', 'recording_url', 'created_at'],
       },
     ],
@@ -137,7 +147,7 @@ export const getVideoByCatalyst = (catalyst_id, skip = 0,
 };
 
 export const getVideoLikesRating = async (video_id, user_id, sort_by = 'likes') => {
-  let where;
+  let where = {};
   let order;
   if (sort_by === 'date') {
     sort_by = 'breakout_recording.created_at';
@@ -166,6 +176,7 @@ export const getVideoLikesRating = async (video_id, user_id, sort_by = 'likes') 
       'breakout_recording.video_views',
       'breakout_recording.recording_url',
       'breakout_recording.created_at',
+      'breakout_recording.user.id',
     ],
     where,
     include: [
@@ -205,7 +216,7 @@ export const getVideoLikedByUser = async (user_id, skip = 0,
     },
     raw: true,
   });
-  let where;
+  let where = {};
   let order;
   if (sort_by === 'date') {
     sort_by = 'breakout_recording.created_at';
@@ -234,6 +245,7 @@ export const getVideoLikedByUser = async (user_id, skip = 0,
       'breakout_recording.video_views',
       'breakout_recording.recording_url',
       'breakout_recording.created_at',
+      'breakout_recording.user.id',
     ],
     where,
     offset: skip,
@@ -241,6 +253,10 @@ export const getVideoLikedByUser = async (user_id, skip = 0,
     include: [
       {
         model: BreakoutRecordings,
+        include: [{
+          model: User,
+          attributes: ['name'],
+        }],
         attributes: ['catalyst_id', 'video_views', 'recording_url', 'created_at'],
       },
     ],
