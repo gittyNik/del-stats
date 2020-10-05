@@ -60,6 +60,7 @@ const MEETING_SETTINGS = {
   enforce_login: true,
   // alternative_hosts: process.env.ZOOM_HOSTS,
   waiting_room: false,
+  meeting_authentication: true,
 };
 
 export const deleteMeetingFromZoom = (video_id) => {
@@ -232,7 +233,7 @@ export const learnerAttendance = async (participant, catalyst_id,
     where: {
       email: user_email,
     },
-  }).then(data => {
+  }).then(async data => {
     if (data) {
       if (data.user_id !== catalyst_id) {
         let attendance;
@@ -242,7 +243,16 @@ export const learnerAttendance = async (participant, catalyst_id,
         } else {
           try {
             let inTime = Math.floor(durationTime / 60);
-            notifyAttendanceLearnerInChannel(cohort_breakout_id, user_email, inTime);
+            let isPartOfCohort = await LearnerBreakout.findOne({
+              where: {
+                cohort_breakout_id,
+                learner_id: data.user_id,
+              },
+              raw: true,
+            });
+            if (isPartOfCohort) {
+              notifyAttendanceLearnerInChannel(cohort_breakout_id, user_email, inTime);
+            }
           } catch (err) {
             console.error(`Error while sending message to learner: ${err}`);
           }

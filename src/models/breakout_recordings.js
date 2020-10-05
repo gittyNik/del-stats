@@ -36,11 +36,7 @@ export const BreakoutRecordings = db.define('breakout_recordings', {
     type: Sequelize.JSON,
     allowNull: true,
   },
-  views: {
-    type: Sequelize.INTEGER,
-    defaultValue: 0,
-  },
-  likes: {
+  video_views: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
   },
@@ -69,20 +65,11 @@ export const getAWSSignedUrl = (unSignedUrl) => {
   return signedUrl;
 };
 
-// sort by values -> likes, views, created_at
-export const getAllRecordings = (skip = 0, limit = 10, sort_by = 'likes') => BreakoutRecordings.findAll({
-  offset: skip,
-  limit,
-  order: [
-    [sort_by, 'DESC'],
-  ],
-});
-
 export const updateRecordings = (
-  id, likes, views, recording_details,
+  id, video_views, recording_details,
   breakout_template_id,
 ) => BreakoutRecordings.update({
-  likes, recording_details, views, breakout_template_id,
+  recording_details, video_views, breakout_template_id,
 }, {
   where: {
     id,
@@ -92,10 +79,10 @@ export const updateRecordings = (
 export const getRecordingVideoUrl = (id) => BreakoutRecordings.findOne(
   { where: { id } },
 ).then(record => {
-  let url = getAWSSignedUrl(record.recording_url);
+  let cdn_url = process.env.VIDEO_CDN + record.recording_url;
+  let url = getAWSSignedUrl(cdn_url);
   record.dataValues.url = url;
-  let currentViews = record.views + 1;
-  updateRecordings(id, record.likes, currentViews);
+  updateRecordings(id, record.likes);
   return record;
 });
 

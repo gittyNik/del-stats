@@ -94,8 +94,14 @@ export const getCohortsStartingToday = () => {
   });
 };
 
-// TODO: Has a limit of 10 cohorts
-// Need to add status in Cohort table and show only live
+export const getLearnersForCohort = cohort_id => Cohort.findByPk({
+  where: {
+    id: cohort_id,
+  },
+  attributes: ['learners'],
+  raw: true,
+});
+
 export const getLiveCohorts = () => Cohort.findAll({
   where: {
     learners: Sequelize.literal('learners<>\'{}\''),
@@ -135,7 +141,7 @@ export const getLearnersFromCohorts = (ids) => Cohort.findAll({
       [Sequelize.Op.in]: ids,
     },
   },
-  attributes: ['learners', 'name', 'id', 'duration'],
+  attributes: ['learners', 'name', 'id', 'duration', 'location'],
 });
 
 // TODO: Optimize this later
@@ -223,6 +229,30 @@ export const beginCohortWithId = (cohort_id) => Promise.all([
     console.error(err);
     return null;
   });
+
+export const beginParallelCohorts = (cohort_ids) => Promise.all(
+  cohort_ids.map(cohort_id => Promise.all([
+    updateCohortLearners(cohort_id),
+    createCohortMilestones(cohort_id),
+  ])
+    .then(([cohort, milestones]) => {
+      createTypeBreakoutsInMilestone(
+        cohort_id,
+        cohort.program_id,
+        cohort.duration,
+        cohort.program_id,
+      ).then((allBreakouts) => {
+      // console.log(`All breakouts scheduled for the cohort ${cohort_id} `);
+      });
+      // console.log(milestones);
+      cohort.milestones = milestones;
+      return cohort;
+    })
+    .catch((err) => {
+      console.error(err);
+      return null;
+    })),
+);
 
 export const getUpcomingCohort = (date) => {
   const tonight = date || new Date();
