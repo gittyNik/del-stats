@@ -5,7 +5,7 @@ import {
   getLearnerFaqById,
   createLearnerFaq,
   getAllLearnerFaqs, updateLearnerFaq, toggleHelpfulLearnerFaq,
-  toggleUnhelpfulLearnerFaq
+  toggleUnhelpfulLearnerFaq, deletelearnerFaq
 
 } from '../../src/models/learner_faq';
 
@@ -28,7 +28,7 @@ describe('Learner Faqs', () => {
 
   describe('Basic crud', () => {
 
-    test.only('create a faq,', async () => {
+    test('create a faq,', async () => {
       const program_id = 'tep';
       const title = faker.lorem.sentence();
       const body = faker.lorem.sentence();
@@ -50,7 +50,7 @@ describe('Learner Faqs', () => {
       });
     })
 
-    test('get all learner faqs', async () => {
+    test.only('get all learner faqs', async () => {
       const faqs = await getAllLearnerFaqs();
       console.log(faqs);
       expect(faqs).toBeDefined();
@@ -68,17 +68,22 @@ describe('Learner Faqs', () => {
         user_id,
       });
       console.log(updated_faq);
-      console.log(updated_faq[1][0].updated_by);
+      console.log(updated_faq.updated_by);
       expect(updated_faq).toBeDefined();
-      expect(updated_faq[1][0].updated_by).toContain(user_id);
-      expect(updated_faq[1][0]).toMatchObject({
+      expect(updated_faq.updated_by).toContain(user_id);
+      expect(updated_faq).toMatchObject({
         id: learner_faq_id,
         title: 'A new title 2',
         body: 'Some body',
-        updated_by: expect.arrayContaining([user_id]);
+        updated_by: expect.arrayContaining([user_id])
       })
     });
-
+    test('should delete a learnerFaq', async () => {
+      const learner_faq_id = '975ebffa-9e31-4578-b598-c4d21d6fcc5c';
+      const res = await deletelearnerFaq(learner_faq_id);
+      console.log(res);
+      expect(res).toBeDefined();
+    });
     test('toggle helpful count in LearnerFaq', async () => {
       const learner_faq_id = '975ebffa-9e31-4578-b598-c4d21d6fcc5c';
       const user_id = '46c721b0-3a0a-487a-bc69-bc39311b7f7c';

@@ -93,7 +93,9 @@ export const updateLearnerFaq = ({
   where: { id: learner_faq_id },
   returning: true,
   raw: true,
-});
+}).then(data => data[1][0]);
+
+export const deletelearnerFaq = async (id) => LearnerFaq.destroy({ where: { id } });
 
 export const toggleHelpfulLearnerFaq = async ({ learner_faq_id, user_id }) => {
   const learnerFaq = await getLearnerFaqById(learner_faq_id);
