@@ -47,13 +47,28 @@ export const ReviewSlots = db.define('review_slots', {
   },
 });
 
-export const getAllReviewSlots = () => ReviewSlots.findAll({
-  include: [{
-    model: User,
-    attributes: [['name', 'reviewer']],
-  }],
-  raw: true,
-});
+export const getAllReviewSlots = async () => {
+  let reviewSlots = await ReviewSlots.findAll({
+    include: [{
+      model: User,
+      attributes: [['name', 'reviewer']],
+    }],
+    raw: true,
+  });
+
+  let allReviewSlots = await Promise.all(reviewSlots.map(async eachSlot => {
+    let cohortDuration;
+    if (eachSlot.cohort_duration >= 26) {
+      cohortDuration = 'Part-time';
+    } else {
+      cohortDuration = 'Full-time';
+    }
+    eachSlot.review_duration /= 60000;
+    eachSlot.cohortDuration = cohortDuration;
+    return eachSlot;
+  }));
+  return allReviewSlots;
+};
 
 export const getReviewSlotsByProgram = (program, cohort_duration) => ReviewSlots.findAll(
   {
