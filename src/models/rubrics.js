@@ -12,6 +12,12 @@ const RUBRIC_FOR = [
   'team',
 ];
 
+const RUBRIC_PATH = [
+  'frontend',
+  'backend',
+  'common',
+];
+
 export const Rubrics = db.define('rubrics', {
   id: {
     type: Sequelize.UUID,
@@ -47,6 +53,10 @@ export const Rubrics = db.define('rubrics', {
     type: Sequelize.ENUM(...RUBRIC_FOR),
     defaultValue: 'individual',
   },
+  path: {
+    type: Sequelize.ENUM(...RUBRIC_PATH),
+    defaultValue: 'common',
+  },
 });
 
 export const getAllRubrics = () => Rubrics.findAll({});
@@ -56,15 +66,16 @@ export const getRubricsByProgram = (program, type) => Rubrics.findAll(
 );
 
 export const getRubricsByMilestone = (
-  milestone_id, program, type, rubric_for,
+  milestone_id, program, type, rubric_for, path = 'common',
 ) => {
   if (rubric_for) {
-    return db.query('select * from rubrics where program=:program and type=:type and rubric_for=:rubric_for and (milestone_id is null or milestone_id=:milestone_id);', {
+    return db.query('select * from rubrics where program=:program and type=:type and rubric_for=:rubric_for and path=:path and (milestone_id is null or milestone_id=:milestone_id);', {
       model: Rubrics,
       replacements: {
         program: `${program}`,
         type: `${type}`,
         rubric_for: `${rubric_for}`,
+        path: `${path}`,
         milestone_id: `${milestone_id}`,
       },
     }).then(data => data).catch(err => {
@@ -72,9 +83,14 @@ export const getRubricsByMilestone = (
       throw Error(err);
     });
   }
-  return db.query('select * from rubrics where program=:program and type=:type and (milestone_id is null or milestone_id=:milestone_id);', {
+  return db.query('select * from rubrics where program=:program and type=:type and path=:path and (milestone_id is null or milestone_id=:milestone_id);', {
     model: Rubrics,
-    replacements: { program: `${program}`, type: `${type}`, milestone_id: `${milestone_id}` },
+    replacements: {
+      program: `${program}`,
+      type: `${type}`,
+      path: `${path}`,
+      milestone_id: `${milestone_id}`,
+    },
   }).then(data => data).catch(err => {
     console.error(err);
     throw Error(err);
@@ -86,13 +102,14 @@ export const getRubricsById = id => Rubrics.findOne(
 );
 
 export const createRubrics = (milestone_id, rubric_name,
-  program, rubric_parameters, type) => Rubrics.create(
+  program, rubric_parameters, type, path) => Rubrics.create(
   {
     milestone_id,
     rubric_name,
     program,
     rubric_parameters,
     type,
+    path,
     created_at: Date.now(),
   },
 );

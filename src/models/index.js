@@ -36,6 +36,8 @@ import connection from '../database';
 import { BreakoutTemplate } from './breakout_template';
 import { LearnerGithubMilestones } from './learner_github_milestones';
 import { LearnerGithubChallenge } from './learner_github_challenges';
+import { BreakoutRecordingsDetails } from './breakout_recording_details';
+import { BreakoutRecordings } from './breakout_recordings';
 
 // TODO: describe all associations here
 
@@ -84,6 +86,10 @@ LearnerGithubChallenge.belongsTo(LearnerChallenge, { foreignKey: 'learner_challe
 LearnerChallenge.hasMany(LearnerGithubChallenge);
 
 LearnerChallenge.belongsTo(User, { foreignKey: 'learner_id' });
+
+BreakoutRecordingsDetails.belongsTo(BreakoutRecordings, { foreignKey: 'video_id' });
+
+BreakoutTemplate.belongsTo(User, { foreignKey: 'primary_catalyst' });
 // User.hasMany(LearnerChallenge);
 
 // User.belongsTo(Cohort);

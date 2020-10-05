@@ -15,6 +15,7 @@ import {
   markCompleteBreakout,
   removeLearnerEndpoint,
   addLearnerEndpoint,
+  beginParallelCohort,
 } from '../../controllers/learning/cohort.controller';
 import {
   createBreakouts,
@@ -32,7 +33,7 @@ import {
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, SUPERADMIN, CATALYST, EDUCATOR,
+  ADMIN, CATALYST, EDUCATOR,
   REVIEWER,
 } = USER_ROLES;
 
@@ -87,7 +88,7 @@ router.get('/user/:id', getCohortByLearnerId);
  */
 router.get('/milestone/:id', createCohortMilestoneLearnerBreakouts);
 
-router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR, REVIEWER]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER]));
 
 /**
  * @api {post} /cohorts/addLearner Add learner to a new cohort
@@ -147,6 +148,14 @@ router.post('/', createCohort);
  * @apiGroup Cohort
  */
 router.patch('/:id/begin', beginCohort);
+
+/**
+ * @api {patch} /cohorts/:id/begin Mark beginning of a cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName BeginCohort
+ * @apiGroup Cohort
+ */
+router.patch('/begin', beginParallelCohort);
 
 /**
  * @api {patch} /cohorts/:id Update a cohort

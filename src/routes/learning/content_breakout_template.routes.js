@@ -11,12 +11,12 @@ import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/role
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, CATALYST, EDUCATOR,
+  ADMIN, CATALYST, EDUCATOR, OPERATIONS,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, OPERATIONS]));
 
 /**
  * @api {get} /learning/content/breakouts/templates Get all Content Breakouts templates
@@ -38,7 +38,7 @@ router.get('/', getAllBreakoutTemplatesAPI);
  */
 router.get('/:id', getBreakoutTemplateByIdAPI);
 
-router.use(allowMultipleRoles([ADMIN]));
+router.use(allowMultipleRoles([ADMIN, OPERATIONS]));
 
 /**
  * @api {post} /learning/content/breakouts/templates/ Insert Breakout recording
