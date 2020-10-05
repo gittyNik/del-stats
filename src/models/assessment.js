@@ -293,21 +293,21 @@ export const createLearnerAssessmentBreakout = (
       });
     }
 
-    let cohort_duration;
-    if (duration >= 26) {
-      cohort_duration = 'Part-time';
-    } else {
-      cohort_duration = 'Full-time';
-    }
-    let context = `Assessments created for ${name} ${cohort_duration} ${location}`;
-    let message = `Created assessments for ${count} learners`;
-    try {
-      sendMessageToSlackChannel(message, context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
-    } catch (err2) {
-      console.warn('Unable to send message to slack');
-    }
     return null;
   });
+  let cohort_duration;
+  if (duration >= 26) {
+    cohort_duration = 'Part-time';
+  } else {
+    cohort_duration = 'Full-time';
+  }
+  let context = `Assessments created for ${name} ${cohort_duration} ${location}`;
+  let message = `Created assessments for ${count} learners`;
+  try {
+    sendMessageToSlackChannel(message, context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
+  } catch (err2) {
+    console.warn('Unable to send message to slack');
+  }
 };
 
 export const createAssessmentSchedule = (

@@ -11,6 +11,9 @@ import { SocialConnection } from './social_connection';
 import { CohortBreakout } from './cohort_breakout';
 import { User } from './user';
 import { changeTimezone } from './breakout_template';
+import {
+  notifyAttendanceLearnerInChannel,
+} from '../integrations/slack/delta-app/controllers/web.controller';
 
 const { in: opIn, between } = Sequelize.Op;
 
@@ -57,6 +60,7 @@ const MEETING_SETTINGS = {
   enforce_login: true,
   // alternative_hosts: process.env.ZOOM_HOSTS,
   waiting_room: false,
+  meeting_authentication: true,
 };
 
 export const deleteMeetingFromZoom = (video_id) => {
@@ -229,41 +233,82 @@ export const learnerAttendance = async (participant, catalyst_id,
     where: {
       email: user_email,
     },
-  }).then(data => {
-    let attendance;
-    if ((durationTime >= duration_threshold) && (data.user_id !== catalyst_id)) {
-      attendanceCount += 1;
-      attendance = true;
-    } else {
-      attendance = false;
-    }
-    try {
-      LearnerBreakout.update({
-        attendance,
-      }, {
-        where: {
-          cohort_breakout_id,
-          learner_id: data.user_id,
-        },
-      });
-    } catch (err) {
-      if (attendance) {
-        attendanceCount -= 1;
+  }).then(async data => {
+    if (data) {
+      if (data.user_id !== catalyst_id) {
+        let attendance;
+        if ((durationTime >= duration_threshold)) {
+          attendanceCount += 1;
+          attendance = true;
+        } else {
+          try {
+            let inTime = Math.floor(durationTime / 60);
+            let isPartOfCohort = await LearnerBreakout.findOne({
+              where: {
+                cohort_breakout_id,
+                learner_id: data.user_id,
+              },
+              raw: true,
+            });
+            if (isPartOfCohort) {
+              notifyAttendanceLearnerInChannel(cohort_breakout_id, user_email, inTime);
+            }
+          } catch (err) {
+            console.error(`Error while sending message to learner: ${err}`);
+          }
+          attendance = false;
+        }
+        try {
+          LearnerBreakout.update({
+            attendance,
+          }, {
+            where: {
+              cohort_breakout_id,
+              learner_id: data.user_id,
+            },
+          });
+        } catch (err) {
+          if (attendance) {
+            attendanceCount -= 1;
+          }
+          if (err instanceof TypeError) {
+            console.error(`${user_email} not present in social connections`);
+            console.error(err);
+          } else {
+            console.error(`${user_email} does not have learner breakout ${cohort_breakout_id}`);
+            console.error(err);
+          }
+        }
       }
-      if (err instanceof TypeError) {
-        console.error(`${user_email} not present in social connections`);
-        console.error(err);
-      } else {
-        console.error(`${user_email} does not have learner breakout ${cohort_breakout_id}`);
-        console.error(err);
-      }
+
+      return attendanceCount;
     }
-    return attendanceCount;
+    return 0;
   });
 };
 
 export const markIndividualAttendance = async (participants, catalyst_id,
   cohort_breakout_id, attentiveness_threshold, duration_threshold) => {
+  let seen = {};
+  participants = participants.filter((entry) => {
+    let previous;
+
+    // Have we seen this email before?
+    if (entry.user_email in seen) {
+      // Yes, grab it and add this data to it
+      previous = seen[entry.user_email];
+      previous.duration += entry.duration;
+
+      // Don't keep this entry, we've merged it into the previous one
+      return false;
+    }
+
+    // Remember that we've seen it
+    seen[entry.user_email] = entry;
+
+    // Keep this one, we'll merge any others that match into it
+    return true;
+  });
   const attendanceCount = Promise.all(participants.map(async (participant) => {
     try {
       let attendance_count = await learnerAttendance(participant, catalyst_id,

@@ -30,7 +30,7 @@ import {
 } from '../integrations/slack/team-app/controllers/milestone.controller';
 import { postAttendaceInCohortChannel } from '../integrations/slack/delta-app/controllers/web.controller';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
-import { createEvent, deleteEvent } from '../integrations/calendar/calendar.model';
+import { createEvent, deleteEvent, updateEvent } from '../integrations/calendar/calendar.model';
 import { logger } from '../util/logger';
 // import sandbox from 'bullmq/dist/classes/sandbox';
 
@@ -109,6 +109,42 @@ export const CohortBreakout = db.define('cohort_breakouts', {
     allowNull: true,
   },
 });
+
+export const findOneCohortBreakout = (
+  whereObject, attributesObj, includeObj, orderObj,
+) => CohortBreakout.findOne({
+  where: whereObject,
+  include: includeObj,
+  order: orderObj,
+  attributes: attributesObj,
+})
+  .then(data => data)
+  .catch(err => console.log(err));
+
+export const findAllCohortBreakout = (
+  where, attributes, include, order,
+  skip = 0, limit = 10,
+) => CohortBreakout.findAll({
+  where,
+  include,
+  order,
+  attributes,
+  offset: skip,
+  limit,
+});
+
+export const updateOneCohortBreakouts = (details, id) => CohortBreakout
+  .update({
+    details,
+  }, { where: { id } });
+
+export const updateSanboxUrl = async (id, sandbox_id, sandbox_url) => {
+  let breakout = await findOneCohortBreakout({ id });
+
+  let breakoutDetails = breakout.details;
+  breakoutDetails.sandbox = { sandbox_id, sandbox_url };
+  return updateOneCohortBreakouts(breakoutDetails, id);
+};
 
 export const scheduleBreakoutLecture = (
   topic_id,
@@ -669,18 +705,21 @@ export const getCalendarDetailsOfCohortBreakout = async (id) => {
 // create or update calendar event for a catalyst.
 // delete previous event if catalyst is changed.
 export const updateBreakoutCalendarEventForCatalyst = async ({
-  id, updated_time = null, catalyst_id = null,
+  cohort_breakout, updated_time = null, catalyst_id = null,
 }) => {
-  let cohort_breakout = await CohortBreakout
-    .findByPk(id)
-    .then(_cohortBreakout => _cohortBreakout.get({ plain: true }))
-    .catch(err => console.error(err));
 
-  const { catalyst_id: prevCatalystId, time_scheduled, details } = cohort_breakout;
+  const { id, catalyst_id: prevCatalystId, time_scheduled, details } = cohort_breakout;
+  let oldEventId;
 
+  try {
+    oldEventId = cohort_breakout.details.catalystCalendarEvent.id;
+  } catch (e) {
+    if (e instanceof TypeError) oldEventId = null;
+  }
   let calendarDetails = await getCalendarDetailsOfCohortBreakout(id);
+  // todo check dates using epoch time.
+  const checkTime = () => (updated_time !== null) && (new Date(updated_time).getTime() !== new Date(time_scheduled).getTime());
   // check if catalyst needs to be changed
-  const checkTime = () => ((updated_time !== null) && (updated_time !== time_scheduled));
   let googleOAuthCatalyst;
   if ((catalyst_id !== null) && (catalyst_id !== prevCatalystId)) {
     // create event for that catalyst and update it in cohort_breakout details with new property
@@ -688,7 +727,6 @@ export const updateBreakoutCalendarEventForCatalyst = async ({
     // and create event for new catalyst.
     if (typeof details.catalystCalendarEvent !== 'undefined') {
       let googleOAuthPrevCatalyst = await getGoogleOauthOfUser(prevCatalystId);
-      const oldEventId = cohort_breakout.details.catalystCalendarEvent.id;
       await deleteEvent(googleOAuthPrevCatalyst, oldEventId);
       // googleOAuthCatalyst = await getGoogleOauthOfUser(catalyst_id);
       // todo: create a new event for the new catalyst.
@@ -699,7 +737,13 @@ export const updateBreakoutCalendarEventForCatalyst = async ({
     googleOAuthCatalyst = await getGoogleOauthOfUser(prevCatalystId);
   }
   calendarDetails.start = checkTime() ? updated_time : time_scheduled;
-  let catalystCalendarEvent = await createEvent(googleOAuthCatalyst, calendarDetails);
+  let catalystCalendarEvent;
+  // if event exists update else create.
+  if (oldEventId) {
+    catalystCalendarEvent = await updateEvent(googleOAuthCatalyst, oldEventId, calendarDetails);
+  } else {
+    catalystCalendarEvent = await createEvent(googleOAuthCatalyst, calendarDetails);
+  }
   return catalystCalendarEvent;
 };
 
@@ -744,7 +788,7 @@ export const createLearnerBreakoutsForMilestone = async (
   cohort_milestone_id,
   path = 'common',
 ) => {
-  if (learner_ids && learner_ids.length) {
+  if (learner_ids && learner_ids.length > 0) {
     // Get Cohort and Milestone details
     let cohortMilestone = await getDataForMilestoneName(cohort_milestone_id);
 

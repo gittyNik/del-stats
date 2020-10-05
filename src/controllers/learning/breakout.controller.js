@@ -7,6 +7,8 @@ import {
   updateBreakoutCalendarEventForCatalyst,
   updateCohortBreakouts,
   createLearnerBreakoutsForMilestone,
+  updateSanboxUrl,
+  findOneCohortBreakout,
 } from '../../models/cohort_breakout';
 import { updateCalendarEventInLearnerBreakout } from '../../models/learner_breakout';
 import {
@@ -95,6 +97,7 @@ export const getLiveCohortsBreakouts = (req, res) => {
         include: [
           {
             model: User,
+            attributes: ['name'],
             as: 'catalyst',
           },
           Cohort,
@@ -437,7 +440,14 @@ export const getAllCohortBreakouts = (req, res) => {
     where: {
       cohort_id,
     },
-    include: [Topic],
+    include: [
+      Topic,
+      {
+        model: User,
+        attributes: ['name'],
+        as: 'catalyst',
+      },
+    ],
     raw: true,
   })
     .then((breakouts) => {
@@ -513,8 +523,8 @@ export const createSingleBreakout = (req, res) => {
   const { id: cohort_id } = req.params;
   createSingleBreakoutAndLearnerBreakout(cohort_id, topic_id,
     breakout_duration, time_scheduled, agenda, catalyst_id).then((data) => {
-    res.status(201).json({ data });
-  })
+      res.status(201).json({ data });
+    })
     .catch(err => res.status(500).send({ err }));
 };
 
@@ -541,8 +551,7 @@ export const updateCohortBreakout = async (req, res) => {
   const { updated_time, catalyst_id: newCatalystId } = req.body;
   const { id } = req.params;
   try {
-    let cohort_breakout = await CohortBreakout
-      .findByPk(id)
+    let cohort_breakout = await findOneCohortBreakout({ id })
       .then(_cohortBreakout => _cohortBreakout.get({ plain: true }))
       .catch(err => {
         logger.error(err);
@@ -559,9 +568,9 @@ export const updateCohortBreakout = async (req, res) => {
     zoomDetails = updatedZoomDetails.zoom;
 
     let catalystCalendarEvent = await updateBreakoutCalendarEventForCatalyst({
-      id,
+      cohort_breakout,
       updated_time,
-      catalyst_id,
+      catalyst_id: newCatalystId,
     });
 
     details.zoom = zoomDetails;
@@ -592,10 +601,10 @@ export const updateCohortBreakout = async (req, res) => {
         console.error(err);
         res.status(500).json([err.name, err.message]);
       });
-    const learnerBreakoutEvents = await updateCalendarEventInLearnerBreakout(id);
+    // const learnerBreakoutEvents = await updateCalendarEventInLearnerBreakout(id);
     res.status(201).json({
       updatedCohortBreakout,
-      learnerBreakoutEvents,
+      // learnerBreakoutEvents,
     });
   } catch (err) {
     console.error(err);
@@ -708,6 +717,23 @@ export const createCohortMilestoneLearnerBreakouts = async (req, res) => {
     id: cohort_milestone_id,
   } = req.params;
   await createLearnerBreakoutsForMilestone(cohort_milestone_id)
+    .then((data) => {
+      res.status(201).json({ data });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send({ err });
+    });
+};
+
+export const updateSanboxDetails = async (req, res) => {
+  let {
+    id,
+  } = req.params;
+  let {
+    sandbox_id, url,
+  } = req.body;
+  await updateSanboxUrl(id, sandbox_id, url)
     .then((data) => {
       res.status(201).json({ data });
     })

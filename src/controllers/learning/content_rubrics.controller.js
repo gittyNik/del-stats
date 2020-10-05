@@ -28,10 +28,10 @@ export const getRubricsByProgramAPI = (req, res) => {
 
 export const getRubricsByMilestoneAPI = (req, res) => {
   const {
-    program, type, id, rubric_for,
+    program, type, id, rubric_for, path,
   } = req.query;
 
-  getRubricsByMilestone(id, program, type, rubric_for).then((data) => { res.json(data); })
+  getRubricsByMilestone(id, program, type, rubric_for, path).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
@@ -42,10 +42,11 @@ export const createRubricsAPI = (req, res) => {
     program,
     rubric_parameters,
     type,
+    path,
   } = req.body;
 
   createRubrics(milestone_id, rubric_name,
-    program, rubric_parameters, type).then((data) => { res.json(data); })
+    program, rubric_parameters, type, path).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 

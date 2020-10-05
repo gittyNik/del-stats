@@ -1,9 +1,9 @@
 import Express from 'express';
 import {
-  getAllRecordingsAPI, getRecordingsByCatalystAPI, getRecordingsByIdAPI,
+  getRecordingsByCatalystAPI,
   createRecording, updateRecordingsAPI, getVideoUrl,
 } from '../../controllers/learning/breakout_recording.controller';
-import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
+import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 import LearnerBreakout from '../../models/learner_breakout';
 
@@ -16,30 +16,6 @@ const router = Express.Router();
 router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER]));
 
 /**
- * @api {get} /learning/content/breakouts/recordings Get all Content Breakouts recordings
- * @apiDescription get all Content Breakouts recordings
- * @apiHeader {String} authorization JWT Token.
- * @apiName GetContentBreakouts
- * @apiGroup ContentBreakoutsRecordings
- * @apiParam {skip} skip number of records
- * @apiParam {limit} limit number of records
- * @apiParam {sort_by} sort_by values - [likes, views, created_at]
- */
-router.get('/', getAllRecordingsAPI);
-
-/**
- * @api {get} /learning/content/breakouts/recordings/:id Get all Content Breakouts recordings
- * @apiDescription get all Content Breakouts recordings
- * @apiHeader {String} authorization JWT Token.
- * @apiName GetContentBreakouts
- * @apiGroup ContentBreakoutsRecordings
- * @apiParam {skip} skip number of records
- * @apiParam {limit} limit number of records
- * @apiParam {sort_by} sort_by values - [likes, views, created_at]
- */
-router.get('/:id', getRecordingsByIdAPI);
-
-/**
  * @api {get} /learning/content/breakouts/recordings/:id/video Get Video of recording
  * @apiDescription get Video recordings
  * @apiHeader {String} authorization JWT Token.
@@ -48,16 +24,7 @@ router.get('/:id', getRecordingsByIdAPI);
  */
 router.get('/:id/video', getVideoUrl);
 
-/**
- * @api {get} /learning/content/breakouts/recordings/catalyst/:id
- * Get all Content Breakouts recordings for Catalyst
- * @apiDescription get all Content Breakouts recordings
- * @apiHeader {String} authorization JWT Token.
- * @apiName GetContentBreakouts
- * @apiGroup ContentBreakoutsRecordings
- */
-router.get('/catalyst/:id', getRecordingsByCatalystAPI);
-
+// Restrict modifications for any applicant to the cohorts
 router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
 
 /**

@@ -10,10 +10,12 @@ import { getLearnerBreakoutsForACohortBreakout } from '../../../../models/learne
 import { logger } from '../../../../util/logger';
 
 const REVIEW_TEMPLATE = (team_number) => `Team: ${team_number}, Reviewer is reminding you to join the review. Please join from DELTA`;
-const ASSESSMENT_TEMPLATE = (learner) => `Psst! Looks like it’s time for your Assessment, <@${learner}>. Please join from DELTA right away; your reviewer is waiting.`;
 const LEARNER_REVIEW_TEMPLATE = 'Reviewer is reminding you to join the review. Please join from DELTA';
-const BREAKOUT_TEMPLATE = 'It’s time to get your thinking hats on! Please join the BreakOut from DELTA now';
+const ASSESSMENT_TEMPLATE = (learner) => `Psst! Looks like it's time for your Assessment, <@${learner}>. Please join from DELTA right away; your reviewer is waiting.`;
+const BREAKOUT_TEMPLATE = 'It\'s time to get your thinking hats on! Please join the BreakOut from DELTA now';
+const LEARNER_BREAKOUT_TEMPLATE = (learner) => `Catalyst is reminding <@${learner}> to join the breakout. Please join from Delta`;
 const QUESTIONAIRE_TEMPLATE = 'The Question Hour is upon us. Please join the session from DELTA and ask away!';
+const ATTENDANCE_TEMPLATE = (learner, topics, timeMinutes) => `<@${learner}> Looks like you have been in the breakout on ${topics} for only ${timeMinutes} minutes.`;
 
 export const sendMessage = (req, res) => {
   const {
@@ -37,22 +39,47 @@ export const sendMessage = (req, res) => {
     });
 };
 
+export const notifyAttendanceLearnerInChannel = async (
+  cohort_breakout_id,
+  email,
+  attendedTime,
+) => {
+  try {
+    const cohortBreakout = await getCohortBreakoutById(cohort_breakout_id);
+    const {
+      cohort_id, details,
+    } = cohortBreakout;
+    let slackUserResponse = await web.users.lookupByEmail({ email });
+    let slackUserId = slackUserResponse.user.id;
+    let text = ATTENDANCE_TEMPLATE(slackUserId, details.topics, attendedTime);
+    const channel_id = await getChannelIdForCohort(cohort_id);
+    const updatedText = (cohort_id) ? `${text}` : text;
+    await postMessage({ channel: channel_id, text: updatedText });
+    return true;
+  } catch (err) {
+    console.error(`Error while sending attendance status to slack: ${err}`);
+    return false;
+  }
+};
+
 export const notifyLearnersInChannel = async (req, res) => {
   let {
     learner_id, text, cohort_id, type, team_number,
   } = req.body;
+  let email;
   if (learner_id) {
-    var learner = await getProfile(learner_id);
-    var { email } = learner;
-    if (type === "reviews") {
+    let learner = await getProfile(learner_id);
+    email = learner.email;
+    if (type === 'reviews') {
       text = LEARNER_REVIEW_TEMPLATE;
     }
   }
   let slackUserResponse;
+  let slackUserId;
   try {
     if (learner_id) {
       slackUserResponse = await web.users.lookupByEmail({ email });
-      var slackUserId = slackUserResponse.user.id;
+      slackUserId = slackUserResponse.user.id;
     }
     if (typeof cohort_id === 'undefined') {
       cohort_id = await getCohortIdFromLearnerId(learner_id);
@@ -65,10 +92,10 @@ export const notifyLearnersInChannel = async (req, res) => {
           text = REVIEW_TEMPLATE(team_number);
           break;
         case 'assessment':
-          text = ASSESSMENT_TEMPLATE;
+          text = ASSESSMENT_TEMPLATE(slackUserId);
           break;
         case 'lecture':
-          text = BREAKOUT_TEMPLATE;
+          text = (learner_id) ? LEARNER_BREAKOUT_TEMPLATE(slackUserId) : BREAKOUT_TEMPLATE;
           break;
         case 'question_hour':
           text = QUESTIONAIRE_TEMPLATE;
@@ -76,7 +103,7 @@ export const notifyLearnersInChannel = async (req, res) => {
         // no default
       }
     }
-    const updatedText = (req.body.cohort_id) ? `<!channel> ${text}` : `<@${slackUserId}> ${text}`;
+    const updatedText = (req.body.cohort_id) ? `<!channel> ${text}` : text;
     const post_res = await postMessage({ channel: channel_id, text: updatedText });
     return res.status(200).json({
       text: 'Message posted on the channel',

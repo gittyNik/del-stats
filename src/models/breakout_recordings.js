@@ -1,6 +1,10 @@
 import AWS from 'aws-sdk';
 import Sequelize from 'sequelize';
 import db from '../database';
+import {
+  updateOneCohortBreakouts,
+  findOneCohortBreakout,
+} from './cohort_breakout';
 
 const privateKey = process.env.CLOUDFRONT_KEY.replace(/\\n/g, '\n');
 const publicKey = process.env.PUBLIC_KEY;
@@ -32,17 +36,17 @@ export const BreakoutRecordings = db.define('breakout_recordings', {
     type: Sequelize.JSON,
     allowNull: true,
   },
-  views: {
-    type: Sequelize.INTEGER,
-    defaultValue: 0,
-  },
-  likes: {
+  video_views: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
   },
   catalyst_id: {
     type: Sequelize.UUID,
     references: { model: 'users', key: 'id' },
+  },
+  breakout_template_id: {
+    type: Sequelize.UUID,
+    references: { model: 'breakout_templates', key: 'id' },
   },
 });
 
@@ -61,17 +65,11 @@ export const getAWSSignedUrl = (unSignedUrl) => {
   return signedUrl;
 };
 
-// sort by values -> likes, views, created_at
-export const getAllRecordings = (skip = 0, limit = 10, sort_by = 'likes') => BreakoutRecordings.findAll({
-  offset: skip,
-  limit,
-  order: [
-    [sort_by, 'DESC'],
-  ],
-});
-
-export const updateRecordings = (id, likes, views, recording_details) => BreakoutRecordings.update({
-  likes, recording_details, views,
+export const updateRecordings = (
+  id, video_views, recording_details,
+  breakout_template_id,
+) => BreakoutRecordings.update({
+  recording_details, video_views, breakout_template_id,
 }, {
   where: {
     id,
@@ -81,10 +79,10 @@ export const updateRecordings = (id, likes, views, recording_details) => Breakou
 export const getRecordingVideoUrl = (id) => BreakoutRecordings.findOne(
   { where: { id } },
 ).then(record => {
-  let url = getAWSSignedUrl(record.recording_url);
+  let cdn_url = process.env.VIDEO_CDN + record.recording_url;
+  let url = getAWSSignedUrl(cdn_url);
   record.dataValues.url = url;
-  let currentViews = record.views + 1;
-  updateRecordings(id, record.likes, currentViews);
+  updateRecordings(id, record.likes);
   return record;
 });
 
@@ -104,8 +102,21 @@ export const getRecordingsByCatalyst = (catalyst_id, skip = 0,
   },
 );
 
+export const updateRecordingInCohortBreakout = async (
+  video_id,
+  cohort_breakout_id,
+) => {
+  let id = cohort_breakout_id;
+  let breakout = await findOneCohortBreakout({ id });
+
+  let breakoutDetails = breakout.details;
+  breakoutDetails.recording = { id: video_id };
+  updateOneCohortBreakouts(breakoutDetails, cohort_breakout_id);
+};
+
 export const createRecordingEntry = (catalyst_id,
-  recording_url, recording_details, topics) => BreakoutRecordings.create(
+  recording_url, recording_details, topics,
+  breakout_template_id, cohort_breakout_id) => BreakoutRecordings.create(
   {
     catalyst_id,
     recording_url,
@@ -113,5 +124,10 @@ export const createRecordingEntry = (catalyst_id,
     created_at: Sequelize.literal('NOW()'),
     topics_array: topics,
     likes: 0,
+    breakout_template_id,
   },
-);
+).then(async data => {
+  await updateRecordingInCohortBreakout(data.id, cohort_breakout_id);
+  data.cohort_breakout_id = cohort_breakout_id;
+  return data;
+});
