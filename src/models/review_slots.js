@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 import db from '../database';
+import { User } from './user';
 
 export const ReviewSlots = db.define('review_slots', {
   id: {
@@ -46,7 +47,13 @@ export const ReviewSlots = db.define('review_slots', {
   },
 });
 
-export const getAllReviewSlots = () => ReviewSlots.findAll({});
+export const getAllReviewSlots = () => ReviewSlots.findAll({
+  include: [{
+    model: User,
+    attributes: [['name', 'reviewer']],
+  }],
+  raw: true,
+});
 
 export const getReviewSlotsByProgram = (program, cohort_duration) => ReviewSlots.findAll(
   {
