@@ -7,12 +7,12 @@ import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, CATALYST, EDUCATOR, LEARNER,
+  ADMIN, CATALYST, EDUCATOR, LEARNER, REVIEWER,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER, REVIEWER]));
 
 /**
  * @api {get} /learning/content/breakouts/recordings Get all Content Breakouts recordings
@@ -59,7 +59,6 @@ router.get('/:id', getVideoLikesRatingAPI);
 router.get('/catalyst/:id', getVideoByCatalystAPI);
 
 // Restrict modifications for any applicant to the cohorts
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
 
 /**
  * @api {post} /learning/content/breakouts/recordings/details Insert Breakout recording
