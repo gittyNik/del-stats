@@ -94,7 +94,7 @@ export const getCohortsStartingToday = () => {
   });
 };
 
-export const getLearnersForCohort = cohort_id => Cohort.findByPk({
+export const getLearnersForCohort = cohort_id => Cohort.findOne({
   where: {
     id: cohort_id,
   },
