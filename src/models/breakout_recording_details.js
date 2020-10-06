@@ -283,14 +283,40 @@ export const createRecordingEntry = (
   },
 );
 
-export const updateRecordingDetails = (
+export const updateRecordingDetails = async (
   video_id, liked_by_user, breakout_rating,
   user_id,
-) => BreakoutRecordings.update({
-  liked_by_user, breakout_rating,
-}, {
-  where: {
-    video_id,
-    user_id,
-  },
-});
+) => {
+  let breakoutRecording = await BreakoutRecordingsDetails.findOne({
+    where: {
+      video_id,
+      user_id,
+    },
+    raw: true,
+  });
+  let updatedRecording;
+  if (breakoutRecording) {
+    let updated = await BreakoutRecordingsDetails.update({
+      liked_by_user, breakout_rating,
+    }, {
+      where: {
+        video_id,
+        user_id,
+      },
+      raw: true,
+      returning: true,
+    });
+    updatedRecording = updated[1][0];
+  } else {
+    updatedRecording = await BreakoutRecordingsDetails.create(
+      {
+        video_id,
+        liked_by_user,
+        breakout_rating,
+        user_id,
+        created_at: Sequelize.literal('NOW()'),
+      },
+    );
+  }
+  return updatedRecording;
+};
