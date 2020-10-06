@@ -206,7 +206,7 @@ export const getVideoLikesRating = async (video_id, user_id, sort_by = 'likes') 
     raw: true,
   });
 
-  let breakoutInfo = { ...breakoutDetails, ...userInfo };
+  let breakoutInfo = { ...breakoutDetails, userInfo };
   return breakoutInfo;
 };
 
