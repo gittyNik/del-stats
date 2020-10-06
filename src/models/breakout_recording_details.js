@@ -164,7 +164,9 @@ export const getVideoLikesRating = async (video_id, user_id, sort_by = 'likes') 
     order = Sequelize.literal(`${sort_by} DESC`);
   }
   where.video_id = video_id;
-  let breakoutDetails = await BreakoutRecordingsDetails.findAll({
+
+  let breakoutDetails = {};
+  breakoutDetails = await BreakoutRecordingsDetails.findAll({
     attributes: [
       'video_id',
       [Sequelize.fn('count', Sequelize.col('liked_by_user')), 'likes'],
@@ -203,8 +205,9 @@ export const getVideoLikesRating = async (video_id, user_id, sort_by = 'likes') 
     }],
     raw: true,
   });
-  breakoutDetails.user_info = userInfo;
-  return breakoutDetails;
+
+  let breakoutInfo = { ...breakoutDetails, ...userInfo };
+  return breakoutInfo;
 };
 
 export const getVideoLikedByUser = async (user_id, skip = 0,
