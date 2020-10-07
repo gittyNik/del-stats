@@ -204,9 +204,21 @@ export const getVideoLikesRating = async (video_id, user_id, sort_by = 'likes') 
     breakout_ratings = breakout_ratings.reduce(
       (a, b) => (a + Number(b.rating)), 0,
     ) / breakout_ratings.length;
+
+    if (isNaN(breakout_ratings)) {
+      breakout_ratings = 0;
+    }
     if (likedCount.length) {
       likedCount[0].rating = breakout_ratings;
       [likedCount] = likedCount;
+    } else {
+      likedCount = {
+        video_id,
+        breakout_recording: breakoutDetails[0],
+        liked_by_user: false,
+        likes: 0,
+        rating: breakout_ratings,
+      };
     }
   }
   let userInfo = await BreakoutRecordingsDetails.findOne({
