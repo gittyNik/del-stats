@@ -36,7 +36,7 @@ export const BreakoutRecordingsDetails = db.define('breakout_recordings_details'
     defaultValue: 0,
     validate: {
       min: 0,
-      max: 4,
+      max: 5,
     },
   },
 });
@@ -160,7 +160,6 @@ export const getVideoLikesRating = async (video_id, user_id, sort_by = 'likes') 
         breakout_rating: { [gt]: 0 },
       };
     }
-    where.liked_by_user = true;
     order = Sequelize.literal(`${sort_by} DESC`);
   }
   where.video_id = video_id;
@@ -169,10 +168,12 @@ export const getVideoLikesRating = async (video_id, user_id, sort_by = 'likes') 
   breakoutDetails = await BreakoutRecordingsDetails.findAll({
     attributes: [
       'video_id',
+      'liked_by_user',
       [Sequelize.fn('count', Sequelize.col('liked_by_user')), 'likes'],
       [Sequelize.fn('avg', Sequelize.col('breakout_rating')), 'rating'],
     ],
     group: [
+      'breakout_recordings_details.liked_by_user',
       'breakout_recordings_details.video_id',
       'breakout_recording.catalyst_id',
       'breakout_recording.video_views',
@@ -194,6 +195,19 @@ export const getVideoLikesRating = async (video_id, user_id, sort_by = 'likes') 
     raw: true,
     order,
   });
+  let likedCount = {};
+  if (breakoutDetails) {
+    likedCount = breakoutDetails.filter(details => details.liked_by_user);
+    let breakout_ratings = breakoutDetails.reduce((accumulator,
+      currentValue) => {
+      if (typeof currentValue.rating === 'number') {
+        return accumulator + currentValue.rating;
+      }
+      return accumulator;
+    }, 0);
+    likedCount[0].rating = breakout_ratings / 2;
+    [likedCount] = likedCount;
+  }
   let userInfo = await BreakoutRecordingsDetails.findOne({
     where: {
       video_id,
@@ -206,7 +220,7 @@ export const getVideoLikesRating = async (video_id, user_id, sort_by = 'likes') 
     raw: true,
   });
 
-  let breakoutInfo = { ...breakoutDetails, userInfo };
+  let breakoutInfo = { ...likedCount, userInfo };
   return breakoutInfo;
 };
 
