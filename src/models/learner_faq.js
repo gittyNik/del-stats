@@ -12,10 +12,15 @@ export const LearnerFaq = db.define('learner_faqs', {
     type: Sequelize.STRING,
     references: { model: 'programs', key: 'id' },
   },
-  topic: {
-    type: Sequelize.STRING,
+  topics: {
+    type: Sequelize.ARRAY(
+      {
+        type: Sequelize.UUID,
+        references: { model: 'topics' },
+      },
+    ),
+    defaultValue: [],
     allowNull: false,
-    defaultValue: 'general',
   },
   title: {
     type: Sequelize.STRING,
@@ -66,29 +71,29 @@ export const getLearnerFaqById = (id) => LearnerFaq.findOne({
   where: {
     id,
   },
-  raw: true,
+  // raw: true,
 });
 
 export const getAllLearnerFaqs = () => LearnerFaq.findAll({ raw: true });
 
 export const createLearnerFaq = ({
-  program_id, title, body, user_id, topic
+  program_id, title, body, user_id, topics
 }) => LearnerFaq.create({
   id: uuid(),
   program_id,
   title,
   body,
-  topic,
+  topics,
   updated_by: [user_id],
 });
 
 export const updateLearnerFaq = ({
-  learner_faq_id, program_id, title, body, user_id, topic
+  learner_faq_id, program_id, title, body, user_id, topics
 }) => LearnerFaq.update({
   program_id,
   title,
   body,
-  topic,
+  topics,
   updated_by: Sequelize.fn('array_append', Sequelize.col('updated_by'), user_id),
   updated_at: Sequelize.literal('NOW()'),
 }, {

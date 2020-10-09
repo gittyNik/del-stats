@@ -9,10 +9,15 @@ const migration = {
       type: Sequelize.STRING,
       references: { model: 'programs', key: 'id' },
     },
-    topic: {
-      type: Sequelize.STRING,
+    topics: {
+      type: Sequelize.ARRAY(
+        {
+          type: Sequelize.UUID,
+          references: { model: 'topics' },
+        },
+      ),
+      defaultValue: [],
       allowNull: false,
-      defaultValue: 'general',
     },
     title: {
       type: Sequelize.STRING,

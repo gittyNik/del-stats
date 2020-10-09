@@ -10,7 +10,8 @@ import {
 import { logger } from '../../util/logger';
 
 export const getALearnerFaq = async (req, res) => {
-  const { id } = req.query;
+  const { id } = req.params;
+  console.log(id);
   try {
     const learnerFaq = await getLearnerFaqById(id);
     res.status(200).json({
@@ -20,6 +21,7 @@ export const getALearnerFaq = async (req, res) => {
     });
   } catch (err) {
     logger.error(err);
+    console.error(err);
     res.status(500).json({
       type: 'failure',
       err,
@@ -45,11 +47,11 @@ export const getAllFaqs = async (req, res) => {
 };
 
 export const createAlearnerFaq = async (req, res) => {
-  const { program_id, title, body, topic } = req.body;
+  const { program_id, title, body, topics } = req.body;
   const user_id = req.jwtData.user.id;
   try {
     const learnerFaq = await createLearnerFaq({
-      program_id, title, body, user_id, topic
+      program_id, title, body, user_id, topics
     });
     res.status(201).json({
       text: 'Successfully created a learnerFaq',
@@ -66,7 +68,7 @@ export const createAlearnerFaq = async (req, res) => {
 };
 
 export const updateAlearnerFaq = async (req, res) => {
-  const { program_id, title, body, topic } = req.body;
+  const { program_id, title, body, topics } = req.body;
   const { id } = req.params;
   const user_id = req.jwtData.user.id;
   try {
@@ -75,7 +77,7 @@ export const updateAlearnerFaq = async (req, res) => {
       program_id,
       title,
       body,
-      topic,
+      topics,
       user_id,
     });
     res.status(200).json({
