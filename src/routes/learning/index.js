@@ -8,6 +8,7 @@ import programRouter from './program.routes';
 import tagRouter from './tags.routes';
 import teamRouter from './teams.route';
 import slackRouter from './slack.routes';
+import learnerFaqRouter from './faq.routes';
 
 const router = Express.Router();
 
@@ -21,5 +22,6 @@ router.use('/programs', programRouter);
 router.use('/tags', tagRouter);
 router.use('/teams', teamRouter);
 router.use('/slack', slackRouter);
+router.use('/faq', learnerFaqRouter);
 
 export default router;

@@ -5,9 +5,8 @@ import Redis from 'ioredis';
 import db from '../database';
 import { Cohort, getCohortIdFromLearnerId } from './cohort';
 import { SocialConnection } from './social_connection';
-import { User } from './user';
+import { User, getProfile } from './user';
 import { logger } from '../util/logger';
-import { getProfile } from './user';
 
 export const SlackChannel = db.define('slack_channels', {
   id: {
@@ -241,10 +240,14 @@ export const getSlackIdsFromEmails = async (emailIds) => {
       return {
         text: `Error finding slackId for ${emailId}`,
         body: response.body,
+        email: emailId,
       };
     } catch (error) {
       console.error(error);
-      return { text: `Error with ${emailId}` };
+      return {
+        text: `Error with ${emailId}`,
+        email: emailId,
+      };
     }
   };
   let slackIds = await Promise.all(emailIds.map(email => slackId(email)));
@@ -374,7 +377,14 @@ export const getSlackIdsForUsersInSPE = async (user_ids) => {
       raw: true,
     })
     .then(_users => _users.map(u => u.email));
-  return getSlackIdsFromEmails(user_emails);
+  let slackIds = await getSlackIdsFromEmails(user_emails);
+  let slackUsers = slackIds.map(slackUser => {
+    if (typeof slackUser === 'object' && slackUser !== null) {
+      return slackUser.email;
+    }
+    return slackUser;
+  });
+  return slackUsers;
 };
 
 export const removeLearnerFromSlackChannel = async (learner_id, cohort_id) => {
