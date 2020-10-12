@@ -9,6 +9,7 @@ import {
   removeLearner,
   addLearner,
   beginParallelCohorts,
+  getLiveCohorts,
 } from '../../models/cohort';
 import {
   createOrUpdateCohortBreakout,
@@ -224,4 +225,15 @@ export const addLearnerEndpoint = (req, res) => {
   })).catch(err => {
     res.status(500).send(err);
   });
+};
+
+export const liveCohorts = (req, res) => {
+  getLiveCohorts()
+    .then(data => res.status(200).send({
+      message: 'Live Cohorts',
+      data,
+      type: 'success',
+    })).catch(err => {
+      res.status(500).send(err);
+    });
 };

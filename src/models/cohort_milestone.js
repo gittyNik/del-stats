@@ -436,6 +436,23 @@ export const populateMilestone = async (milestone, user_id) => {
   return milestone;
 };
 
+export const getCurrentCohortMilestone = async (cohort_id) => {
+  const now = Sequelize.literal('NOW()');
+  return CohortMilestone.findOne({
+    order: Sequelize.col('release_time'),
+    where: {
+      release_time: {
+        [lte]: now,
+      },
+      review_scheduled: {
+        [gt]: now,
+      },
+      cohort_id,
+    },
+    raw: true,
+  });
+};
+
 export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
   const now = Sequelize.literal('NOW()');
   return CohortMilestone.findOne({
