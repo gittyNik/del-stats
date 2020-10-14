@@ -38,9 +38,11 @@ export const createSlackChannelRow = (cohort_id, channelId) => SlackChannel
 
 export const getChannelIdForCohort = (cohort_id) => SlackChannel
   .findOne({ attributes: ['channels'], where: { cohort_id }, raw: true })
-  .then(data =>
+  .then(data => {
     // console.log(data.channels);
-    data.channels[0]);
+    return data.channels[0];
+  });
+
 
 const getChannelName = async (cohort_id) => {
   const cohort = await Cohort.findByPk(cohort_id);
