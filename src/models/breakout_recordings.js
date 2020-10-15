@@ -38,7 +38,7 @@ export const BreakoutRecordings = db.define('breakout_recordings', {
   },
   video_views: {
     type: Sequelize.INTEGER,
-    autoIncrement: true,
+    defaultValue: 0,
   },
   catalyst_id: {
     type: Sequelize.UUID,
@@ -74,6 +74,7 @@ export const updateRecordings = (
   where: {
     id,
   },
+  returning: true,
 });
 
 export const getRecordingVideoUrl = (id) => BreakoutRecordings.findOne(
@@ -82,7 +83,8 @@ export const getRecordingVideoUrl = (id) => BreakoutRecordings.findOne(
   let cdn_url = process.env.VIDEO_CDN + record.recording_url;
   let url = getAWSSignedUrl(cdn_url);
   record.dataValues.url = url;
-  updateRecordings(id, record.likes);
+  let videoViews = record.video_views + 1;
+  updateRecordings(id, videoViews);
   return record;
 });
 
@@ -109,7 +111,11 @@ export const updateRecordingInCohortBreakout = async (
   let id = cohort_breakout_id;
   let breakout = await findOneCohortBreakout({ id });
 
-  let breakoutDetails = breakout.details;
+  let breakoutDetails = {};
+  if (('details' in breakout) && (breakout.details != null)) {
+    breakoutDetails = breakout.details;
+  }
+
   breakoutDetails.recording = { id: video_id };
   updateOneCohortBreakouts(breakoutDetails, cohort_breakout_id);
 };
