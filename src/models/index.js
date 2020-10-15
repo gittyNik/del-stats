@@ -58,6 +58,7 @@ Cohort.hasMany(CohortBreakout, { foreignKey: 'cohort_id' });
 CohortBreakout.belongsTo(Cohort);
 Application.belongsTo(Cohort, { foreignKey: 'cohort_applied' });
 Application.belongsTo(Cohort, { foreignKey: 'cohort_joining' });
+Application.belongsTo(Program, { foreignKey: 'program_id' });
 
 // User.hasMany(SocialConnection, {foreignKey: 'user_id'});
 // SocialConnection.belongsTo(User, {foreignKey: 'user_id'})

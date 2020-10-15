@@ -43,11 +43,10 @@ export const populateRubric = test => Application.findByPk(test.application_id, 
   include: [{
     model: Cohort,
     foreignKey: 'cohort_applied',
-    include: [Program],
-  }],
+  }, Program],
   raw: true,
 }).then(application => {
-  const [template] = application['cohort.program.test_series'].tests
+  const [template] = application['program.test_series'].tests
     .filter(t => t.purpose === test.purpose);
   if (template) {
     test.rubric = template.rubric;
