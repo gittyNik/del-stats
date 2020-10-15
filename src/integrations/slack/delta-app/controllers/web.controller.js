@@ -194,3 +194,78 @@ export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
     return false;
   }
 };
+
+export const postTodaysBreakouts = async (todaysBreakouts) => {
+  const postOnChannel = async (channelId, textBody) => {
+    const today = new Date();
+    const payloadBlocks = [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: textBody,
+        },
+      },
+    ];
+    try {
+      const slackResponse = await postMessage({
+        channel: channelId,
+        blocks: [
+          {
+            type: 'context',
+            elements: [{
+              type: 'mrkdwn',
+              text: `<!channel> Sessions scheduled for today, i.e., *${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}*`,
+            }],
+          },
+          {
+            type: 'divider',
+          },
+          ...payloadBlocks,
+          {
+            type: 'context',
+            elements: [{
+              type: 'mrkdwn',
+              text: 'Any changes to the above will be updated only on <https://delta.soal.io|DELTA> - please keep an eye out.',
+            }],
+          },
+        ],
+      });
+      return slackResponse;
+    } catch (err) {
+      logger.error(err);
+      return false;
+    }
+  };
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const [cohort_id, breakout_types] of Object.entries(todaysBreakouts)) {
+    const channelId = await getChannelIdForCohort(cohort_id);
+    let breakout_text = '';
+    // let b_type;
+    let b_topic;
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const [type, breakouts] of Object.entries(breakout_types)) {
+      switch (type) {
+        case 'lecture':
+          // b_type = (breakout.details.type === 'tep') ? 'Tech Breakouts' : 'MindCasts';
+          b_topic = breakouts.map(b => b.topics).join('\n');
+          breakout_text += `${b_topic}`;
+          break;
+        case 'reviews':
+          // b_type = 'Reviews';
+          b_topic = `${breakouts.map(b => b.topics).join('\n')}`;
+          breakout_text += b_topic;
+          break;
+        case 'assessment':
+          b_topic = `${breakouts.map(b => b.topics).join('\n')}`;
+          breakout_text += b_topic;
+          break;
+        // no default
+      }
+    }
+    // eslint-disable-next-line no-await-in-loop
+    await postOnChannel(channelId, breakout_text);
+  }
+};
