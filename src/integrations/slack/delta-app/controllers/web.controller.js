@@ -215,7 +215,7 @@ export const postTodaysBreakouts = async (todaysBreakouts) => {
             type: 'context',
             elements: [{
               type: 'mrkdwn',
-              text: `Schedule for the day. *${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}*`,
+              text: `<!channel> Sessions scheduled for today, i.e., *${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}*`,
             }],
           },
           {
@@ -226,7 +226,7 @@ export const postTodaysBreakouts = async (todaysBreakouts) => {
             type: 'context',
             elements: [{
               type: 'mrkdwn',
-              text: 'Please keep an eye on <http://delta.soal.io|Delta> for latest changes',
+              text: 'Any changes to the above will be updated only on <https://delta.soal.io|DELTA> - please keep an eye out.',
             }],
           },
         ],
