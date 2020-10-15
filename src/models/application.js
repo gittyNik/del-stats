@@ -64,6 +64,10 @@ export const Application = db.define('applications', {
   payment_type: {
     type: Sequelize.STRING,
   },
+  program_id: {
+    type: Sequelize.STRING,
+    references: { model: 'programs', key: 'id' },
+  },
 });
 
 Application.prototype.populateTestResponses = () => Test.findAll({

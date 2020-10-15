@@ -83,42 +83,33 @@ export const getLiveApplications = (req, res) => {
 
 export const addApplication = (req, res) => {
   const { id: user_id, profile } = req.jwtData.user;
-  const { cohort_applied } = req.body;
+  const { program_id } = req.body;
   updateDealApplicationStatus(profile.hubspotDealId, 'applied').then(() => {
-    Cohort.findByPk(cohort_applied).then((cohort) => {
-      if (cohort === null) {
-        return Promise.reject('cohort not found');
-      }
-      return Program.findOne({ where: { id: cohort.program_id } });
+      return Program.findOne({ where: { id: program_id } });
     })
-      .then((program) => { // existence of cohort verified
-        if (program === null) {
-          return Promise.reject('program not found');
-        }
-        const testSeriesTemplate = program.test_series;
-        const applicationId = uuid();
-        return Application.create({
-          id: applicationId,
-          user_id,
-          cohort_applied,
-          cohort_joining: cohort_applied,
-          status: 'applied',
-          created_at: new Date(),
-          updated_at: new Date(),
-        })
-          .then(application => generateTestSeries(testSeriesTemplate, application))
-          .then((application) => {
-            res.status(201).json(application);
-          });
+    .then((program) => { // existence of cohort verified
+      if (program === null) {
+        return Promise.reject('program not found');
+      }
+      const testSeriesTemplate = program.test_series;
+      const applicationId = uuid();
+      return Application.create({
+        id: applicationId,
+        user_id,
+        program_id,
+        status: 'applied',
+        created_at: new Date(),
+        updated_at: new Date(),
       })
-      .catch((err) => {
-        console.error(err);
-        res.sendStatus(500);
-      });
-  }).catch(err => {
-    console.error(err);
-    res.sendStatus(500);
-  });
+        .then(application => generateTestSeries(testSeriesTemplate, application))
+        .then((application) => {
+          res.status(201).json(application);
+        });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
 };
 
 // This is redundant, use the instance method from Application model
