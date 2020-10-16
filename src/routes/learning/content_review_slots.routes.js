@@ -5,17 +5,16 @@ import {
 } from '../../controllers/learning/content_review_slot.controller';
 import {
   allowMultipleRoles,
-  allowAdminsOnly,
 } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, CATALYST, EDUCATOR,
+  ADMIN, EDUCATOR, OPERATIONS, REVIEWER,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, EDUCATOR, OPERATIONS, REVIEWER]));
 
 /**
  * @api {get} /learning/content/review-slots Get all ReviewSlots
@@ -45,7 +44,7 @@ router.get('/:id', getReviewSlotsByIdAPI);
 router.get('/review/:id', getReviewSlotsByProgramAPI);
 
 // Restrict modifications for any applicant to the cohorts
-router.use(allowAdminsOnly);
+router.use(allowMultipleRoles([ADMIN, OPERATIONS, REVIEWER]));
 
 /**
  * @api {post} /learning/content/review-slots/ Add ReviewSlots

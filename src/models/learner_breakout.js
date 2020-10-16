@@ -348,25 +348,15 @@ export const createLearnerBreakoutsForCurrentMS = async (learner_id,
 export const createAllLearnerBreakoutsForCurrentMS = async (learners,
   cohort_breakouts) => {
   if (learners && learners.length > 0) {
-    let learnerBreakout = await LearnerBreakout.findOne({
-      where: {
-        learner_id: learners[0],
-        cohort_breakout_id: cohort_breakouts[0].id,
-      },
-      raw: true,
-    });
-    if (_.isEmpty(learnerBreakout)) {
-      return learners.map(
-        learner_id => LearnerBreakout.bulkCreate(cohort_breakouts.map(cohort_breakout => ({
-          id: uuid(),
-          cohort_breakout_id: cohort_breakout.id,
-          learner_id,
-          attendance: false,
-        }
-        ))),
-      );
-    }
-    return learnerBreakout;
+    return learners.map(
+      learner_id => LearnerBreakout.bulkCreate(cohort_breakouts.map(cohort_breakout => ({
+        id: uuid(),
+        cohort_breakout_id: cohort_breakout.id,
+        learner_id,
+        attendance: false,
+      }
+      ))),
+    );
   }
   return null;
 };

@@ -1,5 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../database';
+import { User } from './user';
+import { Topic } from './topic';
 
 export const AssessmentSlots = db.define('assessment_slots', {
   id: {
@@ -36,7 +38,7 @@ export const AssessmentSlots = db.define('assessment_slots', {
   },
   week: {
     type: Sequelize.INTEGER,
-    defaultValue: 1,
+    defaultValue: 0,
   },
   assessment_duration: {
     type: Sequelize.INTEGER,
@@ -48,7 +50,40 @@ export const AssessmentSlots = db.define('assessment_slots', {
   assessment_rubric: Sequelize.JSON,
 });
 
-export const getAllAssessmentSlots = () => AssessmentSlots.findAll({});
+export const getAllAssessmentSlots = async () => {
+  let assessmentPhases = {};
+  let assessmentSlots = await AssessmentSlots.findAll({
+    include: [{
+      model: User,
+      attributes: [['name', 'reviewer']],
+    }],
+    raw: true,
+  });
+  let allAssessmentSlots = await Promise.all(assessmentSlots.map(async eachSlot => {
+    let cohortDuration;
+    let assessmentTopic;
+    let { phase } = eachSlot;
+    if (phase in assessmentPhases) {
+      assessmentTopic = assessmentPhases[phase];
+    } else {
+      assessmentTopic = await Topic.findByPk(phase, {
+        attributes: ['title'],
+        raw: true,
+      });
+      assessmentPhases[phase] = assessmentTopic;
+    }
+    if (eachSlot.cohort_duration >= 26) {
+      cohortDuration = 'Part-time';
+    } else {
+      cohortDuration = 'Full-time';
+    }
+    eachSlot.assessment_duration /= 60000;
+    eachSlot.cohortDuration = cohortDuration;
+    eachSlot.assessmentPhase = assessmentTopic;
+    return eachSlot;
+  }));
+  return allAssessmentSlots;
+};
 
 export const getAssessmentSlotsByProgram = (program,
   cohort_duration, phase) => AssessmentSlots.findAll(

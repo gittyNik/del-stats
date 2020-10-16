@@ -16,6 +16,7 @@ import {
   removeLearnerEndpoint,
   addLearnerEndpoint,
   beginParallelCohort,
+  liveCohorts,
 } from '../../controllers/learning/cohort.controller';
 import {
   createBreakouts,
@@ -55,6 +56,14 @@ router.get('/', getCohorts);
  * @apiGroup Cohort
  */
 router.get('/upcoming', getUpcomingCohorts);
+
+/**
+ * @api {get} /cohorts/live Get live Cohorts
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName LiveCohorts
+ * @apiGroup Cohort
+ */
+router.get('/live', liveCohorts);
 
 /**
  * @api {get} /cohorts/:id Get a cohort by id

@@ -15,7 +15,7 @@ const router = Express.Router();
 router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER, REVIEWER]));
 
 /**
- * @api {get} /learning/content/breakouts/recordings Get all Content Breakouts recordings
+ * @api {get} /learning/content/breakouts/recordings/details Get all Content Breakouts recordings
  * @apiDescription get all Content Breakouts recordings
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetContentBreakouts
@@ -24,7 +24,7 @@ router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER, REVIEWER]));
  * @apiParam {limit} limit number of records
  * @apiParam {sort_by} sort_by values - [likes, views, created_at]
  */
-router.get('/', getAllRecordingsAPI);
+router.get('/all', getAllRecordingsAPI);
 
 /**
  * @api {get} /learning/content/breakouts/recordings/catalyst/:id
@@ -37,7 +37,8 @@ router.get('/', getAllRecordingsAPI);
 router.get('/liked-by-user', getVideoLikedByUserAPI);
 
 /**
- * @api {get} /learning/content/breakouts/recordings/:id Get all Content Breakouts recordings
+ * @api {get} /learning/content/breakouts/recordings/details/:id Get all Content Breakouts
+ * recordings
  * @apiDescription get all Content Breakouts recordings
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetContentBreakouts
@@ -49,7 +50,7 @@ router.get('/liked-by-user', getVideoLikedByUserAPI);
 router.get('/:id', getVideoLikesRatingAPI);
 
 /**
- * @api {get} /learning/content/breakouts/recordings/catalyst/:id
+ * @api {get} /learning/content/breakouts/recordings/details/catalyst/:id
  * Get all Content Breakouts recordings for Catalyst
  * @apiDescription get all Content Breakouts recordings
  * @apiHeader {String} authorization JWT Token.
@@ -61,7 +62,7 @@ router.get('/catalyst/:id', getVideoByCatalystAPI);
 // Restrict modifications for any applicant to the cohorts
 
 /**
- * @api {post} /learning/content/breakouts/recordings/details Insert Breakout recording
+ * @api {post} /learning/content/breakouts/recordings/details/create Insert Breakout recording
  * @apiDescription get all Content Breakouts recordings
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetContentBreakouts
@@ -71,10 +72,10 @@ router.get('/catalyst/:id', getVideoByCatalystAPI);
  * @apiParam {recording_details} Details of the recording
  * @apiParam {topics} Array of topics for Breakout
  */
-router.post('/', createRecording);
+router.post('/create', createRecording);
 
 /**
- * @api {patch} /learning/content/breakouts/recordings/details/ Update Breakout recording
+ * @api {patch} /learning/content/breakouts/recordings/details/update Update Breakout recording
  * @apiDescription get all Content Breakouts recordings
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetContentBreakouts
@@ -83,6 +84,6 @@ router.post('/', createRecording);
  * @apiParam {likes} likes count of likes on video
  * @apiParam {recording_details} recording details
  */
-router.patch('/', updateRecordingsAPI);
+router.patch('/update', updateRecordingsAPI);
 
 export default router;

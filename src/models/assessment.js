@@ -6,6 +6,7 @@ import { LearnerBreakout } from './learner_breakout';
 import { getAssessmentSlotsByProgram } from './assessment_slots';
 import { changeTimezone } from './breakout_template';
 import { User, getProfile } from './user';
+import { getCurrentCohortMilestone } from './cohort_milestone';
 import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
 
 const WEEK_VALUES = {
@@ -214,9 +215,9 @@ export const calculateAssessmentTime = (assessmentDate, assessmentForTeam) => {
   let time_split = assessmentForTeam.time_scheduled.split(':');
   let scheduled_time = new Date(assessmentDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
 
-  scheduled_time.setDate(assessmentDate.getDate() + ((
-    WEEK_VALUES[assessmentForTeam.assessment_day.toLowerCase()]
-    + (7 * assessmentForTeam.week) - assessmentDate.getDay()) % 7));
+  scheduled_time.setDate(assessmentDate.getDate() + (((
+    WEEK_VALUES[assessmentDate.review_day.toLowerCase()]
+    + 7 - assessmentDate.getDay()) % 7) + (7 * assessmentDate.week)));
 
   scheduled_time.setHours(time_split[0], time_split[1], time_split[2]);
 
@@ -224,11 +225,12 @@ export const calculateAssessmentTime = (assessmentDate, assessmentForTeam) => {
   return assessmentScheduledUTC;
 };
 
-export const createLearnerAssessmentBreakout = (
+export const createLearnerAssessmentBreakout = async (
   assessmentSlots,
   cohortLearners,
   assessment_start,
   excluded_learners,
+  cohort_milestone_id,
 ) => {
   let {
     learners, name, id, duration, location,
@@ -237,7 +239,7 @@ export const createLearnerAssessmentBreakout = (
   // different Cohort duration
   let defaultSlot = assessmentSlots[0];
   let count = 0;
-  learners.forEach(async (eachLearner, teamIndex) => {
+  await Promise.all(learners.map(async (eachLearner, teamIndex) => {
     let toExcludeLearner = false;
     if (Array.isArray(excluded_learners)) {
       toExcludeLearner = excluded_learners.includes(eachLearner);
@@ -251,6 +253,7 @@ export const createLearnerAssessmentBreakout = (
       let details = {
         topics,
         learner_id: eachLearner,
+        cohort_milestone_id,
       };
 
       let indexForReview = 0;
@@ -295,7 +298,7 @@ export const createLearnerAssessmentBreakout = (
     }
 
     return null;
-  });
+  }));
   let cohort_duration;
   if (duration >= 26) {
     cohort_duration = 'Part-time';
@@ -326,10 +329,13 @@ export const createAssessmentSchedule = (
   .then(assessmentSlots => {
     let slotsForReview = assessmentSlots;
     return getLearnersFromCohorts(cohort_ids)
-      .then((cohortsForAssessments) => cohortsForAssessments.forEach(
-        singleCohort => createLearnerAssessmentBreakout(
-          slotsForReview, singleCohort, assessment_start,
-          excluded_learners,
-        ),
+      .then(async (cohortsForAssessments) => cohortsForAssessments.map(
+        async singleCohort => {
+          let cohortMilestones = await getCurrentCohortMilestone(singleCohort.id);
+          await createLearnerAssessmentBreakout(
+            slotsForReview, singleCohort, assessment_start,
+            excluded_learners, cohortMilestones.id,
+          );
+        },
       ));
   });

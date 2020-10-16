@@ -9,12 +9,12 @@ import {
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, OPERATIONS,
+  ADMIN, EDUCATOR, OPERATIONS, REVIEWER,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, OPERATIONS]));
+router.use(allowMultipleRoles([ADMIN, EDUCATOR, OPERATIONS, REVIEWER]));
 
 /**
  * @api {get} /learning/content/assessment-slots Get all AssessmentSlots
@@ -45,6 +45,7 @@ router.get('/assessment/:id', getAssessmentSlotsByProgramAPI);
 
 // Restrict modifications for any applicant to the cohorts
 // router.use(allowAdminsOnly);
+router.use(allowMultipleRoles([ADMIN, OPERATIONS]));
 
 /**
  * @api {post} /learning/content/assessment-slots/ Add AssessmentSlots

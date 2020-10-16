@@ -9,7 +9,7 @@ import db from '../database';
 import { LearnerBreakout } from './learner_breakout';
 import { SocialConnection } from './social_connection';
 import { CohortBreakout } from './cohort_breakout';
-import { User } from './user';
+import { User, getUserByEmail } from './user';
 import { changeTimezone } from './breakout_template';
 import {
   notifyAttendanceLearnerInChannel,
@@ -228,63 +228,71 @@ export const learnerAttendance = async (participant, catalyst_id,
   if (!user_email) {
     return 0;
   }
-  return SocialConnection.findOne({
+  let userConnection = await SocialConnection.findOne({
     attributes: ['user_id'],
     where: {
       email: user_email,
     },
-  }).then(async data => {
-    if (data) {
-      if (data.user_id !== catalyst_id) {
-        let attendance;
-        if ((durationTime >= duration_threshold)) {
-          attendanceCount += 1;
-          attendance = true;
-        } else {
-          try {
-            let inTime = Math.floor(durationTime / 60);
-            let isPartOfCohort = await LearnerBreakout.findOne({
-              where: {
-                cohort_breakout_id,
-                learner_id: data.user_id,
-              },
-              raw: true,
-            });
-            if (isPartOfCohort) {
-              notifyAttendanceLearnerInChannel(cohort_breakout_id, user_email, inTime);
-            }
-          } catch (err) {
-            console.error(`Error while sending message to learner: ${err}`);
-          }
-          attendance = false;
-        }
+    raw: true,
+  });
+  if (_.isEmpty(userConnection)) {
+    let userDetails = await getUserByEmail(user_email);
+    if (userDetails) {
+      userConnection = {
+        user_id: userDetails.id,
+      };
+    }
+  }
+  if (userConnection) {
+    if (userConnection.user_id !== catalyst_id) {
+      let attendance;
+      if ((durationTime >= duration_threshold)) {
+        attendanceCount += 1;
+        attendance = true;
+      } else {
         try {
-          LearnerBreakout.update({
-            attendance,
-          }, {
+          let inTime = Math.floor(durationTime / 60);
+          let isPartOfCohort = await LearnerBreakout.findOne({
             where: {
               cohort_breakout_id,
-              learner_id: data.user_id,
+              learner_id: userConnection.user_id,
             },
+            raw: true,
           });
+          if (isPartOfCohort) {
+            notifyAttendanceLearnerInChannel(cohort_breakout_id, user_email, inTime);
+          }
         } catch (err) {
-          if (attendance) {
-            attendanceCount -= 1;
-          }
-          if (err instanceof TypeError) {
-            console.error(`${user_email} not present in social connections`);
-            console.error(err);
-          } else {
-            console.error(`${user_email} does not have learner breakout ${cohort_breakout_id}`);
-            console.error(err);
-          }
+          console.error(`Error while sending message to learner: ${err}`);
+        }
+        attendance = false;
+      }
+      try {
+        LearnerBreakout.update({
+          attendance,
+        }, {
+          where: {
+            cohort_breakout_id,
+            learner_id: userConnection.user_id,
+          },
+        });
+      } catch (err) {
+        if (attendance) {
+          attendanceCount -= 1;
+        }
+        if (err instanceof TypeError) {
+          console.error(`${user_email} not present in social connections`);
+          console.error(err);
+        } else {
+          console.error(`${user_email} does not have learner breakout ${cohort_breakout_id}`);
+          console.error(err);
         }
       }
-
-      return attendanceCount;
     }
-    return 0;
-  });
+
+    return attendanceCount;
+  }
+  return 0;
 };
 
 export const markIndividualAttendance = async (participants, catalyst_id,

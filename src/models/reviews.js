@@ -215,9 +215,9 @@ export const calculateReviewTime = (reviewDate, reviewForTeam) => {
   let time_split = reviewForTeam.time_scheduled.split(':');
   let scheduled_time = new Date(reviewDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
 
-  scheduled_time.setDate(reviewDate.getDate() + ((
+  scheduled_time.setDate(reviewDate.getDate() + (((
     WEEK_VALUES[reviewForTeam.review_day.toLowerCase()]
-    + 7 - reviewDate.getDay()) % 7));
+    + 7 - reviewDate.getDay()) % 7) + (7 * reviewForTeam.week)));
 
   scheduled_time.setHours(time_split[0], time_split[1], time_split[2]);
 

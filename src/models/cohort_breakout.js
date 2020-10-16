@@ -3,10 +3,11 @@ import uuid from 'uuid/v4';
 import _ from 'lodash';
 import db from '../database';
 import {
-  Cohort,
+  Cohort, getLiveCohorts,
 } from './cohort';
 import {
   getTopicIdsByMilestone,
+  getTopicNameById,
   Topic,
 } from './topic';
 import { LearnerBreakout } from './learner_breakout';
@@ -28,10 +29,11 @@ import {
 import {
   showCompletedBreakoutOnSlack,
 } from '../integrations/slack/team-app/controllers/milestone.controller';
-import { postAttendaceInCohortChannel } from '../integrations/slack/delta-app/controllers/web.controller';
+import { postAttendaceInCohortChannel, postTodaysBreakouts } from '../integrations/slack/delta-app/controllers/web.controller';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 import { createEvent, deleteEvent, updateEvent } from '../integrations/calendar/calendar.model';
 import { logger } from '../util/logger';
+import { getChannelIdForCohort } from './slack_channels';
 // import sandbox from 'bullmq/dist/classes/sandbox';
 
 export const EVENT_STATUS = [
@@ -804,6 +806,41 @@ export const createLearnerBreakoutsForMilestone = async (
     return learnerBreakouts;
   }
   return null;
+};
+
+// get list of all breatkouts scheduled today for all live cohorts;
+export const getTodaysCohortBreakouts = async () => {
+  const TODAY_START = new Date().setHours(0, 0, 0, 0);
+  const TOMORROW_START = new Date(TODAY_START + 24 * 60 * 60 * 1000);
+  const prependZero = (n) => (n > 9 ? `${n}` : `0${n}`);
+  const todaysBreakouts = await CohortBreakout.findAll({
+    where: {
+      time_scheduled: {
+        [Sequelize.Op.gt]: TODAY_START,
+        [Sequelize.Op.lt]: TOMORROW_START,
+      },
+    },
+    raw: true,
+  });
+  todaysBreakouts.map(async breakout => {
+    const time = new Date(breakout.time_scheduled);
+    try {
+      breakout.topics = breakout.details.topics.replace(/\n(?!$)/g, ', ');
+      breakout.topics = breakout.topics.replace(/\n/, '');
+    } catch (err) {
+      breakout.topics = await getTopicNameById(breakout.topic_id);
+    }
+    breakout.topics = `${breakout.topics} at *${time.getHours()}:${prependZero(time.getMinutes())}* \n`;
+    return breakout;
+  });
+  const breakouts = _.groupBy(todaysBreakouts, b => b.cohort_id);
+  // eslint-disable-next-line no-restricted-syntax
+  for (let cohort_id in breakouts) {
+    if (Object.prototype.hasOwnProperty.call(breakouts, cohort_id)) {
+      breakouts[cohort_id] = _.groupBy(breakouts[cohort_id], iter => iter.type);
+    }
+  }
+  return postTodaysBreakouts(breakouts);
 };
 
 export default CohortBreakout;

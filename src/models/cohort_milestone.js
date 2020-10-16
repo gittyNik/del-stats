@@ -3,8 +3,11 @@ import uuid from 'uuid/v4';
 import _ from 'lodash';
 import moment from 'moment';
 import db from '../database';
-import { Cohort } from './cohort';
-import { CohortBreakout, getAllBreakoutsInCohortMilestone } from './cohort_breakout';
+import { Cohort, getLearnersForCohort } from './cohort';
+import {
+  CohortBreakout, getAllBreakoutsInCohortMilestone,
+  createLearnerBreakoutsForMilestone,
+} from './cohort_breakout';
 import { Program } from './program';
 import { Milestone } from './milestone';
 import { Topic } from './topic';
@@ -23,11 +26,8 @@ import {
   getRecentCommitByUser,
   getLatestCommitInCohort,
   getTotalTeamAndUserCommitsCount,
-  userAndTeamCommitsDayWise,
-  weeklyCommitActivityData,
 } from '../integrations/github/controllers/index';
 
-import { getGithubConnecionByUserId } from './social_connection';
 import { getResourceByTopic } from './resource';
 
 export const CohortMilestone = db.define('cohort_milestones', {
@@ -360,6 +360,10 @@ export const getMilestoneBreakoutsTeams = async (milestone, cohort_id) => {
   ];
   if (milestone['milestone.starter_repo']) {
     cohortMilestonePromises.push(createMilestoneTeams(id));
+  } else {
+    // If starter-repo is not present, create breakouts for all
+    let learnerIds = await getLearnersForCohort(cohort_id);
+    await createLearnerBreakoutsForMilestone(learnerIds, id, 'common');
   }
   let cohortData = await Promise.all(cohortMilestonePromises);
   if (milestone['milestone.starter_repo']) {
@@ -430,6 +434,23 @@ export const populateMilestone = async (milestone, user_id) => {
   let { cohort_id } = milestone;
   milestone = await getMilestoneData(milestone, cohort_id);
   return milestone;
+};
+
+export const getCurrentCohortMilestone = async (cohort_id) => {
+  const now = Sequelize.literal('NOW()');
+  return CohortMilestone.findOne({
+    order: Sequelize.col('release_time'),
+    where: {
+      release_time: {
+        [lte]: now,
+      },
+      review_scheduled: {
+        [gt]: now,
+      },
+      cohort_id,
+    },
+    raw: true,
+  });
 };
 
 export const getCurrentMilestoneOfCohort = async (cohort_id, user_id) => {
