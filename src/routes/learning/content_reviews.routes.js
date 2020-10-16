@@ -87,6 +87,15 @@ router.use(allowAdminsOnly);
 router.post('/schedule', createReviewScheduleAPI);
 
 /**
+ * @api {get} /learning/content/reviews/status/:id/ Get Reviews by status
+ * @apiDescription get Reviews by status
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetReviewsByStatus
+ * @apiGroup Reviews
+ */
+router.post('/cohort-schedule', createReviewScheduleAPI);
+
+/**
  * @api {post} /learning/content/reviews/ Add Team Reviews
  * @apiDescription Add a Teams Review
  * @apiHeader {String} authorization JWT Token.

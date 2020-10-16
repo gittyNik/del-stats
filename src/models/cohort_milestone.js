@@ -351,6 +351,30 @@ export const getLiveMilestones = (program, cohort_duration) => {
   });
 };
 
+export const getCohortLiveMilestones = (program, cohort_duration, cohort_id) => {
+  const now = Sequelize.literal('NOW()');
+  let nextSevenDays = new Date();
+  nextSevenDays.setDate(nextSevenDays.getDate() + 7);
+  return CohortMilestone.findAll({
+    order: [
+      [Cohort, 'duration', 'ASC'],
+    ],
+    where: {
+      cohort_id,
+      '$cohort.status$': 'live',
+      release_time: { [lte]: now },
+      review_scheduled: { [between]: [now, nextSevenDays] },
+      '$cohort.program_id$': program,
+      '$cohort.duration$': cohort_duration,
+      '$milestone.starter_repo$': {
+        [Sequelize.Op.ne]: null,
+      },
+    },
+    include: [Cohort, Milestone],
+    raw: true,
+  });
+};
+
 export const getMilestoneBreakoutsTeams = async (milestone, cohort_id) => {
   const { milestone_id, id } = milestone;
   const cohortMilestonePromises = [

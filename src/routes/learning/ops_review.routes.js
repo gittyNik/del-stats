@@ -8,6 +8,7 @@ import {
   getUserAndTeamReviewsAPI,
   updateReviewForLearnerAPI,
   updateTeamReviewAPI,
+  createCohortReviewScheduleAPI,
 } from '../../controllers/learning/reviews.controller';
 import {
   allowMultipleRoles,
@@ -112,6 +113,17 @@ router.use(allowAdminsOnly);
  * @apiParam {String} Program name
  */
 router.post('/schedule', createReviewScheduleAPI);
+
+/**
+ * @api {post} /learning/ops/reviews/cohort-schedule Schedule Reviews
+ * @apiDescription schedule Reviews by status
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ScheduleReviews
+ * @apiGroup Reviews
+ *
+ * @apiParam {String} Program name
+ */
+router.post('/cohort-schedule', createCohortReviewScheduleAPI);
 
 /**
  * @api {post} /learning/ops/reviews/ Add Team Reviews
