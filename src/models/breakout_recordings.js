@@ -117,7 +117,7 @@ export const updateRecordingInCohortBreakout = async (
   }
 
   breakoutDetails.recording = { id: video_id };
-  updateOneCohortBreakouts(breakoutDetails, cohort_breakout_id);
+  updateOneCohortBreakouts(breakoutDetails, breakout);
 };
 
 export const createRecordingEntry = (catalyst_id,

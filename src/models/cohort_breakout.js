@@ -832,9 +832,8 @@ export const getTodaysCohortBreakouts = async () => {
   return postTodaysBreakouts(breakouts);
 };
 
-export const updateOneCohortBreakouts = async (details, id) => {
+export const updateOneCohortBreakouts = async (details, cohort_breakout) => {
   let whereObject = {};
-  let cohort_breakout = await CohortBreakout.findByPk(id);
   if (cohort_breakout.type === 'lecture') {
     whereObject = {
       topic_id: cohort_breakout.topic_id,
@@ -842,6 +841,7 @@ export const updateOneCohortBreakouts = async (details, id) => {
       type: 'lecture',
     };
   } else {
+    let { id } = cohort_breakout;
     whereObject = { id };
   }
   return updateCohortBreakouts({
