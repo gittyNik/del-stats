@@ -7,6 +7,7 @@ import {
   getUserAndTeamReviews,
   updateReviewForLearner,
   updateTeamReview,
+  createCohortReviewSchedule,
 } from '../../models/reviews';
 
 export const getAllReviewsAPI = (req, res) => {
@@ -84,6 +85,16 @@ export const updateStatusForTeamAPI = (req, res) => {
 export const createReviewScheduleAPI = (req, res) => {
   const { program, cohort_duration } = req.body;
   createReviewSchedule(program, cohort_duration).then((data) => { res.json(data); })
+    .catch(err => {
+      console.error(err);
+      res.status(500).send(err);
+    });
+};
+
+export const createCohortReviewScheduleAPI = (req, res) => {
+  const { program, cohort_duration, cohort_id } = req.body;
+  createCohortReviewSchedule(program,
+    cohort_duration, cohort_id).then((data) => { res.json(data); })
     .catch(err => {
       console.error(err);
       res.status(500).send(err);

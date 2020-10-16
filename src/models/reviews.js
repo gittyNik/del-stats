@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import { CohortBreakout, BreakoutWithOptions } from './cohort_breakout';
-import { getLiveMilestones } from './cohort_milestone';
+import { getLiveMilestones, getCohortLiveMilestones } from './cohort_milestone';
 import { getTeamsbyCohortMilestoneId } from './team';
 import { LearnerBreakout } from './learner_breakout';
 import { getReviewSlotsByProgram } from './review_slots';
@@ -337,6 +337,25 @@ export const createReviewSchedule = (program, cohort_duration) => getReviewSlots
   .then(reviewSlots => {
     let slotsForReview = reviewSlots;
     return getLiveMilestones(program, cohort_duration)
+      .then((deadlineMilestones) => {
+        console.log(`Scheduling Reviews for ${deadlineMilestones.length} Cohorts`);
+        deadlineMilestones.forEach(
+          cohortMilestone => createTeamReviewBreakout(
+            slotsForReview, cohortMilestone,
+          ),
+        );
+      });
+  });
+
+export const createCohortReviewSchedule = (
+  program,
+  cohort_duration,
+  cohort_id,
+) => getReviewSlotsByProgram(program,
+  cohort_duration)
+  .then(reviewSlots => {
+    let slotsForReview = reviewSlots;
+    return getCohortLiveMilestones(program, cohort_duration, cohort_id)
       .then((deadlineMilestones) => {
         console.log(`Scheduling Reviews for ${deadlineMilestones.length} Cohorts`);
         deadlineMilestones.forEach(
