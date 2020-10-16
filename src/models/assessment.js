@@ -215,9 +215,9 @@ export const calculateAssessmentTime = (assessmentDate, assessmentForTeam) => {
   let time_split = assessmentForTeam.time_scheduled.split(':');
   let scheduled_time = new Date(assessmentDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
 
-  scheduled_time.setDate(assessmentDate.getDate() + ((
-    WEEK_VALUES[assessmentForTeam.assessment_day.toLowerCase()]
-    + (7 * assessmentForTeam.week) - assessmentDate.getDay()) % 7));
+  scheduled_time.setDate(assessmentDate.getDate() + (((
+    WEEK_VALUES[assessmentDate.review_day.toLowerCase()]
+    + 7 - assessmentDate.getDay()) % 7) + (7 * assessmentDate.week)));
 
   scheduled_time.setHours(time_split[0], time_split[1], time_split[2]);
 
