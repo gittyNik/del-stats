@@ -5,6 +5,7 @@ import {
 } from '../../controllers/learning/breakout_recording.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
+import LearnerBreakout from '../../models/learner_breakout';
 
 const {
   ADMIN, CATALYST, EDUCATOR, LEARNER,

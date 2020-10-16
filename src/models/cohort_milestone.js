@@ -322,8 +322,8 @@ export const populateLearnerStats = async (
   throw new Error('No commits in Cohort Milestone');
 };
 
-export const findBreakoutsForMilestone = async (cohort_id, milestone_id) => {
-  let breakouts = await getAllBreakoutsInCohortMilestone(cohort_id, milestone_id);
+export const findBreakoutsForMilestone = async (cohort_id, milestone_id, cohortMilestoneId) => {
+  let breakouts = await getAllBreakoutsInCohortMilestone(cohort_id, milestone_id, cohortMilestoneId);
   return breakouts.filter((breakout) => (breakout != null));
 };
 
@@ -356,7 +356,7 @@ export const getMilestoneBreakoutsTeams = async (milestone, cohort_id) => {
   const cohortMilestonePromises = [
     findTopicsForCohortAndMilestone(cohort_id, milestone_id),
     findTopicsForCohortAndMilestone(cohort_id),
-    findBreakoutsForMilestone(cohort_id, milestone_id),
+    findBreakoutsForMilestone(cohort_id, milestone_id, id),
   ];
   if (milestone['milestone.starter_repo']) {
     cohortMilestonePromises.push(createMilestoneTeams(id));
