@@ -10,8 +10,10 @@ import {
   getTopicNameById,
   Topic,
 } from './topic';
-import { LearnerBreakout } from './learner_breakout';
-import { User } from './user';
+import {
+  createLearnerBreakoutsForCohortMilestones,
+  createAllLearnerBreakoutsForCurrentMS,
+} from './learner_breakout';
 import { createSandbox } from './code_sandbox';
 import {
   createScheduledMeeting,
@@ -19,10 +21,7 @@ import {
 } from './video_meeting';
 
 import { BreakoutTemplate } from './breakout_template';
-import {
-  createLearnerBreakoutsForCohortMilestones,
-  createAllLearnerBreakoutsForCurrentMS,
-} from './learner_breakout';
+
 import {
   getDataForMilestoneName,
 } from './cohort_milestone';
@@ -134,19 +133,6 @@ export const findAllCohortBreakout = (
   offset: skip,
   limit,
 });
-
-export const updateOneCohortBreakouts = (details, id) => CohortBreakout
-  .update({
-    details,
-  }, { where: { id } });
-
-export const updateSanboxUrl = async (id, sandbox_id, sandbox_url) => {
-  let breakout = await findOneCohortBreakout({ id });
-
-  let breakoutDetails = breakout.details;
-  breakoutDetails.sandbox = { sandbox_id, sandbox_url };
-  return updateOneCohortBreakouts(breakoutDetails, id);
-};
 
 export const scheduleBreakoutLecture = (
   topic_id,
@@ -497,7 +483,9 @@ export const getAllBreakoutsInCohort = (cohort_id) => CohortBreakout.findAll({
     console.error('Unable to find all breakouts in the cohort', err);
     return null;
   });
-export const getAllBreakoutsInCohortMilestone = (cohort_id, milestone_id, cohortMilestoneId) => Topic.findAll({
+
+export const getAllBreakoutsInCohortMilestone = (cohort_id,
+  milestone_id, cohortMilestoneId) => Topic.findAll({
   where: {
     milestone_id,
   },
@@ -511,8 +499,8 @@ export const getAllBreakoutsInCohortMilestone = (cohort_id, milestone_id, cohort
           topic_id: topic.id,
           cohort_id,
           type: {
-            [Sequelize.Op.notIn]: ['reviews', 'assessment']
-          }
+            [Sequelize.Op.notIn]: ['reviews', 'assessment'],
+          },
         },
         include: [Topic],
         raw: true,
@@ -525,19 +513,19 @@ export const getAllBreakoutsInCohortMilestone = (cohort_id, milestone_id, cohort
       return breakout;
     });
     const reviews = await CohortBreakout.findAll({
-        where: {
-          type: {
-            [Sequelize.Op.in]: ['reviews', 'assessment'],
-          },
-          [Sequelize.Op.and]: Sequelize.literal(`details->>'cohort_milestone_id'='${cohortMilestoneId}'`),
+      where: {
+        type: {
+          [Sequelize.Op.in]: ['reviews', 'assessment'],
         },
-        include: [Topic],
-        raw: true,
-      })
-      .then(data => data)
+        [Sequelize.Op.and]: Sequelize.literal(`details->>'cohort_milestone_id'='${cohortMilestoneId}'`),
+      },
+      include: [Topic],
+      raw: true,
+    })
+      .then(data => data);
     breakouts = [...breakouts, ...reviews];
     return Promise.all(breakouts);
-    })
+  })
   .catch(err => {
     console.error('Unable to find topics for the milestone', err);
     return null;
@@ -709,8 +697,9 @@ export const getCalendarDetailsOfCohortBreakout = async (id) => {
 export const updateBreakoutCalendarEventForCatalyst = async ({
   cohort_breakout, updated_time = null, catalyst_id = null,
 }) => {
-
-  const { id, catalyst_id: prevCatalystId, time_scheduled, details } = cohort_breakout;
+  const {
+    id, catalyst_id: prevCatalystId, time_scheduled, details,
+  } = cohort_breakout;
   let oldEventId;
 
   try {
@@ -841,6 +830,34 @@ export const getTodaysCohortBreakouts = async () => {
     }
   }
   return postTodaysBreakouts(breakouts);
+};
+
+export const updateOneCohortBreakouts = async (details, id) => {
+  let whereObject = {};
+  let cohort_breakout = await CohortBreakout.findByPk(id);
+  if (cohort_breakout.type === 'lecture') {
+    whereObject = {
+      topic_id: cohort_breakout.topic_id,
+      time_scheduled: cohort_breakout.time_scheduled,
+      type: 'lecture',
+    };
+  } else {
+    whereObject = { id };
+  }
+  return updateCohortBreakouts({
+    updateObject: {
+      details,
+    },
+    whereObject,
+  });
+};
+
+export const updateSanboxUrl = async (id, sandbox_id, sandbox_url) => {
+  let breakout = await findOneCohortBreakout({ id });
+
+  let breakoutDetails = breakout.details;
+  breakoutDetails.sandbox = { sandbox_id, sandbox_url };
+  return updateOneCohortBreakouts(breakoutDetails, id);
 };
 
 export default CohortBreakout;
