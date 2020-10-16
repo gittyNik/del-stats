@@ -37,7 +37,7 @@ export const ReviewSlots = db.define('review_slots', {
   },
   week: {
     type: Sequelize.INTEGER,
-    defaultValue: 1,
+    defaultValue: 0,
   },
   review_duration: {
     type: Sequelize.INTEGER,

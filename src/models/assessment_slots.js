@@ -38,7 +38,7 @@ export const AssessmentSlots = db.define('assessment_slots', {
   },
   week: {
     type: Sequelize.INTEGER,
-    defaultValue: 1,
+    defaultValue: 0,
   },
   assessment_duration: {
     type: Sequelize.INTEGER,

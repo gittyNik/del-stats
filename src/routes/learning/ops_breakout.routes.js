@@ -6,6 +6,7 @@ import {
   getLearnerBreakoutsByBreakoutId,
   markAttendance,
   learnerBreakoutsCreate,
+  getLearnerBreakoutsByUserId
 } from '../../controllers/learning/learner_breakout.controller';
 import {
   getAllCohortBreakouts,
@@ -65,6 +66,16 @@ router.get('/:cohort_id/all', getAllCohortBreakouts);
  * @apiGroup Breakouts
  */
 router.get('/:cohort_id/:milestone_id/all', getBreakoutsForCohortMilestone);
+
+/**
+ * @api {get} /learning/ops/breakouts/learner/:id Get all learner
+ * breakouts for cohort breakout
+ * @apiDescription get all learner breakouts for cohort breakout
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetBreakouts
+ * @apiGroup Breakouts
+ */
+router.get('/learner/:learner_id', getLearnerBreakoutsByUserId);
 
 router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR, REVIEWER]));
 
