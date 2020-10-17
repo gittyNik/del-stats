@@ -22,6 +22,7 @@ import {
   deleteGithubRepository,
   isExistingRepository,
   addTeamAccessToRepo,
+  removeCollaboratorFromRepository
 } from './repository.controller';
 import {
   getAllAuthoredCommits,
@@ -1041,6 +1042,7 @@ export {
   getRecentCommit,
   createChallenge,
   addCollaboratorToRepository,
+  removeCollaboratorFromRepository,
   repositoryPresentOrNot,
   isRepositoryCollaborator,
   getTotalUserCommitsPastWeek,

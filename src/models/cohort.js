@@ -294,7 +294,7 @@ export const getCohortIdFromLearnerId = (learner_id) => Application
   .then(application => application.get({ plain: true }))
   .then(_application => _application.cohort_joining);
 
-const removeLearnerFromCohort = async (learner_id, cohort_id) => {
+export const removeLearnerFromCohort = async (learner_id, cohort_id) => {
   let cohort = await getCohortFromId(cohort_id);
   cohort = cohort.learners;
   cohort = cohort.filter((learner) => learner !== learner_id);
@@ -311,7 +311,7 @@ const removeLearnerFromCohort = async (learner_id, cohort_id) => {
   );
 };
 
-const addLearnerToCohort = async (learner_id, cohort_id) => {
+export const addLearnerToCohort = async (learner_id, cohort_id) => {
   let cohort = await getCohortFromId(cohort_id);
   cohort = cohort.learners;
   cohort.push(learner_id);
