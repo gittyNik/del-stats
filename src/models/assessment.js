@@ -216,8 +216,8 @@ export const calculateAssessmentTime = (assessmentDate, assessmentForTeam) => {
   let scheduled_time = new Date(assessmentDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
 
   scheduled_time.setDate(assessmentDate.getDate() + (((
-    WEEK_VALUES[assessmentDate.review_day.toLowerCase()]
-    + 7 - assessmentDate.getDay()) % 7) + (7 * assessmentDate.week)));
+    WEEK_VALUES[assessmentForTeam.assessment_day.toLowerCase()]
+    + 7 - assessmentDate.getDay()) % 7) + (7 * assessmentForTeam.week)));
 
   scheduled_time.setHours(time_split[0], time_split[1], time_split[2]);
 
@@ -273,7 +273,7 @@ export const createLearnerAssessmentBreakout = async (
         assessmentForLearner);
       count += 1;
       let { assessment_duration, reviewer, phase } = assessmentForLearner;
-      createAssessmentEntry(
+      return createAssessmentEntry(
         learnerDetails.name,
         id,
         timeSlot,
@@ -329,13 +329,13 @@ export const createAssessmentSchedule = (
   .then(assessmentSlots => {
     let slotsForReview = assessmentSlots;
     return getLearnersFromCohorts(cohort_ids)
-      .then(async (cohortsForAssessments) => cohortsForAssessments.map(
+      .then(async (cohortsForAssessments) => Promise.all(cohortsForAssessments.map(
         async singleCohort => {
           let cohortMilestones = await getCurrentCohortMilestone(singleCohort.id);
-          await createLearnerAssessmentBreakout(
+          return createLearnerAssessmentBreakout(
             slotsForReview, singleCohort, assessment_start,
             excluded_learners, cohortMilestones.id,
           );
         },
-      ));
+      )));
   });
