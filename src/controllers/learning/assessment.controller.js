@@ -88,7 +88,10 @@ export const createAssessmentScheduleAPI = (req, res) => {
   createAssessmentSchedule(program, cohort_duration,
     cohort_ids, assessment_start, phase,
     excluded_learners).then((data) => { res.json(data); })
-    .catch(err => res.status(500).send(err));
+    .catch(err => {
+      console.error(err);
+      res.status(500).send(err);
+    });
 };
 
 export const updateAssessmentForLearnerAPI = (req, res) => {
