@@ -800,7 +800,7 @@ export const createLearnerBreakoutsForMilestone = async (
 // get list of all breatkouts scheduled today for all live cohorts;
 export const getTodaysCohortBreakouts = async () => {
   // todo: Need a better way to get start of the day in Asia/Kolkata timezone.
-  const TODAY_START = new Date(new Date().getTime - 10 * 60 * 60 * 1000);
+  const TODAY_START = new Date(new Date().getTime() - 10 * 60 * 60 * 1000).getTime();
   const TOMORROW_START = new Date(TODAY_START + 24 * 60 * 60 * 1000);
   const todaysBreakouts = await CohortBreakout.findAll({
     where: {
@@ -812,7 +812,7 @@ export const getTodaysCohortBreakouts = async () => {
     raw: true,
   });
   todaysBreakouts.map(async breakout => {
-    const time = new Date(breakout.time_scheduled).toLocaleTimeString([], { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
+    const time = new Date(breakout.time_scheduled).toLocaleTimeString([], { timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit' });
     try {
       breakout.topics = breakout.details.topics.replace(/\n(?!$)/g, ', ');
       breakout.topics = breakout.topics.replace(/\n/, '');
@@ -829,6 +829,7 @@ export const getTodaysCohortBreakouts = async () => {
       breakouts[cohort_id] = _.groupBy(breakouts[cohort_id], iter => iter.type);
     }
   }
+  console.log(breakouts);
   return postTodaysBreakouts(breakouts);
 };
 
