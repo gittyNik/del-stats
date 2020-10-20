@@ -32,7 +32,7 @@ import { postAttendaceInCohortChannel, postTodaysBreakouts } from '../integratio
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 import { createEvent, deleteEvent, updateEvent } from '../integrations/calendar/calendar.model';
 import { logger } from '../util/logger';
-import { getChannelIdForCohort } from './slack_channels';
+import { getChannelIdForCohort, getSlackIdForLearner } from './slack_channels';
 // import sandbox from 'bullmq/dist/classes/sandbox';
 
 export const EVENT_STATUS = [
@@ -809,17 +809,28 @@ export const getTodaysCohortBreakouts = async () => {
         [Sequelize.Op.lt]: TOMORROW_START,
       },
     },
+    include: [{
+      model: Topic,
+      attributes: ['path'],
+      required: false,
+    }],
     raw: true,
   });
+
   todaysBreakouts.map(async breakout => {
     const time = new Date(breakout.time_scheduled).toLocaleTimeString([], { timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit' });
     try {
       breakout.topics = breakout.details.topics.replace(/\n(?!$)/g, ', ');
       breakout.topics = breakout.topics.replace(/\n/, '');
+      if (breakout.type === 'assessment') {
+        const learnerSlackId = await getSlackIdForLearner(breakout.details.learner_id);
+        breakout.topics = `Assessment for <@${learnerSlackId}>`;
+      }
     } catch (err) {
       breakout.topics = await getTopicNameById(breakout.topic_id);
     }
-    breakout.topics = `${breakout.topics} at *${time}* \n`;
+    let path = (breakout['topic.path'] === 'common') ? '' : `[${breakout['topic.path']}]`;
+    breakout.topics = `${breakout.topics}${path} at *${time}* \n`;
     return breakout;
   });
   const breakouts = _.groupBy(todaysBreakouts, b => b.cohort_id);
@@ -829,8 +840,7 @@ export const getTodaysCohortBreakouts = async () => {
       breakouts[cohort_id] = _.groupBy(breakouts[cohort_id], iter => iter.type);
     }
   }
-  console.log(breakouts);
-  return postTodaysBreakouts(breakouts);
+  return breakouts;
 };
 
 export const updateOneCohortBreakouts = async (details, cohort_breakout) => {

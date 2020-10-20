@@ -234,10 +234,11 @@ export const postTodaysBreakouts = async (todaysBreakouts) => {
       return slackResponse;
     } catch (err) {
       logger.error(err);
+      console.error(`Failed to post on slack channel ${channelId} and breakout text: ${textBody}`);
       return false;
     }
   };
-
+  let data = [];
   // eslint-disable-next-line no-restricted-syntax
   for (const [cohort_id, breakout_types] of Object.entries(todaysBreakouts)) {
     const channelId = await getChannelIdForCohort(cohort_id);
@@ -265,7 +266,16 @@ export const postTodaysBreakouts = async (todaysBreakouts) => {
         // no default
       }
     }
-    // eslint-disable-next-line no-await-in-loop
-    await postOnChannel(channelId, breakout_text);
+    try {
+
+      // eslint-disable-next-line no-await-in-loop
+      const res = await postOnChannel(channelId, breakout_text);
+      data.push(res);
+    } catch (err) {
+      data.push({
+        text: 'failed to postOnChannel',
+      });
+    }
   }
+  return data;
 };
