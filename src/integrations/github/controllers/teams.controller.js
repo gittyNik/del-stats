@@ -173,11 +173,13 @@ export const addLearnerToGithubTeam = async (
   current_cohort_id,
 ) => {
   let current_cohort = await getCohortFromId(current_cohort_id);
+  let current_duration = current_cohort.duration === 16 ? 'Full-Time' : 'Part-Time';
   let current_team_name = teamNameFormat(
     current_cohort.name,
     current_cohort.program_id,
     current_cohort.location,
     current_cohort.start_date,
+    current_duration,
   );
 
   let sc = await getGithubConnecionByUserId(learner_id);
