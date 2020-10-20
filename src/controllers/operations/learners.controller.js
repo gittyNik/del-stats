@@ -11,7 +11,6 @@ export const onLeaveController = async (req, res) => {
 		]).then(async ([cohort, breakout]) => {
 			let current_team_id = await currentTeamOfLearner(learner_id, cohort_id);
 			if (!current_team_id) {
-			console.log("cohort, breakout")
 				return [cohort, breakout];
 			}
 			current_team_id = current_team_id.id;
@@ -20,7 +19,6 @@ export const onLeaveController = async (req, res) => {
 		})
 		res.json({ data: allOp })
 	} catch (err) {
-		console.log(err)
 		res.status(500).send(err)
 	}
 
