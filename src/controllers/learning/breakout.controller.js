@@ -50,6 +50,7 @@ const populateTopics = async (breakouts) => {
     // TODO: Remove hard-code
     if (breakout.type === 'assessment') {
       breakout['breakout_template.topic_id'] = [breakout.topic_id];
+      breakout.topics = [{ title: breakout.details.topics }];
     }
     if (breakout['breakout_template.topic_id'] !== null) {
       breakout['breakout_template.topic_id'].map(breakTopic => {
@@ -68,6 +69,7 @@ const populateTopics = async (breakouts) => {
       breakout['topic.milestone.starter_repo'] = breakout.details.milestoneRepo;
       breakout['topic.milestone.releases'] = breakout.details.milestoneReleases;
       breakout['breakout_template.topic_id'] = [breakout.topic_id];
+      breakout.topics = [{ title: breakout.details.topics }];
     }
     return breakout;
   });
@@ -523,8 +525,8 @@ export const createSingleBreakout = (req, res) => {
   const { id: cohort_id } = req.params;
   createSingleBreakoutAndLearnerBreakout(cohort_id, topic_id,
     breakout_duration, time_scheduled, agenda, catalyst_id).then((data) => {
-      res.status(201).json({ data });
-    })
+    res.status(201).json({ data });
+  })
     .catch(err => res.status(500).send({ err }));
 };
 
