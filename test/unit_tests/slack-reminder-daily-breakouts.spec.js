@@ -5,6 +5,7 @@ import CohortBreakout, { getTodaysCohortBreakouts } from '../../src/models/cohor
 import _ from 'lodash';
 import { getTopicNameById } from '../../src/models/topic';
 import { postTodaysBreakouts } from '../../src/integrations/slack/delta-app/controllers/web.controller';
+import { getSlackIdForLearner } from '../../src/models/slack_channels';
 
 
 describe('Should get payload for daily slack reminder', () => {
@@ -23,11 +24,22 @@ describe('Should get payload for daily slack reminder', () => {
   });
 
   describe('Main route', () => {
-    test.only('should return the final object', async () => {
+    test('should return the final object', async () => {
       const res = await getTodaysCohortBreakouts();
       console.log(res);
       expect(res).toBeDefined();
     });
+
+    test.only('Get payload and post the daily slack Reminder', async () => {
+      const payload = await getTodaysCohortBreakouts();
+
+      const res = await postTodaysBreakouts(payload);
+      // const payload = await CohortBreakout.findAll({ where: { id: 'fc45f6d4-d7d0-4552-b671-0e4ff72d9ad2' } })
+      console.log(JSON.stringify(payload, null, 2));
+      console.log(res);
+      expect(payload).toBeDefined();
+      expect(res).toBeDefined();
+    })
   });
 
   describe('testing seperately', () => {
@@ -90,7 +102,5 @@ describe('Should get payload for daily slack reminder', () => {
       console.log(res);
       expect(res).toBeDefined();
     })
-
-
   })
 });
