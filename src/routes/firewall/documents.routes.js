@@ -9,13 +9,13 @@ import { allowMultipleRoles, allowSuperAdminOnly } from '../../controllers/auth/
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, EDUCATOR, LEARNER, OPERATIONS,
+  ADMIN, EDUCATOR, LEARNER, OPERATIONS, REVIEWER,
 } = USER_ROLES;
 // import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]));
 
 /**
  * @api {patch} /firewall/documents/:id/esign Send Esign Request to User
