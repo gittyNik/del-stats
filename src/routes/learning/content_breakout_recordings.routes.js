@@ -8,12 +8,12 @@ import { USER_ROLES } from '../../models/user';
 import LearnerBreakout from '../../models/learner_breakout';
 
 const {
-  ADMIN, CATALYST, EDUCATOR, LEARNER,
+  ADMIN, CATALYST, EDUCATOR, LEARNER, REVIEWER,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER, REVIEWER]));
 
 /**
  * @api {get} /learning/content/breakouts/recordings/:id/video Get Video of recording
@@ -25,7 +25,7 @@ router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER]));
 router.get('/:id/video', getVideoUrl);
 
 // Restrict modifications for any applicant to the cohorts
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER]));
 
 /**
  * @api {post} /learning/content/breakouts/recordings/ Insert Breakout recording
