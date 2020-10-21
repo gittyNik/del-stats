@@ -5,7 +5,7 @@ import {
   getDocumentsAll, EsignRequest, getSignUrl,
   insertUserDocument,
 } from '../../controllers/firewall/documents.controller';
-import { allowMultipleRoles, allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
+import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
