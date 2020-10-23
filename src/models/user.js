@@ -119,9 +119,9 @@ export const getOrCreateUser = phone => User.findOrCreate({
   },
 });
 
-export const createUser = user => User.create({
+export const createUser = (user, role=USER_ROLES.GUEST) => User.create({
   id: uuid(),
-  role: USER_ROLES.GUEST,
+  role,
   ...user,
 });
 
