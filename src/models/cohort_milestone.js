@@ -384,11 +384,12 @@ export const getMilestoneBreakoutsTeams = async (milestone, cohort_id) => {
   ];
   if (milestone['milestone.starter_repo']) {
     cohortMilestonePromises.push(createMilestoneTeams(id));
-  } else {
-    // If starter-repo is not present, create breakouts for all
-    let learnerIds = await getLearnersForCohort(cohort_id);
-    await createLearnerBreakoutsForMilestone(learnerIds, id, 'common');
   }
+  // else {
+  //   // If starter-repo is not present, create breakouts for all
+  //   let learnerIds = await getLearnersForCohort(cohort_id);
+  //   await createLearnerBreakoutsForMilestone(learnerIds, id, 'common');
+  // }
   let cohortData = await Promise.all(cohortMilestonePromises);
   if (milestone['milestone.starter_repo']) {
     cohortData = await populateTeamsWithLearnersWrapper(cohortData);
