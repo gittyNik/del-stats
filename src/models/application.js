@@ -3,6 +3,7 @@ import db from '../database';
 import { Test } from './test';
 import { User } from './user';
 import { Cohort, getUpcomingCohort } from './cohort';
+import uuid from 'uuid/v4';
 
 const { in: opIn } = Sequelize.Op;
 
@@ -176,3 +177,18 @@ export const setApplicationStage = (
     user_id,
   },
 });
+
+export const createApplication = (
+  user_id, cohort_applied, cohort_joining,
+  status, is_isa, is_job_guarantee
+  ) => Application.create({
+    id: uuid(),
+    user_id,
+    cohort_applied,
+    cohort_joining,
+    status,
+    is_isa,
+    is_job_guarantee,
+    created_at: new Date(),
+    updated_at: new Date()
+  });
