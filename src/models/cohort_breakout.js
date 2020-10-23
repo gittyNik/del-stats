@@ -3,16 +3,20 @@ import uuid from 'uuid/v4';
 import _ from 'lodash';
 import db from '../database';
 import {
-  Cohort, getLiveCohorts,
+  Cohort,
+  getLearnersForCohort,
 } from './cohort';
 import {
   getTopicIdsByMilestone,
   getTopicNameById,
   Topic,
+  getTopicDataById,
 } from './topic';
 import {
+  LearnerBreakout,
   createLearnerBreakoutsForCohortMilestones,
   createAllLearnerBreakoutsForCurrentMS,
+  createAllLearnerBreakout,
 } from './learner_breakout';
 import { createSandbox } from './code_sandbox';
 import {
@@ -21,7 +25,9 @@ import {
 } from './video_meeting';
 
 import { BreakoutTemplate } from './breakout_template';
-
+import {
+  getUsersWithStatus,
+} from './user';
 import {
   getDataForMilestoneName,
 } from './cohort_milestone';
@@ -108,6 +114,12 @@ export const CohortBreakout = db.define('cohort_breakouts', {
       },
     ),
     allowNull: true,
+  },
+  time_taken_by_catalyst: {
+    type: Sequelize.INTEGER,
+  },
+  time_started: {
+    type: Sequelize.DATE,
   },
 });
 
@@ -556,6 +568,33 @@ export const createSingleBreakoutAndLearnerBreakout = (
     });
 });
 
+export const getLearnersForCohortBreakout = async (breakout_topic,
+  cohort_id,
+  cohort_breakout_id,
+  breakout_status = 'scheduled',
+) => {
+  if (breakout_status !== 'completed') {
+    await LearnerBreakout.destroy({
+      where: {
+        cohort_breakout_id,
+      },
+    });
+    let breakoutTopic = await getTopicDataById(breakout_topic);
+
+    const breakoutPath = breakoutTopic.path;
+    let cohortLearners = await getLearnersForCohort(cohort_id);
+    let userIds;
+    if (breakoutPath !== 'common') {
+      let pathUsers = await getUsersWithStatus(breakoutPath, cohortLearners.learners);
+      userIds = pathUsers.map(eachUser => eachUser.id);
+    } else {
+      userIds = cohortLearners.learners;
+    }
+    return createAllLearnerBreakout(userIds, cohort_breakout_id);
+  }
+  return null;
+};
+
 export const updateZoomMeetingForBreakout = (
   id,
 ) => CohortBreakout.findByPk(id)
@@ -568,13 +607,17 @@ export const updateZoomMeetingForBreakout = (
       '',
       2,
       cohort_breakout.catalyst_id,
-    ).then((zoomMeeting) => {
+    ).then(async (zoomMeeting) => {
       if (cohort_breakout.details) {
         cohort_breakout.details.zoom = zoomMeeting;
       } else {
         cohort_breakout.details = { zoom: zoomMeeting };
       }
       if (cohort_breakout.type === 'lecture') {
+        // Populate Learner attendance
+        await getLearnersForCohortBreakout(cohort_breakout.topic_id,
+          cohort_breakout.cohort_id, id, cohort_breakout.status);
+
         return CohortBreakout
           .update({
             details: cohort_breakout.details,
@@ -604,6 +647,7 @@ export const updateZoomMeetingForBreakout = (
         .then(data => data[1]);
     });
   });
+
 export const getCohortBreakoutById = (cohort_breakout_id) => CohortBreakout.findOne({
   where: {
     id: cohort_breakout_id,
@@ -812,7 +856,9 @@ export const getTodaysCohortBreakouts = async () => {
     raw: true,
   });
   todaysBreakouts.map(async breakout => {
-    const time = new Date(breakout.time_scheduled).toLocaleTimeString([], { timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit' });
+    const time = new Date(breakout.time_scheduled).toLocaleTimeString([], {
+      timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit',
+    });
     try {
       breakout.topics = breakout.details.topics.replace(/\n(?!$)/g, ', ');
       breakout.topics = breakout.topics.replace(/\n/, '');

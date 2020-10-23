@@ -228,7 +228,7 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async learnerIds =
   )}_${new Date(data.cohort.start_date).getFullYear()}`;
   let { starter_repo } = data.milestone;
 
-  let learnerBreakouts = [];
+  // let learnerBreakouts = [];
   // Create Teams for active Learners
   if (activelearnersProfile.length > 0) {
     if (activelearnersProfile[0].status.includes('frontend')
@@ -244,10 +244,10 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async learnerIds =
       });
 
       // Add FE learner + Backend Breakout creation
-      learnerBreakouts.push(createLearnerBreakoutsForMilestone(activefrontendUsers,
-        cohort_milestone_id, 'frontend'));
-      learnerBreakouts.push(createLearnerBreakoutsForMilestone(activebackendUsers,
-        cohort_milestone_id, 'backend'));
+      // learnerBreakouts.push(createLearnerBreakoutsForMilestone(activefrontendUsers,
+      //   cohort_milestone_id, 'frontend'));
+      // learnerBreakouts.push(createLearnerBreakoutsForMilestone(activebackendUsers,
+      //   cohort_milestone_id, 'backend'));
       teams = createFullStackTeams(activefrontendUsers, activebackendUsers);
     } else {
       // Non FE BE learners
@@ -273,10 +273,10 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async learnerIds =
       });
 
       // Add FE learner + Backend Breakout creation
-      learnerBreakouts.push(createLearnerBreakoutsForMilestone(frontendUsers,
-        cohort_milestone_id, 'frontend'));
-      learnerBreakouts.push(createLearnerBreakoutsForMilestone(backendUsers,
-        cohort_milestone_id, 'backend'));
+      // learnerBreakouts.push(createLearnerBreakoutsForMilestone(frontendUsers,
+      //   cohort_milestone_id, 'frontend'));
+      // learnerBreakouts.push(createLearnerBreakoutsForMilestone(backendUsers,
+      //   cohort_milestone_id, 'backend'));
       inactiveTeams = createFullStackTeams(frontendUsers, backendUsers);
       teams.push(...inactiveTeams);
     } else {
@@ -287,8 +287,8 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async learnerIds =
     }
   }
   // Create common breakouts for all
-  learnerBreakouts.push(createLearnerBreakoutsForMilestone(learnerIds, cohort_milestone_id, 'common'));
-  await Promise.all(learnerBreakouts);
+  // learnerBreakouts.push(createLearnerBreakoutsForMilestone(learnerIds, cohort_milestone_id, 'common'));
+  // await Promise.all(learnerBreakouts);
 
   teams = await Promise.all(teams.map(async (team, i) => {
     let msName = `${baseMilestoneName}_${i + 1}`;
@@ -443,28 +443,30 @@ export const moveLearnerBetweenMSTeam = (current_team_id, user_id, future_team_i
 ]);
 
 export const currentTeamOfLearner = (learner_id, cohort_id) => {
-const now = Sequelize.literal('NOW()');
-return CohortMilestone.findOne({
-  where: {    
-    [Sequelize.Op.and]: [
-      { cohort_id },
-      { release_time: {
-        [Sequelize.Op.lte]: now,
-      }},
-      {
-        review_scheduled : {
-          [Sequelize.Op.gt]: now, 
-        }
-      }
-    ]
-  }
-}).then (data => data.id)
-.then(cohort_milestone_id => Team.findOne({
-  where: {
-    cohort_milestone_id,
-    learners: {
-      [Sequelize.Op.contains]:[learner_id]
-    }
-  }
-}))
-}
+  const now = Sequelize.literal('NOW()');
+  return CohortMilestone.findOne({
+    where: {
+      [Sequelize.Op.and]: [
+        { cohort_id },
+        {
+          release_time: {
+            [Sequelize.Op.lte]: now,
+          },
+        },
+        {
+          review_scheduled: {
+            [Sequelize.Op.gt]: now,
+          },
+        },
+      ],
+    },
+  }).then(data => data.id)
+    .then(cohort_milestone_id => Team.findOne({
+      where: {
+        cohort_milestone_id,
+        learners: {
+          [Sequelize.Op.contains]: [learner_id],
+        },
+      },
+    }));
+};

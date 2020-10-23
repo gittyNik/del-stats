@@ -77,6 +77,16 @@ export const getUserByEmail = email => User.findOne(
   { raw: true },
 );
 
+export const getUsersWithStatus = (status, learner_ids) => User.findAll({
+  where: {
+    id: {
+      [Sequelize.Op.in]: learner_ids,
+    },
+    status,
+  },
+  raw: true,
+});
+
 export const updateUserData = (id, phone, email, location, profile) => User.findOne({
   where: {
     id,

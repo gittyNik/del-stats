@@ -47,8 +47,8 @@ const jwt_payload = {
 export const zoom_token = jwt.sign(jwt_payload, process.env.ZOOM_API_SECRET);
 
 const MEETING_SETTINGS = {
-  host_video: true,
-  participant_video: true,
+  host_video: false,
+  participant_video: false,
   in_meeting: true,
   join_before_host: true,
   mute_upon_entry: true,
@@ -56,7 +56,7 @@ const MEETING_SETTINGS = {
   use_pmi: false,
   approval_type: 2,
   audio: 'both',
-  auto_recording: 'cloud', // options: local, cloud and none
+  auto_recording: 'local', // options: local, cloud and none
   enforce_login: true,
   // alternative_hosts: process.env.ZOOM_HOSTS,
   waiting_room: false,
@@ -101,6 +101,9 @@ export const createScheduledMeeting = async (topic, start_time,
   timezone = 'Asia/Calcutta') => {
   let catalyst_email;
   let host_key;
+
+  let meetingSettings = { ...MEETING_SETTINGS };
+
   if (catalyst_id !== null) {
     let catalyst_details = await User.findOne({
       where: {
@@ -111,6 +114,7 @@ export const createScheduledMeeting = async (topic, start_time,
     });
     if (catalyst_details) {
       catalyst_email = catalyst_details.email;
+      meetingSettings.auto_recording = 'local';
     }
   }
 
@@ -131,7 +135,7 @@ export const createScheduledMeeting = async (topic, start_time,
     timezone,
     password: 'soal',
     agenda,
-    settings: MEETING_SETTINGS,
+    settings: meetingSettings,
   };
 
   // Logic for using Pro Zoom accounts
@@ -218,7 +222,9 @@ export const createScheduledMeeting = async (topic, start_time,
 
 export const learnerAttendance = async (participant, catalyst_id,
   cohort_breakout_id, attentiveness_threshold, duration_threshold) => {
-  const { user_email, duration, attentiveness_score } = participant;
+  const {
+    user_email, duration, attentiveness_score, join_time,
+  } = participant;
   let attentivenessScore = parseFloat(attentiveness_score);
   let durationTime = parseFloat(duration);
   // if (isNaN(attentivenessScore)) {
@@ -288,6 +294,18 @@ export const learnerAttendance = async (participant, catalyst_id,
           console.error(err);
         }
       }
+    } else {
+      // Add time taken by Catalyst for breakout
+      let breakoutTime = durationTime;
+      await CohortBreakout.update({
+        time_taken_by_catalyst: breakoutTime,
+        time_started: join_time,
+        update_at: Date.now(),
+      }, {
+        where: {
+          id: cohort_breakout_id,
+        },
+      });
     }
 
     return attendanceCount;
