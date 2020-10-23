@@ -15,6 +15,12 @@ const TEMPLATE_STATUS = [
   'inactive',
 ];
 
+const TEMPLATE_TYPE = [
+  'recurring',
+  'scheduled',
+  'independent',
+];
+
 export const BreakoutTemplate = db.define('breakout_templates', {
   id: {
     type: Sequelize.UUID,
@@ -92,6 +98,10 @@ export const BreakoutTemplate = db.define('breakout_templates', {
   status: {
     type: Sequelize.ENUM(...TEMPLATE_STATUS),
     defaultValue: 'active',
+  },
+  type: {
+    type: Sequelize.ENUM(...TEMPLATE_TYPE),
+    defaultValue: 'scheduled',
   },
 });
 

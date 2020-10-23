@@ -6,12 +6,13 @@ import {
   getLearnerBreakoutsByBreakoutId,
   markAttendance,
   learnerBreakoutsCreate,
-  getLearnerBreakoutsByUserId
+  getLearnerBreakoutsByUserId,
 } from '../../controllers/learning/learner_breakout.controller';
 import {
   getAllCohortBreakouts,
   getBreakoutsForCohortMilestone,
   updateSanboxDetails,
+  validateAttendanceForBreakout,
 } from '../../controllers/learning/breakout.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -80,12 +81,20 @@ router.get('/learner/:learner_id', getLearnerBreakoutsByUserId);
 router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR, REVIEWER]));
 
 /**
- * @api {get} /cohorts/:id/sandbox Update Sandbox details
+ * @api {get} /learning/ops/breakouts/:id/sandbox Update Sandbox details
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateBreakoutSandbox
  * @apiGroup CohortBreakout
  */
 router.patch('/:id/sandbox', updateSanboxDetails);
+
+/**
+ * @api {get} /learning/ops/breakouts/:id/attendance Update Sandbox details
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ValidateBreakoutLearners
+ * @apiGroup CohortBreakout
+ */
+router.get('/:id/attendance', validateAttendanceForBreakout);
 
 /**
  * @api {post} /learning/ops/breakouts Submit a Breakout

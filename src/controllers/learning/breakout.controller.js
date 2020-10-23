@@ -9,8 +9,8 @@ import {
   createLearnerBreakoutsForMilestone,
   updateSanboxUrl,
   findOneCohortBreakout,
+  getLearnersForCohortBreakout,
 } from '../../models/cohort_breakout';
-import { updateCalendarEventInLearnerBreakout } from '../../models/learner_breakout';
 import {
   createScheduledMeeting,
   deleteMeetingFromZoom,
@@ -736,6 +736,27 @@ export const updateSanboxDetails = async (req, res) => {
     sandbox_id, url,
   } = req.body;
   await updateSanboxUrl(id, sandbox_id, url)
+    .then((data) => {
+      res.status(201).json({ data });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send({ err });
+    });
+};
+
+// Update Learners attched to a breakout for attendance
+// Does not support reviews and assessments
+export const validateAttendanceForBreakout = async (req, res) => {
+  let {
+    id,
+  } = req.params;
+  let cohortBreakout = await CohortBreakout.findByPk(id, {
+    attributes: ['topic_id', 'cohort_id', 'type', 'status'],
+    raw: true,
+  });
+  await getLearnersForCohortBreakout(cohortBreakout.topic_id,
+    cohortBreakout.cohort_id, id, cohortBreakout.status)
     .then((data) => {
       res.status(201).json({ data });
     })

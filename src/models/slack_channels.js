@@ -37,11 +37,9 @@ export const createSlackChannelRow = (cohort_id, channelId) => SlackChannel
 
 export const getChannelIdForCohort = (cohort_id) => SlackChannel
   .findOne({ attributes: ['channels'], where: { cohort_id }, raw: true })
-  .then(data => {
+  .then(data =>
     // console.log(data.channels);
-    return data.channels[0];
-  });
-
+    data.channels[0]);
 
 const getChannelName = async (cohort_id) => {
   const cohort = await Cohort.findByPk(cohort_id);
@@ -68,7 +66,10 @@ const getChannelName = async (cohort_id) => {
   const year = start_date.getFullYear();
   const month = monthNames[start_date.getMonth()];
   const cohortType = cohort.type.toLowerCase();
-  return `${cohortName}-${locationName}-${duration}-${cohortType}-${month}-${year}`;
+  if (cohortType === 'remote') {
+    return `${cohortName}-${cohortType}-${duration}-${month}-${year}`;
+  }
+  return `${cohortName}-${locationName}-${duration}-${month}-${year}`;
 };
 
 // currently not working due to irregularities.

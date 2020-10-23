@@ -61,6 +61,10 @@ export const getTopicNameById = topic_id => Topic.findByPk(topic_id, {
 })
   .then(topic => topic.title);
 
+export const getTopicDataById = topic_id => Topic.findByPk(topic_id, {
+  raw: true,
+});
+
 export const getTopics = () => Topic.findAll({});
 
 export const getTopicsByMilestone = (milestone_id, program) => Topic.findAll(
