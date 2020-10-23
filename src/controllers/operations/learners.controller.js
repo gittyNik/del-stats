@@ -1,6 +1,8 @@
-import { removeLearnerFromCohort } from '../../models/cohort';
+import { removeLearnerFromCohort, addLearnerToCohort } from '../../models/cohort';
 import { removeLearnerBreakouts } from '../../models/learner_breakout';
 import { currentTeamOfLearner, removeLearnerFromMSTeam } from '../../models/team';
+import { createApplication } from '../../models/application';
+import { createUser, USER_ROLES } from '../../models/user';
 
 export const onLeaveController = async (req, res) => {
 	try{
@@ -22,4 +24,17 @@ export const onLeaveController = async (req, res) => {
 		res.status(500).send(err)
 	}
 
+}
+
+export const addLearnerForDesign = async (req, res) => {
+	try{
+		const { name, phone, email, location, profile, cohort_applied_id, cohort_joining_id, is_isa, is_job_guarantee } = req.body;
+		
+		let user = await createUser({ name, phone, email, location, profile }, USER_ROLES.LEARNER)
+		let application = await createApplication(user.id, cohort_applied_id, cohort_joining_id, 'archieved', is_isa, is_job_guarantee)
+		let cohort = await addLearnerToCohort(user.id, cohort_joining_id)
+		res.json({ data: { user, application, cohort} })
+	} catch (err) {
+		res.status(500).send(err)
+	}	
 }

@@ -345,6 +345,18 @@ export const createLearnerBreakoutsForCurrentMS = async (learner_id,
   attendance: false,
 })));
 
+export const createAllLearnerBreakout = async (learners,
+  cohort_breakout_id) => {
+  console.log(learners);
+  return LearnerBreakout.bulkCreate(learners.map(learner_id => ({
+    id: uuid(),
+    cohort_breakout_id,
+    learner_id,
+    attendance: false,
+  }
+  )));
+};
+
 export const createAllLearnerBreakoutsForCurrentMS = async (learners,
   cohort_breakouts) => {
   if (learners && learners.length > 0) {
