@@ -572,8 +572,9 @@ export const getLearnersForCohortBreakout = async (breakout_topic,
   cohort_id,
   cohort_breakout_id,
   breakout_status = 'scheduled',
+  type = 'lecture',
 ) => {
-  if (breakout_status !== 'completed') {
+  if ((breakout_status !== 'completed') && (type === 'lecture')) {
     await LearnerBreakout.destroy({
       where: {
         cohort_breakout_id,
