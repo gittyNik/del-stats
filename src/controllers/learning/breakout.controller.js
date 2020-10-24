@@ -756,7 +756,7 @@ export const validateAttendanceForBreakout = async (req, res) => {
     raw: true,
   });
   await getLearnersForCohortBreakout(cohortBreakout.topic_id,
-    cohortBreakout.cohort_id, id, cohortBreakout.status)
+    cohortBreakout.cohort_id, id, cohortBreakout.status, cohortBreakout.type)
     .then((data) => {
       res.status(201).json({ data });
     })

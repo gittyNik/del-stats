@@ -72,6 +72,7 @@ export const getLearnerBreakoutsByBreakoutId = (req, res) => {
     },
     include: [{
       model: User,
+      attributes: ['name', 'status'],
     }],
   })
     .then((data) => res.json({
@@ -131,8 +132,8 @@ export const getLearnerBreakoutsByUserId = (req, res) => {
   LearnerBreakout.findOne({
     where: {
       cohort_breakout_id,
-      learner_id
-    }
+      learner_id,
+    },
   })
     .then((data) => res.json({
       text: 'Learner breakouts by learner and cohort',
