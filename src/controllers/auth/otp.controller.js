@@ -1,8 +1,8 @@
 import SendOtp from 'sendotp';
 import {
   getOrCreateUser, getUserFromPhone,
-  createUser, User,
-  getUserByEmail,
+  createUser,
+  getUserByEmail, USER_ROLES,
 } from '../../models/user';
 import { getSoalToken } from '../../util/token';
 import { createOrUpdateContact } from '../../integrations/hubspot/controllers/contacts.controller';
@@ -53,6 +53,13 @@ export const sendOTP = (req, res) => {
         return res.sendStatus(404);
       }
       requestOTP(phone, res);
+    } else if (action === 'recruiter_register') {
+      if (data === null) {
+        return requestOTP(phone, res);
+      }
+      if (data) {
+        return res.sendStatus(409);
+      }
     }
   });
 };
@@ -102,6 +109,21 @@ const register = (data, res) => {
   });
 };
 
+const recruiterRegister = (data, res) => {
+  let {
+    fullName: name, phone, email,
+  } = data;
+  createUser({ name, phone, email }, USER_ROLES.RECRUITER)
+    .then(user => res.send({
+      user,
+      soalToken: getSoalToken(user),
+    }))
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+};
+
 export const verifyOTP = (req, res) => {
   const { user, otp, action } = req.query;
   const { phone, email, fullName } = user;
@@ -114,6 +136,10 @@ export const verifyOTP = (req, res) => {
       if (action === 'register') {
         register({
           email, phone, fullName, otpVerified: 'Yes',
+        }, res);
+      } else if (action === 'recruiter_register') {
+        recruiterRegister({
+          email, phone, fullName,
         }, res);
       } else if (action === 'signin') {
         signInUser(phone, res);
