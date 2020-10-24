@@ -12,6 +12,7 @@ import {
 } from './cohort_breakout';
 
 import { createEvent, deleteEvent } from '../integrations/calendar/calendar.model';
+import { getUserName } from './user';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 import { logger } from '../util/logger';
 
@@ -347,14 +348,21 @@ export const createLearnerBreakoutsForCurrentMS = async (learner_id,
 
 export const createAllLearnerBreakout = async (learners,
   cohort_breakout_id) => {
-  console.log(learners);
-  return LearnerBreakout.bulkCreate(learners.map(learner_id => ({
+  let learnerBreakouts = await LearnerBreakout.bulkCreate(learners.map(learner_id => ({
     id: uuid(),
     cohort_breakout_id,
     learner_id,
     attendance: false,
   }
   )));
+  const userBreakouts = async (lBreakout) => {
+    let userDetails = await getUserName(lBreakout.learner_id);
+    lBreakout.user = userDetails;
+    return lBreakout;
+  };
+  return Promise.all(learnerBreakouts.map(
+    learnerBreakout => userBreakouts(learnerBreakout.get({ plain: true })),
+  ));
 };
 
 export const createAllLearnerBreakoutsForCurrentMS = async (learners,

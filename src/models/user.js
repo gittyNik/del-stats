@@ -59,6 +59,11 @@ export const User = db.define(
   {},
 );
 
+export const getUserName = id => User.findByPk(id, {
+  attributes: ['name', 'status'],
+  raw: true,
+});
+
 export const getProfile = id => User.findOne(
   {
     where: {
@@ -129,7 +134,7 @@ export const getOrCreateUser = phone => User.findOrCreate({
   },
 });
 
-export const createUser = (user, role=USER_ROLES.GUEST) => User.create({
+export const createUser = (user, role = USER_ROLES.GUEST) => User.create({
   id: uuid(),
   role,
   ...user,
