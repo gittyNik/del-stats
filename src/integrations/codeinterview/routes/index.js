@@ -7,7 +7,7 @@ const { ADMIN, SUPERADMIN, EDUCATOR } = USER_ROLES;
 
 const router = express.Router();
 
-router.use(allowMultipleRoles([ADMIN, SUPERADMIN, EDUCATOR]));
+// router.use(allowMultipleRoles([ADMIN, SUPERADMIN, EDUCATOR]));
 
 router.use("/pad", padRoutes);
 
