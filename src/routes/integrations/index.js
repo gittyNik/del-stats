@@ -6,6 +6,7 @@ import twitterRouter from './twitter';
 import githubRouter from './github';
 import zoomRouter from './zoom';
 import codeSandboxRouter from './code_sandbox';
+import codeInterviewRouter from '../../integrations/codeinterview/routes'
 import { send404, browserAccessControl } from '../../controllers/api.controller';
 
 const router = Express.Router();
@@ -20,6 +21,7 @@ router.use('/twitter', twitterRouter);
 router.use('/github', githubRouter);
 router.use('/zoom', zoomRouter);
 router.use('/code', codeSandboxRouter);
+router.use('/codeinterview', codeInterviewRouter)
 router.use('*', send404);
 
 export default router;
