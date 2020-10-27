@@ -15,6 +15,7 @@ const {
   AWS_SECRET, AWS_REGION, AWS_BASE_PATH,
   AWS_BREAKOUTS_BASE_PATH, AWS_BREAKOUTS_BUCKET_NAME,
   AWS_AGREEMENTS_BUCKET_NAME, AWS_BUCKET_NAME,
+  AWS_RESUME_BUCKET_NAME, AWS_RESUME_BASE_PATH,
 } = process.env;
 
 AWS.config.update(
@@ -48,6 +49,10 @@ const type_upload = {
   document: {
     bucketName: AWS_DOCUMENT_BUCKET,
     basePath: AWS_DOCUMENT_BASE_PATH,
+  },
+  resume: {
+    bucketName: AWS_RESUME_BUCKET_NAME,
+    basePath: AWS_RESUME_BASE_PATH,
   },
 };
 

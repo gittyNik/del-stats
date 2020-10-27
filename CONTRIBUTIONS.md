@@ -40,7 +40,7 @@ This will help us to create Content management systems quickly for the same
 Every model should have the following fields
 
 ```javascript
-created_at - Default: NOW()
+created_at - No Default
 updated_at - Default: NOW()
 updated_by - Should populate the user id creating or updating
 ```

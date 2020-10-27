@@ -15,6 +15,8 @@ export const USER_ROLES = Object.freeze({
   SUPERADMIN: 'superadmin',
   REVIEWER: 'reviewer',
   OPERATIONS: 'operations',
+  RECRUITER: 'recruiter',
+  CAREER_SERVICES: 'career-services',
 });
 
 const AVAILABLE_USER_STATUS = [

@@ -13,6 +13,6 @@ router.use(allowSuperAdminOnly);
 router.use('/applications', applicationRouter);
 router.use('/counsellors', counsellorRouter);
 router.use('/jobs', jobRouter);
-router.use('/portfolios', portfolioRouter);
+// router.use('/portfolios', portfolioRouter);
 
 export default router;

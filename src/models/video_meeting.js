@@ -296,7 +296,7 @@ export const learnerAttendance = async (participant, catalyst_id,
       }
     } else {
       // Add time taken by Catalyst for breakout
-      let breakoutTime = durationTime;
+      let breakoutTime = durationTime * 1000;
       await CohortBreakout.update({
         time_taken_by_catalyst: breakoutTime,
         time_started: join_time,
