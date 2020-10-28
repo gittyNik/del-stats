@@ -236,7 +236,6 @@ export const signedUploadUrl = async (
 
 export const getSignUrl = async (req, res) => {
   const { fileName, fileType, type } = req.body;
-
   try {
     let { bucketName, basePath } = type_upload[type];
 
