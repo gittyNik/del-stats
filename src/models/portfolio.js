@@ -1,6 +1,12 @@
-import Sequelize, { NOW } from 'sequelize';
+import Sequelize from 'sequelize';
 import _ from 'lodash';
+import uuid from 'uuid/v4';
 import db from '../database';
+import { USER_ROLES } from './user';
+
+const {
+  RECRUITER,
+} = USER_ROLES;
 
 const HIRING_STATUS = [
   'available', 'currently-unavailable',
@@ -10,6 +16,7 @@ const HIRING_STATUS = [
 export const Portfolio = db.define('portfolios', {
   id: {
     type: Sequelize.UUID,
+    defaultValue: Sequelize.UUIDV4,
     primaryKey: true,
   },
   learner_id: {
@@ -49,14 +56,14 @@ export const Portfolio = db.define('portfolios', {
   updated_by: Sequelize.ARRAY(Sequelize.JSON),
 });
 
-export const getPortfoliosFromId = id => Portfolio.findOne({
+export const getPortfoliosFromId = (id, role) => Portfolio.findOne({
   where: {
     id,
   },
 })
   .then((learnerPortfolio) => {
-    if (learnerPortfolio) {
-      let profile_views = 0;
+    if ((learnerPortfolio) && (role === RECRUITER)) {
+      let profile_views = 1;
       profile_views += learnerPortfolio.profile_views;
       Portfolio.update({
         profile_views,
@@ -91,13 +98,13 @@ export const getPortfoliosByStatus = (
   },
 );
 
-export const getPortfoliosByUser = learner_id => Portfolio.findOne({
+export const getPortfoliosByUser = (learner_id, role) => Portfolio.findOne({
   where: {
     learner_id,
   },
 })
   .then((learnerPortfolio) => {
-    if (learnerPortfolio) {
+    if ((learnerPortfolio) && (role === RECRUITER)) {
       let profile_views = 0;
       profile_views += learnerPortfolio.profile_views;
       Portfolio.update({
@@ -128,6 +135,7 @@ export const createPortfolio = (
   updated_by,
 ) => Portfolio.create(
   {
+    id: uuid(),
     learner_id,
     showcase_projects,
     fields_of_interest,
@@ -141,7 +149,7 @@ export const createPortfolio = (
     reviewed_by,
     status,
     hiring_status,
-    created_at: NOW(),
+    created_at: new Date(),
     updated_by,
   },
 );

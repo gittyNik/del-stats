@@ -36,7 +36,8 @@ export const getPortfoliosByStatusAPI = (req, res) => {
 
 export const getPortfolioByUser = (req, res) => {
   const { user_id } = req.params;
-  getPortfoliosByUser(user_id)
+  const { role } = req.jwtData.user;
+  getPortfoliosByUser(user_id, role)
     .then(data => res.status(201).json({
       message: 'Portfolios fetched',
       data,
@@ -50,7 +51,8 @@ export const getPortfolioByUser = (req, res) => {
 
 export const getPortfolioById = (req, res) => {
   const { id } = req.params;
-  getPortfoliosFromId(id)
+  const { role } = req.jwtData.user;
+  getPortfoliosFromId(id, role)
     .then(data => res.status(201).json({
       message: 'Portfolios fetched',
       data,
@@ -68,9 +70,11 @@ export const addResumeForLearner = (req, res) => {
     learner_id,
   } = req.body;
   const user_name = req.jwtData.user.name;
+  const user_id = req.jwtData.user.id;
   let updated_by = {
     user_name,
     updated_at: new Date(),
+    user_id,
   };
   addPortfolioResume(learner_id, resume_path, updated_by)
     .then(data => res.status(201).json({
@@ -86,7 +90,6 @@ export const addResumeForLearner = (req, res) => {
 
 export const createPortfolioAPI = (req, res) => {
   const {
-    learner_id,
     showcase_projects,
     fields_of_interest,
     city_of_choices,
@@ -101,10 +104,12 @@ export const createPortfolioAPI = (req, res) => {
     hiring_status,
   } = req.body;
   const user_name = req.jwtData.user.name;
-  let updated_by = {
+  const learner_id = req.jwtData.user.id;
+  let updated_by = [{
     user_name,
     updated_at: new Date(),
-  };
+    user_id: learner_id,
+  }];
   createPortfolio(
     learner_id,
     showcase_projects,
@@ -149,10 +154,12 @@ export const updatePortfolio = (req, res) => {
     hiring_status,
   } = req.body;
   const user_name = req.jwtData.user.name;
-  let updated_by = {
+  const user_id = req.jwtData.user.id;
+  let updated_by = [{
     user_name,
     updated_at: new Date(),
-  };
+    user_id,
+  }];
 
   updatePortfolioById(
     id,
@@ -195,10 +202,12 @@ export const updatePortfolioLearnerAPI = (req, res) => {
   } = req.body;
   const { id: learner_id } = req.params;
   const user_name = req.jwtData.user.name;
-  let updated_by = {
+  const user_id = req.jwtData.user.id;
+  let updated_by = [{
     user_name,
     updated_at: new Date(),
-  };
+    user_id,
+  }];
   updatePortfolioForLearner(
     learner_id,
     showcase_projects,
