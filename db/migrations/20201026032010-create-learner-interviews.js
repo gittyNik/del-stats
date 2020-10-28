@@ -16,6 +16,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID
       },
+      job_application_id: {
+        allowNull: false,
+        type: Sequelize.UUID
+      },
       codepad_id: {
         allowNull: false,
         type: Sequelize.STRING
@@ -23,6 +27,11 @@ module.exports = {
       codeinterview_link: {
         allowNull: false,
         type: Sequelize.STRING
+      },
+      interview_round: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: 1
       },
       interview_date: {
         allowNull: false,
@@ -43,7 +52,7 @@ module.exports = {
       updated_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('NOW()'),
-      }
+      },
     });
   },
   down: (queryInterface, Sequelize) => {

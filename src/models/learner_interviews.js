@@ -1,9 +1,10 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import db from '../database';
+import { createPad } from "../intergrations/codeinterview/controllers"
 
-export const Learner_Interviews = db.define('learner_interviews', {
-  id: {
+const LearnerInterviews = db.define('learner_interviews', {
+      id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
@@ -29,6 +30,11 @@ export const Learner_Interviews = db.define('learner_interviews', {
         allowNull: false,
         type: Sequelize.STRING
       },
+      interview_round: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: 1
+      },
       interview_date: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -51,3 +57,28 @@ export const Learner_Interviews = db.define('learner_interviews', {
       },
 });
 
+const createInterview = async (interview, name="Interview - SOAL Recruitment Drive") => {
+  let codepad = await createPad(name);
+  return LearnerInterviews.create({
+    id: uuid(),
+    codepad_id: codepad.id,
+    codeinterview_link: codepad.url,
+    ...interview
+  })
+ }
+
+ const updateInterview = (id, interview) =>
+  LearnerInterviews.update({
+    ...interview
+  }, {
+    where: {
+      id
+    },
+    returning: true
+  })
+
+export {
+  LearnerInterviews,
+  createInterview,
+  updateInterview
+}
