@@ -378,6 +378,7 @@ export const addLearner = async (learners, cohort_id) => {
   try {
     for (let i = 0; i < learners.length; i++) {
       let learner_id = learners[i];
+      await changeUserRole(learner_id, USER_ROLES.LEARNER)
       let cohort = await addLearnerToCohort(learner_id, cohort_id);
       let application = await updateCohortJoining(learner_id, cohort_id);
       let team = await addLearnerToGithubTeam(learner_id, cohort_id);

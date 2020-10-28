@@ -15,6 +15,7 @@ export const USER_ROLES = Object.freeze({
   SUPERADMIN: 'superadmin',
   REVIEWER: 'reviewer',
   OPERATIONS: 'operations',
+  RECRUITER: 'recruiter',
 });
 
 const AVAILABLE_USER_STATUS = [
@@ -87,7 +88,9 @@ export const getUsersWithStatus = (status, learner_ids) => User.findAll({
     id: {
       [Sequelize.Op.in]: learner_ids,
     },
-    status,
+    status: {
+      [Sequelize.Op.contains]: [status],
+    },
   },
   raw: true,
 });
