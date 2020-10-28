@@ -57,6 +57,23 @@ const LearnerInterviews = db.define('learner_interviews', {
       },
 });
 
+const getInterviewById = id => LearnerInterviews.findOne({ where: { id }, returning: true})
+
+const getInterview = (learner_id, job_application_id, interview_round) =>
+  LearnerInterviews.findOne({
+    where: {
+      learner_id, job_application_id, interview_round
+    },
+    returning: true
+  })
+
+const getAllInterviewsForLearner = learner_id => 
+  LearnerInterviews.findAll({
+    where: {
+      learner_id
+    }
+  })
+
 const createInterview = async (interview, name="Interview - SOAL Recruitment Drive") => {
   let codepad = await createPad(name);
   return LearnerInterviews.create({
@@ -67,7 +84,7 @@ const createInterview = async (interview, name="Interview - SOAL Recruitment Dri
   })
  }
 
- const updateInterview = (id, interview) =>
+ const updateInterviewById = (id, interview) =>
   LearnerInterviews.update({
     ...interview
   }, {
@@ -77,8 +94,23 @@ const createInterview = async (interview, name="Interview - SOAL Recruitment Dri
     returning: true
   })
 
+  const updateInterview = (learner_id, job_application_id, interview_round, interview) =>
+  LearnerInterviews.update({
+    ...interview
+  }, {
+    where: {
+      learner_id,
+      job_application_id,
+      interview_round
+    }
+  })
+
 export {
   LearnerInterviews,
+  getInterviewById,
+  getInterview,
+  getAllInterviewsForLearner,
   createInterview,
+  updateInterviewById,
   updateInterview
 }
