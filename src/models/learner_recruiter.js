@@ -5,9 +5,9 @@ import db from '../database';
 const LearnerRecruiters = db.define('learner_recruiters', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.UUID
+        type: Sequelize.UUID,
+        default: Sequelize.UUIDV4,
       },
       learner_interview_id: {
         type: Sequelize.UUID
@@ -25,7 +25,7 @@ const LearnerRecruiters = db.define('learner_recruiters', {
       }
 });
 
-const addData = (learner_interview_id, recruiter_id) => LearnerRecruiters.create({
+const createInterviewRecuiterRelation = (learner_interview_id, recruiter_id) => LearnerRecruiters.create({
 	id: uuid(),
 	learner_interview_id,
 	recruiter_id
@@ -33,5 +33,7 @@ const addData = (learner_interview_id, recruiter_id) => LearnerRecruiters.create
 
 
 export {
-	LearnerRecruiters
+	LearnerRecruiters,
+	createInterviewRecuiterRelation
+
 }

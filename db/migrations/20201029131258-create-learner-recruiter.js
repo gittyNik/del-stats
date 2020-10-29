@@ -11,7 +11,7 @@ module.exports = {
       learner_interview_id: {
         type: Sequelize.UUID
       },
-      user_id: {
+      recruiter_id: {
         type: Sequelize.UUID
       },
       created_at: {

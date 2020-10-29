@@ -4,6 +4,7 @@ import {
 	getInterview,
 	getAllInterviewsForLearner
 } from "../../../models/learner_interviews"
+import { createInterviewRecuiterRelation } from "../../../models/learner_recruiter"
 import { createPad } from "./pad.controller.js";
 
 const getInterviewbyIdEndpoint = (req, res) => {
@@ -39,26 +40,29 @@ const getAllLearnerInterviewsEndpoint = (req, res) => {
   	});	
 }
 
-const createInterviewEndpoint = (req, res) => {
-  	const { 
-  		recruiter_ids,
-  		learner_id,
-  		job_application_id,
-  		interview_date,
-  		interview_round,
-  		interview_slot,
-  		interview_duration,
-  		name
-  	} = req.body;
-  	createInterview({ recruiter_ids, learner_id, job_application_id, interview_date, interview_round, interview_slot, interview_duration}, name)
-  		.then((data) => res.send({
-  			text: "Successfully created Interview",
-  			data
-  		}))
-  	  .catch((err) => {
+const createInterviewEndpoint = async (req, res) => {
+	try {
+	  	const { 
+	  		recruiter_ids,
+	  		learner_id,
+	  		job_application_id,
+	  		interview_date,
+	  		interview_round,
+	  		interview_slot,
+	  		interview_duration,
+	  		name
+	  	} = req.body;
+	  	let interview = await createInterview({ learner_id, job_application_id, interview_date, interview_round, interview_slot, interview_duration}, name)
+	  	let interviewRecruiter = await Promise.all(recruiter_ids.map(recruiter_id => createInterviewRecuiterRelation(interview.id, recruiter_id)))
+		res.send({
+	  		text: "Successfully created Interview",
+	  		data: {interview, interviewRecruiter}
+	  	})	
+	} catch (err) {
   	  	console.warn (err)
   	  	res.status(500).send(err)
-  	  });	
+  	  };	
+  			
 };
 
 const updateStatusEndpoint = (req, res) => {

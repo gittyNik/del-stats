@@ -79,7 +79,7 @@ const getInterview = (learner_id, job_application_id, interview_round) =>
     where: {
       learner_id, job_application_id, interview_round
     },
-    // include: [{ model: User, as: 'LearnerDetails'}, { model: JobApplication, as: 'JobApplicationDetails'}],
+    // include: [{ model: User, as: 'Recruiters' }, { model: User, as: 'LearnerDetails'}, { model: JobApplication, as: 'JobApplicationDetails'}],
     returning: true
   })
 

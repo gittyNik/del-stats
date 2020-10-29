@@ -56,6 +56,10 @@ CohortBreakout.belongsTo(Cohort);
 Application.belongsTo(Cohort, { foreignKey: 'cohort_applied' });
 Application.belongsTo(Cohort, { foreignKey: 'cohort_joining' });
 
+// User.hasMany(SocialConnection, {foreignKey: 'user_id'});
+// SocialConnection.belongsTo(User, {foreignKey: 'user_id'})
+
+
 CohortMilestone.belongsTo(Cohort, { foreignKey: 'cohort_id', constraints: false });
 CohortMilestone.belongsTo(Milestone, { foreignKey: 'milestone_id', constraints: false });
 
@@ -107,8 +111,19 @@ LearnerInterviews.belongsTo(JobApplication, {as: 'JobApplicationDetails', foreig
 User.hasOne(LearnerInterviews, {as: 'LearnerDetails', foreignKey: 'learner_id'});
 LearnerInterviews.belongsTo(User, {as: 'LearnerDetails', foreignKey: 'learner_id'});
 
-LearnerInterviews.belongsToMany(User, { through: LearnerRecruiters });
-User.belongsToMany(LearnerInterviews, { through: LearnerRecruiters });
+// Many to many relation between LearnerInterviews and User through LearnerRecruiter table
+User.belongsToMany(LearnerInterviews, {
+ through: LearnerRecruiters,
+ foreignKey: 'recruiter_id',
+ // otherKey: 'learner_interview_id',
+ as: 'LearnerInterviews'
+});
+LearnerInterviews.belongsToMany(User, {
+ through: LearnerRecruiters,
+ // otherKey: 'learner_interview_id',
+ foreignKey: 'learner_interview_id',
+ as: 'Recruiters'
+});
 
 // User.hasMany()
 // LearnerInterviews.belongsTo(User, {as: 'Recruiters', foreignKey: 'recruiter_ids'})

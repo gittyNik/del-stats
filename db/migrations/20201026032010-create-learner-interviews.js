@@ -18,12 +18,10 @@ module.exports = {
       learner_id: {
         allowNull: false,
         type: Sequelize.UUID,
-        references: { model: 'users', key: 'id'  },
       },
       job_application_id: {
         allowNull: false,
         type: Sequelize.UUID,
-        references: { model: 'job_applications', key: 'id'  },
       },
       codepad_id: {
         allowNull: false,
