@@ -7,6 +7,7 @@ import { LearnerBreakout } from './learner_breakout';
 import { getReviewSlotsByProgram } from './review_slots';
 import { changeTimezone } from './breakout_template';
 import { User } from './user';
+import { getCohortFromLearnerId } from './cohort';
 import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
 
 const GITHUB_BASE = process.env.GITHUB_TEAM_BASE;
@@ -124,6 +125,51 @@ export const getUserAndTeamReviews = (learner_id) => LearnerBreakout.findAll(
     raw: true,
   },
 );
+
+export const getCompletedReviewsForLearner = async (learner_id, status = 'all') => {
+  try {
+    const { id: cohort_id } = await getCohortFromLearnerId(learner_id);
+    let whereObject;
+    if (status === 'all') {
+      whereObject = {
+        learner_id,
+      };
+    }
+    if (status === 'completed') {
+      whereObject = {
+        learner_id,
+        [Sequelize.Op.and]: Sequelize.literal("review_feedback->>'rubrics' IS NOT NULL"),
+      };
+    }
+    if (status === 'incomplete') {
+      whereObject = {
+        learner_id,
+        [Sequelize.Op.and]: Sequelize.literal("review_feedback->>'rubrics' IS NULL"),
+      }
+    }
+    const cohortBreakouts = await CohortBreakout.findAll({
+      where: {
+        cohort_id,
+        type: 'reviews',
+        status: 'completed',
+      },
+      order: [
+        ['time_scheduled', 'ASC'],
+      ],
+      include: [{
+        model: LearnerBreakout,
+        where: whereObject,
+        include: [{
+          model: User,
+          attributes: ['name', 'email'],
+        }],
+      }],
+    });
+    return cohortBreakouts;
+  } catch (err) {
+    throw new Error(err);
+  }
+};
 
 export const updateTeamReview = (
   cohort_breakout_id,
