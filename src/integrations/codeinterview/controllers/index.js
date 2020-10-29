@@ -1,8 +1,10 @@
 import { 
 	createInterview, 
 	getInterviewById,
-	getInterview
+	getInterview,
+	getAllInterviewsForLearner
 } from "../../../models/learner_interviews"
+import { createPad } from "./pad.controller.js";
 
 const getInterviewbyIdEndpoint = (req, res) => {
 	const { id } = req.params;
@@ -24,6 +26,19 @@ const getInterviewEndpoint = (req, res) => {
   	  .catch((err) => res.status(500).send(err));	
 }
 
+const getAllLearnerInterviewsEndpoint = (req, res) => {
+	const { learner_id } = req.params
+	getAllInterviewsForLearner(learner_id)
+	.then((data) => res.send({
+  		text: "Interview details",
+  		data
+  	}))
+  	.catch((err) => {
+  	 	console.warn (err)
+  	 	res.status(500).send(err)
+  	});	
+}
+
 const createInterviewEndpoint = (req, res) => {
   	const { 
   		recruiter_ids,
@@ -31,14 +46,19 @@ const createInterviewEndpoint = (req, res) => {
   		job_application_id,
   		interview_date,
   		interview_round,
+  		interview_slot,
+  		interview_duration,
   		name
   	} = req.body;
-  	createInterview({ recruiter_ids, learner_id, job_application_id, interview_date, interview_round}, name)
+  	createInterview({ recruiter_ids, learner_id, job_application_id, interview_date, interview_round, interview_slot, interview_duration}, name)
   		.then((data) => res.send({
   			text: "Successfully created Interview",
   			data
   		}))
-  	  .catch((err) => res.status(500).send(err));	
+  	  .catch((err) => {
+  	  	console.warn (err)
+  	  	res.status(500).send(err)
+  	  });	
 };
 
 const updateStatusEndpoint = (req, res) => {
@@ -93,5 +113,6 @@ export {
 	updateStatusEndpoint, 
 	updateRemarksEndpoint, 
 	updateInterviewDateEndpoint,
+	getAllLearnerInterviewsEndpoint,
 	createPad 
 };

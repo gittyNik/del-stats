@@ -8,17 +8,22 @@ module.exports = {
         type: Sequelize.UUID,
         default: Sequelize.UUIDV4,
       },
-      recruiter_ids: {
-        allowNull: false,
-        type: Sequelize.ARRAY(Sequelize.UUID),
-      },
+      // recruiter_ids: {
+      //   allowNull: false,
+      //   type: Sequelize.ARRAY({
+      //     type: Sequelize.UUID,
+      //     references: { model: 'users', key: 'id'  }
+      //   })
+      // },
       learner_id: {
         allowNull: false,
-        type: Sequelize.UUID
+        type: Sequelize.UUID,
+        references: { model: 'users', key: 'id'  },
       },
       job_application_id: {
         allowNull: false,
-        type: Sequelize.UUID
+        type: Sequelize.UUID,
+        references: { model: 'job_applications', key: 'id'  },
       },
       codepad_id: {
         allowNull: false,
@@ -37,6 +42,14 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('NOW()'),
+      },
+      interview_slot: {
+        allowNull: false,
+        type: Sequelize.TIME
+      },
+      interview_duration: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
       },
       interviewer_remarks: {
         type: Sequelize.STRING,

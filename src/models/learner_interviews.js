@@ -1,7 +1,9 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import db from '../database';
-import { createPad } from "../intergrations/codeinterview/controllers"
+import { createPad } from "../integrations/codeinterview/controllers"
+import { User } from './user'
+import { JobApplication } from './job_application';
 
 const LearnerInterviews = db.define('learner_interviews', {
       id: {
@@ -10,17 +12,22 @@ const LearnerInterviews = db.define('learner_interviews', {
         type: Sequelize.UUID,
         default: Sequelize.UUIDV4,
       },
-      recruiter_ids: {
-        allowNull: false,
-        type: Sequelize.ARRAY(Sequelize.UUID),
-      },
+      // recruiter_ids: {
+      //   allowNull: false,
+      //   type: Sequelize.ARRAY({
+      //     type: Sequelize.UUID,
+      //     // references: { model: 'users', key: 'id'  }
+      //   })
+      // },
       learner_id: {
         allowNull: false,
-        type: Sequelize.UUID
+        type: Sequelize.UUID,
+        // references: { model: 'users', key: 'id'  },
       },
       job_application_id: {
         allowNull: false,
-        type: Sequelize.UUID
+        type: Sequelize.UUID,
+        // references: { model: 'job_applications', key: 'id'  },
       },
       codepad_id: {
         allowNull: false,
@@ -39,6 +46,14 @@ const LearnerInterviews = db.define('learner_interviews', {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('NOW()'),
+      },
+      interview_slot: {
+        allowNull: false,
+        type: Sequelize.TIME
+      },
+      interview_duration: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
       },
       interviewer_remarks: {
         type: Sequelize.STRING,
@@ -64,6 +79,7 @@ const getInterview = (learner_id, job_application_id, interview_round) =>
     where: {
       learner_id, job_application_id, interview_round
     },
+    // include: [{ model: User, as: 'LearnerDetails'}, { model: JobApplication, as: 'JobApplicationDetails'}],
     returning: true
   })
 
@@ -71,7 +87,16 @@ const getAllInterviewsForLearner = learner_id =>
   LearnerInterviews.findAll({
     where: {
       learner_id
-    }
+    },
+    attributes: [
+      'id',
+      'learner_id',
+      'job_application_id',
+      'interview_date',
+      'interview_slot',
+      'interview_duration'
+    ],
+    raw: true,
   })
 
 const createInterview = async (interview, name="Interview - SOAL Recruitment Drive") => {

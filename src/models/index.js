@@ -40,6 +40,8 @@ import { BreakoutRecordingsDetails } from './breakout_recording_details';
 import { BreakoutRecordings } from './breakout_recordings';
 import { ReviewSlots } from './review_slots';
 import { AssessmentSlots } from './assessment_slots';
+import { LearnerInterviews } from './learner_interviews';
+import { LearnerRecruiters } from './learner_recruiter';
 
 // TODO: describe all associations here
 
@@ -98,6 +100,18 @@ BreakoutRecordingsDetails.belongsTo(User, { foreignKey: 'user_id' });
 
 ReviewSlots.belongsTo(User, { foreignKey: 'reviewer' });
 AssessmentSlots.belongsTo(User, { foreignKey: 'reviewer' });
+
+JobApplication.hasOne(LearnerInterviews, {as: 'JobApplicationDetails', foreignKey: 'job_application_id'});
+LearnerInterviews.belongsTo(JobApplication, {as: 'JobApplicationDetails', foreignKey: 'job_application_id'});
+
+User.hasOne(LearnerInterviews, {as: 'LearnerDetails', foreignKey: 'learner_id'});
+LearnerInterviews.belongsTo(User, {as: 'LearnerDetails', foreignKey: 'learner_id'});
+
+LearnerInterviews.belongsToMany(User, { through: LearnerRecruiters });
+User.belongsToMany(LearnerInterviews, { through: LearnerRecruiters });
+
+// User.hasMany()
+// LearnerInterviews.belongsTo(User, {as: 'Recruiters', foreignKey: 'recruiter_ids'})
 // User.hasMany(LearnerChallenge);
 
 // User.belongsTo(Cohort);
@@ -143,4 +157,5 @@ export default {
   Topic,
   User,
   connection,
+  LearnerInterviews
 };
