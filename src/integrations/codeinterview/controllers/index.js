@@ -2,7 +2,8 @@ import {
 	createInterview, 
 	getInterviewById,
 	getInterview,
-	getAllInterviewsForLearner
+	getAllInterviewsForLearner,
+	updateInterview
 } from "../../../models/learner_interviews"
 import { createInterviewRecuiterRelation } from "../../../models/learner_recruiter"
 import { createPad } from "./pad.controller.js";
@@ -67,8 +68,8 @@ const createInterviewEndpoint = async (req, res) => {
 
 const updateStatusEndpoint = (req, res) => {
 	let interview;
-	const { learner_id, job_application_id, interview_round, status } = req.body;
-	interview = { status }
+	const { learner_id, job_application_id, interview_round, final_status } = req.body;
+	interview = { final_status }
 	if (req.body.interviewer_remarks) {
 		interview = {
 			...interview,
