@@ -1,7 +1,7 @@
 import Express from 'express';
 import applicationRouter from './application.routes';
 import counsellorRouter from './counsellor.routes';
-import jobRouter from './job.routes';
+import jobRouter from './job_postings.routes';
 import portfolioRouter from './portfolio.routes';
 // import learnerRouter from './learner.routes';
 import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';

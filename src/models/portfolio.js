@@ -43,8 +43,7 @@ export const Portfolio = db.define('portfolios', {
     defaultValue: 'available',
   },
   tags: {
-    type: Sequelize.UUID,
-    references: { model: 'tags', key: 'id' },
+    type: Sequelize.ARRAY(Sequelize.UUID),
   },
   profile_views: {
     type: Sequelize.INTEGER,
@@ -194,7 +193,7 @@ export const updatePortfolioById = (
         reviewed_by,
         status,
         hiring_status,
-        updated_by: [updated_by],
+        updated_by,
       });
     }
 
@@ -255,7 +254,7 @@ export const updatePortfolioForLearner = (
         reviewed_by,
         status,
         hiring_status,
-        updated_by: [updated_by],
+        updated_by,
       });
     }
 

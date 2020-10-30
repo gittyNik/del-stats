@@ -11,8 +11,7 @@ const migration = {
       defaultValue: 'available',
     }, { transaction }),
     qi.addColumn('portfolios', 'tags', {
-      type: Sequelize.UUID,
-      references: { model: 'tags', key: 'id' },
+      type: Sequelize.ARRAY(Sequelize.UUID),
     }, { transaction }),
     qi.addColumn('portfolios', 'available_time_slots', Sequelize.ARRAY(Sequelize.JSON), { transaction }),
     qi.changeColumn('portfolios', 'learner_id', {
