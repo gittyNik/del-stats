@@ -308,4 +308,18 @@ export const addPortfolioResume = (
     });
   });
 
+export const getLearnerList = (limit = 10, offset = 0) => Portfolio
+  .findAndCountAll({
+    where: {
+      status: 'available',
+    },
+    include: [{
+      model: 'users',
+      attributes: ['name', 'email', 'phone'],
+    }],
+    // todo: include github and linkedin
+    offset,
+    limit,
+  });
+
 export default Portfolio;

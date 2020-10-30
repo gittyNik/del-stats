@@ -98,6 +98,8 @@ BreakoutRecordingsDetails.belongsTo(User, { foreignKey: 'user_id' });
 
 ReviewSlots.belongsTo(User, { foreignKey: 'reviewer' });
 AssessmentSlots.belongsTo(User, { foreignKey: 'reviewer' });
+
+Portfolio.belongsTo(User, { foreignKey: 'learner_id' });
 // User.hasMany(LearnerChallenge);
 
 // User.belongsTo(Cohort);
