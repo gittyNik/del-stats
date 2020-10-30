@@ -34,11 +34,11 @@ import {
 import {
   showCompletedBreakoutOnSlack,
 } from '../integrations/slack/team-app/controllers/milestone.controller';
-import { postAttendaceInCohortChannel, postTodaysBreakouts } from '../integrations/slack/delta-app/controllers/web.controller';
+import { postAttendaceInCohortChannel } from '../integrations/slack/delta-app/controllers/web.controller';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 import { createEvent, deleteEvent, updateEvent } from '../integrations/calendar/calendar.model';
 import { logger } from '../util/logger';
-import { getChannelIdForCohort, getSlackIdForLearner } from './slack_channels';
+import { getSlackIdForLearner } from './slack_channels';
 // import sandbox from 'bullmq/dist/classes/sandbox';
 
 export const EVENT_STATUS = [

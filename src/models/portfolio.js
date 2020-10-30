@@ -42,6 +42,10 @@ export const Portfolio = db.define('portfolios', {
     type: Sequelize.ENUM(...HIRING_STATUS),
     defaultValue: 'available',
   },
+  tags: {
+    type: Sequelize.UUID,
+    references: { model: 'tags', key: 'id' },
+  },
   profile_views: {
     type: Sequelize.INTEGER,
     defaultValue: 0,
@@ -53,6 +57,7 @@ export const Portfolio = db.define('portfolios', {
     type: Sequelize.DATE,
     defaultValue: Sequelize.literal('NOW()'),
   },
+  available_time_slots: Sequelize.ARRAY(Sequelize.JSON),
   updated_by: Sequelize.ARRAY(Sequelize.JSON),
 });
 
