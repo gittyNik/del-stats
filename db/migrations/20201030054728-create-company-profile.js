@@ -6,6 +6,7 @@ const migration = {
       defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
     },
+    name: Sequelize.STRING,
     description: Sequelize.TEXT,
     logo: {
       type: Sequelize.STRING,
