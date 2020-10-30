@@ -47,6 +47,7 @@ export const User = db.define(
     role: Sequelize.STRING,
     location: Sequelize.STRING,
     profile: Sequelize.JSON,
+    picture: Sequelize.STRING,
     // USER status should have the status and date when
     // it was reported
     status: {
