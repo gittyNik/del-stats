@@ -84,25 +84,14 @@ router.post('/', createJobPostingAPI);
 router.patch('/:id', updateJobPostingAPI);
 
 /**
- * @api {patch} /career/jobs/:id  Update Career JobPosting
- * @apiDescription Update an porfolio
+ * @api {delete} /career/jobs/:id  Update Career JobPosting
+ * @apiDescription Delete a job posting
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateJobPosting
  * @apiGroup JobPosting
  *
- * @apiParam {String} learner_id Id of the learner
- * @apiParam {String[]} showcase_projects List of all projects
- * @apiParam {String[]} fields_of_interest List of all interested fields
- * @apiParam {String[]} city_choices List of all preferred cities
- * @apiParam {String} educational_background Educational Background of Learner
- * @apiParam {String} experience_level Experience level of learner
- * @apiParam {String} relevant_experience_level Relevant experience level
- * @apiParam {Binary} resume Resume of Learner
- * @apiParam {String} review Review of the portfolio
- * @apiParam {String} reviewed_by Reveiwed By
- * @apiParam {String} status Status of portfolio
- * @apiParam {String} hiring_status Hiring status of the learner.
+ * @apiParam {String} job id of the posting
  */
-router.patch('/learner/:id', updateJobPostingLearnerAPI);
+router.delete('/:id', removeJobPostingAPI);
 
 export default router;
