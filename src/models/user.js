@@ -273,7 +273,7 @@ export const addProfilePicture = async (user, action,) => {
   const { user_id, picture_url } = user;
   if (action === 'getSignedUrl') {
     let response = await signedUploadUrl(
-      `${user_id}.jpeg`,
+      user_id,
       '',
       AWS_LEARNER_PROFILE_BUCKET,
       AWS_LEARNER_PROFILE_BASE_PATH,
