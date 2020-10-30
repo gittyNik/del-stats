@@ -1,5 +1,5 @@
 import express from 'express';
-import { getProfile, updateProfile } from '../../controllers/community/user.controller';
+import { getProfile, updateProfile, addProfilePictureAPI } from '../../controllers/community/user.controller';
 
 const router = express.Router();
 
@@ -26,4 +26,6 @@ router.get('/', getProfile);
  */
 router.patch('/', updateProfile);
 
+
+router.get('/picture', addProfilePictureAPI);
 export default router;
