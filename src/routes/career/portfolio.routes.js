@@ -26,7 +26,7 @@ router.use(allowMultipleRoles([ADMIN, RECRUITER, CAREER_SERVICES, LEARNER]));
 router.get('/', getAllPortfoliosAPI);
 
 /**
- * @api {get} /career/portfolios Get all Career Portfolios
+ * @api {get} /career/portfolios/learners Get all Career Portfolios
  * @apiDescription get all learners ready for career assistance
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetLearnerList
