@@ -2,6 +2,7 @@ import Sequelize from 'sequelize';
 import _ from 'lodash';
 import db from '../database';
 import { USER_ROLES } from './user';
+import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
 import { CompanyProfile } from './company_profile';
 
 const {
@@ -62,7 +63,10 @@ export const getJobPostingFromId = (id, role) => JobPosting.findOne({
     attributes: ['name', 'logo'],
   }],
 })
-  .then((jobPosting) => {
+  .then(async (jobPosting) => {
+    console.log(jobPosting);
+    let logo = await getViewUrlS3(jobPosting.logo, '', 'company_logo');
+    jobPosting.logo = logo;
     if ((jobPosting) && (role === LEARNER)) {
       let views = 1;
       views += jobPosting.views;

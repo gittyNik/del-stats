@@ -6,7 +6,10 @@ import {
 
 export const getAllPortfoliosAPI = (req, res) => {
   let { limit, page } = req.query;
-  let offset = limit * page;
+  let offset;
+  if ((limit) && (page)) {
+    offset = limit * (page - 1);
+  }
   getAllPortfolios(limit, offset)
     .then(data => res.status(201).json({
       message: 'Portfolios fetched',
@@ -21,7 +24,10 @@ export const getAllPortfoliosAPI = (req, res) => {
 
 export const getPortfoliosByStatusAPI = (req, res) => {
   let { limit, page, status } = req.query;
-  let offset = limit * page;
+  let offset;
+  if ((limit) && (page)) {
+    offset = limit * (page - 1);
+  }
   getPortfoliosByStatus(status, limit, offset)
     .then(data => res.status(201).json({
       message: 'Portfolios fetched',
@@ -102,6 +108,9 @@ export const createPortfolioAPI = (req, res) => {
     reviewed_by,
     status,
     hiring_status,
+    work_experience,
+    capstone_project,
+    tags,
   } = req.body;
   const user_name = req.jwtData.user.name;
   const learner_id = req.jwtData.user.id;
@@ -125,6 +134,9 @@ export const createPortfolioAPI = (req, res) => {
     status,
     hiring_status,
     updated_by,
+    work_experience,
+    capstone_project,
+    tags,
   )
     .then((data) => res.status(201).json({
       message: 'Portfolio created',
@@ -152,6 +164,9 @@ export const updatePortfolio = (req, res) => {
     reviewed_by,
     status,
     hiring_status,
+    work_experience,
+    capstone_project,
+    tags,
   } = req.body;
   const user_name = req.jwtData.user.name;
   const user_id = req.jwtData.user.id;
@@ -176,6 +191,9 @@ export const updatePortfolio = (req, res) => {
     status,
     hiring_status,
     updated_by,
+    work_experience,
+    capstone_project,
+    tags,
   ).then(() => res.status(200).json({
     message: 'Portfolio updated',
     type: 'success',
@@ -199,6 +217,9 @@ export const updatePortfolioLearnerAPI = (req, res) => {
     reviewed_by,
     status,
     hiring_status,
+    work_experience,
+    capstone_project,
+    tags,
   } = req.body;
   const { id: learner_id } = req.params;
   const user_name = req.jwtData.user.name;
@@ -222,6 +243,9 @@ export const updatePortfolioLearnerAPI = (req, res) => {
     status,
     hiring_status,
     updated_by,
+    work_experience,
+    capstone_project,
+    tags,
   ).then(() => res.status(200).json({
     message: 'Portfolio updated',
     type: 'success',

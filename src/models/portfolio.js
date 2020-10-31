@@ -27,7 +27,8 @@ export const Portfolio = db.define('portfolios', {
   showcase_projects: Sequelize.ARRAY(Sequelize.STRING),
   fields_of_interest: Sequelize.ARRAY(Sequelize.STRING),
   city_choices: Sequelize.ARRAY(Sequelize.STRING),
-  educational_backgroud: Sequelize.STRING,
+  educational_background: Sequelize.ARRAY(Sequelize.JSON),
+  work_experience: Sequelize.ARRAY(Sequelize.JSON),
   experience_level: Sequelize.STRING,
   relevant_experience_level: Sequelize.STRING,
   skill_experience_level: Sequelize.ARRAY(Sequelize.JSON),
@@ -58,6 +59,7 @@ export const Portfolio = db.define('portfolios', {
   },
   available_time_slots: Sequelize.ARRAY(Sequelize.JSON),
   updated_by: Sequelize.ARRAY(Sequelize.JSON),
+  capstone_project: Sequelize.JSON,
 });
 
 export const getPortfoliosFromId = (id, role) => Portfolio.findOne({
@@ -137,6 +139,9 @@ export const createPortfolio = (
   status,
   hiring_status,
   updated_by,
+  work_experience,
+  capstone_project,
+  tags,
 ) => Portfolio.create(
   {
     id: uuid(),
@@ -155,6 +160,9 @@ export const createPortfolio = (
     hiring_status,
     created_at: new Date(),
     updated_by,
+    work_experience,
+    capstone_project,
+    tags,
   },
 );
 
@@ -173,6 +181,9 @@ export const updatePortfolioById = (
   status,
   hiring_status,
   updated_by,
+  work_experience,
+  capstone_project,
+  tags,
 ) => Portfolio.findOne({
   where: {
     id,
@@ -199,6 +210,9 @@ export const updatePortfolioById = (
       status,
       hiring_status,
       updated_by: learnerPortfolio.updated_by,
+      work_experience,
+      capstone_project,
+      tags,
     }, {
       where: {
         id,
@@ -220,6 +234,9 @@ export const updatePortfolioForLearner = (
   status,
   hiring_status,
   updated_by,
+  work_experience,
+  capstone_project,
+  tags,
 ) => Portfolio.findOne({
   where: {
     learner_id,
@@ -246,6 +263,9 @@ export const updatePortfolioForLearner = (
       status,
       hiring_status,
       updated_by: learnerPortfolio.updated_by,
+      work_experience,
+      capstone_project,
+      tags,
     }, {
       where: {
         learner_id,

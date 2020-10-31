@@ -14,6 +14,7 @@ const migration = {
       type: Sequelize.ARRAY(Sequelize.UUID),
     }, { transaction }),
     qi.addColumn('portfolios', 'available_time_slots', Sequelize.ARRAY(Sequelize.JSON), { transaction }),
+    qi.addColumn('portfolios', 'educational_background', Sequelize.ARRAY(Sequelize.JSON), { transaction }),
     qi.changeColumn('portfolios', 'learner_id', {
       type: Sequelize.UUID,
       unique: true,
@@ -25,6 +26,7 @@ const migration = {
     qi.removeColumn('portfolios', 'hiring_status', { transaction }),
     qi.removeColumn('portfolios', 'tags', { transaction }),
     qi.removeColumn('portfolios', 'available_time_slots', { transaction }),
+    qi.removeColumn('portfolios', 'educational_background', { transaction }),
     qi.changeColumn('portfolios', 'learner_id', {
       type: Sequelize.UUID,
       references: { model: 'users', key: 'id' },
