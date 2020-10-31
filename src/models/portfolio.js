@@ -15,8 +15,6 @@ const HIRING_STATUS = [
   'hired',
 ];
 
-SocialConnection.belongsTo(User, { foreignKey: 'user_id' });
-
 export const Portfolio = db.define('portfolios', {
   id: {
     type: Sequelize.UUID,
@@ -313,6 +311,28 @@ export const addPortfolioResume = (
     });
   });
 
+// export const getLearnerList = async (limit = 10, offset = 0) => Portfolio
+//   .findAndCountAll({
+//     where: {
+//       status: 'available',
+//     },
+//     include: [{
+//       model: User,
+//       attributes: ['name', 'email', 'phone', 'picture', 'status'],
+//       include: [{
+//         model: SocialConnection,
+//         as: 'SocialDetails',
+//         where: {
+//           provider: { [Sequelize.Op.in]: ['github', 'linkedin'] },
+//         },
+//         attributes: ['username', 'provider'],
+//       }],
+//     }],
+//     offset,
+//     limit,
+//     raw: true,
+//   });
+
 export const getLearnerList = async (limit = 10, offset = 0) => {
   const { count, rows: portfolios } = await Portfolio
     .findAndCountAll({
@@ -329,6 +349,11 @@ export const getLearnerList = async (limit = 10, offset = 0) => {
     });
   const learnerList = await Promise.all(portfolios.map(async portfolio => {
     const { learner_id } = portfolio;
+    let picture = null;
+    if (portfolio['user.picture']) {
+      picture = await getViewUrlS3(portfolio['user.picture'], '', 'profile_picture');
+    }
+    portfolio.profile_picture = picture;
     const social_connections = await SocialConnection.findAll({
       where: {
         provider: { [Sequelize.Op.in]: ['github', 'linkedin'] },
@@ -337,7 +362,10 @@ export const getLearnerList = async (limit = 10, offset = 0) => {
       attributes: ['username', 'provider'],
       raw: true,
     });
-    return { ...portfolio, social_connections };
+    let flatSocial = social_connections.reduce(
+      (obj, item) => Object.assign(obj, { [item.provider]: item.username }), {},
+    );
+    return { ...portfolio, ...flatSocial };
   }));
   return {
     count,

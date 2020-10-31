@@ -2,7 +2,6 @@ import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import _ from 'lodash';
 import db from '../database';
-import { signedUploadUrl } from '../controllers/firewall/documents.controller';
 
 const { DEFAULT_USER } = process.env;
 
@@ -267,28 +266,13 @@ export const changeUserRole = (learner_id, role) => User.update({
   },
 });
 
-export const addProfilePicture = async (user, action,) => {
-  const {
-    AWS_LEARNER_PROFILE_BUCKET,
-    AWS_LEARNER_PROFILE_BASE_PATH,
-  } = process.env;
+export const addProfilePicture = async (user, action) => {
   const { user_id, picture_url } = user;
-  if (action === 'getSignedUrl') {
-    let response = await signedUploadUrl(
-      user_id,
-      '',
-      AWS_LEARNER_PROFILE_BUCKET,
-      AWS_LEARNER_PROFILE_BASE_PATH,
-    );
-    return response;
-  }
-  if (action === 'update') {
-    return User.update({
-      picture: picture_url,
-    }, {
-      where: {
-        id: user_id,
-      },
-    });
-  }
+  return User.update({
+    picture: picture_url,
+  }, {
+    where: {
+      id: user_id,
+    },
+  });
 };

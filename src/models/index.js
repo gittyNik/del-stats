@@ -127,10 +127,9 @@ LearnerInterviews.belongsToMany(User, {
 // User.hasMany()
 // LearnerInterviews.belongsTo(User, {as: 'Recruiters', foreignKey: 'recruiter_ids'})
 Portfolio.belongsTo(User, { foreignKey: 'learner_id' });
-SocialConnection.belongsTo(User, { foreignKey: 'user_id' });
 
-// SocialConnection.hasOne(User, { foreignKey: 'user_id' });
-// User.hasMany(LearnerChallenge);
+User.hasOne(SocialConnection, { as: 'SocialDetails', foreignKey: 'user_id' });
+SocialConnection.belongsTo(User, { as: 'SocialDetails', foreignKey: 'user_id' });
 
 // User.belongsTo(Cohort);
 // Cohort.hasMany(User, { foreignKey: 'learners' });
