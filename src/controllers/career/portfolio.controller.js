@@ -24,7 +24,10 @@ export const getAllPortfoliosAPI = (req, res) => {
 
 export const getLearnerListAPI = (req, res) => {
   let { limit, page } = req.query;
-  let offset = limit * page;
+  let offset;
+  if ((limit) && (page)) {
+    offset = limit * (page - 1);
+  }
   return getLearnerList(limit, offset)
     .then(data => res.status(200).json({
       message: 'List of all Available learners',
@@ -35,10 +38,10 @@ export const getLearnerListAPI = (req, res) => {
       console.error(err);
       res.status(500).json({
         text: 'Failed to get all learners list',
-        type: 'failure'
-      })
-    })
-}
+        type: 'failure',
+      });
+    });
+};
 
 export const getPortfoliosByStatusAPI = (req, res) => {
   let { limit, page, status } = req.query;
