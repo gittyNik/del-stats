@@ -3,6 +3,7 @@ import _ from 'lodash';
 import uuid from 'uuid/v4';
 import db from '../database';
 import { USER_ROLES } from './user';
+import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
 
 const {
   RECRUITER,
@@ -67,7 +68,11 @@ export const getPortfoliosFromId = (id, role) => Portfolio.findOne({
     id,
   },
 })
-  .then((learnerPortfolio) => {
+  .then(async (learnerPortfolio) => {
+    if (learnerPortfolio.resume) {
+      let resume = await getViewUrlS3(learnerPortfolio.resume.path, '', 'resume');
+      learnerPortfolio.resume.url = resume;
+    }
     if ((learnerPortfolio) && (role === RECRUITER)) {
       let profile_views = 1;
       profile_views += learnerPortfolio.profile_views;
@@ -108,8 +113,13 @@ export const getPortfoliosByUser = (learner_id, role) => Portfolio.findOne({
   where: {
     learner_id,
   },
+  raw: true,
 })
-  .then((learnerPortfolio) => {
+  .then(async (learnerPortfolio) => {
+    if (learnerPortfolio.resume) {
+      let resume = await getViewUrlS3(learnerPortfolio.resume.path, '', 'resume');
+      learnerPortfolio.resume.url = resume;
+    }
     if ((learnerPortfolio) && (role === RECRUITER)) {
       let profile_views = 0;
       profile_views += learnerPortfolio.profile_views;
