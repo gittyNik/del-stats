@@ -135,10 +135,10 @@ export const updateTeamReviewAPI = (req, res) => {
 };
 
 export const getCompletedReviewsForLearnerAPI = async (req, res) => {
-  const { learner_id } = req.params;
+  const { email } = req.params;
   const { status } = req.body;
   try {
-    const data = await getCompletedReviewsForLearner(learner_id, status);
+    const data = await getCompletedReviewsForLearner(email, status);
     res.status(200).json({
       message: 'Reviews for a learner',
       type: 'success',

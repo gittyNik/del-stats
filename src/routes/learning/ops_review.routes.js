@@ -101,7 +101,7 @@ router.get('/status/:id', getReviewsByStatusAPI);
  */
 router.patch('/learner/:id', updateReviewForLearnerAPI);
 
-router.get('/completed/:learner_id', getCompletedReviewsForLearnerAPI);
+router.get('/completed/:email', getCompletedReviewsForLearnerAPI);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowAdminsOnly);
