@@ -2,7 +2,8 @@ import Sequelize from 'sequelize';
 import _ from 'lodash';
 import uuid from 'uuid/v4';
 import db from '../database';
-import { USER_ROLES } from './user';
+import { SocialConnection } from './social_connection';
+import { User, USER_ROLES } from './user';
 
 const {
   RECRUITER,
@@ -12,6 +13,8 @@ const HIRING_STATUS = [
   'available', 'currently-unavailable',
   'hired',
 ];
+
+SocialConnection.belongsTo(User, { foreignKey: 'user_id' });
 
 export const Portfolio = db.define('portfolios', {
   id: {
@@ -308,18 +311,30 @@ export const addPortfolioResume = (
     });
   });
 
-export const getLearnerList = (limit = 10, offset = 0) => Portfolio
-  .findAndCountAll({
-    where: {
-      status: 'available',
-    },
-    include: [{
-      model: 'users',
-      attributes: ['name', 'email', 'phone'],
-    }],
-    // todo: include github and linkedin
-    offset,
-    limit,
-  });
+export const getLearnerList = async (limit = 10, offset = 0) => {
+  const portfolios = await Portfolio
+    .findAndCountAll({
+      where: {
+        status: 'available',
+      },
+      include: [{
+        model: User,
+        attributes: ['name', 'email', 'phone', 'picture'],
+        include: [{
+          model: SocialConnection,
+          where: {
+            provider: { [Sequelize.Op.in]: ['github', 'linkedin'] },
+            attributes: ['username'],
+          },
+        }],
+      },
+      ],
+      // todo: include github and linkedin
+      offset,
+      limit,
+      raw: true,
+    });
+  return portfolios;
+};
 
 export default Portfolio;

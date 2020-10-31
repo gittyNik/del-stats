@@ -100,6 +100,9 @@ ReviewSlots.belongsTo(User, { foreignKey: 'reviewer' });
 AssessmentSlots.belongsTo(User, { foreignKey: 'reviewer' });
 
 Portfolio.belongsTo(User, { foreignKey: 'learner_id' });
+SocialConnection.belongsTo(User, { foreignKey: 'user_id' });
+
+// SocialConnection.hasOne(User, { foreignKey: 'user_id' });
 // User.hasMany(LearnerChallenge);
 
 // User.belongsTo(Cohort);

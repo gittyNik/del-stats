@@ -22,7 +22,7 @@ const createPorfolio = (learner_id) => ({
   hiring_status: 'available',
   created_at: new Date(),
 });
-const p1 = createPorfolio(learner_ids[0]);
+// const p1 = createPorfolio(learner_ids[0]);
 
 const seeder = {
   up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(t => {
