@@ -2,7 +2,7 @@ import Sequelize from 'sequelize';
 import { apiNotReady } from '../api.controller';
 import {
   User, USER_ROLES, addUserStatus, updateUserData,
-  removeUserStatus,
+  removeUserStatus, addProfilePicture,
 } from '../../models/user';
 import {
   belowThresholdLearners,
@@ -189,4 +189,22 @@ export const leastAttendanceInCohort = async (req, res) => {
     console.error(err);
     res.sendStatus(500);
   });
+};
+
+export const addProfilePictureAPI = async (req, res) => {
+  const { user, action } = req.body;
+  try {
+    const data = await addProfilePicture(user, action);
+    res.status(200).json({
+      text: 'signedUrl for uploading profile picture',
+      data,
+      type: 'success',
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      text: 'Failed to create signedUrl for uploading profile picture',
+      type: 'failure',
+    });
+  }
 };

@@ -2,7 +2,7 @@ import Express from 'express';
 import {
   getAllPortfoliosAPI, getPortfolioById, getPortfolioByUser,
   createPortfolioAPI, getPortfoliosByStatusAPI, updatePortfolio,
-  updatePortfolioLearnerAPI, addResumeForLearner,
+  updatePortfolioLearnerAPI, addResumeForLearner, getLearnerListAPI,
 
 } from '../../controllers/career/portfolio.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
@@ -24,6 +24,15 @@ router.use(allowMultipleRoles([ADMIN, RECRUITER, CAREER_SERVICES, LEARNER]));
  * @apiGroup Portfolio
  */
 router.get('/', getAllPortfoliosAPI);
+
+/**
+ * @api {get} /career/portfolios Get all Career Portfolios
+ * @apiDescription get all learners ready for career assistance
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetLearnerList
+ * @apiGroup Portfolio
+ */
+router.get('/learners', getLearnerListAPI);
 
 /**
  * @api {get} /career/portfolios/status Get all Career Portfolios by status

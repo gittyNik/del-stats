@@ -1,7 +1,7 @@
 import {
   getPortfoliosByStatus, getPortfoliosByUser, getPortfoliosFromId,
   getAllPortfolios, createPortfolio, updatePortfolioById,
-  updatePortfolioForLearner, addPortfolioResume,
+  updatePortfolioForLearner, addPortfolioResume, getLearnerList,
 } from '../../models/portfolio';
 
 export const getAllPortfoliosAPI = (req, res) => {
@@ -21,6 +21,24 @@ export const getAllPortfoliosAPI = (req, res) => {
       res.status(500);
     });
 };
+
+export const getLearnerListAPI = (req, res) => {
+  let { limit, page } = req.query;
+  let offset = limit * page;
+  return getLearnerList(limit, offset)
+    .then(data => res.status(200).json({
+      message: 'List of all Available learners',
+      data,
+      type: 'success',
+    }))
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({
+        text: 'Failed to get all learners list',
+        type: 'failure'
+      })
+    })
+}
 
 export const getPortfoliosByStatusAPI = (req, res) => {
   let { limit, page, status } = req.query;
