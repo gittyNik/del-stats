@@ -3,7 +3,8 @@ import {
 	createInterviewEndpoint, 
 	getInterviewbyIdEndpoint, 
 	getInterviewEndpoint,
-	getAllLearnerInterviewsEndpoint 
+	getAllLearnerInterviewsEndpoint,
+	getCodepadDetailsEndpoint
 } from "../controllers";
 
 const router = express.Router();
@@ -34,6 +35,15 @@ router.get("/:id", getInterviewbyIdEndpoint)
  * @apiGroup Interview Events
  */
 router.get("/learner/:learner_id", getAllLearnerInterviewsEndpoint)
+
+/**
+ * @api {get} /details/:id Get CodePad details by id
+ * @apiDescription Get CodePad details by id
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName getDetails
+ * @apiGroup Interview Events
+ */
+router.get("/details/:id", getCodepadDetailsEndpoint)
 
 /**
  * @api {post} / Create a new pad for interview

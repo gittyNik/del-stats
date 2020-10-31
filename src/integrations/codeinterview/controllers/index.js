@@ -6,7 +6,7 @@ import {
 	updateInterview
 } from "../../../models/learner_interviews"
 import { createInterviewRecuiterRelation } from "../../../models/learner_recruiter"
-import { createPad } from "./pad.controller.js";
+import { createPad, getPadById } from "./pad.controller.js";
 
 const getInterviewbyIdEndpoint = (req, res) => {
 	const { id } = req.params;
@@ -111,6 +111,17 @@ const updateInterviewDateEndpoint = (req, res) => {
 
 }
 
+const getCodepadDetailsEndpoint = (req, res) => {
+	const { id } = req.params;
+	getPadById(id)
+		.then((data) => res.send({
+ 			text: "Successfully fetched Codepad details",
+ 			data
+ 		}))
+  		.catch((err) => res.status(500).send(err));
+
+}
+
 export { 
 	getInterviewbyIdEndpoint,
 	getInterviewEndpoint,
@@ -119,5 +130,7 @@ export {
 	updateRemarksEndpoint, 
 	updateInterviewDateEndpoint,
 	getAllLearnerInterviewsEndpoint,
-	createPad 
+	getCodepadDetailsEndpoint,
+	createPad,
+	getPadById
 };

@@ -39,4 +39,4 @@ const endInterview = id =>
       return err;
     });
 
-export { createPad };
+export { createPad, getPadById };
