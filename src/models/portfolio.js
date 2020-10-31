@@ -180,21 +180,7 @@ export const updatePortfolioById = (
 })
   .then((learnerPortfolio) => {
     if (_.isEmpty(learnerPortfolio)) {
-      return Portfolio.create({
-        learner_id,
-        showcase_projects,
-        fields_of_interest,
-        city_of_choices,
-        educational_background,
-        experience_level,
-        relevant_experience_level,
-        resume,
-        review,
-        reviewed_by,
-        status,
-        hiring_status,
-        updated_by,
-      });
+      throw Error('Portfolio does not exist!');
     }
 
     learnerPortfolio.updated_by.push(...updated_by);
@@ -241,21 +227,7 @@ export const updatePortfolioForLearner = (
 })
   .then((learnerPortfolio) => {
     if (_.isEmpty(learnerPortfolio)) {
-      return Portfolio.create({
-        learner_id,
-        showcase_projects,
-        fields_of_interest,
-        city_of_choices,
-        educational_background,
-        experience_level,
-        relevant_experience_level,
-        resume,
-        review,
-        reviewed_by,
-        status,
-        hiring_status,
-        updated_by,
-      });
+      throw Error('Portfolio does not exist!');
     }
 
     learnerPortfolio.updated_by.push(...updated_by);

@@ -16,6 +16,7 @@ const {
   AWS_BREAKOUTS_BASE_PATH, AWS_BREAKOUTS_BUCKET_NAME,
   AWS_AGREEMENTS_BUCKET_NAME, AWS_BUCKET_NAME,
   AWS_RESUME_BUCKET_NAME, AWS_RESUME_BASE_PATH,
+  AWS_COMPANY_BUCKET_NAME, AWS_COMPANY_LOGO_BASE_PATH,
 } = process.env;
 
 AWS.config.update(
@@ -53,6 +54,10 @@ const type_upload = {
   resume: {
     bucketName: AWS_RESUME_BUCKET_NAME,
     basePath: AWS_RESUME_BASE_PATH,
+  },
+  company_logo: {
+    bucketName: AWS_COMPANY_BUCKET_NAME,
+    basePath: AWS_COMPANY_LOGO_BASE_PATH,
   },
 };
 

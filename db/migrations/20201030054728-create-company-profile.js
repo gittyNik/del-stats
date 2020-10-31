@@ -1,3 +1,8 @@
+const STATUS = [
+  'active',
+  'removed',
+];
+
 const migration = {
 
   up: (queryInterface, Sequelize) => queryInterface.createTable('company_profile', {
@@ -34,8 +39,11 @@ const migration = {
     tags: {
       type: Sequelize.ARRAY(Sequelize.UUID),
     },
-    recruiters: {
-      type: Sequelize.ARRAY(Sequelize.UUID),
+    recruiters: Sequelize.ARRAY(Sequelize.UUID),
+    updated_by: Sequelize.ARRAY(Sequelize.JSON),
+    status: {
+      type: Sequelize.ENUM(...STATUS),
+      defaultValue: 'active',
     },
   }),
   down: queryInterface => queryInterface.dropTable('company_profile'),
