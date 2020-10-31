@@ -18,7 +18,7 @@ export const getAllJobPostingsAPI = (req, res) => {
     }))
     .catch(err => {
       console.error(err.stack);
-      res.status(500);
+      res.sendStatus(500);
     });
 };
 
@@ -33,7 +33,7 @@ export const getJobPostingsByStatusAPI = (req, res) => {
     }))
     .catch(err => {
       console.error(err.stack);
-      res.status(500);
+      res.sendStatus(500);
     });
 };
 
@@ -48,7 +48,7 @@ export const getJobPostingById = (req, res) => {
     }))
     .catch(err => {
       console.error(err.stack);
-      res.status(500);
+      res.sendStatus(500);
     });
 };
 
@@ -65,7 +65,7 @@ export const getJobPostingsByCompanyAPI = (req, res) => {
     }))
     .catch(err => {
       console.error(err.stack);
-      res.status(500);
+      res.sendStatus(500);
     });
 };
 
@@ -97,7 +97,7 @@ export const createJobPostingAPI = (req, res) => {
     }))
     .catch(err => {
       console.error(err.stack);
-      res.status(500);
+      res.sendStatus(500);
     });
 };
 
@@ -130,7 +130,7 @@ export const updateJobPostingAPI = (req, res) => {
   }))
     .catch(err => {
       console.error(err.stack);
-      res.status(500);
+      res.sendStatus(500);
     });
 };
 
@@ -153,6 +153,6 @@ export const removeJobPostingAPI = (req, res) => {
   }))
     .catch(err => {
       console.error(err.stack);
-      res.status(500);
+      res.sendStatus(500);
     });
 };
