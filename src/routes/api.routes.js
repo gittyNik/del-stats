@@ -15,6 +15,7 @@ import adminRouter from './admin.routes';
 import profileRouter from './community/profile.routes';
 
 import calendarRouter from '../integrations/calendar/routes';
+import codeInterviewRouter from '../integrations/codeinterview/routes';
 
 import authenticate from '../controllers/auth/auth.controller';
 import { allowSuperAdminOnly } from '../controllers/auth/roles.controller';
@@ -53,6 +54,9 @@ router.use('/operations', operations);
 
 // Calendar
 router.use('/calendar', calendarRouter);
+
+// Code Interview
+router.use('/codeinterview', codeInterviewRouter)
 
 /**
  * @api {get} / Get sample response

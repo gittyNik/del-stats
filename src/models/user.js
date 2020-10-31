@@ -89,7 +89,9 @@ export const getUsersWithStatus = (status, learner_ids) => User.findAll({
     id: {
       [Sequelize.Op.in]: learner_ids,
     },
-    status,
+    status: {
+      [Sequelize.Op.contains]: [status],
+    },
   },
   raw: true,
 });
