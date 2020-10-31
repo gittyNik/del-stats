@@ -23,6 +23,12 @@ const createPorfolio = (learner_id) => ({
   created_at: new Date(),
 });
 // const p1 = createPorfolio(learner_ids[0]);
+const createLinkedinSocialConnection = (learner_id) => ({
+  id: uuid(),
+  user_id: learner_id,
+  provider: 'linkedin',
+  username: faker.internet.userName(),
+});
 
 const seeder = {
   up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(t => {
@@ -30,15 +36,26 @@ const seeder = {
       'portfolios', learner_ids.map(createPorfolio),
       { transaction: t },
     );
-    return Promise.all([addPortfolios])
-      .then(() => console.log('Seeded Porfolio'))
+    const addLinkedin = queryInterface.bulkInsert(
+      'social_connections', learner_ids.map(createLinkedinSocialConnection),
+      { transaction: t },
+    );
+    return Promise.all([addPortfolios, addLinkedin])
+      .then(() => console.log('Seeded Porfolio and linkedin table'))
       .catch(err => console.error(err));
   }),
 
   down: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(t => Promise.all([
-    queryInterface.buldDelete('porfolios', null, { transaction: t }),
+    queryInterface.bulkDelete('portfolios', null, { transaction: t }),
+    queryInterface.bulkDelete(
+      'social_connections',
+      {
+        user_id: { [Sequelize.Ops.in]: learner_ids },
+        provider: 'linkedin',
+      }, { transaction: t },
+    ),
   ]))
-    .then(() => console.log('portfolio table is deleted'))
+    .then(() => console.log('portfolio table is deleted and linkedin social connection are removed'))
     .catch(err => console.error(err)),
 };
 
