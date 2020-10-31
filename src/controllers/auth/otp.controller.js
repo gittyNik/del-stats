@@ -161,3 +161,8 @@ export const verifyOTP = (req, res) => {
     }
   });
 };
+
+export const registerRecruiterAPI = async (req, res) => {
+  const { phone, email, name } = req.body;
+  return recruiterRegister({ phone, email, fullName: name }, res);
+};

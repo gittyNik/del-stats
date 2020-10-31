@@ -71,7 +71,7 @@ export const JobApplication = db.define('job_applications', {
     type: Sequelize.DATE,
   },
   offer_details: Sequelize.JSON,
-  applicant_feedback: Sequelize.TEXT,
+  applicant_feedback: Sequelize.TEXT, // json
   counsellor_notes: Sequelize.TEXT,
 });
 
