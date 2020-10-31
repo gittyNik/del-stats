@@ -5,7 +5,7 @@ const STATUS = [
 
 const migration = {
 
-  up: (queryInterface, Sequelize) => queryInterface.createTable('company_profile', {
+  up: (queryInterface, Sequelize) => queryInterface.createTable('company_profiles', {
     id: {
       type: Sequelize.UUID,
       defaultValue: Sequelize.UUIDV4,
@@ -39,6 +39,7 @@ const migration = {
     tags: {
       type: Sequelize.ARRAY(Sequelize.UUID),
     },
+    locations: Sequelize.ARRAY(Sequelize.STRING),
     recruiters: Sequelize.ARRAY(Sequelize.UUID),
     updated_by: Sequelize.ARRAY(Sequelize.JSON),
     status: {

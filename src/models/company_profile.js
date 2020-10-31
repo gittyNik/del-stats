@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import _ from 'lodash';
 import db from '../database';
-import { getResourceUrl } from './breakout_recordings';
+import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
 import { USER_ROLES } from './user';
 
 const {
@@ -13,7 +13,7 @@ const STATUS = [
   'removed',
 ];
 
-export const CompanyProfile = db.define('company_profile', {
+export const CompanyProfile = db.define('company_profiles', {
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
@@ -47,6 +47,7 @@ export const CompanyProfile = db.define('company_profile', {
   tags: {
     type: Sequelize.ARRAY(Sequelize.UUID),
   },
+  locations: Sequelize.ARRAY(Sequelize.STRING),
   recruiters: Sequelize.ARRAY(Sequelize.UUID),
   updated_by: Sequelize.ARRAY(Sequelize.JSON),
   status: {
@@ -61,7 +62,7 @@ export const getCompanyProfileFromId = (id, role) => CompanyProfile.findOne({
   },
   raw: true,
 }).then(async (companyProfile) => {
-  let logo = await getResourceUrl(process.env.HIRING_COMPANIES_CDN, companyProfile.logo);
+  let logo = await getViewUrlS3(companyProfile.logo, '', 'company_logo');
   companyProfile.logo = logo;
   if ((companyProfile) && (role === LEARNER)) {
     let views = 1;
@@ -99,6 +100,7 @@ export const createCompanyProfile = (
   tags,
   recruiters,
   updated_by,
+  locations,
 ) => CompanyProfile.create(
   {
     name,
@@ -109,6 +111,7 @@ export const createCompanyProfile = (
     perks,
     tags,
     recruiters,
+    locations,
     updated_by,
     created_at: new Date(),
   },
@@ -125,6 +128,7 @@ export const updateCompanyProfileById = (
   tags,
   recruiters,
   updated_by,
+  locations,
 ) => CompanyProfile.findOne({
   where: {
     id,
@@ -146,6 +150,7 @@ export const updateCompanyProfileById = (
       perks,
       tags,
       recruiters,
+      locations,
       updated_by: companyProfile.updated_by,
     }, {
       where: {

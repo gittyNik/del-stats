@@ -239,6 +239,47 @@ export const signedUploadUrl = async (
   }
 };
 
+export const signedViewUrl = async (
+  fileName, fileType, bucket = AWS_DOCUMENT_BUCKET,
+  base_path = AWS_DOCUMENT_BASE_PATH, full_path = true,
+) => {
+  let filePath;
+  if (full_path) {
+    filePath = fileName;
+  } else {
+    filePath = `${base_path}/${fileName}`;
+  }
+  // Set up the payload of what we are sending to the S3 api
+  const s3Params = {
+    Bucket: bucket,
+    Key: filePath,
+    Expires: 500,
+  };
+  // Make a request to the S3 API to get a signed URL which we can use to upload our file
+  try {
+    let s3Response = await s3.getSignedUrl('getObject', s3Params);
+    const returnData = {
+      signedRequest: s3Response,
+      url: `https://${bucket}.s3.amazonaws.com/${filePath}`,
+    };
+    return returnData;
+  } catch (err) {
+    return err;
+  }
+};
+
+export const getViewUrlS3 = async (fileName, fileType, type) => {
+  try {
+    let { bucketName, basePath } = type_upload[type];
+
+    let response = await signedViewUrl(fileName, fileType, bucketName, basePath);
+    return response;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+};
+
 export const getSignUrl = async (req, res) => {
   const { fileName, fileType, type } = req.body;
   try {

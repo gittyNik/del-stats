@@ -8,7 +8,10 @@ export const getAllCompanyProfilesAPI = (req, res) => {
   let {
     limit, page, status,
   } = req.query;
-  let offset = limit * page;
+  let offset;
+  if ((limit) && (page)) {
+    offset = limit * (page - 1);
+  }
   getAllCompanyProfiles(limit, offset, status)
     .then(data => res.status(201).json({
       message: 'Company Profiles fetched',
@@ -46,6 +49,7 @@ export const createCompanyProfileAPI = (req, res) => {
     perks,
     tags,
     recruiters,
+    locations,
   } = req.body;
   const user_name = req.jwtData.user.name;
   const recruiter_id = req.jwtData.user.id;
@@ -64,6 +68,7 @@ export const createCompanyProfileAPI = (req, res) => {
     tags,
     recruiters,
     updated_by,
+    locations,
   )
     .then((data) => res.status(201).json({
       message: 'Company Profile created',
@@ -87,6 +92,7 @@ export const updateCompanyProfileByIdAPI = (req, res) => {
     perks,
     tags,
     recruiters,
+    locations,
   } = req.body;
   const user_name = req.jwtData.user.name;
   const user_id = req.jwtData.user.id;
@@ -107,6 +113,7 @@ export const updateCompanyProfileByIdAPI = (req, res) => {
     tags,
     recruiters,
     updated_by,
+    locations,
   ).then(() => res.status(200).json({
     message: 'Company Profile updated',
     type: 'success',
