@@ -312,29 +312,36 @@ export const addPortfolioResume = (
   });
 
 export const getLearnerList = async (limit = 10, offset = 0) => {
-  const portfolios = await Portfolio
+  const { count, rows: portfolios } = await Portfolio
     .findAndCountAll({
       where: {
         status: 'available',
       },
       include: [{
         model: User,
-        attributes: ['name', 'email', 'phone', 'picture'],
-        include: [{
-          model: SocialConnection,
-          where: {
-            provider: { [Sequelize.Op.in]: ['github', 'linkedin'] },
-            attributes: ['username'],
-          },
-        }],
-      },
-      ],
-      // todo: include github and linkedin
+        attributes: ['name', 'email', 'phone', 'picture', 'status'],
+      }],
       offset,
       limit,
       raw: true,
     });
-  return portfolios;
+  const learnerList = await Promise.all(portfolios.map(async portfolio => {
+
+    const { learner_id } = portfolio;
+    const social_connections = await SocialConnection.findAll({
+      where: {
+        provider: { [Sequelize.Op.in]: ['github', 'linkedin'] },
+        user_id: learner_id,
+      },
+      attributes: ['username', 'provider'],
+      raw: true,
+    });
+    return { ...portfolio, social_connections };
+  }));
+  return {
+    count,
+    learnerList
+  };
 };
 
 export default Portfolio;
