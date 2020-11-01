@@ -162,6 +162,7 @@ export const createJobApplicationForPortofolio = async (
   let challengeDetails = await learnerChallengesFindOrCreate(
     assignment_id,
     learner_id,
+    false,
   );
 
   let jobApplication = await createJobApplication(

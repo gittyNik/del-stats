@@ -52,13 +52,20 @@ export const createCompanyProfileAPI = (req, res) => {
     locations,
     level_of_candidates,
     roles,
+    name_recruiter,
+    id_recruiter,
+    added_by_recruiter,
   } = req.body;
-  const user_name = req.jwtData.user.name;
-  const recruiter_id = req.jwtData.user.id;
+  let user_name = name_recruiter;
+  let recruiter_id = id_recruiter;
+  if (added_by_recruiter) {
+    recruiter_id = req.jwtData.user.id;
+    user_name = req.jwtData.user.name;
+  }
   let updated_by = [{
     user_name,
     updated_at: new Date(),
-    user_id: recruiter_id,
+    recruiter_id,
   }];
   createCompanyProfile(
     name,
@@ -99,13 +106,20 @@ export const updateCompanyProfileByIdAPI = (req, res) => {
     locations,
     level_of_candidates,
     roles,
+    name_recruiter,
+    id_recruiter,
+    added_by_recruiter,
   } = req.body;
-  const user_name = req.jwtData.user.name;
-  const user_id = req.jwtData.user.id;
+  let user_name = name_recruiter;
+  let recruiter_id = id_recruiter;
+  if (added_by_recruiter) {
+    recruiter_id = req.jwtData.user.id;
+    user_name = req.jwtData.user.name;
+  }
   let updated_by = [{
     user_name,
     updated_at: new Date(),
-    user_id,
+    recruiter_id,
   }];
 
   updateCompanyProfileById(

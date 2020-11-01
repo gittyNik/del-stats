@@ -132,13 +132,14 @@ export const createPortfolioAPI = (req, res) => {
     work_experience,
     capstone_project,
     tags,
+    learner_id,
   } = req.body;
   const user_name = req.jwtData.user.name;
-  const learner_id = req.jwtData.user.id;
+  const user_id = req.jwtData.user.id;
   let updated_by = [{
     user_name,
     updated_at: new Date(),
-    user_id: learner_id,
+    user_id,
   }];
   createPortfolio(
     learner_id,

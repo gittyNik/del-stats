@@ -130,8 +130,8 @@ LearnerInterviews.belongsToMany(User, {
 // LearnerInterviews.belongsTo(User, {as: 'Recruiters', foreignKey: 'recruiter_ids'})
 Portfolio.belongsTo(User, { foreignKey: 'learner_id' });
 
-User.hasOne(SocialConnection, { as: 'SocialDetails', foreignKey: 'user_id' });
-SocialConnection.belongsTo(User, { as: 'SocialDetails', foreignKey: 'user_id' });
+// User.hasOne(SocialConnection, { as: 'SocialDetails', foreignKey: 'user_id' });
+// SocialConnection.belongsTo(User, { as: 'SocialDetails', foreignKey: 'user_id' });
 
 JobApplication.belongsTo(Portfolio, { foreignKey: 'portfolio_id' });
 Portfolio.hasMany(JobApplication);
@@ -141,6 +141,9 @@ CompanyProfile.hasMany(JobPosting);
 
 JobApplication.belongsTo(JobPosting, { foreignKey: 'job_posting_id' });
 JobPosting.hasMany(JobApplication);
+
+LearnerChallenge.belongsTo(JobApplication, { foreignKey: 'job_application_id' });
+JobApplication.hasMany(LearnerChallenge);
 
 LearnerChallenge.belongsTo(JobApplication, { foreignKey: 'job_application_id' });
 JobApplication.hasMany(LearnerChallenge);

@@ -101,6 +101,7 @@ export const updateLearnerChallenge = (id, job_application_id) => LearnerChallen
 export const learnerChallengesFindOrCreate = async (
   challenge_id,
   learner_id,
+  privateRepo = true,
 ) => {
   try {
     let challenge = await LearnerChallenge.findOne({
@@ -121,6 +122,7 @@ export const learnerChallengesFindOrCreate = async (
       await createRepositoryifnotPresentFromTemplate(
         chllenge.starter_repo,
         repo_name,
+        privateRepo,
       );
 
       // Provide Access to learner
