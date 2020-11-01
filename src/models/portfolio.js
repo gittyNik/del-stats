@@ -27,7 +27,7 @@ export const Portfolio = db.define('portfolios', {
     unique: true,
     references: { model: 'users', key: 'id' },
   },
-  showcase_projects: Sequelize.ARRAY(Sequelize.STRING),
+  showcase_projects: Sequelize.ARRAY(Sequelize.JSON),
   fields_of_interest: Sequelize.ARRAY(Sequelize.STRING),
   city_choices: Sequelize.ARRAY(Sequelize.STRING),
   educational_background: Sequelize.ARRAY(Sequelize.JSON),
