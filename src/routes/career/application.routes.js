@@ -2,11 +2,20 @@ import Express from 'express';
 import {
   getAllJobApplicationsAPI, getJobApplicationsByCompanyAPI,
   getJobApplicationsForLearnerIdAPI, getJobApplicationAPI,
-  createJobApplicationAPI, updateJobApplicationAPI, deleteJobApplicationAPI
+  createJobApplicationAPI, updateJobApplicationAPI, deleteJobApplicationAPI,
+  sendAssignmentAndCreateApplication,
 } from '../../controllers/career/job_application.controller';
 import { apiNotReady } from '../../controllers/api.controller';
+import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
+
+const {
+  ADMIN, LEARNER, RECRUITER, CAREER_SERVICES,
+} = USER_ROLES;
 
 const router = Express.Router();
+
+router.use(allowMultipleRoles([ADMIN, RECRUITER, CAREER_SERVICES, LEARNER]));
 
 /**
  * @api {get} /career/applications Get all Applications
@@ -62,6 +71,8 @@ router.get('/user/:user_id', apiNotReady);
  */
 router.get('/:id', getJobApplicationAPI);
 
+router.use(allowMultipleRoles([ADMIN, RECRUITER, CAREER_SERVICES, LEARNER]));
+
 /**
  * @api {post} /career/applications/ Add Application
  * @apiDescription Add an application
@@ -70,6 +81,15 @@ router.get('/:id', getJobApplicationAPI);
  * @apiGroup JobApplication
  */
 router.post('/', createJobApplicationAPI);
+
+/**
+ * @api {post} /career/applications/assignment Add Assignment and Application
+ * @apiDescription Add an assignment/application
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName AddApplication
+ * @apiGroup JobApplication
+ */
+router.post('/assignment', sendAssignmentAndCreateApplication);
 
 /**
  * @api {patch} /career/applications/:id  Update Application

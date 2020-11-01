@@ -153,8 +153,10 @@ export const createJobApplication = ({
 });
 
 export const createJobApplicationForPortofolio = async (
-  job_posting_id, portfolio_id, learner_id,
-  assignment_id, assignment_due_date,
+  {
+    job_posting_id, portfolio_id, learner_id,
+    assignment_id, assignment_due_date,
+  },
 ) => {
   // Create Learner challenge
   let challengeDetails = await learnerChallengesFindOrCreate(
@@ -166,6 +168,7 @@ export const createJobApplicationForPortofolio = async (
     job_posting_id, portfolio_id, assignment_due_date,
   );
   await updateLearnerChallenge(challengeDetails.id, jobApplication);
+  return jobApplication;
 };
 
 export const updateJobApplication = ({
