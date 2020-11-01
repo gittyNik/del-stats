@@ -1,5 +1,7 @@
 import Express from 'express';
-import { sendOTP, retryOTP, verifyOTP } from '../../controllers/auth/otp.controller';
+import { sendOTP, retryOTP, verifyOTP, registerRecruiterAPI } from '../../controllers/auth/otp.controller';
+import authenticate from '../../controllers/auth/auth.controller';
+import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
 
 const router = Express.Router();
 
@@ -29,5 +31,10 @@ router.post('/retry', retryOTP);
  * @apiParam {Number{0000-9999}} otp Enter OTP
  */
 router.get('/verify', verifyOTP);
+
+router.use(authenticate);
+
+// TEMP route to register recruiters bypassing OTP.
+router.get('/register-recruiter', allowSuperAdminOnly, registerRecruiterAPI);
 
 export default router;
