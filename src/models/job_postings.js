@@ -17,12 +17,15 @@ const STATUS = [
   'partially-filled',
 ];
 
+const JOB_TYPE = ['internship', 'fulltime', 'intern2hire'];
+
 export const JobPosting = db.define('job_postings', {
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
     primaryKey: true,
   },
+  title: Sequelize.STRING,
   company_id: {
     type: Sequelize.UUID,
     references: { model: 'company_profile', key: 'id' },
@@ -59,6 +62,15 @@ export const JobPosting = db.define('job_postings', {
     type: Sequelize.UUID,
     references: { model: 'challenges', key: 'id' },
   },
+  start_range: {
+    type: Sequelize.INTEGER,
+  },
+  end_range: {
+    type: Sequelize.INTEGER,
+  },
+  job_type: Sequelize.ENUM(...JOB_TYPE),
+  locations: Sequelize.ARRAY(Sequelize.STRING),
+  experience_required: Sequelize.STRING,
 });
 
 export const getJobPostingFromId = (id, role) => JobPosting.findOne({
@@ -72,7 +84,7 @@ export const getJobPostingFromId = (id, role) => JobPosting.findOne({
 })
   .then(async (jobPosting) => {
     let logo = await getViewUrlS3(jobPosting.logo, '', 'company_logo');
-    jobPosting.logo = logo;
+    jobPosting.logo = logo.signedRequest;
     if ((jobPosting) && (role === LEARNER)) {
       let views = 1;
       views += jobPosting.views;
@@ -148,6 +160,12 @@ export const createJobPosting = (
   posted_by,
   vacancies,
   attached_assignment,
+  start_range,
+  end_range,
+  job_type,
+  locations,
+  experience_required,
+  title,
 ) => JobPosting.create(
   {
     company_id,
@@ -158,6 +176,12 @@ export const createJobPosting = (
     posted_by,
     vacancies,
     attached_assignment,
+    start_range,
+    end_range,
+    job_type,
+    locations,
+    experience_required,
+    title,
   },
 );
 
@@ -170,6 +194,12 @@ export const updateJobPostingById = (
   posted_by,
   vacancies,
   attached_assignment,
+  start_range,
+  end_range,
+  job_type,
+  locations,
+  experience_required,
+  title,
 ) => JobPosting.findOne({
   where: {
     id,
@@ -177,15 +207,7 @@ export const updateJobPostingById = (
 })
   .then((jobPosting) => {
     if (_.isEmpty(jobPosting)) {
-      return JobPosting.create({
-        company_id,
-        description,
-        tags,
-        status,
-        posted_by,
-        vacancies,
-        attached_assignment,
-      });
+      throw Error('Job does not exist!');
     }
 
     jobPosting.posted_by.push(...posted_by);
@@ -198,6 +220,12 @@ export const updateJobPostingById = (
       posted_by: jobPosting.posted_by,
       vacancies,
       attached_assignment,
+      start_range,
+      end_range,
+      job_type,
+      locations,
+      experience_required,
+      title,
     }, {
       where: {
         id,

@@ -65,7 +65,7 @@ export const getCompanyProfileFromId = (id, role) => CompanyProfile.findOne({
   raw: true,
 }).then(async (companyProfile) => {
   let logo = await getViewUrlS3(companyProfile.logo, '', 'company_logo');
-  companyProfile.logo = logo;
+  companyProfile.logo = logo.signedRequest;
   if ((companyProfile) && (role === LEARNER)) {
     let views = 1;
     views += companyProfile.views;

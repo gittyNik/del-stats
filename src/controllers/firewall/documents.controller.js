@@ -277,7 +277,7 @@ export const getViewUrlS3 = async (fileName, fileType, type) => {
   try {
     let { bucketName, basePath } = type_upload[type];
 
-    let response = await signedViewUrl(fileName, fileType, bucketName, basePath);
+    let response = await signedViewUrl(fileName, fileType, bucketName, basePath, false);
     return response;
   } catch (err) {
     console.log(err);
