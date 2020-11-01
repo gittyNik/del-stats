@@ -54,6 +54,8 @@ export const CompanyProfile = db.define('company_profiles', {
     type: Sequelize.ENUM(...STATUS),
     defaultValue: 'active',
   },
+  level_of_candidates: Sequelize.ARRAY(Sequelize.STRING),
+  roles: Sequelize.ARRAY(Sequelize.STRING),
 });
 
 export const getCompanyProfileFromId = (id, role) => CompanyProfile.findOne({
@@ -101,6 +103,8 @@ export const createCompanyProfile = (
   recruiters,
   updated_by,
   locations,
+  level_of_candidates,
+  roles,
 ) => CompanyProfile.create(
   {
     name,
@@ -113,6 +117,8 @@ export const createCompanyProfile = (
     recruiters,
     locations,
     updated_by,
+    level_of_candidates,
+    roles,
     created_at: new Date(),
   },
 );
@@ -129,6 +135,8 @@ export const updateCompanyProfileById = (
   recruiters,
   updated_by,
   locations,
+  level_of_candidates,
+  roles,
 ) => CompanyProfile.findOne({
   where: {
     id,
@@ -151,6 +159,8 @@ export const updateCompanyProfileById = (
       tags,
       recruiters,
       locations,
+      level_of_candidates,
+      roles,
       updated_by: companyProfile.updated_by,
     }, {
       where: {

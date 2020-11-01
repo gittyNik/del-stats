@@ -1,8 +1,13 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
+import { application } from 'express';
 import { Portfolio } from './portfolio';
 import db from '../database';
 import { JobPosting } from './job_postings';
+import {
+  learnerChallengesFindOrCreate,
+  updateLearnerChallenge,
+} from './learner_challenge';
 
 const APPLICATION_STATUS = [
   'active',
@@ -146,6 +151,22 @@ export const createJobApplication = ({
   assignment_due_date,
   assignment_sent_date: Sequelize.literal('NOW()'),
 });
+
+export const createJobApplicationForPortofolio = async (
+  job_posting_id, portfolio_id, learner_id,
+  assignment_id, assignment_due_date,
+) => {
+  // Create Learner challenge
+  let challengeDetails = await learnerChallengesFindOrCreate(
+    assignment_id,
+    learner_id,
+  );
+
+  let jobApplication = await createJobApplication(
+    job_posting_id, portfolio_id, assignment_due_date,
+  );
+  updateLearnerChallenge(challengeDetails.id, jobApplication);
+};
 
 export const updateJobApplication = ({
   id, job_posting_id, portfolio_id, review, status,

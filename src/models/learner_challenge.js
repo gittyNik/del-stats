@@ -89,10 +89,18 @@ export const getLearnerChallengesBetweenDate = (
   raw: true,
 });
 
+export const updateLearnerChallenge = (id, job_application_id) => LearnerChallenge.update({
+  job_application_id,
+}, {
+  where: { id },
+  returning: true,
+  raw: true,
+})
+  .then(result => result[1][0]);
+
 export const learnerChallengesFindOrCreate = async (
   challenge_id,
   learner_id,
-  job_application_id = null,
 ) => {
   try {
     let challenge = await LearnerChallenge.findOne({
@@ -124,7 +132,6 @@ export const learnerChallengesFindOrCreate = async (
         challenge_id,
         learner_id,
         repo: repo_name,
-        job_application_id,
       });
       return {
         challenge: chl,

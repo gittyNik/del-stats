@@ -50,6 +50,8 @@ export const createCompanyProfileAPI = (req, res) => {
     tags,
     recruiters,
     locations,
+    level_of_candidates,
+    roles,
   } = req.body;
   const user_name = req.jwtData.user.name;
   const recruiter_id = req.jwtData.user.id;
@@ -69,6 +71,8 @@ export const createCompanyProfileAPI = (req, res) => {
     recruiters,
     updated_by,
     locations,
+    level_of_candidates,
+    roles,
   )
     .then((data) => res.status(201).json({
       message: 'Company Profile created',
@@ -93,6 +97,8 @@ export const updateCompanyProfileByIdAPI = (req, res) => {
     tags,
     recruiters,
     locations,
+    level_of_candidates,
+    roles,
   } = req.body;
   const user_name = req.jwtData.user.name;
   const user_id = req.jwtData.user.id;
@@ -114,6 +120,8 @@ export const updateCompanyProfileByIdAPI = (req, res) => {
     recruiters,
     updated_by,
     locations,
+    level_of_candidates,
+    roles,
   ).then(() => res.status(200).json({
     message: 'Company Profile updated',
     type: 'success',
