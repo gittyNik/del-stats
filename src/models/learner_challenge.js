@@ -42,6 +42,10 @@ export const LearnerChallenge = db.define('learner_challenges', {
     type: Sequelize.DATE,
     defaultValue: Sequelize.literal('NOW()'),
   },
+  job_application_id: {
+    type: Sequelize.UUID,
+    references: { model: 'job_applications', key: 'id' },
+  },
 });
 
 const { gt, between } = Sequelize.Op;
@@ -88,6 +92,7 @@ export const getLearnerChallengesBetweenDate = (
 export const learnerChallengesFindOrCreate = async (
   challenge_id,
   learner_id,
+  job_application_id = null,
 ) => {
   try {
     let challenge = await LearnerChallenge.findOne({
@@ -119,6 +124,7 @@ export const learnerChallengesFindOrCreate = async (
         challenge_id,
         learner_id,
         repo: repo_name,
+        job_application_id,
       });
       return {
         challenge: chl,

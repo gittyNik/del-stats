@@ -5,6 +5,7 @@ import db from '../database';
 import { USER_ROLES, User } from './user';
 import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
 import { SocialConnection } from './social_connection';
+import { JobApplication } from './job_application';
 
 const {
   RECRUITER,
@@ -62,6 +63,7 @@ export const Portfolio = db.define('portfolios', {
   available_time_slots: Sequelize.ARRAY(Sequelize.JSON),
   updated_by: Sequelize.ARRAY(Sequelize.JSON),
   capstone_project: Sequelize.JSON,
+  additional_links: Sequelize.ARRAY(Sequelize.JSON),
 });
 
 export const getPortfoliosFromId = (id, role) => Portfolio.findOne({
@@ -153,6 +155,7 @@ export const createPortfolio = (
   work_experience,
   capstone_project,
   tags,
+  additional_links,
 ) => Portfolio.create(
   {
     id: uuid(),
@@ -174,6 +177,7 @@ export const createPortfolio = (
     work_experience,
     capstone_project,
     tags,
+    additional_links,
   },
 );
 
@@ -195,6 +199,7 @@ export const updatePortfolioById = (
   work_experience,
   capstone_project,
   tags,
+  additional_links,
 ) => Portfolio.findOne({
   where: {
     id,
@@ -224,6 +229,7 @@ export const updatePortfolioById = (
       work_experience,
       capstone_project,
       tags,
+      additional_links,
     }, {
       where: {
         id,
@@ -248,6 +254,7 @@ export const updatePortfolioForLearner = (
   work_experience,
   capstone_project,
   tags,
+  additional_links,
 ) => Portfolio.findOne({
   where: {
     learner_id,
@@ -277,6 +284,7 @@ export const updatePortfolioForLearner = (
       work_experience,
       capstone_project,
       tags,
+      additional_links,
     }, {
       where: {
         learner_id,
@@ -342,7 +350,13 @@ export const getLearnerList = async (limit = 10, offset = 0) => {
       include: [{
         model: User,
         attributes: ['name', 'email', 'phone', 'picture', 'status'],
-      }],
+      },
+      {
+        model: JobApplication,
+        attributes: ['job_posting_id', 'status'],
+        required: false,
+      },
+      ],
       offset,
       limit,
       raw: true,

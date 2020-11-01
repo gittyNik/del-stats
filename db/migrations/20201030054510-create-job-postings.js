@@ -44,6 +44,9 @@ const migration = {
     posted_by: {
       type: Sequelize.ARRAY(Sequelize.JSON),
     },
+    vacancies: {
+      type: Sequelize.INTEGER,
+    },
   }),
   down: queryInterface => queryInterface.dropTable('job_postings'),
 };

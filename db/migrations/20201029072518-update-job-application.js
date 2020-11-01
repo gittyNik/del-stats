@@ -26,6 +26,7 @@ const migration = {
     qi.removeColumn('job_applications', 'applicant_id', { transaction }),
     qi.removeColumn('job_applications', 'offer_details', { transaction }),
     qi.removeColumn('job_applications', 'status', { transaction }),
+    qi.removeColumn('job_applications', 'applicant_feedback', { transaction }),
     qi.addColumn('job_applications', 'portfolio_id', {
       type: Sequelize.UUID,
       references: { model: 'portfolios', key: 'id' },
@@ -56,6 +57,7 @@ const migration = {
     }, { transaction }),
     qi.addColumn('job_applications', 'offer_details', Sequelize.TEXT, { transaction }),
     qi.addColumn('job_applications', 'status', Sequelize.STRING, { transaction }),
+    qi.addColumn('job_applications', 'applicant_feedback', Sequelize.TEXT, { transaction }),
     qi.removeColumn('job_applications', 'portfolio_id', { transaction }),
     qi.removeColumn('job_applications', 'assignment_status', { transaction }),
     qi.removeColumn('job_applications', 'interview_status', { transaction }),

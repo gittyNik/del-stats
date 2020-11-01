@@ -14,10 +14,12 @@ const migration = {
     qi.addColumn('job_applications', 'status', {
       type: Sequelize.ENUM(...APPLICATION_STATUS),
     }, { transaction }),
+    qi.addColumn('job_applications', 'applicant_feedback', Sequelize.JSON, { transaction }),
   ])),
   down: (qi) => qi.sequelize.transaction(transaction => Promise.all([
     qi.removeColumn('job_applications', 'offer_details', { transaction }),
     qi.removeColumn('job_applications', 'status', { transaction }),
+    qi.removeColumn('job_applications', 'applicant_feedback', { transaction }),
   ])),
 };
 

@@ -71,7 +71,7 @@ export const JobApplication = db.define('job_applications', {
     type: Sequelize.DATE,
   },
   offer_details: Sequelize.JSON,
-  applicant_feedback: Sequelize.TEXT,
+  applicant_feedback: Sequelize.JSON,
   counsellor_notes: Sequelize.TEXT,
 });
 
@@ -92,7 +92,9 @@ export const getAllJobApplications = ({ status, limit, offset }) => {
     });
 };
 
-export const getJobApplicationsByCompany = ({ company_id, status, limit, offset }) => {
+export const getJobApplicationsByCompany = ({
+  company_id, status, limit, offset,
+}) => {
   limit = limit || 10;
   status = status || 'active';
 
@@ -127,7 +129,7 @@ export const getJobApplicationsForLearnerId = ({
     }],
     limit,
     offset,
-  })
+  });
 };
 
 export const getJobApplication = (id) => JobApplication
@@ -149,7 +151,7 @@ export const updateJobApplication = ({
   id, job_posting_id, portfolio_id, review, status,
   assignment_status, offer_status,
   interview_status, assignment_due_date, interview_date,
-  offer_details, applicant_feedback, counsellor_notes
+  offer_details, applicant_feedback, counsellor_notes,
 }) => JobApplication.update({
   job_posting_id,
   portfolio_id,
@@ -169,7 +171,7 @@ export const updateJobApplication = ({
 
 export const deleteJobApplication = (id) => JobApplication
   .destroy({ where: { id } })
-  .then(() => { text: 'Job application deleted.' })
+  .then(() => { 'Job application deleted.'; })
   .catch(err => {
     console.error(err);
     return { text: 'Failed to delete Job application' };

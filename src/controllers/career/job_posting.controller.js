@@ -84,13 +84,22 @@ export const createJobPostingAPI = (req, res) => {
     description,
     tags,
     status,
+    vacancies,
+    id_recruiter,
+    name_recruiter,
+    added_by_recruiter = true,
+    attached_assignment,
   } = req.body;
-  const user_name = req.jwtData.user.name;
-  const recruiter_id = req.jwtData.user.id;
+  let user_name = name_recruiter;
+  let recruiter_id = id_recruiter;
+  if (added_by_recruiter) {
+    recruiter_id = req.jwtData.user.id;
+    user_name = req.jwtData.user.name;
+  }
   let posted_by = [{
     user_name,
     updated_at: new Date(),
-    user_id: recruiter_id,
+    recruiter_id,
   }];
   createJobPosting(
     company_id,
@@ -98,6 +107,8 @@ export const createJobPostingAPI = (req, res) => {
     tags,
     status,
     posted_by,
+    vacancies,
+    attached_assignment,
   )
     .then((data) => res.status(201).json({
       message: 'Job Posting created',
@@ -117,13 +128,22 @@ export const updateJobPostingAPI = (req, res) => {
     description,
     tags,
     status,
+    vacancies,
+    id_recruiter,
+    name_recruiter,
+    added_by_recruiter = true,
+    attached_assignment,
   } = req.body;
-  const user_name = req.jwtData.user.name;
-  const user_id = req.jwtData.user.id;
+  let user_name = name_recruiter;
+  let recruiter_id = id_recruiter;
+  if (added_by_recruiter) {
+    recruiter_id = req.jwtData.user.id;
+    user_name = req.jwtData.user.name;
+  }
   let posted_by = [{
     user_name,
     updated_at: new Date(),
-    user_id,
+    recruiter_id,
   }];
 
   updateJobPostingById(
@@ -133,6 +153,8 @@ export const updateJobPostingAPI = (req, res) => {
     tags,
     status,
     posted_by,
+    vacancies,
+    attached_assignment,
   ).then(() => res.status(200).json({
     message: 'Job Posting updated',
     type: 'success',
@@ -144,13 +166,19 @@ export const updateJobPostingAPI = (req, res) => {
 };
 
 export const removeJobPostingAPI = (req, res) => {
-  const { id } = req.params;
-  const user_name = req.jwtData.user.name;
-  const user_id = req.jwtData.user.id;
+  const {
+    id, name_recruiter, id_recruiter, added_by_recruiter,
+  } = req.params;
+  let user_name = name_recruiter;
+  let recruiter_id = id_recruiter;
+  if (added_by_recruiter) {
+    recruiter_id = req.jwtData.user.id;
+    user_name = req.jwtData.user.name;
+  }
   let posted_by = [{
     user_name,
     updated_at: new Date(),
-    user_id,
+    recruiter_id,
   }];
 
   removeJobPosting(

@@ -1,8 +1,7 @@
-import uuid from 'uuid/v4';
 import {
-  getAllJobApplications, JobApplication,
+  getAllJobApplications,
   getJobApplicationsByCompany, getJobApplicationsForLearnerId, createJobApplication,
-  getJobApplication, updateJobApplication, deleteJobApplication
+  getJobApplication, updateJobApplication, deleteJobApplication,
 } from '../../models/job_application';
 
 export const getAllJobApplicationsAPI = async (req, res) => {
@@ -48,7 +47,7 @@ export const getJobApplicationsForLearnerIdAPI = (req, res) => {
   const { id: learner_id } = req.params;
   let offset = limit * page;
   return getJobApplicationsForLearnerId({
-    learner_id, status, limit, offset
+    learner_id, status, limit, offset,
   })
     .then(data => res.status(200).json({
       text: 'List of all Job Applications for a company',
@@ -101,7 +100,7 @@ export const updateJobApplicationAPI = (req, res) => {
     job_posting_id, portfolio_id, review, status,
     assignment_status, offer_status,
     interview_status, assignment_due_date, interview_date,
-    offer_details, applicant_feedback, counsellor_notes
+    offer_details, applicant_feedback, counsellor_notes,
   } = req.body;
   return updateJobApplication({
     id,

@@ -52,6 +52,13 @@ export const JobPosting = db.define('job_postings', {
   posted_by: {
     type: Sequelize.ARRAY(Sequelize.JSON),
   },
+  vacancies: {
+    type: Sequelize.INTEGER,
+  },
+  attached_assignment: {
+    type: Sequelize.UUID,
+    references: { model: 'challenges', key: 'id' },
+  },
 });
 
 export const getJobPostingFromId = (id, role) => JobPosting.findOne({
@@ -64,7 +71,6 @@ export const getJobPostingFromId = (id, role) => JobPosting.findOne({
   }],
 })
   .then(async (jobPosting) => {
-    console.log(jobPosting);
     let logo = await getViewUrlS3(jobPosting.logo, '', 'company_logo');
     jobPosting.logo = logo;
     if ((jobPosting) && (role === LEARNER)) {
@@ -140,6 +146,8 @@ export const createJobPosting = (
   tags,
   status = 'active',
   posted_by,
+  vacancies,
+  attached_assignment,
 ) => JobPosting.create(
   {
     company_id,
@@ -148,6 +156,8 @@ export const createJobPosting = (
     status,
     created_at: new Date(),
     posted_by,
+    vacancies,
+    attached_assignment,
   },
 );
 
@@ -158,6 +168,8 @@ export const updateJobPostingById = (
   tags,
   status,
   posted_by,
+  vacancies,
+  attached_assignment,
 ) => JobPosting.findOne({
   where: {
     id,
@@ -171,6 +183,8 @@ export const updateJobPostingById = (
         tags,
         status,
         posted_by,
+        vacancies,
+        attached_assignment,
       });
     }
 
@@ -182,6 +196,8 @@ export const updateJobPostingById = (
       tags,
       status,
       posted_by: jobPosting.posted_by,
+      vacancies,
+      attached_assignment,
     }, {
       where: {
         id,
