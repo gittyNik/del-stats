@@ -103,58 +103,80 @@ export const getJobPostingFromId = (id, role) => JobPosting.findOne({
     return jobPosting;
   });
 
-export const getAllJobPostings = (
-  limit = 10,
-  offset = 0,
+export const getAllJobPostings = ({
+  limit,
+  offset,
   status,
   company_id,
-) => JobPosting.findAndCountAll(
-  {
-    where: { status, company_id },
-    include: [{
-      model: CompanyProfile,
-      attributes: ['name', 'logo'],
-    }],
-    offset,
-    limit,
-  },
-);
+}) => {
+  limit = limit || 10;
+  status = status || 'active';
+  let whereObj = { status };
+  if (company_id) {
+    whereObj.company_id = company_id;
+  }
+  return JobPosting.findAndCountAll(
+    {
+      whereObj,
+      include: [{
+        model: CompanyProfile,
+        attributes: ['name', 'logo'],
+      }],
+      offset,
+      limit,
+    },
+  );
+};
 
 export const getJobPostingsByStatus = (
-  status = 'active',
-  limit = 10,
-  offset = 0,
-) => JobPosting.findAndCountAll(
   {
-    where: { status },
-    include: [{
-      model: CompanyProfile,
-      attributes: ['name', 'logo'],
-    }],
-    offset,
     limit,
+    offset,
+    status,
   },
-);
+) => {
+  limit = limit || 10;
+  status = status || 'active';
+  let whereObj = { status };
+  return JobPosting.findAndCountAll(
+    {
+      whereObj,
+      include: [{
+        model: CompanyProfile,
+        attributes: ['name', 'logo'],
+      }],
+      offset,
+      limit,
+    },
+  );
+};
 
 export const getJobPostingsByCompany = (
-  company_id,
-  status = 'active',
-  limit = 10,
-  offset = 0,
-) => JobPosting.findAndCountAll(
   {
-    where: {
-      status,
-      company_id,
-    },
-    include: [{
-      model: CompanyProfile,
-      attributes: ['name', 'logo'],
-    }],
-    offset,
+    company_id,
+    status,
     limit,
+    offset,
   },
-);
+) => {
+  limit = limit || 10;
+  status = status || 'active';
+  let whereObj = { status };
+  if (company_id) {
+    whereObj.company_id = company_id;
+  }
+  return JobPosting.findAndCountAll(
+    {
+      whereObj,
+      include: [{
+        model: CompanyProfile,
+        attributes: ['name', 'logo'],
+      }],
+      offset,
+      limit,
+    },
+  );
+};
 
 export const createJobPosting = (
   company_id,

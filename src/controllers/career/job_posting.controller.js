@@ -13,7 +13,9 @@ export const getAllJobPostingsAPI = (req, res) => {
   if ((limit) && (page)) {
     offset = limit * (page - 1);
   }
-  getAllJobPostings(limit, offset, status, company_id)
+  getAllJobPostings({
+    limit, offset, status, company_id,
+  })
     .then(data => res.status(201).json({
       message: 'Job Postings fetched',
       data,
@@ -31,7 +33,7 @@ export const getJobPostingsByStatusAPI = (req, res) => {
   if ((limit) && (page)) {
     offset = limit * (page - 1);
   }
-  getJobPostingsByStatus(status, limit, offset)
+  getJobPostingsByStatus({ status, limit, offset })
     .then(data => res.status(201).json({
       message: 'Job Postings fetched',
       data,
@@ -66,7 +68,9 @@ export const getJobPostingsByCompanyAPI = (req, res) => {
   if ((limit) && (page)) {
     offset = limit * (page - 1);
   }
-  getJobPostingsByCompany(company_id, status, limit, offset)
+  getJobPostingsByCompany({
+    company_id, status, limit, offset,
+  })
     .then(data => res.status(201).json({
       message: 'Job Postings fetched',
       data,
