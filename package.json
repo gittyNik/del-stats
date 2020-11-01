@@ -57,7 +57,7 @@
     "eslint-config-airbnb-base": "^14.2.0",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
-    "faker": "^4.1.0",
+    "faker": "^5.1.0",
     "googleapis": "^43.0.0",
     "hubspot": "^2.3.13",
     "ioredis": "^4.17.3",
