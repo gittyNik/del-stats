@@ -149,6 +149,8 @@ export const createJobApplication = ({
   assignment_status: 'sent',
   assignment_due_date,
   assignment_sent_date: Sequelize.literal('NOW()'),
+  created_at: Sequelize.literal('NOW()'),
+  updated_at: Sequelize.literal('NOW()'),
 });
 
 export const createJobApplicationForPortofolio = async (
@@ -163,11 +165,12 @@ export const createJobApplicationForPortofolio = async (
     learner_id,
     false,
   );
-
   let jobApplication = await createJobApplication(
-    job_posting_id, portfolio_id, assignment_due_date,
+    {
+      job_posting_id, portfolio_id, assignment_due_date,
+    },
   );
-  await updateLearnerChallenge(challengeDetails.id, jobApplication);
+  await updateLearnerChallenge(challengeDetails.challenge.id, jobApplication.id);
   return jobApplication;
 };
 
