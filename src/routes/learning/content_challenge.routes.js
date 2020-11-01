@@ -25,6 +25,15 @@ router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
  */
 router.get('/', getChallenges);
 
+/**
+ * @api {get} /learning/content/challenges/topic/:id Get all Content Challenges by Topic
+ * @apiDescription get all Content Challenges
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetContentChallenges
+ * @apiGroup ContentChallenges
+ */
+router.get('/topic/:id', getChallenges);
+
 // Restrict modifications for any applicant to the cohorts
 router.use(allowAdminsOnly);
 

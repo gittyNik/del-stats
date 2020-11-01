@@ -1,11 +1,22 @@
 import uuid from 'uuid/v4';
 import {
   Challenge, createAChallenge, updateAChallenge, deleteAChallenge,
+  getChallengesByTopicId,
 } from '../../models/challenge';
 import { LearnerChallenge } from '../../models/learner_challenge';
 
 export const getChallenges = (req, res) => {
   Challenge.findAll({})
+    .then((data) => { res.json(data); })
+    .catch(err => {
+      console.error(err);
+      res.status(500);
+    });
+};
+
+export const getChallengesByTopic = (req, res) => {
+  const { id } = req.params;
+  getChallengesByTopicId(id)
     .then((data) => { res.json(data); })
     .catch(err => {
       console.error(err);

@@ -107,8 +107,7 @@ export const getJobApplicationsByCompany = ({
     where: { status },
     inlcude: [{
       association: JobPosting,
-      incliude: [{
-        association: 'company_profile',
+      include: [{
         where: { id: company_id },
         // attributes: []
       }],
