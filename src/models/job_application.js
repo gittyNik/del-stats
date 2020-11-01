@@ -146,7 +146,7 @@ export const createJobApplication = ({
   id: uuid(),
   job_posting_id,
   portfolio_id,
-  status: 'active',
+  status: 'assignment',
   assignment_status: 'sent',
   assignment_due_date,
   assignment_sent_date: Sequelize.literal('NOW()'),
@@ -165,7 +165,7 @@ export const createJobApplicationForPortofolio = async (
   let jobApplication = await createJobApplication(
     job_posting_id, portfolio_id, assignment_due_date,
   );
-  updateLearnerChallenge(challengeDetails.id, jobApplication);
+  await updateLearnerChallenge(challengeDetails.id, jobApplication);
 };
 
 export const updateJobApplication = ({
