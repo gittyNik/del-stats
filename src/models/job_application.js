@@ -78,6 +78,12 @@ export const JobApplication = db.define('job_applications', {
   offer_details: Sequelize.JSON,
   applicant_feedback: Sequelize.JSON,
   counsellor_notes: Sequelize.TEXT,
+  created_at: {
+    type: Sequelize.DATE,
+  },
+  updated_at: {
+    type: Sequelize.DATE,
+  },
 });
 
 export const getAllJobApplications = ({ status, limit, offset }) => {
@@ -159,18 +165,28 @@ export const createJobApplicationForPortofolio = async (
     assignment_id, assignment_due_date,
   },
 ) => {
-  // Create Learner challenge
-  let challengeDetails = await learnerChallengesFindOrCreate(
-    assignment_id,
-    learner_id,
-    false,
-  );
+  // Create Learner challenge if application does not exist
+  let checkExisting = await JobApplication.findOne({
+    where: {
+      job_posting_id, portfolio_id,
+    },
+    raw: true,
+  });
+  if (checkExisting) {
+    return checkExisting;
+  }
   let jobApplication = await createJobApplication(
     {
       job_posting_id, portfolio_id, assignment_due_date,
     },
   );
-  await updateLearnerChallenge(challengeDetails.challenge.id, jobApplication.id);
+  await learnerChallengesFindOrCreate(
+    assignment_id,
+    learner_id,
+    false,
+    jobApplication.id,
+  );
+  // await updateLearnerChallenge(challengeDetails.challenge.id, jobApplication.id);
   return jobApplication;
 };
 
