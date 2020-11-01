@@ -9,6 +9,7 @@ import {
   updateReviewForLearnerAPI,
   updateTeamReviewAPI,
   createCohortReviewScheduleAPI,
+  getCompletedReviewsForLearnerAPI,
 } from '../../controllers/learning/reviews.controller';
 import {
   allowMultipleRoles,
@@ -99,6 +100,8 @@ router.get('/status/:id', getReviewsByStatusAPI);
  * @apiParam {String} learner_feedback Notes by Reviewer for Learner
  */
 router.patch('/learner/:id', updateReviewForLearnerAPI);
+
+router.get('/completed/:email', getCompletedReviewsForLearnerAPI);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowAdminsOnly);

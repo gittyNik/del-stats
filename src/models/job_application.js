@@ -21,4 +21,6 @@ export const JobApplication = db.define('job_applications', {
   counsellor_notes: Sequelize.TEXT,
 });
 
+
+
 export default JobApplication;
