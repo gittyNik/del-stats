@@ -83,18 +83,22 @@ export const getJobPostingFromId = (id, role) => JobPosting.findOne({
   }],
 })
   .then(async (jobPosting) => {
-    let logo = await getViewUrlS3(jobPosting.logo, '', 'company_logo');
-    jobPosting.logo = logo.signedRequest;
-    if ((jobPosting) && (role === LEARNER)) {
-      let views = 1;
-      views += jobPosting.views;
-      JobPosting.update({
-        views,
-      }, {
-        where: {
-          id,
-        },
-      });
+    if (jobPosting) {
+      if (jobPosting.logo) {
+        let logo = await getViewUrlS3(jobPosting.logo, '', 'company_logo');
+        jobPosting.logo = logo.signedRequest;
+      }
+      if ((jobPosting) && (role === LEARNER)) {
+        let views = 1;
+        views += jobPosting.views;
+        JobPosting.update({
+          views,
+        }, {
+          where: {
+            id,
+          },
+        });
+      }
     }
     return jobPosting;
   });
