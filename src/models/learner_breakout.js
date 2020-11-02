@@ -9,6 +9,7 @@ import {
   getUpcomingBreakoutsByCohortId,
   getCalendarDetailsOfCohortBreakout,
   getCohortBreakoutsByCohortId,
+  getMilestoneDetailsForReview,
 } from './cohort_breakout';
 
 import { createEvent, deleteEvent } from '../integrations/calendar/calendar.model';
@@ -388,5 +389,35 @@ export const getLearnerBreakoutsForACohortBreakout = (cohort_breakout_id) => Lea
     },
     raw: true,
   });
+
+export const getReviewRubricForALearner = async (learner_id, limit = 10) => {
+  return LearnerBreakout.findAll({
+    attributes: ['id', 'cohort_breakout_id', 'review_feedback'],
+    where: {
+      learner_id,
+      [Sequelize.Op.and]: Sequelize.literal(`review_feedback->>'type' IS NOT NULL AND review_feedback->>'rubrics' IS NOT NULL`),
+    },
+    limit,
+    raw: true,
+  })
+    .then(lbs => Promise.all(lbs.map(async lb => {
+      const ms_details = await getMilestoneDetailsForReview(lb.cohort_breakout_id);
+      lb.milestone_name = ms_details.name;
+      lb.milestone_id = ms_details.id;
+      lb.rubrics = lb.review_feedback.rubrics;
+      lb.learner_breakout_id = lb.id;
+
+      // rf.review_feedback.rubrics
+      delete lb.id;
+      delete lb.cohort_breakout_id;
+      delete lb.review_feedback;
+      return lb;
+    })))
+    .catch(err => {
+      console.error(err);
+      console.log('Error in Fetch reviewRubricForALearner', learner_id);
+      return false;
+    });
+};
 
 export default LearnerBreakout;

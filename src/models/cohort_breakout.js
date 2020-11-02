@@ -918,4 +918,26 @@ export const updateSanboxUrl = async (id, sandbox_id, sandbox_url) => {
   return updateOneCohortBreakouts(breakoutDetails, id);
 };
 
+export const getMilestoneDetailsForReview = (cohort_breakout_id) => CohortBreakout
+  .findOne({
+    where: {
+      type: 'reviews',
+      id: cohort_breakout_id,
+    },
+    raw: true,
+  })
+  .then(cb => {
+    const milestone_details = {};
+    if ((cb) && (typeof cb.details.milestoneName !== 'undefined')) {
+      milestone_details.name = cb.details.milestoneName;
+      milestone_details.id = cb.details.milestoneId;
+    }
+    return milestone_details;
+  })
+  .catch(err => {
+    console.error(err);
+    console.error('Unable to get Milestone details for cohort_breakout ', cohort_breakout_id);
+    return false;
+  });
+
 export default CohortBreakout;

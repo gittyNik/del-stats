@@ -6,6 +6,7 @@ import { USER_ROLES, User } from './user';
 import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
 import { SocialConnection } from './social_connection';
 import { JobApplication } from './job_application';
+import { getReviewRubricForALearner } from './learner_breakout';
 
 const {
   RECRUITER,
@@ -168,6 +169,10 @@ export const getAPortfolio = ({ id, learner_id, role }) => Portfolio.findOne({
       }
     }
     return completePortfolio;
+  })
+  .then(async portfolio => {
+    portfolio.milestone_rubrics = await getReviewRubricForALearner(portfolio.learner_id);
+    return portfolio;
   });
 
 export const createPortfolio = (
