@@ -135,6 +135,26 @@ export const getEducators = (req, res) => {
   });
 };
 
+export const getUsersByRole = (req, res) => {
+  const { role } = req.params;
+  User.findAll({
+    where: {
+      role,
+    },
+  })
+    .then((data) => {
+      res.json({
+        text: "Users: " + role,
+        data,
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+};
+
+
 export const removeUserStatusApi = (req, res) => {
   let {
     user_id, status, reason, milestone_id, milestone_name,
