@@ -19,6 +19,7 @@ const learner_ids = [
   'bf264050-5c07-4541-80eb-93a139887183',
 ];
 const tag_ids = [
+  '1e654d4e-adc8-44a1-b1b1-cdc1a7f60438',
   '5669f37e-7e6e-4bee-b49f-7b6fff96e962',
   '9c845722-fc13-4414-9fb9-552b128f5d8f',
   '823c2484-b7e0-4930-b882-b109245f10ab',
@@ -53,11 +54,20 @@ const HIRING_STATUS = [
   'available', 'currently-unavailable',
   'hired',
 ];
+// Helper functions
+function cleanArray(arr) {
+  return '{"' + arr.map(e => cleanEntry(e)).join('", "') + '"}'
+}
+
+function cleanEntry(obj) {
+  return JSON.stringify(obj).replace(/"/g, '\\"')
+}
 
 const getSomeElements = (array) => faker.random.arrayElements(array, faker.random.number({
   min: 1, max: array.length,
 }));
 
+// Factory functions
 const showcaseProjectFactory = () => ({
   title: `Milestone ${faker.random.number({ min: 1, max: 11 })}`,
   description: faker.lorem.sentences(),
@@ -99,7 +109,7 @@ const timeSlotFactory = () => {
       duration: 240,
     }];
   }
-  return [res];
+  return [(res)];
 };
 
 const capstoneProjectFactory = () => ({
@@ -112,35 +122,35 @@ const capstoneProjectFactory = () => ({
 
 });
 
-const createPorfolio = (learner_id) => ({
+export const createPorfolio = (learner_id) => ({
   id: uuid(),
   learner_id,
-  showcase_projects: [showcaseProjectFactory(), showcaseProjectFactory(), showcaseProjectFactory()],
-  field_of_interest: getSomeElements(tag_ids),
+  showcase_projects: cleanArray([showcaseProjectFactory()]),
+  fields_of_interest: getSomeElements(tag_ids),
   city_choices: getSomeElements(cities),
-  educational_background: [educationalBackgroundFactory(), educationalBackgroundFactory()],
-  work_experience: [workExperienceFactory(), workExperienceFactory()],
+  educational_background: cleanArray([educationalBackgroundFactory(), educationalBackgroundFactory()]),
+  work_experience: cleanArray([workExperienceFactory(), workExperienceFactory()]),
   experience_level: `${faker.random.number(5)} year`,
   relevant_experience_level: `${faker.random.number(5)} year`,
-  skill_experience_level: [skillExpLvlFactorry(), skillExpLvlFactorry(), skillExpLvlFactorry()],
+  skill_experience_level: cleanArray([skillExpLvlFactorry(), skillExpLvlFactorry(), skillExpLvlFactorry()]),
   resume: {
-    path: `${faker.system.directoryPath}/resume.pdf`,
+    path: `${faker.system.directoryPath()}/resume.pdf`,
     updated_at: faker.date.past(),
   },
   review: faker.lorem.sentences(),
   reviewed_by: faker.random.arrayElement(learner_ids),
-  tags: getSomeElements(tag_ids),
+  tags: `{${getSomeElements(tag_ids).join(',')}}`,
   profile_views: faker.random.number({ min: 1, max: 500 }),
   status: 'available',
   hiring_status: faker.random.arrayElement(HIRING_STATUS),
   created_at: new Date(),
-  available_time_slots: timeSlotFactory(),
-  updated_by: [],
+  available_time_slots: cleanArray(timeSlotFactory()),
+  updated_by: cleanArray([{ user_id: '12345' }]),
   capstone_project: capstoneProjectFactory(),
-  additional_links: [{
+  additional_links: cleanArray([{
     url: faker.internet.url(),
     description: faker.lorem.sentences(),
-  }],
+  }]),
 });
 // const p1 = createPorfolio(learner_ids[0]);
 const createLinkedinSocialConnection = (learner_id) => ({
@@ -155,6 +165,10 @@ const seeder = {
     const addPortfolios = queryInterface.bulkInsert(
       'portfolios', learner_ids.map(createPorfolio),
       { transaction: t },
+      {
+        resume: { type: new Sequelize.JSON() },
+        capstone_project: { type: new Sequelize.JSON() },
+      },
     );
     const addLinkedin = queryInterface.bulkInsert(
       'social_connections', learner_ids.map(createLinkedinSocialConnection),
@@ -162,7 +176,11 @@ const seeder = {
     );
     return Promise.all([addPortfolios, addLinkedin])
       .then(() => console.log('Seeded Porfolio and linkedin table'))
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        console.log('=======================================');
+        console.error(err.message);
+      });
   }),
 
   down: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(t => Promise.all([

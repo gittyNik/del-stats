@@ -6,6 +6,7 @@ import { USER_ROLES, User } from './user';
 import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
 import { SocialConnection } from './social_connection';
 import { JobApplication } from './job_application';
+import { getReviewRubricForALearner } from './learner_breakout';
 
 const {
   RECRUITER,
@@ -27,7 +28,7 @@ export const Portfolio = db.define('portfolios', {
     unique: true,
     references: { model: 'users', key: 'id' },
   },
-  showcase_projects: Sequelize.ARRAY(Sequelize.STRING),
+  showcase_projects: Sequelize.ARRAY(Sequelize.JSON),
   fields_of_interest: Sequelize.ARRAY(Sequelize.STRING),
   city_choices: Sequelize.ARRAY(Sequelize.STRING),
   educational_background: Sequelize.ARRAY(Sequelize.JSON),
@@ -142,10 +143,8 @@ export const getPortfoliosByStatus = (
   },
 );
 
-export const getPortfoliosByUser = (learner_id, role) => Portfolio.findOne({
-  where: {
-    learner_id,
-  },
+export const getAPortfolio = ({ id, learner_id, role }) => Portfolio.findOne({
+  where: (id) ? { id } : { learner_id },
   include: [{
     model: User,
     attributes: ['name', 'email', 'phone', 'picture', 'status'],
@@ -186,14 +185,14 @@ export const getPortfoliosByUser = (learner_id, role) => Portfolio.findOne({
         profile_views += learnerPortfolio.profile_views;
         Portfolio.update({
           profile_views,
-        }, {
-          where: {
-            learner_id,
-          },
-        });
+        }, { where: (id) ? { id } : { learner_id } });
       }
     }
     return completePortfolio;
+  })
+  .then(async portfolio => {
+    portfolio.milestone_rubrics = await getReviewRubricForALearner(portfolio.learner_id);
+    return portfolio;
   });
 
 export const createPortfolio = (

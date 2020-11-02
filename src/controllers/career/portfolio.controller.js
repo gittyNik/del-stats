@@ -1,5 +1,6 @@
 import {
-  getPortfoliosByStatus, getPortfoliosByUser, getPortfoliosFromId,
+  getPortfoliosByStatus,
+  getAPortfolio,
   getAllPortfolios, createPortfolio, updatePortfolioById,
   updatePortfolioForLearner, addPortfolioResume, getLearnerList,
 } from '../../models/portfolio';
@@ -64,7 +65,7 @@ export const getPortfoliosByStatusAPI = (req, res) => {
 export const getPortfolioByUser = (req, res) => {
   const { user_id } = req.params;
   const { role } = req.jwtData.user;
-  getPortfoliosByUser(user_id, role)
+  getAPortfolio({ user_id, role })
     .then(data => res.status(201).json({
       message: 'Portfolios fetched',
       data,
@@ -79,7 +80,7 @@ export const getPortfolioByUser = (req, res) => {
 export const getPortfolioById = (req, res) => {
   const { id } = req.params;
   const { role } = req.jwtData.user;
-  getPortfoliosFromId(id, role)
+  getAPortfolio({ id, role })
     .then(data => res.status(201).json({
       message: 'Portfolios fetched',
       data,
