@@ -1,11 +1,21 @@
 import Express from 'express';
 import {
-  getAllApplications, getApplication, createApplication,
-  updateApplication, deleteApplication, getJobApplicationsByUser,
+  getAllJobApplicationsAPI, getJobApplicationsByCompanyAPI,
+  getJobApplicationsForLearnerIdAPI, getJobApplicationAPI,
+  createJobApplicationAPI, updateJobApplicationAPI, deleteJobApplicationAPI,
+  sendAssignmentAndCreateApplication,
 } from '../../controllers/career/job_application.controller';
 import { apiNotReady } from '../../controllers/api.controller';
+import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
+
+const {
+  ADMIN, LEARNER, RECRUITER, CAREER_SERVICES,
+} = USER_ROLES;
 
 const router = Express.Router();
+
+router.use(allowMultipleRoles([ADMIN, RECRUITER, CAREER_SERVICES, LEARNER]));
 
 /**
  * @api {get} /career/applications Get all Applications
@@ -14,16 +24,25 @@ const router = Express.Router();
  * @apiName GetApplications
  * @apiGroup JobApplication
  */
-router.get('/', getAllApplications);
+router.get('/', getAllJobApplicationsAPI);
 
 /**
- * @api {get} /career/applications/live Get live Applications
- * @apiDescription get live Applications
+ * @api {get} /career/applications/company/:id Get Applications for a company
+ * @apiDescription get Applications for a company
  * @apiHeader {String} authorization JWT Token.
- * @apiName GetLiveApplications
+ * @apiName GetApplicationsForCompany
  * @apiGroup JobApplication
  */
-router.get('/live', getJobApplicationsByUser);
+router.get('/company/:id', getJobApplicationsByCompanyAPI);
+
+/**
+ * @api {get} /career/applications/live Get Job Applications For Learner
+ * @apiDescription get Job Applications for a learner
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetJobApplicationsForLearnerId
+ * @apiGroup JobApplication
+ */
+router.get('/learner/:id', getJobApplicationsForLearnerIdAPI);
 
 /**
  * @api {get} /career/applications/latest Get latest applications
@@ -50,7 +69,9 @@ router.get('/user/:user_id', apiNotReady);
  * @apiName GetApplication
  * @apiGroup JobApplication
  */
-router.get('/:id', getApplication);
+router.get('/:id', getJobApplicationAPI);
+
+router.use(allowMultipleRoles([ADMIN, RECRUITER, CAREER_SERVICES, LEARNER]));
 
 /**
  * @api {post} /career/applications/ Add Application
@@ -59,7 +80,16 @@ router.get('/:id', getApplication);
  * @apiName AddApplication
  * @apiGroup JobApplication
  */
-router.post('/', createApplication);
+router.post('/', createJobApplicationAPI);
+
+/**
+ * @api {post} /career/applications/assignment Add Assignment and Application
+ * @apiDescription Add an assignment/application
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName AddApplication
+ * @apiGroup JobApplication
+ */
+router.post('/assignment', sendAssignmentAndCreateApplication);
 
 /**
  * @api {patch} /career/applications/:id  Update Application
@@ -68,7 +98,7 @@ router.post('/', createApplication);
  * @apiName UpdateApplication
  * @apiGroup JobApplication
  */
-router.patch('/:id', updateApplication);
+router.patch('/:id', updateJobApplicationAPI);
 
 /**
  * @api {patch} /career/applications/:id/review Submit review of application
@@ -86,6 +116,6 @@ router.patch('/:id', apiNotReady);
  * @apiName DeleteApplication
  * @apiGroup JobApplication
  */
-router.delete('/:id', deleteApplication);
+router.delete('/:id', deleteJobApplicationAPI);
 
 export default router;

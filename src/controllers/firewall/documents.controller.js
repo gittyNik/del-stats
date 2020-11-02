@@ -15,6 +15,9 @@ const {
   AWS_SECRET, AWS_REGION, AWS_BASE_PATH,
   AWS_BREAKOUTS_BASE_PATH, AWS_BREAKOUTS_BUCKET_NAME,
   AWS_AGREEMENTS_BUCKET_NAME, AWS_BUCKET_NAME,
+  AWS_RESUME_BUCKET_NAME, AWS_RESUME_BASE_PATH,
+  AWS_COMPANY_BUCKET_NAME, AWS_COMPANY_LOGO_BASE_PATH,
+  AWS_LEARNER_PROFILE_BUCKET, AWS_LEARNER_PROFILE_BASE_PATH,
 } = process.env;
 
 AWS.config.update(
@@ -48,6 +51,18 @@ const type_upload = {
   document: {
     bucketName: AWS_DOCUMENT_BUCKET,
     basePath: AWS_DOCUMENT_BASE_PATH,
+  },
+  resume: {
+    bucketName: AWS_RESUME_BUCKET_NAME,
+    basePath: AWS_RESUME_BASE_PATH,
+  },
+  company_logo: {
+    bucketName: AWS_COMPANY_BUCKET_NAME,
+    basePath: AWS_COMPANY_LOGO_BASE_PATH,
+  },
+  profile_picture: {
+    bucketName: AWS_LEARNER_PROFILE_BUCKET,
+    basePath: AWS_LEARNER_PROFILE_BASE_PATH,
   },
 };
 
@@ -229,9 +244,49 @@ export const signedUploadUrl = async (
   }
 };
 
+export const signedViewUrl = async (
+  fileName, fileType, bucket = AWS_DOCUMENT_BUCKET,
+  base_path = AWS_DOCUMENT_BASE_PATH, full_path = true,
+) => {
+  let filePath;
+  if (full_path) {
+    filePath = fileName;
+  } else {
+    filePath = `${base_path}/${fileName}`;
+  }
+  // Set up the payload of what we are sending to the S3 api
+  const s3Params = {
+    Bucket: bucket,
+    Key: filePath,
+    Expires: 500,
+  };
+  // Make a request to the S3 API to get a signed URL which we can use to upload our file
+  try {
+    let s3Response = await s3.getSignedUrl('getObject', s3Params);
+    const returnData = {
+      signedRequest: s3Response,
+      url: `https://${bucket}.s3.amazonaws.com/${filePath}`,
+    };
+    return returnData;
+  } catch (err) {
+    return err;
+  }
+};
+
+export const getViewUrlS3 = async (fileName, fileType, type) => {
+  try {
+    let { bucketName, basePath } = type_upload[type];
+
+    let response = await signedViewUrl(fileName, fileType, bucketName, basePath, false);
+    return response;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+};
+
 export const getSignUrl = async (req, res) => {
   const { fileName, fileType, type } = req.body;
-
   try {
     let { bucketName, basePath } = type_upload[type];
 

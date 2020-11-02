@@ -77,7 +77,7 @@ export const getLearnerFaqById = (id) => LearnerFaq.findOne({
 export const getAllLearnerFaqs = () => LearnerFaq.findAll({ raw: true });
 
 export const createLearnerFaq = ({
-  program_id, title, body, user_id, topics
+  program_id, title, body, user_id, topics,
 }) => LearnerFaq.create({
   id: uuid(),
   program_id,
@@ -88,7 +88,7 @@ export const createLearnerFaq = ({
 });
 
 export const updateLearnerFaq = ({
-  learner_faq_id, program_id, title, body, user_id, topics
+  learner_faq_id, program_id, title, body, user_id, topics,
 }) => LearnerFaq.update({
   program_id,
   title,

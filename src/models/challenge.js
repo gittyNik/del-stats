@@ -14,6 +14,7 @@ export const Challenge = db.define('challenges', {
     type: Sequelize.UUID,
     references: { model: 'topics', key: 'id' },
   },
+  title: Sequelize.STRING,
   description: Sequelize.TEXT,
   starter_repo: Sequelize.STRING,
   difficulty: Sequelize.ENUM(...CHALLENGE_DIFFICULTY),
@@ -36,7 +37,7 @@ export const getChallengesByTopicId = topic_id => Challenge.findAll(
 );
 
 export const createAChallenge = (topic_id, description,
-  starter_repo, difficulty, size) => Challenge.create(
+  starter_repo, difficulty, size, title) => Challenge.create(
   {
     id: uuid(),
     topic_id,
@@ -44,6 +45,7 @@ export const createAChallenge = (topic_id, description,
     starter_repo,
     difficulty,
     size,
+    title,
   },
 );
 
@@ -54,12 +56,14 @@ export const updateAChallenge = (
   starter_repo,
   difficulty,
   size,
+  title,
 ) => Challenge.update({
   topic_id,
   description,
   starter_repo,
   difficulty,
   size,
+  title,
 }, { where: { id } });
 
 export const deleteAChallenge = (id) => Challenge.destroy(

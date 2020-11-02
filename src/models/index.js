@@ -40,6 +40,10 @@ import { BreakoutRecordingsDetails } from './breakout_recording_details';
 import { BreakoutRecordings } from './breakout_recordings';
 import { ReviewSlots } from './review_slots';
 import { AssessmentSlots } from './assessment_slots';
+import { LearnerInterviews } from './learner_interviews';
+import { LearnerRecruiters } from './learner_recruiter';
+import { JobPosting } from './job_postings';
+import { CompanyProfile } from './company_profile';
 
 // TODO: describe all associations here
 
@@ -53,6 +57,9 @@ Cohort.hasMany(CohortBreakout, { foreignKey: 'cohort_id' });
 CohortBreakout.belongsTo(Cohort);
 Application.belongsTo(Cohort, { foreignKey: 'cohort_applied' });
 Application.belongsTo(Cohort, { foreignKey: 'cohort_joining' });
+
+// User.hasMany(SocialConnection, {foreignKey: 'user_id'});
+// SocialConnection.belongsTo(User, {foreignKey: 'user_id'})
 
 CohortMilestone.belongsTo(Cohort, { foreignKey: 'cohort_id', constraints: false });
 CohortMilestone.belongsTo(Milestone, { foreignKey: 'milestone_id', constraints: false });
@@ -98,7 +105,50 @@ BreakoutRecordingsDetails.belongsTo(User, { foreignKey: 'user_id' });
 
 ReviewSlots.belongsTo(User, { foreignKey: 'reviewer' });
 AssessmentSlots.belongsTo(User, { foreignKey: 'reviewer' });
-// User.hasMany(LearnerChallenge);
+
+JobApplication.hasOne(LearnerInterviews, { as: 'JobApplicationDetails', foreignKey: 'job_application_id' });
+LearnerInterviews.belongsTo(JobApplication, { as: 'JobApplicationDetails', foreignKey: 'job_application_id' });
+
+User.hasOne(LearnerInterviews, { as: 'LearnerDetails', foreignKey: 'learner_id' });
+LearnerInterviews.belongsTo(User, { as: 'LearnerDetails', foreignKey: 'learner_id' });
+
+// Many to many relation between LearnerInterviews and User through LearnerRecruiter table
+User.belongsToMany(LearnerInterviews, {
+  through: LearnerRecruiters,
+  foreignKey: 'recruiter_id',
+  // otherKey: 'learner_interview_id',
+  as: 'LearnerInterviews',
+});
+LearnerInterviews.belongsToMany(User, {
+  through: LearnerRecruiters,
+  // otherKey: 'learner_interview_id',
+  foreignKey: 'learner_interview_id',
+  as: 'Recruiters',
+});
+
+// User.hasMany()
+// LearnerInterviews.belongsTo(User, {as: 'Recruiters', foreignKey: 'recruiter_ids'})
+Portfolio.belongsTo(User, { foreignKey: 'learner_id' });
+
+// User.hasOne(SocialConnection, { as: 'SocialDetails', foreignKey: 'user_id' });
+// SocialConnection.belongsTo(User, { as: 'SocialDetails', foreignKey: 'user_id' });
+
+JobApplication.belongsTo(Portfolio, { foreignKey: 'portfolio_id' });
+Portfolio.hasMany(JobApplication);
+
+JobPosting.belongsTo(CompanyProfile, { foreignKey: 'company_id' });
+// CompanyProfile.hasMany(JobPosting);
+
+JobPosting.belongsTo(Challenge, { foreignKey: 'attached_assignment' });
+
+JobApplication.belongsTo(JobPosting, { foreignKey: 'job_posting_id' });
+JobPosting.hasMany(JobApplication);
+
+LearnerChallenge.belongsTo(JobApplication, { foreignKey: 'job_application_id' });
+JobApplication.hasMany(LearnerChallenge);
+
+LearnerChallenge.belongsTo(JobApplication, { foreignKey: 'job_application_id' });
+JobApplication.hasMany(LearnerChallenge);
 
 // User.belongsTo(Cohort);
 // Cohort.hasMany(User, { foreignKey: 'learners' });
@@ -143,4 +193,5 @@ export default {
   Topic,
   User,
   connection,
+  LearnerInterviews,
 };
