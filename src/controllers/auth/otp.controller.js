@@ -110,15 +110,18 @@ const register = (data, res) => {
 };
 
 const recruiterRegister = (data, res) => {
-  let {
-    fullName: name, phone, email,
-  } = data;
-  createUser({ name, phone, email }, USER_ROLES.RECRUITER)
-    .then(user => res.send({
-      user,
-      soalToken: getSoalToken(user),
-    }))
-    .catch(err => {
+  let { fullName: name, phone, email, position } = data;
+  createUser(
+    { name, phone, email, profile: { company: { position } } },
+    USER_ROLES.RECRUITER
+  )
+    .then((user) =>
+      res.send({
+        user,
+        soalToken: getSoalToken(user),
+      })
+    )
+    .catch((err) => {
       console.error(err);
       res.sendStatus(500);
     });
@@ -163,6 +166,6 @@ export const verifyOTP = (req, res) => {
 };
 
 export const registerRecruiterAPI = async (req, res) => {
-  const { phone, email, name } = req.body;
-  return recruiterRegister({ phone, email, fullName: name }, res);
+  const { phone, email, name, position } = req.body;
+  return recruiterRegister({ phone, email, fullName: name, position }, res);
 };
