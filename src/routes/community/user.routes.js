@@ -5,7 +5,8 @@ import {
   updateUserStatus,
   leastAttendanceInCohort,
   removeUserStatusApi,
-} from '../../controllers/community/user.controller';
+  getUsersByRole,
+} from "../../controllers/community/user.controller";
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
@@ -24,6 +25,8 @@ router.post('/remove-status', removeUserStatusApi);
 router.post('/least-attendance', leastAttendanceInCohort);
 
 router.get('/educators', getEducators);
+
+router.get("/role/:role", getUsersByRole);
 
 router.use(allowMultipleRoles([ADMIN]));
 
