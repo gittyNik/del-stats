@@ -64,7 +64,7 @@ export const getCompanyProfileFromRecruiterId = (id, role) => CompanyProfile.fin
   },
   raw: true,
 }).then(async (companyProfile) => {
-  if (companyProfile.logo) {
+  if (companyProfile) {
     let logo = await getViewUrlS3(companyProfile.logo, '', 'company_logo');
     companyProfile.logo = logo.signedRequest;
   }

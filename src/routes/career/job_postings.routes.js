@@ -10,12 +10,12 @@ import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, LEARNER, RECRUITER, CAREER_SERVICES,
+  ADMIN, LEARNER, RECRUITER, CAREER_SERVICES, EDUCATOR,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, RECRUITER, CAREER_SERVICES, LEARNER]));
+router.use(allowMultipleRoles([ADMIN, RECRUITER, CAREER_SERVICES, LEARNER, EDUCATOR]));
 
 /**
  * @api {get} /career/jobs Get all Career JobPostings
@@ -54,7 +54,7 @@ router.get('/:id', getJobPostingById);
 router.get('/company/:id', getJobPostingsByCompanyAPI);
 
 // Restrict modifications for any applicant to the cohorts
-router.use(allowMultipleRoles([ADMIN, CAREER_SERVICES, RECRUITER]));
+router.use(allowMultipleRoles([ADMIN, CAREER_SERVICES, RECRUITER, EDUCATOR]));
 
 /**
  * @api {post} /career/jobs/ Add Career JobPosting

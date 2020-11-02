@@ -10,12 +10,12 @@ import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, LEARNER, RECRUITER, CAREER_SERVICES,
+  ADMIN, LEARNER, RECRUITER, CAREER_SERVICES, EDUCATOR,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, RECRUITER, CAREER_SERVICES, LEARNER]));
+router.use(allowMultipleRoles([ADMIN, RECRUITER, CAREER_SERVICES, LEARNER, EDUCATOR]));
 
 /**
  * @api {get} /career/applications Get all Applications
@@ -71,7 +71,7 @@ router.get('/user/:user_id', apiNotReady);
  */
 router.get('/:id', getJobApplicationAPI);
 
-router.use(allowMultipleRoles([ADMIN, RECRUITER, CAREER_SERVICES, LEARNER]));
+router.use(allowMultipleRoles([ADMIN, RECRUITER, CAREER_SERVICES, LEARNER, EDUCATOR]));
 
 /**
  * @api {post} /career/applications/ Add Application

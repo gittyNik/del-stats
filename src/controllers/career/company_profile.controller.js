@@ -40,8 +40,7 @@ export const getCompanyProfileFromIdAPI = (req, res) => {
 };
 
 export const getCompanyProfileFromRecruiterIdAPI = (req, res) => {
-  const { id } = req.jwtData.user.id;
-  const { role } = req.jwtData.user;
+  const { id, role } = req.jwtData.user;
   getCompanyProfileFromRecruiterId(id, role)
     .then(data => res.status(201).json({
       message: 'Company Profile fetched',
