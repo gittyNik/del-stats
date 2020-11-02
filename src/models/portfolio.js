@@ -132,10 +132,8 @@ export const getPortfoliosByStatus = (
   },
 );
 
-export const getPortfoliosByUser = (learner_id, role) => Portfolio.findOne({
-  where: {
-    learner_id,
-  },
+export const getAPortfolio = ({ id, learner_id, role }) => Portfolio.findOne({
+  where: (id) ? { id } : { learner_id },
   include: [{
     model: User,
     attributes: ['name', 'email', 'phone', 'picture', 'status'],
@@ -166,11 +164,7 @@ export const getPortfoliosByUser = (learner_id, role) => Portfolio.findOne({
         profile_views += learnerPortfolio.profile_views;
         Portfolio.update({
           profile_views,
-        }, {
-          where: {
-            learner_id,
-          },
-        });
+        }, { where: (id) ? { id } : { learner_id } });
       }
     }
     return completePortfolio;
