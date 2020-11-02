@@ -4,6 +4,7 @@ import db from '../database';
 import { USER_ROLES } from './user';
 import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
 import { CompanyProfile } from './company_profile';
+import { Challenge } from './challenge';
 
 const {
   LEARNER,
@@ -121,7 +122,11 @@ export const getAllJobPostings = ({
       include: [{
         model: CompanyProfile,
         attributes: ['name', 'logo'],
-      }],
+      },
+      {
+        model: Challenge,
+      },
+      ],
       offset,
       limit,
     },

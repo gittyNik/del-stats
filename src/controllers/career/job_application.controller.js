@@ -7,10 +7,13 @@ import {
 
 export const getAllJobApplicationsAPI = async (req, res) => {
   let {
-    limit, page, status,
+    limit, page,
   } = req.query;
-  let offset = limit * page;
-  return getAllJobApplications({ status, limit, offset })
+  let offset;
+  if ((limit) && (page)) {
+    offset = limit * (page - 1);
+  }
+  return getAllJobApplications({ limit, offset })
     .then(data => res.status(200).json({
       text: 'List of all Job Applications',
       data,
@@ -26,7 +29,10 @@ export const getJobApplicationsByCompanyAPI = (req, res) => {
     limit, page, status,
   } = req.query;
   const { id: company_id } = req.params;
-  let offset = limit * page;
+  let offset;
+  if ((limit) && (page)) {
+    offset = limit * (page - 1);
+  }
   return getJobApplicationsByCompany({
     company_id, status, limit, offset,
   })
@@ -46,7 +52,10 @@ export const getJobApplicationsForLearnerIdAPI = (req, res) => {
     limit, page, status,
   } = req.query;
   const { id: learner_id } = req.params;
-  let offset = limit * page;
+  let offset;
+  if ((limit) && (page)) {
+    offset = limit * (page - 1);
+  }
   return getJobApplicationsForLearnerId({
     learner_id, status, limit, offset,
   })

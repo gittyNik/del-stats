@@ -86,17 +86,20 @@ export const JobApplication = db.define('job_applications', {
   },
 });
 
-export const getAllJobApplications = ({ status, limit, offset }) => {
+export const getAllJobApplications = ({ limit, offset }) => {
   // default parameters
   limit = limit || 10;
-  status = status || 'active';
 
   return JobApplication
     .findAndCountAll({
-      where: { status },
-      // include: [{
-      //   association: Portfolio,
-      // }],
+      include: [{
+        model: Portfolio,
+      },
+      {
+        model: JobPosting,
+        attributes: ['title', 'company_id', 'job_type'],
+      },
+      ],
       limit,
       offset,
       // raw: true,
