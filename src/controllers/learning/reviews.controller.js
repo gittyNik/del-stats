@@ -1,3 +1,4 @@
+import { getCohortFromLearnerId } from '../../models/cohort';
 import {
   getAllReviews, getReviewsById,
   getReviewsByStatus, getReviewsByUserId,
@@ -8,7 +9,9 @@ import {
   updateReviewForLearner,
   updateTeamReview,
   createCohortReviewSchedule,
+  getCompletedReviewsForLearner,
 } from '../../models/reviews';
+
 
 export const getAllReviewsAPI = (req, res) => {
   const { review_date } = req.query;
@@ -129,4 +132,24 @@ export const updateTeamReviewAPI = (req, res) => {
     attendance_count,
     catalyst_notes).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
+};
+
+export const getCompletedReviewsForLearnerAPI = async (req, res) => {
+  const { email } = req.params;
+  const { status } = req.body;
+  try {
+    const data = await getCompletedReviewsForLearner(email, status);
+    res.status(200).json({
+      message: 'Reviews for a learner',
+      type: 'success',
+      data,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: 'Error while fetching reviews for learner',
+      type: 'failure',
+      err,
+    });
+  }
 };
