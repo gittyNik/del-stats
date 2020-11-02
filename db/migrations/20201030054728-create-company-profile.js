@@ -46,6 +46,8 @@ const migration = {
       type: Sequelize.ENUM(...STATUS),
       defaultValue: 'active',
     },
+    level_of_candidates: Sequelize.ARRAY(Sequelize.STRING),
+    roles: Sequelize.ARRAY(Sequelize.STRING),
   }),
   down: queryInterface => queryInterface.dropTable('company_profile'),
 };

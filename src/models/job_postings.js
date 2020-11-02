@@ -17,12 +17,15 @@ const STATUS = [
   'partially-filled',
 ];
 
+const JOB_TYPE = ['internship', 'fulltime', 'intern2hire'];
+
 export const JobPosting = db.define('job_postings', {
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
     primaryKey: true,
   },
+  title: Sequelize.STRING,
   company_id: {
     type: Sequelize.UUID,
     references: { model: 'company_profile', key: 'id' },
@@ -59,6 +62,15 @@ export const JobPosting = db.define('job_postings', {
     type: Sequelize.UUID,
     references: { model: 'challenges', key: 'id' },
   },
+  start_range: {
+    type: Sequelize.INTEGER,
+  },
+  end_range: {
+    type: Sequelize.INTEGER,
+  },
+  job_type: Sequelize.ENUM(...JOB_TYPE),
+  locations: Sequelize.ARRAY(Sequelize.STRING),
+  experience_required: Sequelize.STRING,
 });
 
 export const getJobPostingFromId = (id, role) => JobPosting.findOne({
@@ -71,74 +83,100 @@ export const getJobPostingFromId = (id, role) => JobPosting.findOne({
   }],
 })
   .then(async (jobPosting) => {
-    let logo = await getViewUrlS3(jobPosting.logo, '', 'company_logo');
-    jobPosting.logo = logo;
-    if ((jobPosting) && (role === LEARNER)) {
-      let views = 1;
-      views += jobPosting.views;
-      JobPosting.update({
-        views,
-      }, {
-        where: {
-          id,
-        },
-      });
+    if (jobPosting) {
+      if (jobPosting.logo) {
+        let logo = await getViewUrlS3(jobPosting.logo, '', 'company_logo');
+        jobPosting.logo = logo.signedRequest;
+      }
+      if ((jobPosting) && (role === LEARNER)) {
+        let views = 1;
+        views += jobPosting.views;
+        JobPosting.update({
+          views,
+        }, {
+          where: {
+            id,
+          },
+        });
+      }
     }
     return jobPosting;
   });
 
-export const getAllJobPostings = (
-  limit = 10,
-  offset = 0,
+export const getAllJobPostings = ({
+  limit,
+  offset,
   status,
   company_id,
-) => JobPosting.findAndCountAll(
-  {
-    where: { status, company_id },
-    include: [{
-      model: CompanyProfile,
-      attributes: ['name', 'logo'],
-    }],
-    offset,
-    limit,
-  },
-);
+}) => {
+  limit = limit || 10;
+  status = status || 'active';
+  let whereObj = { status };
+  if (company_id) {
+    whereObj.company_id = company_id;
+  }
+  return JobPosting.findAndCountAll(
+    {
+      whereObj,
+      include: [{
+        model: CompanyProfile,
+        attributes: ['name', 'logo'],
+      }],
+      offset,
+      limit,
+    },
+  );
+};
 
 export const getJobPostingsByStatus = (
-  status = 'active',
-  limit = 10,
-  offset = 0,
-) => JobPosting.findAndCountAll(
   {
-    where: { status },
-    include: [{
-      model: CompanyProfile,
-      attributes: ['name', 'logo'],
-    }],
-    offset,
     limit,
+    offset,
+    status,
   },
-);
+) => {
+  limit = limit || 10;
+  status = status || 'active';
+  let whereObj = { status };
+  return JobPosting.findAndCountAll(
+    {
+      whereObj,
+      include: [{
+        model: CompanyProfile,
+        attributes: ['name', 'logo'],
+      }],
+      offset,
+      limit,
+    },
+  );
+};
 
 export const getJobPostingsByCompany = (
-  company_id,
-  status = 'active',
-  limit = 10,
-  offset = 0,
-) => JobPosting.findAndCountAll(
   {
-    where: {
-      status,
-      company_id,
-    },
-    include: [{
-      model: CompanyProfile,
-      attributes: ['name', 'logo'],
-    }],
-    offset,
+    company_id,
+    status,
     limit,
+    offset,
   },
-);
+) => {
+  limit = limit || 10;
+  status = status || 'active';
+  let whereObj = { status };
+  if (company_id) {
+    whereObj.company_id = company_id;
+  }
+  return JobPosting.findAndCountAll(
+    {
+      whereObj,
+      include: [{
+        model: CompanyProfile,
+        attributes: ['name', 'logo'],
+      }],
+      offset,
+      limit,
+    },
+  );
+};
 
 export const createJobPosting = (
   company_id,
@@ -148,6 +186,12 @@ export const createJobPosting = (
   posted_by,
   vacancies,
   attached_assignment,
+  start_range,
+  end_range,
+  job_type,
+  locations,
+  experience_required,
+  title,
 ) => JobPosting.create(
   {
     company_id,
@@ -158,6 +202,12 @@ export const createJobPosting = (
     posted_by,
     vacancies,
     attached_assignment,
+    start_range,
+    end_range,
+    job_type,
+    locations,
+    experience_required,
+    title,
   },
 );
 
@@ -170,6 +220,12 @@ export const updateJobPostingById = (
   posted_by,
   vacancies,
   attached_assignment,
+  start_range,
+  end_range,
+  job_type,
+  locations,
+  experience_required,
+  title,
 ) => JobPosting.findOne({
   where: {
     id,
@@ -177,15 +233,7 @@ export const updateJobPostingById = (
 })
   .then((jobPosting) => {
     if (_.isEmpty(jobPosting)) {
-      return JobPosting.create({
-        company_id,
-        description,
-        tags,
-        status,
-        posted_by,
-        vacancies,
-        attached_assignment,
-      });
+      throw Error('Job does not exist!');
     }
 
     jobPosting.posted_by.push(...posted_by);
@@ -198,6 +246,12 @@ export const updateJobPostingById = (
       posted_by: jobPosting.posted_by,
       vacancies,
       attached_assignment,
+      start_range,
+      end_range,
+      job_type,
+      locations,
+      experience_required,
+      title,
     }, {
       where: {
         id,

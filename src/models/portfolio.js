@@ -70,24 +70,44 @@ export const getPortfoliosFromId = (id, role) => Portfolio.findOne({
   where: {
     id,
   },
+  include: [{
+    model: User,
+    attributes: ['name', 'email', 'phone', 'picture', 'status'],
+  }],
+  raw: true,
 })
   .then(async (learnerPortfolio) => {
-    if (learnerPortfolio.resume) {
-      let resume = await getViewUrlS3(learnerPortfolio.resume.path, '', 'resume');
-      learnerPortfolio.resume.url = resume;
-    }
-    if ((learnerPortfolio) && (role === RECRUITER)) {
-      let profile_views = 1;
-      profile_views += learnerPortfolio.profile_views;
-      Portfolio.update({
-        profile_views,
-      }, {
+    let completePortfolio = [];
+    if (learnerPortfolio) {
+      if (learnerPortfolio.resume) {
+        let resume = await getViewUrlS3(learnerPortfolio.resume.path, '', 'resume');
+        learnerPortfolio.resume.url = resume.signedRequest;
+      }
+      const social_connections = await SocialConnection.findAll({
         where: {
-          id,
+          provider: { [Sequelize.Op.in]: ['github', 'linkedin'] },
+          user_id: learnerPortfolio.learner_id,
         },
+        attributes: ['username', 'provider'],
+        raw: true,
       });
+      let flatSocial = social_connections.reduce(
+        (obj, item) => Object.assign(obj, { [item.provider]: item.username }), {},
+      );
+      completePortfolio = { ...learnerPortfolio, ...flatSocial };
+      if ((learnerPortfolio) && (role === RECRUITER)) {
+        let profile_views = 1;
+        profile_views += learnerPortfolio.profile_views;
+        Portfolio.update({
+          profile_views,
+        }, {
+          where: {
+            id,
+          },
+        });
+      }
     }
-    return learnerPortfolio;
+    return completePortfolio;
   });
 
 export const getAllPortfolios = (
@@ -116,32 +136,51 @@ export const getPortfoliosByUser = (learner_id, role) => Portfolio.findOne({
   where: {
     learner_id,
   },
+  include: [{
+    model: User,
+    attributes: ['name', 'email', 'phone', 'picture', 'status'],
+  }],
   raw: true,
 })
   .then(async (learnerPortfolio) => {
-    if (learnerPortfolio.resume) {
-      let resume = await getViewUrlS3(learnerPortfolio.resume.path, '', 'resume');
-      learnerPortfolio.resume.url = resume;
-    }
-    if ((learnerPortfolio) && (role === RECRUITER)) {
-      let profile_views = 0;
-      profile_views += learnerPortfolio.profile_views;
-      Portfolio.update({
-        profile_views,
-      }, {
+    let completePortfolio = [];
+    if (learnerPortfolio) {
+      if (learnerPortfolio.resume) {
+        let resume = await getViewUrlS3(learnerPortfolio.resume.path, '', 'resume');
+        learnerPortfolio.resume.url = resume.signedRequest;
+      }
+      const social_connections = await SocialConnection.findAll({
         where: {
-          learner_id,
+          provider: { [Sequelize.Op.in]: ['github', 'linkedin'] },
+          user_id: learnerPortfolio.learner_id,
         },
+        attributes: ['username', 'provider'],
+        raw: true,
       });
+      let flatSocial = social_connections.reduce(
+        (obj, item) => Object.assign(obj, { [item.provider]: item.username }), {},
+      );
+      completePortfolio = { ...learnerPortfolio, ...flatSocial };
+      if ((learnerPortfolio) && (role === RECRUITER)) {
+        let profile_views = 1;
+        profile_views += learnerPortfolio.profile_views;
+        Portfolio.update({
+          profile_views,
+        }, {
+          where: {
+            learner_id,
+          },
+        });
+      }
     }
-    return learnerPortfolio;
+    return completePortfolio;
   });
 
 export const createPortfolio = (
   learner_id,
   showcase_projects,
   fields_of_interest,
-  city_of_choices,
+  city_choices,
   educational_background,
   experience_level,
   relevant_experience_level,
@@ -156,13 +195,14 @@ export const createPortfolio = (
   capstone_project,
   tags,
   additional_links,
+  available_time_slots,
 ) => Portfolio.create(
   {
     id: uuid(),
     learner_id,
     showcase_projects,
     fields_of_interest,
-    city_of_choices,
+    city_choices,
     educational_background,
     experience_level,
     relevant_experience_level,
@@ -178,6 +218,7 @@ export const createPortfolio = (
     capstone_project,
     tags,
     additional_links,
+    available_time_slots,
   },
 );
 
@@ -186,7 +227,7 @@ export const updatePortfolioById = (
   learner_id,
   showcase_projects,
   fields_of_interest,
-  city_of_choices,
+  city_choices,
   educational_background,
   experience_level,
   relevant_experience_level,
@@ -200,6 +241,7 @@ export const updatePortfolioById = (
   capstone_project,
   tags,
   additional_links,
+  available_time_slots,
 ) => Portfolio.findOne({
   where: {
     id,
@@ -216,7 +258,7 @@ export const updatePortfolioById = (
       learner_id,
       showcase_projects,
       fields_of_interest,
-      city_of_choices,
+      city_choices,
       educational_background,
       experience_level,
       relevant_experience_level,
@@ -230,6 +272,7 @@ export const updatePortfolioById = (
       capstone_project,
       tags,
       additional_links,
+      available_time_slots,
     }, {
       where: {
         id,
@@ -241,7 +284,7 @@ export const updatePortfolioForLearner = (
   learner_id,
   showcase_projects,
   fields_of_interest,
-  city_of_choices,
+  city_choices,
   educational_background,
   experience_level,
   relevant_experience_level,
@@ -271,7 +314,7 @@ export const updatePortfolioForLearner = (
       learner_id,
       showcase_projects,
       fields_of_interest,
-      city_of_choices,
+      city_choices,
       educational_background,
       experience_level,
       relevant_experience_level,
@@ -366,8 +409,8 @@ export const getLearnerList = async (limit = 10, offset = 0) => {
     let picture = null;
     if (portfolio['user.picture']) {
       picture = await getViewUrlS3(portfolio['user.picture'], '', 'profile_picture');
+      portfolio.profile_picture = picture.signedRequest;
     }
-    portfolio.profile_picture = picture;
     const social_connections = await SocialConnection.findAll({
       where: {
         provider: { [Sequelize.Op.in]: ['github', 'linkedin'] },

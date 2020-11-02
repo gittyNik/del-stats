@@ -1,6 +1,7 @@
 import Express from 'express';
 import {
   getChallenges, createChallenge, updateChallenge, deleteChallenge,
+  getChallengesByTopic,
 } from '../../controllers/learning/challenge.controller';
 import {
   allowMultipleRoles,
@@ -24,6 +25,15 @@ router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
  * @apiGroup ContentChallenges
  */
 router.get('/', getChallenges);
+
+/**
+ * @api {get} /learning/content/challenges/topic/:id Get all Content Challenges by Topic
+ * @apiDescription get all Content Challenges
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetContentChallenges
+ * @apiGroup ContentChallenges
+ */
+router.get('/topic/:id', getChallengesByTopic);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowAdminsOnly);

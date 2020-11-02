@@ -2,6 +2,7 @@ import {
   getAllJobApplications,
   getJobApplicationsByCompany, getJobApplicationsForLearnerId, createJobApplication,
   getJobApplication, updateJobApplication, deleteJobApplication,
+  createJobApplicationForPortofolio,
 } from '../../models/job_application';
 
 export const getAllJobApplicationsAPI = async (req, res) => {
@@ -85,6 +86,29 @@ export const createJobApplicationAPI = (req, res) => {
   })
     .then(data => res.status(200).json({
       text: 'Created a Job Application',
+      data,
+      type: 'success',
+    }))
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+};
+
+export const sendAssignmentAndCreateApplication = (req, res) => {
+  const {
+    job_posting_id, portfolio_id, learner_id,
+    assignment_id, assignment_due_date,
+  } = req.body;
+  return createJobApplicationForPortofolio({
+    job_posting_id,
+    portfolio_id,
+    learner_id,
+    assignment_id,
+    assignment_due_date,
+  })
+    .then(data => res.status(200).json({
+      text: 'Sent Assignment and created a Job Application',
       data,
       type: 'success',
     }))

@@ -47,6 +47,10 @@ const migration = {
     vacancies: {
       type: Sequelize.INTEGER,
     },
+    attached_assignment: {
+      type: Sequelize.UUID,
+      references: { model: 'challenges', key: 'id' },
+    },
   }),
   down: queryInterface => queryInterface.dropTable('job_postings'),
 };

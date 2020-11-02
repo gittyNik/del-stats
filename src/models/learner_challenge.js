@@ -89,30 +89,58 @@ export const getLearnerChallengesBetweenDate = (
   raw: true,
 });
 
+export const updateLearnerChallenge = (id, job_application_id) => LearnerChallenge.update({
+  job_application_id,
+}, {
+  where: { id },
+  returning: true,
+  raw: true,
+})
+  .then(result => result[1][0]);
+
 export const learnerChallengesFindOrCreate = async (
   challenge_id,
   learner_id,
-  job_application_id = null,
+  privateRepo = true,
+  job_application_id,
 ) => {
   try {
-    let challenge = await LearnerChallenge.findOne({
-      where: {
-        challenge_id,
-        learner_id,
-      },
-      raw: true,
-    });
+    let challenge;
+    if (job_application_id) {
+      challenge = await LearnerChallenge.findOne({
+        where: {
+          challenge_id,
+          learner_id,
+          job_application_id,
+        },
+        raw: true,
+      });
+    } else {
+      challenge = await LearnerChallenge.findOne({
+        where: {
+          challenge_id,
+          learner_id,
+        },
+        raw: true,
+      });
+    }
 
     if (challenge === null) {
       // No challenge for this learner yet
 
       let socialConnection = await getGithubConnecionByUserId(learner_id);
       let chllenge = await getChallengeByChallengeId(challenge_id);
-      const repo_name = `${socialConnection.username}_${chllenge.starter_repo}`;
+      let repo_name;
+      if (job_application_id) {
+        repo_name = `${socialConnection.username}_${job_application_id}_${chllenge.starter_repo}`;
+      } else {
+        repo_name = `${socialConnection.username}_${chllenge.starter_repo}`;
+      }
       // Create repository for Challenge
       await createRepositoryifnotPresentFromTemplate(
         chllenge.starter_repo,
         repo_name,
+        privateRepo,
       );
 
       // Provide Access to learner

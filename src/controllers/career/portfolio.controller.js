@@ -132,13 +132,16 @@ export const createPortfolioAPI = (req, res) => {
     work_experience,
     capstone_project,
     tags,
+    learner_id,
+    additional_links,
+    available_time_slots,
   } = req.body;
   const user_name = req.jwtData.user.name;
-  const learner_id = req.jwtData.user.id;
+  const user_id = req.jwtData.user.id;
   let updated_by = [{
     user_name,
     updated_at: new Date(),
-    user_id: learner_id,
+    user_id,
   }];
   createPortfolio(
     learner_id,
@@ -158,6 +161,8 @@ export const createPortfolioAPI = (req, res) => {
     work_experience,
     capstone_project,
     tags,
+    additional_links,
+    available_time_slots,
   )
     .then((data) => res.status(201).json({
       message: 'Portfolio created',
@@ -188,6 +193,8 @@ export const updatePortfolio = (req, res) => {
     work_experience,
     capstone_project,
     tags,
+    additional_links,
+    available_time_slots,
   } = req.body;
   const user_name = req.jwtData.user.name;
   const user_id = req.jwtData.user.id;
@@ -215,6 +222,8 @@ export const updatePortfolio = (req, res) => {
     work_experience,
     capstone_project,
     tags,
+    additional_links,
+    available_time_slots,
   ).then(() => res.status(200).json({
     message: 'Portfolio updated',
     type: 'success',
@@ -241,6 +250,8 @@ export const updatePortfolioLearnerAPI = (req, res) => {
     work_experience,
     capstone_project,
     tags,
+    additional_links,
+    available_time_slots,
   } = req.body;
   const { id: learner_id } = req.params;
   const user_name = req.jwtData.user.name;
@@ -267,6 +278,8 @@ export const updatePortfolioLearnerAPI = (req, res) => {
     work_experience,
     capstone_project,
     tags,
+    additional_links,
+    available_time_slots,
   ).then(() => res.status(200).json({
     message: 'Portfolio updated',
     type: 'success',

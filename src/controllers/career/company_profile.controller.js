@@ -50,13 +50,22 @@ export const createCompanyProfileAPI = (req, res) => {
     tags,
     recruiters,
     locations,
+    level_of_candidates,
+    roles,
+    name_recruiter,
+    id_recruiter,
+    added_by_recruiter,
   } = req.body;
-  const user_name = req.jwtData.user.name;
-  const recruiter_id = req.jwtData.user.id;
+  let user_name = name_recruiter;
+  let recruiter_id = id_recruiter;
+  if (added_by_recruiter) {
+    recruiter_id = req.jwtData.user.id;
+    user_name = req.jwtData.user.name;
+  }
   let updated_by = [{
     user_name,
     updated_at: new Date(),
-    user_id: recruiter_id,
+    recruiter_id,
   }];
   createCompanyProfile(
     name,
@@ -69,6 +78,8 @@ export const createCompanyProfileAPI = (req, res) => {
     recruiters,
     updated_by,
     locations,
+    level_of_candidates,
+    roles,
   )
     .then((data) => res.status(201).json({
       message: 'Company Profile created',
@@ -93,13 +104,22 @@ export const updateCompanyProfileByIdAPI = (req, res) => {
     tags,
     recruiters,
     locations,
+    level_of_candidates,
+    roles,
+    name_recruiter,
+    id_recruiter,
+    added_by_recruiter,
   } = req.body;
-  const user_name = req.jwtData.user.name;
-  const user_id = req.jwtData.user.id;
+  let user_name = name_recruiter;
+  let recruiter_id = id_recruiter;
+  if (added_by_recruiter) {
+    recruiter_id = req.jwtData.user.id;
+    user_name = req.jwtData.user.name;
+  }
   let updated_by = [{
     user_name,
     updated_at: new Date(),
-    user_id,
+    recruiter_id,
   }];
 
   updateCompanyProfileById(
@@ -114,6 +134,8 @@ export const updateCompanyProfileByIdAPI = (req, res) => {
     recruiters,
     updated_by,
     locations,
+    level_of_candidates,
+    roles,
   ).then(() => res.status(200).json({
     message: 'Company Profile updated',
     type: 'success',

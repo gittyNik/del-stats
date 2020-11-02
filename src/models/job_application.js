@@ -1,8 +1,13 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
+import { application } from 'express';
 import { Portfolio } from './portfolio';
 import db from '../database';
 import { JobPosting } from './job_postings';
+import {
+  learnerChallengesFindOrCreate,
+  updateLearnerChallenge,
+} from './learner_challenge';
 
 const APPLICATION_STATUS = [
   'active',
@@ -73,6 +78,12 @@ export const JobApplication = db.define('job_applications', {
   offer_details: Sequelize.JSON,
   applicant_feedback: Sequelize.JSON,
   counsellor_notes: Sequelize.TEXT,
+  created_at: {
+    type: Sequelize.DATE,
+  },
+  updated_at: {
+    type: Sequelize.DATE,
+  },
 });
 
 export const getAllJobApplications = ({ status, limit, offset }) => {
@@ -102,8 +113,7 @@ export const getJobApplicationsByCompany = ({
     where: { status },
     inlcude: [{
       association: JobPosting,
-      incliude: [{
-        association: 'company_profile',
+      include: [{
         where: { id: company_id },
         // attributes: []
       }],
@@ -141,11 +151,44 @@ export const createJobApplication = ({
   id: uuid(),
   job_posting_id,
   portfolio_id,
-  status: 'active',
+  status: 'assignment',
   assignment_status: 'sent',
   assignment_due_date,
   assignment_sent_date: Sequelize.literal('NOW()'),
+  created_at: Sequelize.literal('NOW()'),
+  updated_at: Sequelize.literal('NOW()'),
 });
+
+export const createJobApplicationForPortofolio = async (
+  {
+    job_posting_id, portfolio_id, learner_id,
+    assignment_id, assignment_due_date,
+  },
+) => {
+  // Create Learner challenge if application does not exist
+  let checkExisting = await JobApplication.findOne({
+    where: {
+      job_posting_id, portfolio_id,
+    },
+    raw: true,
+  });
+  if (checkExisting) {
+    return checkExisting;
+  }
+  let jobApplication = await createJobApplication(
+    {
+      job_posting_id, portfolio_id, assignment_due_date,
+    },
+  );
+  await learnerChallengesFindOrCreate(
+    assignment_id,
+    learner_id,
+    false,
+    jobApplication.id,
+  );
+  // await updateLearnerChallenge(challengeDetails.challenge.id, jobApplication.id);
+  return jobApplication;
+};
 
 export const updateJobApplication = ({
   id, job_posting_id, portfolio_id, review, status,
