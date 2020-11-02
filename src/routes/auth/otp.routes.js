@@ -2,13 +2,6 @@ import Express from 'express';
 import {
   sendOTP, retryOTP, verifyOTP, registerRecruiterAPI,
 } from '../../controllers/auth/otp.controller';
-import authenticate from '../../controllers/auth/auth.controller';
-import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
-import { USER_ROLES } from '../../models/user';
-
-const {
-  ADMIN, LEARNER, RECRUITER, CAREER_SERVICES, EDUCATOR,
-} = USER_ROLES;
 
 const router = Express.Router();
 
@@ -38,8 +31,6 @@ router.post('/retry', retryOTP);
  * @apiParam {Number{0000-9999}} otp Enter OTP
  */
 router.get('/verify', verifyOTP);
-
-router.use(allowMultipleRoles([ADMIN, RECRUITER, CAREER_SERVICES, LEARNER, EDUCATOR]));
 
 // TEMP route to register recruiters bypassing OTP.
 router.post('/register-recruiter', registerRecruiterAPI);
