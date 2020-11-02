@@ -75,12 +75,13 @@ export const createGithubRepositoryFromTemplate = async (
   template_repo_name,
   repo,
   description = '',
+  privateRepo,
 ) => {
   const params = {
     owner: org,
     name: repo,
     description,
-    private: true,
+    private: privateRepo,
   };
   return request
     .post(
@@ -145,13 +146,14 @@ export const addTeamAccessToRepo = async (
 export const createRepositoryifnotPresentFromTemplate = async (
   template_repo_name,
   repo,
+  privateRepo,
 ) => {
   // Create repository for Challenge
 
   let isPresent = await isExistingRepository(repo);
 
   if (!isPresent) {
-    return createGithubRepositoryFromTemplate(template_repo_name, repo);
+    return createGithubRepositoryFromTemplate(template_repo_name, repo, '', privateRepo);
   }
   return {};
 };

@@ -16,6 +16,7 @@ export const USER_ROLES = Object.freeze({
   REVIEWER: 'reviewer',
   OPERATIONS: 'operations',
   RECRUITER: 'recruiter',
+  CAREER_SERVICES: 'career-services',
 });
 
 const AVAILABLE_USER_STATUS = [
@@ -46,6 +47,7 @@ export const User = db.define(
     role: Sequelize.STRING,
     location: Sequelize.STRING,
     profile: Sequelize.JSON,
+    picture: Sequelize.STRING,
     // USER status should have the status and date when
     // it was reported
     status: {
@@ -263,3 +265,14 @@ export const changeUserRole = (learner_id, role) => User.update({
     id: learner_id,
   },
 });
+
+export const addProfilePicture = async (user, action) => {
+  const { user_id, picture_url } = user;
+  return User.update({
+    picture: picture_url,
+  }, {
+    where: {
+      id: user_id,
+    },
+  });
+};

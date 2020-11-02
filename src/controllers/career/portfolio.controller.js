@@ -1,32 +1,150 @@
-import uuid from 'uuid/v4';
-import { Portfolio } from '../../models/portfolio';
+import {
+  getPortfoliosByStatus,
+  getAPortfolio,
+  getAllPortfolios, createPortfolio, updatePortfolioById,
+  updatePortfolioForLearner, addPortfolioResume, getLearnerList,
+} from '../../models/portfolio';
 
-export const getAllPortfolios = (req, res) => {
-  Portfolio.findAll({})
-    .then(data => res.json(data))
+export const getAllPortfoliosAPI = (req, res) => {
+  let { limit, page } = req.query;
+  let offset;
+  if ((limit) && (page)) {
+    offset = limit * (page - 1);
+  }
+  getAllPortfolios(limit, offset)
+    .then(data => res.status(201).json({
+      message: 'Portfolios fetched',
+      data,
+      type: 'success',
+    }))
     .catch(err => {
       console.error(err.stack);
       res.status(500);
     });
 };
 
-export const createPortfolio = (req, res) => {
+export const getLearnerListAPI = (req, res) => {
+  let { limit, page } = req.query;
+  let offset;
+  if ((limit) && (page)) {
+    offset = limit * (page - 1);
+  }
+  return getLearnerList(limit, offset)
+    .then(data => res.status(200).json({
+      message: 'List of all Available learners',
+      data,
+      type: 'success',
+    }))
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({
+        text: 'Failed to get all learners list',
+        type: 'failure',
+      });
+    });
+};
+
+export const getPortfoliosByStatusAPI = (req, res) => {
+  let { limit, page, status } = req.query;
+  let offset;
+  if ((limit) && (page)) {
+    offset = limit * (page - 1);
+  }
+  getPortfoliosByStatus(status, limit, offset)
+    .then(data => res.status(201).json({
+      message: 'Portfolios fetched',
+      data,
+      type: 'success',
+    }))
+    .catch(err => {
+      console.error(err.stack);
+      res.status(500);
+    });
+};
+
+export const getPortfolioByUser = (req, res) => {
+  const { user_id } = req.params;
+  const { role } = req.jwtData.user;
+  getAPortfolio({ user_id, role })
+    .then(data => res.status(201).json({
+      message: 'Portfolios fetched',
+      data,
+      type: 'success',
+    }))
+    .catch(err => {
+      console.error(err.stack);
+      res.status(500);
+    });
+};
+
+export const getPortfolioById = (req, res) => {
+  const { id } = req.params;
+  const { role } = req.jwtData.user;
+  getAPortfolio({ id, role })
+    .then(data => res.status(201).json({
+      message: 'Portfolios fetched',
+      data,
+      type: 'success',
+    }))
+    .catch(err => {
+      console.error(err.stack);
+      res.status(500);
+    });
+};
+
+export const addResumeForLearner = (req, res) => {
   const {
+    resume_path,
     learner_id,
-    showcase_projects,
-    fields_of_interest,
-    city_of_choices,
-    educational_background,
-    experience_level,
-    relevant_experience_level,
-    resume,
-    review,
-    reviewed_by,
-    status,
-    hiring_status,
   } = req.body;
-  Portfolio.create({
-    id: uuid(),
+  const user_name = req.jwtData.user.name;
+  const user_id = req.jwtData.user.id;
+  let updated_by = {
+    user_name,
+    updated_at: new Date(),
+    user_id,
+  };
+  addPortfolioResume(learner_id, resume_path, updated_by)
+    .then(data => res.status(201).json({
+      message: 'Portfolios fetched',
+      data,
+      type: 'success',
+    }))
+    .catch(err => {
+      console.error(err.stack);
+      res.status(500);
+    });
+};
+
+export const createPortfolioAPI = (req, res) => {
+  const {
+    showcase_projects,
+    fields_of_interest,
+    city_of_choices,
+    educational_background,
+    experience_level,
+    relevant_experience_level,
+    skill_experience_level,
+    resume,
+    review,
+    reviewed_by,
+    status,
+    hiring_status,
+    work_experience,
+    capstone_project,
+    tags,
+    learner_id,
+    additional_links,
+    available_time_slots,
+  } = req.body;
+  const user_name = req.jwtData.user.name;
+  const user_id = req.jwtData.user.id;
+  let updated_by = [{
+    user_name,
+    updated_at: new Date(),
+    user_id,
+  }];
+  createPortfolio(
     learner_id,
     showcase_projects,
     fields_of_interest,
@@ -34,13 +152,24 @@ export const createPortfolio = (req, res) => {
     educational_background,
     experience_level,
     relevant_experience_level,
+    skill_experience_level,
     resume,
     review,
     reviewed_by,
     status,
     hiring_status,
-  })
-    .then(() => res.send('Portfolio created.'))
+    updated_by,
+    work_experience,
+    capstone_project,
+    tags,
+    additional_links,
+    available_time_slots,
+  )
+    .then((data) => res.status(201).json({
+      message: 'Portfolio created',
+      data,
+      type: 'success',
+    }))
     .catch(err => {
       console.error(err.stack);
       res.status(500);
@@ -62,8 +191,22 @@ export const updatePortfolio = (req, res) => {
     reviewed_by,
     status,
     hiring_status,
+    work_experience,
+    capstone_project,
+    tags,
+    additional_links,
+    available_time_slots,
   } = req.body;
-  Portfolio.update({
+  const user_name = req.jwtData.user.name;
+  const user_id = req.jwtData.user.id;
+  let updated_by = [{
+    user_name,
+    updated_at: new Date(),
+    user_id,
+  }];
+
+  updatePortfolioById(
+    id,
     learner_id,
     showcase_projects,
     fields_of_interest,
@@ -76,22 +219,72 @@ export const updatePortfolio = (req, res) => {
     reviewed_by,
     status,
     hiring_status,
-  }, {
-    where: { id },
-  })
-    .then(() => res.send('Portfolio updated.'))
+    updated_by,
+    work_experience,
+    capstone_project,
+    tags,
+    additional_links,
+    available_time_slots,
+  ).then(() => res.status(200).json({
+    message: 'Portfolio updated',
+    type: 'success',
+  }))
     .catch(err => {
       console.error(err.stack);
       res.status(500);
     });
 };
 
-export const deletePortfolio = (req, res) => {
-  const { id } = req.params;
-  Portfolio.destroy({
-    where: { id },
-  })
-    .then(() => res.send('Portfolio Deleted.'))
+export const updatePortfolioLearnerAPI = (req, res) => {
+  const {
+    showcase_projects,
+    fields_of_interest,
+    city_of_choices,
+    educational_background,
+    experience_level,
+    relevant_experience_level,
+    resume,
+    review,
+    reviewed_by,
+    status,
+    hiring_status,
+    work_experience,
+    capstone_project,
+    tags,
+    additional_links,
+    available_time_slots,
+  } = req.body;
+  const { id: learner_id } = req.params;
+  const user_name = req.jwtData.user.name;
+  const user_id = req.jwtData.user.id;
+  let updated_by = [{
+    user_name,
+    updated_at: new Date(),
+    user_id,
+  }];
+  updatePortfolioForLearner(
+    learner_id,
+    showcase_projects,
+    fields_of_interest,
+    city_of_choices,
+    educational_background,
+    experience_level,
+    relevant_experience_level,
+    resume,
+    review,
+    reviewed_by,
+    status,
+    hiring_status,
+    updated_by,
+    work_experience,
+    capstone_project,
+    tags,
+    additional_links,
+    available_time_slots,
+  ).then(() => res.status(200).json({
+    message: 'Portfolio updated',
+    type: 'success',
+  }))
     .catch(err => {
       console.error(err.stack);
       res.status(500);

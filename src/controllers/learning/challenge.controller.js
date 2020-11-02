@@ -1,6 +1,7 @@
 import uuid from 'uuid/v4';
 import {
   Challenge, createAChallenge, updateAChallenge, deleteAChallenge,
+  getChallengesByTopicId,
 } from '../../models/challenge';
 import { LearnerChallenge } from '../../models/learner_challenge';
 
@@ -13,10 +14,20 @@ export const getChallenges = (req, res) => {
     });
 };
 
+export const getChallengesByTopic = (req, res) => {
+  const { id } = req.params;
+  getChallengesByTopicId(id)
+    .then((data) => { res.json(data); })
+    .catch(err => {
+      console.error(err);
+      res.status(500);
+    });
+};
+
 export const createChallenge = (req, res) => {
   const {
     topic_id, description, starter_repo,
-    difficulty, size,
+    difficulty, size, title,
   } = req.body;
 
   createAChallenge(
@@ -25,6 +36,7 @@ export const createChallenge = (req, res) => {
     starter_repo,
     difficulty,
     size,
+    title,
   )
     .then((data) => {
       // console.log(data);
@@ -39,7 +51,7 @@ export const createChallenge = (req, res) => {
 export const updateChallenge = (req, res) => {
   const {
     topic_id, description, starter_repo,
-    difficulty, size,
+    difficulty, size, title,
   } = req.body;
   const { id } = req.params;
   updateAChallenge(
@@ -49,6 +61,7 @@ export const updateChallenge = (req, res) => {
     starter_repo,
     difficulty,
     size,
+    title,
   )
     .then(() => { res.send('Challenge Updated'); })
     .catch(err => {

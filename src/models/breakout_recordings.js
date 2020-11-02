@@ -65,6 +65,12 @@ export const getAWSSignedUrl = (unSignedUrl) => {
   return signedUrl;
 };
 
+export const getResourceUrl = (cdn, base_path) => {
+  let cdn_url = cdn + base_path;
+  let url = getAWSSignedUrl(cdn_url);
+  return url;
+};
+
 export const updateRecordings = (
   id, video_views, recording_details,
   breakout_template_id,

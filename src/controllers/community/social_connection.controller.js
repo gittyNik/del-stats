@@ -79,3 +79,54 @@ export const getGithubConnection = (req, res) => {
     })
     .catch(err => res.status(500).send(err));
 };
+
+// Quick fix to add or update linkedin Profile for a learner
+export const createOrUpdateLinkedinConnection = async (req, res) => {
+  const {
+    id: user_id, username, email,
+  } = req.body;
+  await SocialConnection
+    .findOne({
+      where: {
+        user_id,
+        provider: 'linkedin',
+      },
+    })
+    .then(data => {
+      if (data) {
+        return SocialConnection.update({
+          username,
+        }, {
+          where: {
+            user_id,
+            provider: 'linkedin',
+          },
+          raw: true,
+          returning: true,
+        })
+          .then(data1 => res.json({
+            text: 'Updated linkedin Social connection',
+            data: data1,
+
+          }));
+      }
+      return SocialConnection.create({
+        id: uuid(),
+        user_id,
+        provider: 'linkedin',
+        username,
+        email,
+      }).then(data1 => res.json({
+        text: 'Created a linkedin social connection',
+        data: data1,
+        type: 'success',
+      }));
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({
+        text: 'Failed to create or update linkedin',
+        type: 'failure',
+      });
+    });
+};
