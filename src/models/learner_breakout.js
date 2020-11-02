@@ -395,7 +395,7 @@ export const getReviewRubricForALearner = async (learner_id, limit = 10) => {
     attributes: ['id', 'cohort_breakout_id', 'review_feedback'],
     where: {
       learner_id,
-      [Sequelize.Op.and]: Sequelize.literal(`review_feedback->>'type' IS NOT NULL AND review_feedback->>'rubrics' IS NOT NULL`),
+      [Sequelize.Op.and]: Sequelize.literal(`review_feedback->>'type' = 'reviews' AND review_feedback->>'rubrics' IS NOT NULL`),
     },
     limit,
     raw: true,
