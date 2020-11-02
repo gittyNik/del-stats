@@ -3,7 +3,12 @@ import {
   sendOTP, retryOTP, verifyOTP, registerRecruiterAPI,
 } from '../../controllers/auth/otp.controller';
 import authenticate from '../../controllers/auth/auth.controller';
-import { allowSuperAdminOnly } from '../../controllers/auth/roles.controller';
+import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
+
+const {
+  ADMIN, LEARNER, RECRUITER, CAREER_SERVICES, EDUCATOR,
+} = USER_ROLES;
 
 const router = Express.Router();
 
@@ -34,9 +39,9 @@ router.post('/retry', retryOTP);
  */
 router.get('/verify', verifyOTP);
 
-router.use(authenticate);
+router.use(allowMultipleRoles([ADMIN, RECRUITER, CAREER_SERVICES, LEARNER, EDUCATOR]));
 
 // TEMP route to register recruiters bypassing OTP.
-router.post('/register-recruiter', allowSuperAdminOnly, registerRecruiterAPI);
+router.post('/register-recruiter', registerRecruiterAPI);
 
 export default router;
