@@ -56,8 +56,7 @@ const LearnerInterviews = db.define('learner_interviews', {
         type: Sequelize.INTEGER,
       },
       interviewer_remarks: {
-        type: Sequelize.STRING,
-        defaultValue: ""
+        type: Sequelize.JSON,
       },
       final_status: {
         type: Sequelize.STRING
