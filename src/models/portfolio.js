@@ -83,6 +83,16 @@ export const getPortfoliosFromId = (id, role) => Portfolio.findOne({
         let resume = await getViewUrlS3(learnerPortfolio.resume.path, '', 'resume');
         learnerPortfolio.resume.url = resume.signedRequest;
       }
+      let picture = null;
+      if (learnerPortfolio['user.picture']) {
+        picture = await getViewUrlS3(learnerPortfolio['user.picture'], '', 'profile_picture');
+        learnerPortfolio.profile_picture = picture.signedRequest;
+      }
+      if (learnerPortfolio['user.status'].indexOf('frontend') > -1) {
+        learnerPortfolio.path = 'frontend';
+      } else {
+        learnerPortfolio.path = 'backend';
+      }
       const social_connections = await SocialConnection.findAll({
         where: {
           provider: { [Sequelize.Op.in]: ['github', 'linkedin'] },
@@ -148,6 +158,16 @@ export const getPortfoliosByUser = (learner_id, role) => Portfolio.findOne({
       if (learnerPortfolio.resume) {
         let resume = await getViewUrlS3(learnerPortfolio.resume.path, '', 'resume');
         learnerPortfolio.resume.url = resume.signedRequest;
+      }
+      let picture = null;
+      if (learnerPortfolio['user.picture']) {
+        picture = await getViewUrlS3(learnerPortfolio['user.picture'], '', 'profile_picture');
+        learnerPortfolio.profile_picture = picture.signedRequest;
+      }
+      if (learnerPortfolio['user.status'].indexOf('frontend') > -1) {
+        learnerPortfolio.path = 'frontend';
+      } else {
+        learnerPortfolio.path = 'backend';
       }
       const social_connections = await SocialConnection.findAll({
         where: {
