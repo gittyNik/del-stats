@@ -32,7 +32,7 @@ router.get('/', getAllCompanyProfilesAPI);
  * @apiName GetCompanyProfilesByRecruiterID
  * @apiGroup CompanyProfile
  */
-router.get('/recruiter/', getCompanyProfileFromRecruiterIdAPI);
+router.get('/recruiter', getCompanyProfileFromRecruiterIdAPI);
 
 /**
  * @api {get} /career/company/:id Get by Career CompanyProfile id
