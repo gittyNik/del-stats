@@ -1,7 +1,7 @@
 import {
   getCompanyProfileFromId, getAllCompanyProfiles,
   createCompanyProfile, updateCompanyProfileById,
-  removeCompanyProfile,
+  removeCompanyProfile, getCompanyProfileFromRecruiterId,
 } from '../../models/company_profile';
 
 export const getAllCompanyProfilesAPI = (req, res) => {
@@ -28,6 +28,21 @@ export const getCompanyProfileFromIdAPI = (req, res) => {
   const { id } = req.params;
   const { role } = req.jwtData.user;
   getCompanyProfileFromId(id, role)
+    .then(data => res.status(201).json({
+      message: 'Company Profile fetched',
+      data,
+      type: 'success',
+    }))
+    .catch(err => {
+      console.error(err.stack);
+      res.status(500);
+    });
+};
+
+export const getCompanyProfileFromRecruiterIdAPI = (req, res) => {
+  const { id } = req.jwtData.user.id;
+  const { role } = req.jwtData.user;
+  getCompanyProfileFromRecruiterId(id, role)
     .then(data => res.status(201).json({
       message: 'Company Profile fetched',
       data,

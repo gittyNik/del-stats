@@ -27,7 +27,7 @@ export const getChallengesByTopic = (req, res) => {
 export const createChallenge = (req, res) => {
   const {
     topic_id, description, starter_repo,
-    difficulty, size,
+    difficulty, size, title,
   } = req.body;
 
   createAChallenge(
@@ -36,6 +36,7 @@ export const createChallenge = (req, res) => {
     starter_repo,
     difficulty,
     size,
+    title,
   )
     .then((data) => {
       // console.log(data);
@@ -50,7 +51,7 @@ export const createChallenge = (req, res) => {
 export const updateChallenge = (req, res) => {
   const {
     topic_id, description, starter_repo,
-    difficulty, size,
+    difficulty, size, title,
   } = req.body;
   const { id } = req.params;
   updateAChallenge(
@@ -60,6 +61,7 @@ export const updateChallenge = (req, res) => {
     starter_repo,
     difficulty,
     size,
+    title,
   )
     .then(() => { res.send('Challenge Updated'); })
     .catch(err => {

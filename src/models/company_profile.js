@@ -58,6 +58,30 @@ export const CompanyProfile = db.define('company_profiles', {
   roles: Sequelize.ARRAY(Sequelize.STRING),
 });
 
+export const getCompanyProfileFromRecruiterId = (id, role) => CompanyProfile.findOne({
+  where: {
+    recruiters: { [Sequelize.Op.contains]: [id] },
+  },
+  raw: true,
+}).then(async (companyProfile) => {
+  if (companyProfile.logo) {
+    let logo = await getViewUrlS3(companyProfile.logo, '', 'company_logo');
+    companyProfile.logo = logo.signedRequest;
+  }
+  if ((companyProfile) && (role === LEARNER)) {
+    let views = 1;
+    views += companyProfile.views;
+    CompanyProfile.update({
+      views,
+    }, {
+      where: {
+        id,
+      },
+    });
+  }
+  return companyProfile;
+});
+
 export const getCompanyProfileFromId = (id, role) => CompanyProfile.findOne({
   where: {
     id,

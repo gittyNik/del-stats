@@ -1,12 +1,10 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
-import { application } from 'express';
 import { Portfolio } from './portfolio';
 import db from '../database';
 import { JobPosting } from './job_postings';
 import {
   learnerChallengesFindOrCreate,
-  updateLearnerChallenge,
 } from './learner_challenge';
 
 const APPLICATION_STATUS = [
@@ -15,6 +13,8 @@ const APPLICATION_STATUS = [
   'interview',
   'shortlisted',
   'hired',
+  'rejected',
+  'closed',
 ];
 
 const ASSIGNMENT_STATUS = [
@@ -59,6 +59,7 @@ export const JobApplication = db.define('job_applications', {
   },
   assignment_status: {
     type: Sequelize.ENUM(...ASSIGNMENT_STATUS),
+    defaultValue: 'active',
   },
   offer_status: {
     type: Sequelize.ENUM(...OFFER_STATUS),

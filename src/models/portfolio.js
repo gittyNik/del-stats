@@ -90,9 +90,9 @@ export const getPortfoliosFromId = (id, role) => Portfolio.findOne({
         learnerPortfolio.profile_picture = picture.signedRequest;
       }
       if (learnerPortfolio['user.status'].indexOf('frontend') > -1) {
-        learnerPortfolio.path = 'frontend';
+        learnerPortfolio.path = 'Frontend';
       } else {
-        learnerPortfolio.path = 'backend';
+        learnerPortfolio.path = 'Backend';
       }
       const social_connections = await SocialConnection.findAll({
         where: {
@@ -164,9 +164,9 @@ export const getAPortfolio = ({ id, learner_id, role }) => Portfolio.findOne({
         learnerPortfolio.profile_picture = picture.signedRequest;
       }
       if (learnerPortfolio['user.status'].indexOf('frontend') > -1) {
-        learnerPortfolio.path = 'frontend';
+        learnerPortfolio.path = 'Frontend';
       } else {
-        learnerPortfolio.path = 'backend';
+        learnerPortfolio.path = 'Backend';
       }
       const social_connections = await SocialConnection.findAll({
         where: {
@@ -431,9 +431,9 @@ export const getLearnerList = async (limit = 10, offset = 0) => {
       portfolio.profile_picture = picture.signedRequest;
     }
     if (portfolio['user.status'].indexOf('frontend') > -1) {
-      portfolio.path = 'frontend';
+      portfolio.path = 'Frontend';
     } else {
-      portfolio.path = 'backend';
+      portfolio.path = 'Backend';
     }
     const social_connections = await SocialConnection.findAll({
       where: {

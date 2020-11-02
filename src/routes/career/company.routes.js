@@ -2,8 +2,7 @@ import Express from 'express';
 import {
   getAllCompanyProfilesAPI, getCompanyProfileFromIdAPI,
   createCompanyProfileAPI, updateCompanyProfileByIdAPI,
-  removeCompanyProfileAPI,
-
+  removeCompanyProfileAPI, getCompanyProfileFromRecruiterIdAPI,
 } from '../../controllers/career/company_profile.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -24,6 +23,15 @@ router.use(allowMultipleRoles([ADMIN, RECRUITER, CAREER_SERVICES, LEARNER]));
  * @apiGroup CompanyProfile
  */
 router.get('/', getAllCompanyProfilesAPI);
+
+/**
+ * @api {get} /career/company/recruiter/:id Get Company by Recruiter ID
+ * @apiDescription get all Career CompanyProfiles by Recruiter ID
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetCompanyProfilesByRecruiterID
+ * @apiGroup CompanyProfile
+ */
+router.get('/recruiter/', getCompanyProfileFromRecruiterIdAPI);
 
 /**
  * @api {get} /career/company/:id Get by Career CompanyProfile id
