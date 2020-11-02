@@ -110,43 +110,74 @@ export const getJobApplicationsByCompany = ({
   company_id, status, limit, offset,
 }) => {
   limit = limit || 10;
-  status = status || 'active';
+
+  let whereObj = {
+    '$job_posting.company_id$': company_id,
+  };
+  if (status) {
+    whereObj.status = status;
+  }
 
   return JobApplication.findAndCountAll({
-    where: { status },
-    inlcude: [{
-      association: JobPosting,
-      include: [{
-        where: { id: company_id },
-        // attributes: []
-      }],
-    }],
+    include: [{
+      model: Portfolio,
+      attributes: ['learner_id', 'id', 'status', 'hiring_status'],
+    },
+    {
+      model: JobPosting,
+      attributes: ['title', 'company_id', 'job_type'],
+    },
+    ],
+    where: whereObj,
+    raw: true,
     limit,
     offset,
   });
 };
 
-export const getJobApplicationsForLearnerId = ({
+export const getJobApplicationsForLearnerId = async ({
   learner_id, status, limit, offset,
 }) => {
   limit = limit || 10;
-  status = status || 'active';
+  let whereObj = {
+    '$portfolio.learner_id$': learner_id,
+  };
+
+  if (status) {
+    whereObj.status = status;
+  }
 
   return JobApplication.findAndCountAll({
-    where: { status },
     include: [{
-      association: Portfolio,
-      where: {
-        learner_id,
-      },
-    }],
+      model: Portfolio,
+      attributes: ['learner_id', 'id', 'status', 'hiring_status'],
+    },
+    {
+      model: JobPosting,
+      attributes: ['title', 'company_id', 'job_type'],
+    },
+    ],
+    where: whereObj,
+    raw: true,
     limit,
     offset,
   });
 };
 
 export const getJobApplication = (id) => JobApplication
-  .findOne({ where: { id }, raw: true });
+  .findOne({
+    where: { id },
+    include: [{
+      model: Portfolio,
+      attributes: ['learner_id', 'id', 'status', 'hiring_status'],
+    },
+    {
+      model: JobPosting,
+      attributes: ['title', 'company_id', 'job_type'],
+    },
+    ],
+    raw: true,
+  });
 
 export const createJobApplication = ({
   job_posting_id, portfolio_id, assignment_due_date,

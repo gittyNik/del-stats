@@ -74,7 +74,7 @@ export const getJobApplicationAPI = (req, res) => {
   const { id } = req.params;
   return getJobApplication(id)
     .then(data => res.status(200).json({
-      text: 'List of all Job Applications for a company',
+      text: 'Application for id',
       data,
       type: 'success',
     }))
