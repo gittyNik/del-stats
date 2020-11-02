@@ -411,6 +411,11 @@ export const getLearnerList = async (limit = 10, offset = 0) => {
       picture = await getViewUrlS3(portfolio['user.picture'], '', 'profile_picture');
       portfolio.profile_picture = picture.signedRequest;
     }
+    if (portfolio['user.status'].indexOf('frontend') > -1) {
+      portfolio.path = 'frontend';
+    } else {
+      portfolio.path = 'backend';
+    }
     const social_connections = await SocialConnection.findAll({
       where: {
         provider: { [Sequelize.Op.in]: ['github', 'linkedin'] },
