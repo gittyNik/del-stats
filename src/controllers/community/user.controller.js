@@ -1,9 +1,14 @@
 import Sequelize from 'sequelize';
 import { apiNotReady } from '../api.controller';
 import {
-  User, USER_ROLES, addUserStatus, updateUserData,
-  removeUserStatus, addProfilePicture,
-} from '../../models/user';
+  User,
+  USER_ROLES,
+  addUserStatus,
+  updateUserData,
+  removeUserStatus,
+  addProfilePicture,
+  getUserByEmail,
+} from "../../models/user";
 import {
   belowThresholdLearners,
 } from '../../models/team';
@@ -227,4 +232,32 @@ export const addProfilePictureAPI = async (req, res) => {
       type: 'failure',
     });
   }
+};
+
+export const getUserByEmailAPI = async (req, res) => {
+  const { email } = req.params;
+  const { role } = req.query;
+
+  User.findOne(
+    {
+      where: {
+        email,
+        role,
+      },
+    },
+    { raw: true }
+  )
+    .then((data) => {
+      if (data === null) {
+        res.sendStatus(404);
+      }
+      res.json({
+        text: "User by email",
+        data,
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
 };
