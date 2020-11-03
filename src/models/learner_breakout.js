@@ -391,31 +391,41 @@ export const getLearnerBreakoutsForACohortBreakout = (cohort_breakout_id) => Lea
   });
 
 export const getReviewRubricForALearner = async (learner_id, limit = 10) => {
+  const allRubrics = [];
   return LearnerBreakout.findAll({
     attributes: ['id', 'cohort_breakout_id', 'review_feedback'],
     where: {
       learner_id,
       [Sequelize.Op.and]: Sequelize.literal(`review_feedback->>'type' = 'reviews' AND review_feedback->>'rubrics' IS NOT NULL`),
     },
-    limit,
+    // limit,
     raw: true,
   })
     .then(lbs => Promise.all(lbs.map(async lb => {
       const ms_details = await getMilestoneDetailsForReview(lb.cohort_breakout_id);
       lb.milestone_name = ms_details.name;
       lb.milestone_id = ms_details.id;
-      lb.rubrics = lb.review_feedback.rubrics;
       lb.learner_breakout_id = lb.id;
-
+      lb.rubrics = lb.review_feedback.rubrics;
+      allRubrics.push(...Object.keys(lb.rubrics).map(i => lb.rubrics[i]));
       // rf.review_feedback.rubrics
       delete lb.id;
       delete lb.cohort_breakout_id;
       delete lb.review_feedback;
       return lb;
     })))
+    .then(_lb => ({
+      milestone_rubrics: _lb,
+      top10Rubrics: allRubrics
+        .sort((a, b) => ((a.score >= b.score) ? -1 : 1))
+        .filter((rubric, index, self) => {
+          return index === self.findIndex(r => r.rubric_name === rubric.rubric_name);
+        })
+        .slice(0, limit),
+    }))
     .catch(err => {
       console.error(err);
-      console.log('Error in Fetch reviewRubricForALearner', learner_id);
+      console.log('Error in fetching reviewRubricForALearner', learner_id);
       return false;
     });
 };

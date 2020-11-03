@@ -171,7 +171,9 @@ export const getAPortfolio = ({ id, learner_id, role }) => Portfolio.findOne({
     return completePortfolio;
   })
   .then(async portfolio => {
-    portfolio.milestone_rubrics = await getReviewRubricForALearner(portfolio.learner_id);
+    const { milestone_rubrics, top10Rubrics } = await getReviewRubricForALearner(portfolio.learner_id);
+    portfolio.milestone_rubrics = milestone_rubrics;
+    portfolio.top10Rubrics = top10Rubrics;
     return portfolio;
   });
 
