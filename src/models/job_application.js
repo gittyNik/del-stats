@@ -282,6 +282,16 @@ export const updateJobApplication = async ({
   });
 };
 
+export const updateJobApplicationBypass = ( application, id ) => 
+  JobApplication.update ({
+    ...application
+  }, {
+    where: {
+      id
+    },
+    returning: true
+  })
+
 export const deleteJobApplication = (id) => JobApplication
   .destroy({ where: { id } })
   .then(() => { 'Job application deleted.'; })

@@ -6,6 +6,7 @@ import {
 	updateInterview
 } from "../../../models/learner_interviews"
 import { createInterviewRecuiterRelation } from "../../../models/learner_recruiter"
+import { updateJobApplicationBypass } from "../../../models/job_application"
 import { createPad, getPadById, endInterview } from "./pad.controller.js";
 
 const getInterviewbyIdEndpoint = (req, res) => {
@@ -42,6 +43,7 @@ const getAllLearnerInterviewsEndpoint = (req, res) => {
 }
 
 const createInterviewEndpoint = async (req, res) => {
+	let interview = null, interviewRecruiter = null, job_application
 	try {
 	  	const { 
 	  		recruiter_ids,
@@ -53,11 +55,14 @@ const createInterviewEndpoint = async (req, res) => {
 	  		interview_duration,
 	  		name
 	  	} = req.body;
-	  	let interview = await createInterview({ learner_id, job_application_id, interview_date, interview_round, interview_slot, interview_duration}, name)
-	  	let interviewRecruiter = await Promise.all(recruiter_ids.map(recruiter_id => createInterviewRecuiterRelation(interview.id, recruiter_id)))
+	  	interview = await createInterview({ learner_id, job_application_id, interview_date, interview_round, interview_slot, interview_duration}, name)
+	  	interviewRecruiter = await Promise.all(recruiter_ids.map(recruiter_id => createInterviewRecuiterRelation(interview.id, recruiter_id)))
+	  	if (interview && interviewRecruiter) {
+	  		job_application = await updateJobApplicationBypass({ status: "interview", interview_status: "scheduled"}, job_application_id)
+	  	}
 		res.send({
 	  		text: "Successfully created Interview",
-	  		data: {interview, interviewRecruiter}
+	  		data: {interview, interviewRecruiter, job_application}
 	  	})	
 	} catch (err) {
   	  	console.warn (err)
