@@ -169,7 +169,8 @@ export const getJobApplicationsForLearnerId = async ({
       model: JobPosting,
       attributes: [
         'title', 'company_id', 'job_type', 'views',
-        'interested', 'vacancies', 'tags',
+        'interested', 'vacancies', 'tags', 'locations',
+        'experience_required', 'attached_assignment',
       ],
       include: [{
         model: CompanyProfile,
