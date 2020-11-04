@@ -6,6 +6,7 @@ import { JobPosting } from './job_postings';
 import {
   learnerChallengesFindOrCreate,
 } from './learner_challenge';
+import { LearnerInterviews } from './learner_interviews';
 
 const APPLICATION_STATUS = [
   'active',
@@ -99,7 +100,10 @@ export const getAllJobApplications = ({ limit, offset }) => {
       {
         model: JobPosting,
         attributes: ['title', 'company_id', 'job_type'],
-      },
+      },{
+        model: LearnerInterviews,
+        as: 'LearnerInterviewsDetails'
+      }
       ],
       limit,
       offset,
@@ -127,7 +131,10 @@ export const getJobApplicationsByCompany = ({
     {
       model: JobPosting,
       attributes: ['title', 'company_id', 'job_type'],
-    },
+    },{
+      model: LearnerInterviews,
+      as: 'LearnerInterviewsDetails'
+    }
     ],
     where: whereObj,
     raw: true,
@@ -215,12 +222,14 @@ export const createJobApplicationForPortofolio = async (
       job_posting_id, portfolio_id, assignment_due_date,
     },
   );
-  await learnerChallengesFindOrCreate(
-    assignment_id,
-    learner_id,
-    false,
-    jobApplication.id,
-  );
+  if (assignment_id) {
+    await learnerChallengesFindOrCreate(
+      assignment_id,
+      learner_id,
+      false,
+      jobApplication.id,
+    );
+  }
   // await updateLearnerChallenge(challengeDetails.challenge.id, jobApplication.id);
   return jobApplication;
 };

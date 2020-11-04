@@ -9,11 +9,23 @@ import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, EDUCATOR, LEARNER, OPERATIONS, REVIEWER,
+  ADMIN, EDUCATOR, LEARNER, OPERATIONS, REVIEWER, CATALYST, CAREER_SERVICES,
 } = USER_ROLES;
 // import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
+
+router.use(allowMultipleRoles([ADMIN, LEARNER,
+  OPERATIONS, EDUCATOR, REVIEWER, CATALYST, CAREER_SERVICES]));
+
+/**
+ * @api {get} /firewall/documents/sign-request/ Upload files to AWS
+ * @apiDescription upload Document by status
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetUserDocumentResources
+ * @apiGroup Documents
+ */
+router.post('/sign-request', getSignUrl);
 
 router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]));
 
@@ -35,15 +47,6 @@ router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]))
  * @apiParam {Json} signers signer details
  */
 router.post('/:id/esign', EsignRequest);
-
-/**
- * @api {get} /firewall/documents/sign-request/ Upload files to AWS
- * @apiDescription upload Document by status
- * @apiHeader {String} authorization JWT Token.
- * @apiName GetUserDocumentResources
- * @apiGroup Documents
- */
-router.post('/sign-request', getSignUrl);
 
 /**
  * @api {get} /firewall/documents/save/ save document

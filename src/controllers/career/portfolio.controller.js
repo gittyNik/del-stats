@@ -63,9 +63,9 @@ export const getPortfoliosByStatusAPI = (req, res) => {
 };
 
 export const getPortfolioByUser = (req, res) => {
-  const { user_id } = req.params;
+  const { id: learner_id } = req.params;
   const { role } = req.jwtData.user;
-  getAPortfolio({ user_id, role })
+  getAPortfolio({ learner_id, role })
     .then(data => res.status(201).json({
       message: 'Portfolios fetched',
       data,
