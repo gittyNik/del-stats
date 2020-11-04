@@ -6,7 +6,7 @@ import {
 	updateInterview
 } from "../../../models/learner_interviews"
 import { createInterviewRecuiterRelation } from "../../../models/learner_recruiter"
-import { createPad, getPadById } from "./pad.controller.js";
+import { createPad, getPadById, endInterview } from "./pad.controller.js";
 
 const getInterviewbyIdEndpoint = (req, res) => {
 	const { id } = req.params;
@@ -86,10 +86,25 @@ const updateStatusEndpoint = (req, res) => {
 }
 
 const updateRemarksEndpoint = (req, res) => {
-	let interview;
-	const { learner_id, job_application_id, interview_round, interviewer_remarks } = req.body;
+	let interview, codepad_id=null;
+	const { learner_id, job_application_id, interview_round, interviewer_remarks} = req.body;
 	
+	if (req.body.codepad_id) {
+		codepad_id = req.body.codepad_id;
+	}
 	updateInterview(learner_id, job_application_id, interview_round, { interviewer_remarks })
+		.then(data => {
+			if (codepad_id) {
+				return endInterview(codepad_id)
+					.then (dt => ({
+						updateInterview: data,
+						endInterview: dt
+					}))
+			}
+			return {
+				updateInterview: data
+			}
+		})
 		.then((data) => res.send({
  			text: "Successfully updated Interview",
  			data
