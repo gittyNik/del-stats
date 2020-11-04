@@ -159,7 +159,7 @@ export const getJobPostingsByStatus = (
   let whereObj = { status };
   return JobPosting.findAndCountAll(
     {
-      whereObj,
+      where: whereObj,
       include: [{
         model: CompanyProfile,
         attributes: ['name', 'logo'],
@@ -186,7 +186,7 @@ export const getJobPostingsByCompany = (
   }
   return JobPosting.findAndCountAll(
     {
-      whereObj,
+      where: whereObj,
       include: [{
         model: CompanyProfile,
         attributes: ['name', 'logo'],

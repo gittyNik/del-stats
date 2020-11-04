@@ -63,8 +63,9 @@ export const getJobPostingById = (req, res) => {
 
 export const getJobPostingsByCompanyAPI = (req, res) => {
   let {
-    limit, page, company_id, status,
+    limit, page, status,
   } = req.query;
+  let company_id = req.params.id;
   let offset;
   if ((limit) && (page)) {
     offset = limit * (page - 1);
