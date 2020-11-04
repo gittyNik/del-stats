@@ -222,12 +222,14 @@ export const createJobApplicationForPortofolio = async (
       job_posting_id, portfolio_id, assignment_due_date,
     },
   );
-  await learnerChallengesFindOrCreate(
-    assignment_id,
-    learner_id,
-    false,
-    jobApplication.id,
-  );
+  if (assignment_id) {
+    await learnerChallengesFindOrCreate(
+      assignment_id,
+      learner_id,
+      false,
+      jobApplication.id,
+    );
+  }
   // await updateLearnerChallenge(challengeDetails.challenge.id, jobApplication.id);
   return jobApplication;
 };
