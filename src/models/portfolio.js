@@ -143,57 +143,69 @@ export const getPortfoliosByStatus = (
   },
 );
 
-export const getAPortfolio = ({ id, learner_id, role }) => Portfolio.findOne({
-  where: (id) ? { id } : { learner_id },
-  include: [{
-    model: User,
-    attributes: ['name', 'email', 'phone', 'picture', 'status'],
-  }],
-  raw: true,
-})
-  .then(async (learnerPortfolio) => {
-    let completePortfolio = [];
-    if (learnerPortfolio) {
-      if (learnerPortfolio.resume) {
-        let resume = await getViewUrlS3(learnerPortfolio.resume.path, '', 'resume');
-        learnerPortfolio.resume.url = resume.signedRequest;
-      }
-      let picture = null;
-      if (learnerPortfolio['user.picture']) {
-        picture = await getViewUrlS3(learnerPortfolio['user.picture'], '', 'profile_picture');
-        learnerPortfolio.profile_picture = picture.signedRequest;
-      }
-      if (learnerPortfolio['user.status'].indexOf('frontend') > -1) {
-        learnerPortfolio.path = 'Frontend';
-      } else {
-        learnerPortfolio.path = 'Backend';
-      }
-      const social_connections = await SocialConnection.findAll({
-        where: {
-          provider: { [Sequelize.Op.in]: ['github', 'linkedin'] },
-          user_id: learnerPortfolio.learner_id,
-        },
-        attributes: ['username', 'provider'],
-        raw: true,
-      });
-      let flatSocial = social_connections.reduce(
-        (obj, item) => Object.assign(obj, { [item.provider]: item.username }), {},
-      );
-      completePortfolio = { ...learnerPortfolio, ...flatSocial };
-      if ((learnerPortfolio) && (role === RECRUITER)) {
-        let profile_views = 1;
-        profile_views += learnerPortfolio.profile_views;
-        Portfolio.update({
-          profile_views,
-        }, { where: (id) ? { id } : { learner_id } });
-      }
-    }
-    return completePortfolio;
+export const getAPortfolio = ({ id, learner_id, role }) => {
+  let whereObj = {};
+  if (id) {
+    whereObj.id = id;
+  } else {
+    whereObj.learner_id = learner_id;
+  }
+  return Portfolio.findOne({
+    where: whereObj,
+    include: [{
+      model: User,
+      attributes: ['name', 'email', 'phone', 'picture', 'status'],
+    }],
+    raw: true,
   })
-  .then(async portfolio => {
-    portfolio.milestone_rubrics = await getReviewRubricForALearner(portfolio.learner_id);
-    return portfolio;
-  });
+    .then(async (learnerPortfolio) => {
+      let completePortfolio = [];
+      if (learnerPortfolio) {
+        if (learnerPortfolio.resume) {
+          let resume = await getViewUrlS3(learnerPortfolio.resume.path, '', 'resume');
+          learnerPortfolio.resume.url = resume.signedRequest;
+        }
+        let picture = null;
+        if (learnerPortfolio['user.picture']) {
+          picture = await getViewUrlS3(learnerPortfolio['user.picture'], '', 'profile_picture');
+          learnerPortfolio.profile_picture = picture.signedRequest;
+        }
+        if (learnerPortfolio['user.status'].indexOf('frontend') > -1) {
+          learnerPortfolio.path = 'Frontend';
+        } else {
+          learnerPortfolio.path = 'Backend';
+        }
+        const social_connections = await SocialConnection.findAll({
+          where: {
+            provider: { [Sequelize.Op.in]: ['github', 'linkedin'] },
+            user_id: learnerPortfolio.learner_id,
+          },
+          attributes: ['username', 'provider'],
+          raw: true,
+        });
+        let flatSocial = social_connections.reduce(
+          (obj, item) => Object.assign(obj, { [item.provider]: item.username }), {},
+        );
+        completePortfolio = { ...learnerPortfolio, ...flatSocial };
+        if ((learnerPortfolio) && (role === RECRUITER)) {
+          let profile_views = 1;
+          profile_views += learnerPortfolio.profile_views;
+          Portfolio.update({
+            profile_views,
+          }, { where: whereObj });
+        }
+      }
+      return completePortfolio;
+    })
+    .then(async portfolio => {
+      if (portfolio.learner_id) {
+        const { milestone_rubrics, top10Rubrics } = await getReviewRubricForALearner(portfolio.learner_id);
+        portfolio.milestone_rubrics = milestone_rubrics;
+        portfolio.top10Rubrics = top10Rubrics;
+      }
+      return portfolio;
+    });
+};
 
 export const createPortfolio = (
   learner_id,
