@@ -138,7 +138,8 @@ export const getJobApplicationsByCompany = ({
     {
       model: LearnerInterviews,
       as: 'LearnerInterviewsDetails',
-    }
+      required: false,
+    },
     ],
     where: whereObj,
     raw: true,
