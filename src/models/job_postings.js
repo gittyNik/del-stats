@@ -74,35 +74,49 @@ export const JobPosting = db.define('job_postings', {
   experience_required: Sequelize.STRING,
 });
 
-export const getJobPostingFromId = (id, role) => JobPosting.findOne({
-  where: {
-    id,
-  },
-  include: [{
+export const getJobPostingFromId = (id, role,
+  assignment = false, job_details = true) => {
+  let includeArray = [{
     model: CompanyProfile,
     attributes: ['name', 'logo'],
-  }],
-})
-  .then(async (jobPosting) => {
-    if (jobPosting) {
-      if (jobPosting.logo) {
-        let logo = await getViewUrlS3(jobPosting.logo, '', 'company_logo');
-        jobPosting.logo = logo.signedRequest;
+  }];
+  let attributesArray;
+  if (assignment) {
+    includeArray.push({
+      model: Challenge,
+    });
+  }
+  if (job_details === 'false') {
+    attributesArray = { exclude: ['description'] };
+  }
+  return JobPosting.findOne({
+    where: {
+      id,
+    },
+    include: includeArray,
+    attributes: attributesArray,
+  })
+    .then(async (jobPosting) => {
+      if (jobPosting) {
+        if (jobPosting.logo) {
+          let logo = await getViewUrlS3(jobPosting.logo, '', 'company_logo');
+          jobPosting.logo = logo.signedRequest;
+        }
+        if ((jobPosting) && (role === LEARNER)) {
+          let views = 1;
+          views += jobPosting.views;
+          JobPosting.update({
+            views,
+          }, {
+            where: {
+              id,
+            },
+          });
+        }
       }
-      if ((jobPosting) && (role === LEARNER)) {
-        let views = 1;
-        views += jobPosting.views;
-        JobPosting.update({
-          views,
-        }, {
-          where: {
-            id,
-          },
-        });
-      }
-    }
-    return jobPosting;
-  });
+      return jobPosting;
+    });
+};
 
 export const getAllJobPostings = ({
   limit,
@@ -176,6 +190,9 @@ export const getJobPostingsByCompany = (
       include: [{
         model: CompanyProfile,
         attributes: ['name', 'logo'],
+      },
+      {
+        model: Challenge,
       }],
       offset,
       limit,

@@ -7,6 +7,8 @@ import {
   learnerChallengesFindOrCreate,
 } from './learner_challenge';
 import { LearnerInterviews } from './learner_interviews';
+import { CompanyProfile } from './company_profile';
+import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
 
 const APPLICATION_STATUS = [
   'active',
@@ -100,10 +102,11 @@ export const getAllJobApplications = ({ limit, offset }) => {
       {
         model: JobPosting,
         attributes: ['title', 'company_id', 'job_type'],
-      },{
+      },
+      {
         model: LearnerInterviews,
-        as: 'LearnerInterviewsDetails'
-      }
+        as: 'LearnerInterviewsDetails',
+      },
       ],
       limit,
       offset,
@@ -156,14 +159,21 @@ export const getJobApplicationsForLearnerId = async ({
     whereObj.status = status;
   }
 
-  return JobApplication.findAndCountAll({
+  const { count, rows: jobApplications } = await JobApplication.findAndCountAll({
     include: [{
       model: Portfolio,
       attributes: ['learner_id', 'id', 'status', 'hiring_status'],
     },
     {
       model: JobPosting,
-      attributes: ['title', 'company_id', 'job_type'],
+      attributes: [
+        'title', 'company_id', 'job_type', 'views',
+        'interested', 'vacancies', 'tags',
+      ],
+      include: [{
+        model: CompanyProfile,
+        attributes: ['name', 'logo'],
+      }],
     },
     ],
     where: whereObj,
@@ -171,6 +181,17 @@ export const getJobApplicationsForLearnerId = async ({
     limit,
     offset,
   });
+  const learnerJobs = await Promise.all(jobApplications.map(async jobApplication => {
+    if (jobApplication['job_posting.company_profile.logo']) {
+      let logo = await getViewUrlS3(jobApplication['job_posting.company_profile.logo'], '', 'company_logo');
+      jobApplication['job_posting.company_profile.logo'] = logo.signedRequest;
+    }
+    return jobApplication;
+  }));
+  return {
+    count,
+    learnerJobs,
+  };
 };
 
 export const getJobApplication = (id) => JobApplication
@@ -234,7 +255,7 @@ export const updateJobApplication = async ({
   offer_details, applicant_feedback, counsellor_notes, assignment_id,
   learner_id,
 }) => {
-  if ((assignment_id) && (assignment_status === 'accepted')) {
+  if ((assignment_id) && (assignment_status === 'started')) {
     await learnerChallengesFindOrCreate(
       assignment_id,
       learner_id,
