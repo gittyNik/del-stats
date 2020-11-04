@@ -131,9 +131,10 @@ export const getJobApplicationsByCompany = ({
     {
       model: JobPosting,
       attributes: ['title', 'company_id', 'job_type'],
-    },{
+    },
+    {
       model: LearnerInterviews,
-      as: 'LearnerInterviewsDetails'
+      as: 'LearnerInterviewsDetails',
     }
     ],
     where: whereObj,
@@ -222,39 +223,43 @@ export const createJobApplicationForPortofolio = async (
       job_posting_id, portfolio_id, assignment_due_date,
     },
   );
-  if (assignment_id) {
-    await learnerChallengesFindOrCreate(
-      assignment_id,
-      learner_id,
-      false,
-      jobApplication.id,
-    );
-  }
   // await updateLearnerChallenge(challengeDetails.challenge.id, jobApplication.id);
   return jobApplication;
 };
 
-export const updateJobApplication = ({
+export const updateJobApplication = async ({
   id, job_posting_id, portfolio_id, review, status,
   assignment_status, offer_status,
   interview_status, assignment_due_date, interview_date,
-  offer_details, applicant_feedback, counsellor_notes,
-}) => JobApplication.update({
-  job_posting_id,
-  portfolio_id,
-  review,
-  status,
-  assignment_status,
-  offer_status,
-  interview_status,
-  assignment_due_date,
-  interview_date,
-  offer_details,
-  applicant_feedback,
-  counsellor_notes,
-}, {
-  where: { id },
-});
+  offer_details, applicant_feedback, counsellor_notes, assignment_id,
+  learner_id,
+}) => {
+  if ((assignment_id) && (assignment_status === 'accepted')) {
+    await learnerChallengesFindOrCreate(
+      assignment_id,
+      learner_id,
+      false,
+      id,
+    );
+  }
+
+  JobApplication.update({
+    job_posting_id,
+    portfolio_id,
+    review,
+    status,
+    assignment_status,
+    offer_status,
+    interview_status,
+    assignment_due_date,
+    interview_date,
+    offer_details,
+    applicant_feedback,
+    counsellor_notes,
+  }, {
+    where: { id },
+  });
+};
 
 export const deleteJobApplication = (id) => JobApplication
   .destroy({ where: { id } })
