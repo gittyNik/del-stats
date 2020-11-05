@@ -47,8 +47,9 @@ export const getJobPostingsByStatusAPI = (req, res) => {
 
 export const getJobPostingById = (req, res) => {
   const { id } = req.params;
+  const { assignment, job_details } = req.query;
   const { role } = req.jwtData.user;
-  getJobPostingFromId(id, role)
+  getJobPostingFromId(id, role, assignment, job_details)
     .then(data => res.status(201).json({
       message: 'Job Posting fetched',
       data,
@@ -62,8 +63,9 @@ export const getJobPostingById = (req, res) => {
 
 export const getJobPostingsByCompanyAPI = (req, res) => {
   let {
-    limit, page, company_id, status,
+    limit, page, status,
   } = req.query;
+  let company_id = req.params.id;
   let offset;
   if ((limit) && (page)) {
     offset = limit * (page - 1);
