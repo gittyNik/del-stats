@@ -5,6 +5,7 @@ import db from '../database';
 import { JobPosting } from './job_postings';
 import {
   learnerChallengesFindOrCreate,
+  LearnerChallenge,
 } from './learner_challenge';
 import { LearnerInterviews } from './learner_interviews';
 import { CompanyProfile } from './company_profile';
@@ -140,6 +141,10 @@ export const getJobApplicationsByCompany = ({
       as: 'LearnerInterviewsDetails',
       required: false,
     },
+    {
+      model: LearnerChallenge,
+      as: 'ApplicationChallenges',
+    },
     ],
     where: whereObj,
     raw: true,
@@ -177,6 +182,14 @@ export const getJobApplicationsForLearnerId = async ({
         attributes: ['name', 'logo'],
       }],
     },
+    {
+      model: LearnerInterviews,
+      as: 'LearnerInterviewsDetails',
+    },
+    {
+      model: LearnerChallenge,
+      as: 'ApplicationChallenges',
+    },
     ],
     where: whereObj,
     raw: true,
@@ -199,14 +212,24 @@ export const getJobApplicationsForLearnerId = async ({
 export const getJobApplication = (id) => JobApplication
   .findOne({
     where: { id },
-    include: [{
-      model: Portfolio,
-      attributes: ['learner_id', 'id', 'status', 'hiring_status'],
-    },
-    {
-      model: JobPosting,
-      attributes: ['title', 'company_id', 'job_type'],
-    },
+    include: [
+      {
+        model: Portfolio,
+        attributes: ['learner_id', 'id', 'status', 'hiring_status'],
+      },
+      {
+        model: JobPosting,
+        attributes: ['title', 'company_id', 'job_type'],
+      },
+      {
+        model: LearnerInterviews,
+        as: 'LearnerInterviewsDetails',
+        required: false,
+      },
+      {
+        model: LearnerChallenge,
+        as: 'ApplicationChallenges',
+      },
     ],
     raw: true,
   });
