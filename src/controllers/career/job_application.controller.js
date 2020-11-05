@@ -134,6 +134,7 @@ export const updateJobApplicationAPI = (req, res) => {
     assignment_status, offer_status,
     interview_status, assignment_due_date, interview_date,
     offer_details, applicant_feedback, counsellor_notes,
+    assignment_id, learner_id,
   } = req.body;
   return updateJobApplication({
     id,
@@ -149,6 +150,8 @@ export const updateJobApplicationAPI = (req, res) => {
     offer_details,
     applicant_feedback,
     counsellor_notes,
+    assignment_id,
+    learner_id,
   })
     .then(data => res.status(200).json({
       text: 'Updated a Job Application',

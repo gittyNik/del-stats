@@ -7,6 +7,8 @@ import {
   learnerChallengesFindOrCreate,
 } from './learner_challenge';
 import { LearnerInterviews } from './learner_interviews';
+import { CompanyProfile } from './company_profile';
+import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
 
 const APPLICATION_STATUS = [
   'active',
@@ -100,10 +102,11 @@ export const getAllJobApplications = ({ limit, offset }) => {
       {
         model: JobPosting,
         attributes: ['title', 'company_id', 'job_type'],
-      },{
+      },
+      {
         model: LearnerInterviews,
-        as: 'LearnerInterviewsDetails'
-      }
+        as: 'LearnerInterviewsDetails',
+      },
       ],
       limit,
       offset,
@@ -131,10 +134,12 @@ export const getJobApplicationsByCompany = ({
     {
       model: JobPosting,
       attributes: ['title', 'company_id', 'job_type'],
-    },{
+    },
+    {
       model: LearnerInterviews,
-      as: 'LearnerInterviewsDetails'
-    }
+      as: 'LearnerInterviewsDetails',
+      required: false,
+    },
     ],
     where: whereObj,
     raw: true,
@@ -155,14 +160,22 @@ export const getJobApplicationsForLearnerId = async ({
     whereObj.status = status;
   }
 
-  return JobApplication.findAndCountAll({
+  const { count, rows: jobApplications } = await JobApplication.findAndCountAll({
     include: [{
       model: Portfolio,
       attributes: ['learner_id', 'id', 'status', 'hiring_status'],
     },
     {
       model: JobPosting,
-      attributes: ['title', 'company_id', 'job_type'],
+      attributes: [
+        'title', 'company_id', 'job_type', 'views',
+        'interested', 'vacancies', 'tags', 'locations',
+        'experience_required', 'attached_assignment',
+      ],
+      include: [{
+        model: CompanyProfile,
+        attributes: ['name', 'logo'],
+      }],
     },
     ],
     where: whereObj,
@@ -170,6 +183,17 @@ export const getJobApplicationsForLearnerId = async ({
     limit,
     offset,
   });
+  const learnerJobs = await Promise.all(jobApplications.map(async jobApplication => {
+    if (jobApplication['job_posting.company_profile.logo']) {
+      let logo = await getViewUrlS3(jobApplication['job_posting.company_profile.logo'], '', 'company_logo');
+      jobApplication['job_posting.company_profile.logo'] = logo.signedRequest;
+    }
+    return jobApplication;
+  }));
+  return {
+    count,
+    learnerJobs,
+  };
 };
 
 export const getJobApplication = (id) => JobApplication
@@ -222,39 +246,53 @@ export const createJobApplicationForPortofolio = async (
       job_posting_id, portfolio_id, assignment_due_date,
     },
   );
-  if (assignment_id) {
-    await learnerChallengesFindOrCreate(
-      assignment_id,
-      learner_id,
-      false,
-      jobApplication.id,
-    );
-  }
   // await updateLearnerChallenge(challengeDetails.challenge.id, jobApplication.id);
   return jobApplication;
 };
 
-export const updateJobApplication = ({
+export const updateJobApplication = async ({
   id, job_posting_id, portfolio_id, review, status,
   assignment_status, offer_status,
   interview_status, assignment_due_date, interview_date,
-  offer_details, applicant_feedback, counsellor_notes,
-}) => JobApplication.update({
-  job_posting_id,
-  portfolio_id,
-  review,
-  status,
-  assignment_status,
-  offer_status,
-  interview_status,
-  assignment_due_date,
-  interview_date,
-  offer_details,
-  applicant_feedback,
-  counsellor_notes,
-}, {
-  where: { id },
-});
+  offer_details, applicant_feedback, counsellor_notes, assignment_id,
+  learner_id,
+}) => {
+  if ((assignment_id) && (assignment_status === 'started')) {
+    await learnerChallengesFindOrCreate(
+      assignment_id,
+      learner_id,
+      false,
+      id,
+    );
+  }
+
+  JobApplication.update({
+    job_posting_id,
+    portfolio_id,
+    review,
+    status,
+    assignment_status,
+    offer_status,
+    interview_status,
+    assignment_due_date,
+    interview_date,
+    offer_details,
+    applicant_feedback,
+    counsellor_notes,
+  }, {
+    where: { id },
+  });
+};
+
+export const updateJobApplicationBypass = ( application, id ) => 
+  JobApplication.update ({
+    ...application
+  }, {
+    where: {
+      id
+    },
+    returning: true
+  })
 
 export const deleteJobApplication = (id) => JobApplication
   .destroy({ where: { id } })
