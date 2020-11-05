@@ -64,10 +64,10 @@ export const JobPosting = db.define('job_postings', {
     references: { model: 'challenges', key: 'id' },
   },
   start_range: {
-    type: Sequelize.INTEGER,
+    type: Sequelize.FLOAT,
   },
   end_range: {
-    type: Sequelize.INTEGER,
+    type: Sequelize.FLOAT,
   },
   job_type: Sequelize.ENUM(...JOB_TYPE),
   locations: Sequelize.ARRAY(Sequelize.STRING),
