@@ -35,6 +35,8 @@ const AVAILABLE_USER_STATUS = [
   'joining later',
   'prefers hindi',
   'back after absence',
+  'graduated',
+  'past-learner',
   'other',
 ];
 
