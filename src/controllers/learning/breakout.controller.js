@@ -80,9 +80,9 @@ export const getLiveCohortsBreakouts = (req, res) => {
   getLiveCohorts()
     .then(cohorts => {
       const cohortIds = cohorts.map(c => c.id);
-      // Fetching breakouts 1 week before and plus
+      // Fetching breakouts 2 week before and plus
       let breakout_dates = new Date();
-      breakout_dates.setDate(breakout_dates.getDate() - 7);
+      breakout_dates.setDate(breakout_dates.getDate() - 14);
       let where = {
         cohort_id: {
           [Sequelize.Op.in]: cohortIds,
