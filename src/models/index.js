@@ -106,7 +106,7 @@ BreakoutRecordingsDetails.belongsTo(User, { foreignKey: 'user_id' });
 ReviewSlots.belongsTo(User, { foreignKey: 'reviewer' });
 AssessmentSlots.belongsTo(User, { foreignKey: 'reviewer' });
 
-JobApplication.hasOne(LearnerInterviews, { as: 'JobApplicationDetails', foreignKey: 'job_application_id' });
+JobApplication.hasOne(LearnerInterviews, { as: 'LearnerInterviewsDetails', foreignKey: 'job_application_id' });
 LearnerInterviews.belongsTo(JobApplication, { as: 'JobApplicationDetails', foreignKey: 'job_application_id' });
 
 User.hasOne(LearnerInterviews, { as: 'LearnerDetails', foreignKey: 'learner_id' });
@@ -144,11 +144,8 @@ JobPosting.belongsTo(Challenge, { foreignKey: 'attached_assignment' });
 JobApplication.belongsTo(JobPosting, { foreignKey: 'job_posting_id' });
 JobPosting.hasMany(JobApplication);
 
-LearnerChallenge.belongsTo(JobApplication, { foreignKey: 'job_application_id' });
-JobApplication.hasMany(LearnerChallenge);
-
-LearnerChallenge.belongsTo(JobApplication, { foreignKey: 'job_application_id' });
-JobApplication.hasMany(LearnerChallenge);
+JobApplication.hasOne(LearnerChallenge, { as: 'ApplicationChallenges', foreignKey: 'job_application_id' });
+LearnerChallenge.belongsTo(JobApplication, { as: 'LearnerChallenges', foreignKey: 'job_application_id' });
 
 // User.belongsTo(Cohort);
 // Cohort.hasMany(User, { foreignKey: 'learners' });
