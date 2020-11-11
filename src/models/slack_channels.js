@@ -6,6 +6,7 @@ import db from '../database';
 import { Cohort, getCohortIdFromLearnerId } from './cohort';
 import { SocialConnection } from './social_connection';
 import { User, getProfile } from './user';
+import web from '../integrations/slack/delta-app/client';
 import { logger } from '../util/logger';
 
 export const SlackChannel = db.define('slack_channels', {
@@ -108,9 +109,19 @@ export const getEducatorsSlackID = async () => {
 };
 
 export const getTeamSlackIDs = async () => {
-  const redis = new Redis(process.env.REDIS_URL);
-  const list = await redis.lrange('teamSlackIds', 0, -1);
-  // console.log(list);
+  // const redis = new Redis(process.env.REDIS_URL);
+  // const list = await redis.lrange('teamSlackIds', 0, -1);
+  const channel_id = 'C01ELB0DB7W';
+  const delta_id = 'UQK32AAKU';
+  let list;
+  try {
+    list = await web.conversations.members({
+      channel: channel_id,
+    })
+      .then(data => data.members.filter(m => m !== delta_id));
+  } catch (err) {
+    logger.error(err);
+  }
   return list;
 };
 
