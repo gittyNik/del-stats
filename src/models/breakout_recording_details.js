@@ -45,7 +45,7 @@ const { gt } = Sequelize.Op;
 
 // Note: When sort_by likes, we get only liked videos
 // When sort by views or
-export const getAllLikesRating = (skip = 0,
+export const getAllLikesRating = async (skip = 0,
   limit = 10, sort_by = 'likes') => {
   let where = {};
   let order;
@@ -60,16 +60,19 @@ export const getAllLikesRating = (skip = 0,
         breakout_rating: { [gt]: 0 },
       };
     }
-    where.liked_by_user = true;
     order = Sequelize.literal(`${sort_by} DESC`);
   }
-  return BreakoutRecordingsDetails.findAll({
+
+  let breakoutDetails = {};
+  breakoutDetails = await BreakoutRecordingsDetails.findAll({
     attributes: [
       'video_id',
+      'liked_by_user',
       [Sequelize.fn('count', Sequelize.col('liked_by_user')), 'likes'],
       [Sequelize.fn('avg', Sequelize.col('breakout_rating')), 'rating'],
     ],
     group: [
+      'breakout_recordings_details.liked_by_user',
       'breakout_recordings_details.video_id',
       'breakout_recording.catalyst_id',
       'breakout_recording.video_views',
@@ -78,8 +81,6 @@ export const getAllLikesRating = (skip = 0,
       'breakout_recording.user.id',
     ],
     where,
-    offset: skip,
-    limit,
     include: [
       {
         model: BreakoutRecordings,
@@ -93,6 +94,46 @@ export const getAllLikesRating = (skip = 0,
     raw: true,
     order,
   });
+  let likedCount = {};
+  if (breakoutDetails) {
+    likedCount = breakoutDetails.filter(details => details.liked_by_user);
+    let breakout_ratings = breakoutDetails.filter(
+      currentValue => (typeof Number(currentValue.rating) === 'number' && Number(currentValue.rating) > 0),
+    );
+    breakout_ratings = breakout_ratings.reduce(
+      (a, b) => (a + Number(b.rating)), 0,
+    ) / breakout_ratings.length;
+
+    if (isNaN(breakout_ratings)) {
+      breakout_ratings = 0;
+    }
+    if (likedCount.length) {
+      likedCount[0].rating = breakout_ratings;
+      [likedCount] = likedCount;
+    } else {
+      likedCount = {
+        video_id,
+        breakout_recording: breakoutDetails[0],
+        liked_by_user: false,
+        likes: 0,
+        rating: breakout_ratings,
+      };
+    }
+  }
+  let userInfo = await BreakoutRecordingsDetails.findOne({
+    where: {
+      video_id,
+      user_id,
+    },
+    include: [{
+      model: User,
+      attributes: ['name'],
+    }],
+    raw: true,
+  });
+
+  let breakoutInfo = { ...likedCount, userInfo };
+  return breakoutInfo;
 };
 
 export const getVideoByCatalyst = (catalyst_id, skip = 0,

@@ -75,7 +75,7 @@ export const createGithubRepositoryFromTemplate = async (
   template_repo_name,
   repo,
   description = '',
-  privateRepo,
+  privateRepo = true,
 ) => {
   const params = {
     owner: org,

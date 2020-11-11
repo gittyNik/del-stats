@@ -30,7 +30,9 @@ import { User, USER_ROLES } from '../../models/user';
 import { Milestone } from '../../models/milestone';
 import { logger } from '../../util/logger';
 
-const { gte } = Sequelize.Op;
+const {
+  between, gte,
+} = Sequelize.Op;
 
 export const getBreakouts = (req, res) => {
   CohortBreakout.findAll({})
@@ -80,14 +82,16 @@ export const getLiveCohortsBreakouts = (req, res) => {
   getLiveCohorts()
     .then(cohorts => {
       const cohortIds = cohorts.map(c => c.id);
-      // Fetching breakouts 1 week before and plus
-      let breakout_dates = new Date();
-      breakout_dates.setDate(breakout_dates.getDate() - 14);
+      // Fetching breakouts 3 week before and plus two month
+      let after_dates = new Date();
+      after_dates.setDate(after_dates.getDate() - 21);
+      let before_dates = new Date();
+      before_dates.setDate(before_dates.getDate() + 30);
       let where = {
         cohort_id: {
           [Sequelize.Op.in]: cohortIds,
         },
-        time_scheduled: { [gte]: breakout_dates },
+        time_scheduled: { [between]: [before_dates, after_dates] },
       };
       if (req.jwtData.user.role === USER_ROLES.REVIEWER) {
         where.type = { [Sequelize.Op.in]: ['reviews', 'assessment'] };
