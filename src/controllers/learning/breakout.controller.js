@@ -82,7 +82,7 @@ export const getLiveCohortsBreakouts = (req, res) => {
   getLiveCohorts()
     .then(cohorts => {
       const cohortIds = cohorts.map(c => c.id);
-      // Fetching breakouts 3 week before and plus
+      // Fetching breakouts 3 week before and plus two month
       let after_dates = new Date();
       after_dates.setDate(after_dates.getDate() - 21);
       let before_dates = new Date();
