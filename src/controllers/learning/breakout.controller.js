@@ -91,7 +91,7 @@ export const getLiveCohortsBreakouts = (req, res) => {
         cohort_id: {
           [Sequelize.Op.in]: cohortIds,
         },
-        time_scheduled: { [between]: [before_dates, after_dates] },
+        time_scheduled: { [between]: [after_dates, before_dates] },
       };
       if (req.jwtData.user.role === USER_ROLES.REVIEWER) {
         where.type = { [Sequelize.Op.in]: ['reviews', 'assessment'] };
