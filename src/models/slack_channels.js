@@ -111,14 +111,16 @@ export const getEducatorsSlackID = async () => {
 export const getTeamSlackIDs = async () => {
   // const redis = new Redis(process.env.REDIS_URL);
   // const list = await redis.lrange('teamSlackIds', 0, -1);
+  // #soal-team slack channel ID in soal-spe
   const channel_id = 'C01ELB0DB7W';
+  // delta bot user id
   const delta_id = 'UQK32AAKU';
   let list;
   try {
     list = await web.conversations.members({
       channel: channel_id,
     })
-      .then(data => data.members.filter(m => m !== delta_id));
+      .then(data => data.members.filter(m => m !== delta_id)); // removing delta Id from list.
   } catch (err) {
     logger.error(err);
   }
