@@ -235,6 +235,12 @@ export const createLearnerAssessmentBreakout = async (
   let {
     learners, name, id, duration, location,
   } = cohortLearners;
+  let cohort_duration;
+  if (duration >= 26) {
+    cohort_duration = 'Part-time';
+  } else {
+    cohort_duration = 'Full-time';
+  }
   // skipSlots is to skip if the slot is for
   // different Cohort duration
   let defaultSlot = assessmentSlots[0];
@@ -265,6 +271,10 @@ export const createLearnerAssessmentBreakout = async (
       assessmentSlots.splice(indexForReview, 1);
       if (assessmentForLearner === undefined) {
         assessmentForLearner = { ...defaultSlot };
+        let warning_context = `EXTRA Assessment created for ${name} ${cohort_duration} ${location} on first slot`;
+        let warning_message = 'WARNING! WARNING! Extra Assessments created than available slots. Please reschedule.';
+        sendMessageToSlackChannel(warning_message,
+          warning_context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
       }
 
       assessment_start = new Date(Date.parse(assessment_start));
@@ -299,12 +309,6 @@ export const createLearnerAssessmentBreakout = async (
 
     return null;
   }));
-  let cohort_duration;
-  if (duration >= 26) {
-    cohort_duration = 'Part-time';
-  } else {
-    cohort_duration = 'Full-time';
-  }
   let context = `Assessments created for ${name} ${cohort_duration} ${location}`;
   let message = `Created assessments for ${count} learners`;
   try {
