@@ -98,6 +98,7 @@ export const getAssessmentSlotsByProgram = (program,
       cohort_duration,
       phase,
     },
+    raw: true,
   },
 );
 

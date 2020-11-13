@@ -81,6 +81,7 @@ export const getReviewSlotsByProgram = (program, cohort_duration) => ReviewSlots
       program,
       cohort_duration,
     },
+    raw: true,
   },
 );
 

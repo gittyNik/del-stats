@@ -130,7 +130,7 @@ export const getUserAndTeamReviews = (learner_id) => LearnerBreakout.findAll(
 export const getCompletedReviewsForLearner = async (email, status = 'all') => {
   try {
     const user = await getUserByEmail(email);
-    const { id: learner_id } = user
+    const { id: learner_id } = user;
     const currentCohort = await getCohortFromLearnerId(learner_id);
     let whereObject;
     if (status === 'all') {
@@ -148,36 +148,36 @@ export const getCompletedReviewsForLearner = async (email, status = 'all') => {
       whereObject = {
         learner_id,
         [Sequelize.Op.and]: Sequelize.literal("review_feedback->>'rubrics' IS NULL"),
-      }
+      };
     }
     const cohortBreakouts = await CohortBreakout.findAll({
       where: {
         type: {
-          [Sequelize.Op.in]: ["reviews", "assessment"],
+          [Sequelize.Op.in]: ['reviews', 'assessment'],
         },
-        status: "completed",
+        status: 'completed',
       },
-      order: [["time_scheduled", "ASC"]],
-      attributes: ["id", "details", "type"],
+      order: [['time_scheduled', 'ASC']],
+      attributes: ['id', 'details', 'type'],
       include: [
         {
           model: LearnerBreakout,
           where: whereObject,
-          attributes: ["id", "learner_id", "attendance", "review_feedback"],
+          attributes: ['id', 'learner_id', 'attendance', 'review_feedback'],
           include: [
             {
               model: User,
-              attributes: ["name", "status"],
+              attributes: ['name', 'status'],
             },
           ],
         },
         {
           model: Cohort,
-          attributes: ["id", "name", "type", "location", "duration"],
+          attributes: ['id', 'name', 'type', 'location', 'duration'],
         },
         {
           model: Topic,
-          attributes: ["title"],
+          attributes: ['title'],
         },
       ],
     });
@@ -294,6 +294,16 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
     milestonecohort.id,
   );
   let count = 0;
+  let duration = milestonecohort['cohort.duration'];
+  let cohort_duration;
+  if (duration >= 26) {
+    cohort_duration = 'Part-time';
+  } else {
+    cohort_duration = 'Full-time';
+  }
+  let name = milestonecohort['cohort.name'];
+  let location = milestonecohort['cohort.location'];
+
   learnerTeams.forEach((eachTeam, teamIndex) => {
     let {
       cohort_id,
@@ -349,6 +359,10 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
     reviewSlots.splice(indexForReview, 1);
     if (reviewForTeam === undefined) {
       reviewForTeam = { ...defaultSlot };
+      let warning_context = `EXTRA Reviews created for ${name} ${cohort_duration} ${location} on first slot`;
+      let warning_message = 'WARNING! WARNING! Extra Reviews created than available slots. Please reschedule.';
+      sendMessageToSlackChannel(warning_message,
+        warning_context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
     }
 
     let timeSlot = calculateReviewTime(milestonecohort.review_scheduled, reviewForTeam);
@@ -376,15 +390,6 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
       return createReviewBreakout;
     });
   });
-  let duration = milestonecohort['cohort.duration'];
-  let cohort_duration;
-  if (duration >= 26) {
-    cohort_duration = 'Part-time';
-  } else {
-    cohort_duration = 'Full-time';
-  }
-  let name = milestonecohort['cohort.name'];
-  let location = milestonecohort['cohort.location'];
   let context = `Reviews created for ${name} ${cohort_duration} ${location}`;
   let message = `Created reviews for ${count} teams`;
   try {
