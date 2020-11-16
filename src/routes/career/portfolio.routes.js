@@ -3,7 +3,7 @@ import {
   getAllPortfoliosAPI, getPortfolioById, getPortfolioByUser,
   createPortfolioAPI, getPortfoliosByStatusAPI, updatePortfolio,
   updatePortfolioLearnerAPI, addResumeForLearner, getLearnerListAPI,
-
+  addPortfolioToCompany,
 } from '../../controllers/career/portfolio.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -138,5 +138,19 @@ router.patch('/:id', updatePortfolio);
  * @apiParam {String} hiring_status Hiring status of the learner.
  */
 router.patch('/learner/:id', updatePortfolioLearnerAPI);
+
+router.use(allowMultipleRoles([ADMIN, CAREER_SERVICES]));
+
+/**
+ * @api {post} /career/portfolios/shortlist Shortlist learners to Company
+ * @apiDescription Shortlist porfolio for Company
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ShortlistPortfolio
+ * @apiGroup Portfolio
+ *
+ * @apiParam {String} portfolio_id Portfolio ID
+ * @apiParam {String} company_id Company ID
+ */
+router.post('/shortlist', addPortfolioToCompany);
 
 export default router;
