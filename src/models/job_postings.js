@@ -59,10 +59,6 @@ export const JobPosting = db.define('job_postings', {
   vacancies: {
     type: Sequelize.INTEGER,
   },
-  attached_assignment: {
-    type: Sequelize.UUID,
-    references: { model: 'challenges', key: 'id' },
-  },
   start_range: {
     type: Sequelize.FLOAT,
   },
@@ -200,21 +196,21 @@ export const getJobPostingsByCompany = (
   );
 };
 
-export const createJobPosting = (
+export const createJobPosting = ({
+
   company_id,
   description,
   tags,
   status = 'active',
   posted_by,
   vacancies,
-  attached_assignment,
   start_range,
   end_range,
   job_type,
   locations,
   experience_required,
   title,
-) => JobPosting.create(
+}) => JobPosting.create(
   {
     company_id,
     description,
@@ -223,7 +219,6 @@ export const createJobPosting = (
     created_at: new Date(),
     posted_by,
     vacancies,
-    attached_assignment,
     start_range,
     end_range,
     job_type,
@@ -233,7 +228,8 @@ export const createJobPosting = (
   },
 );
 
-export const updateJobPostingById = (
+export const updateJobPostingById = ({
+
   id,
   company_id,
   description,
@@ -241,14 +237,13 @@ export const updateJobPostingById = (
   status,
   posted_by,
   vacancies,
-  attached_assignment,
   start_range,
   end_range,
   job_type,
   locations,
   experience_required,
   title,
-) => JobPosting.findOne({
+}) => JobPosting.findOne({
   where: {
     id,
   },
@@ -267,7 +262,6 @@ export const updateJobPostingById = (
       status,
       posted_by: jobPosting.posted_by,
       vacancies,
-      attached_assignment,
       start_range,
       end_range,
       job_type,
