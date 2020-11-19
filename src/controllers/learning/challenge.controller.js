@@ -1,7 +1,7 @@
 import uuid from 'uuid/v4';
 import {
   Challenge, createAChallenge, updateAChallenge, deleteAChallenge,
-  getChallengesByTopicId, getChallengesByCompanyId,
+  getChallengesByTopicId, getChallengesByCompanyId, getFilteredChallenges,
 
 } from '../../models/challenge';
 import { LearnerChallenge } from '../../models/learner_challenge';
@@ -26,7 +26,7 @@ export const getChallengesByTopic = (req, res) => {
 };
 
 export const getChallengesByCompany = async (req, res) => {
-  const { company_id } = req.params;
+  const { id: company_id } = req.params;
   await getChallengesByCompanyId(company_id)
     .then(data => res.status(200).json({
       text: 'Private Challanges for a Company',
@@ -39,6 +39,32 @@ export const getChallengesByCompany = async (req, res) => {
         text: 'Failed to get Private Challenges for a company',
         type: 'failure',
       });
+    });
+};
+
+export const getFilteredChallengesAPI = async (req, res) => {
+  const {
+    path, tags, company_id,
+    topic_id, difficulty, min_duration,
+    max_duration,
+  } = req.body;
+  await getFilteredChallenges({
+    path,
+    tags,
+    company_id,
+    topic_id,
+    difficulty,
+    min_duration,
+    max_duration,
+  })
+    .then(data => res.status(200).json({
+      text: 'Get Challenges based on filter',
+      data,
+      type: 'success',
+    }))
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
     });
 };
 

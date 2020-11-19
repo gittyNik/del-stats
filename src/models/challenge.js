@@ -1,4 +1,4 @@
-import Sequelize from 'sequelize';
+import Sequelize, { Op } from 'sequelize';
 import uuid from 'uuid';
 import db from '../database';
 
@@ -50,6 +50,29 @@ export const getChallengesByTopicId = topic_id => Challenge.findAll(
 export const getChallengesByCompanyId = company_id => Challenge.findAll({
   where: {
     company_id,
+  },
+}, { raw: true });
+
+export const getFilteredChallenges = ({
+  path,
+  tags,
+  company_id,
+  topic_id,
+  difficulty,
+  min_duration,
+  max_duration,
+}) => Challenge.findAll({
+  where: {
+    path,
+    tags: {
+      [Op.contains]: tags,
+    },
+    company_id,
+    topic_id,
+    difficulty,
+    duration: {
+      [Op.between]: [min_duration, max_duration],
+    },
   },
 }, { raw: true });
 
