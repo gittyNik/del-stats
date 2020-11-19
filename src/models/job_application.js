@@ -179,7 +179,7 @@ export const getJobApplicationsForLearnerId = async ({
       attributes: [
         'title', 'company_id', 'job_type', 'views',
         'interested', 'vacancies', 'tags', 'locations',
-        'experience_required',
+        'experience_required', 'default_assignment', 'attached_assignments',
       ],
       include: [{
         model: CompanyProfile,
@@ -316,15 +316,15 @@ export const updateJobApplication = async ({
   });
 };
 
-export const updateJobApplicationBypass = ( application, id ) =>
-  JobApplication.update ({
-    ...application
+export const updateJobApplicationBypass = (application, id) => JobApplication
+  .update({
+    ...application,
   }, {
     where: {
-      id
+      id,
     },
-    returning: true
-  })
+    returning: true,
+  });
 
 export const deleteJobApplication = (id) => JobApplication
   .destroy({ where: { id } })
