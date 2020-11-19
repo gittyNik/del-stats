@@ -68,6 +68,16 @@ export const JobPosting = db.define('job_postings', {
   job_type: Sequelize.ENUM(...JOB_TYPE),
   locations: Sequelize.ARRAY(Sequelize.STRING),
   experience_required: Sequelize.STRING,
+  default_assignment: {
+    type: Sequelize.UUID,
+    references: { model: 'challenges', key: 'id' },
+  },
+  attached_assignments: {
+    type: Sequelize.ARRAY({
+      type: Sequelize.UUID,
+      references: { model: 'challenges', key: 'id' },
+    }),
+  },
 });
 
 export const getJobPostingFromId = (id, role,
@@ -210,6 +220,8 @@ export const createJobPosting = ({
   locations,
   experience_required,
   title,
+  default_assignment,
+  attached_assignments,
 }) => JobPosting.create(
   {
     company_id,
@@ -225,6 +237,8 @@ export const createJobPosting = ({
     locations,
     experience_required,
     title,
+    default_assignment,
+    attached_assignments,
   },
 );
 
@@ -243,6 +257,8 @@ export const updateJobPostingById = ({
   locations,
   experience_required,
   title,
+  default_assignment,
+  attached_assignments,
 }) => JobPosting.findOne({
   where: {
     id,
@@ -268,6 +284,8 @@ export const updateJobPostingById = ({
       locations,
       experience_required,
       title,
+      default_assignment,
+      attached_assignments,
     }, {
       where: {
         id,

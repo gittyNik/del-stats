@@ -1,18 +1,13 @@
 const migration = {
-  up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(transaction => Promise.all([
-    queryInterface.removeColumn('job_postings', 'attached_assignment', { transaction }),
-    queryInterface.addColumn('job_applications', 'attached_assignment', {
+  up: (qi, Sequelize) => qi.sequelize.transaction(transaction => Promise.all([
+    qi.addColumn('job_applications', 'attached_assignment', {
       type: Sequelize.UUID,
       references: { model: 'challenges', key: 'id' },
     }, { transaction }),
   ])),
 
-  down: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(transaction => Promise.all([
-    queryInterface.removeColumn('job_applications', 'attached_assignment', { transaction }),
-    queryInterface.addColumn('job_postings', 'attached_assignment', {
-      type: Sequelize.UUID,
-      references: { model: 'challenges', key: 'id' },
-    }, { transaction }),
+  down: (qi, Sequelize) => qi.sequelize.transaction(transaction => Promise.all([
+    qi.removeColumn('job_applications', 'attached_assignment', { transaction }),
   ])),
 };
 
