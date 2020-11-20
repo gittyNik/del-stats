@@ -61,10 +61,6 @@ export const JobApplication = db.define('job_applications', {
   status: {
     type: Sequelize.ENUM(...APPLICATION_STATUS),
   },
-  attached_assignment: {
-    type: Sequelize.UUID,
-    references: { model: 'challenges', key: 'id' },
-  },
   assignment_status: {
     type: Sequelize.ENUM(...ASSIGNMENT_STATUS),
     defaultValue: 'active',
@@ -179,7 +175,7 @@ export const getJobApplicationsForLearnerId = async ({
       attributes: [
         'title', 'company_id', 'job_type', 'views',
         'interested', 'vacancies', 'tags', 'locations',
-        'experience_required', 'default_assignment', 'attached_assignments',
+        'experience_required', 'attached_assignment',
       ],
       include: [{
         model: CompanyProfile,
@@ -239,12 +235,11 @@ export const getJobApplication = (id) => JobApplication
   });
 
 export const createJobApplication = ({
-  job_posting_id, portfolio_id, assignment_due_date, attached_assignment,
+  job_posting_id, portfolio_id, assignment_due_date,
 }) => JobApplication.create({
   id: uuid(),
   job_posting_id,
   portfolio_id,
-  attached_assignment,
   status: 'assignment',
   assignment_status: 'sent',
   assignment_due_date,
@@ -271,10 +266,7 @@ export const createJobApplicationForPortofolio = async (
   }
   let jobApplication = await createJobApplication(
     {
-      job_posting_id,
-      portfolio_id,
-      assignment_due_date,
-      attached_assignment: assignment_id,
+      job_posting_id, portfolio_id, assignment_due_date,
     },
   );
   // await updateLearnerChallenge(challengeDetails.challenge.id, jobApplication.id);
@@ -310,21 +302,20 @@ export const updateJobApplication = async ({
     offer_details,
     applicant_feedback,
     counsellor_notes,
-    attached_assignment: assignment_id,
   }, {
     where: { id },
   });
 };
 
-export const updateJobApplicationBypass = (application, id) => JobApplication
-  .update({
-    ...application,
+export const updateJobApplicationBypass = ( application, id ) => 
+  JobApplication.update ({
+    ...application
   }, {
     where: {
-      id,
+      id
     },
-    returning: true,
-  });
+    returning: true
+  })
 
 export const deleteJobApplication = (id) => JobApplication
   .destroy({ where: { id } })

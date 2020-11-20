@@ -1,8 +1,7 @@
 import uuid from 'uuid/v4';
 import {
   Challenge, createAChallenge, updateAChallenge, deleteAChallenge,
-  getChallengesByTopicId, getChallengesByCompanyId, getFilteredChallenges,
-
+  getChallengesByTopicId,
 } from '../../models/challenge';
 import { LearnerChallenge } from '../../models/learner_challenge';
 
@@ -11,7 +10,7 @@ export const getChallenges = (req, res) => {
     .then((data) => { res.json(data); })
     .catch(err => {
       console.error(err);
-      res.sendStatus(500);
+      res.status(500);
     });
 };
 
@@ -21,87 +20,41 @@ export const getChallengesByTopic = (req, res) => {
     .then((data) => { res.json(data); })
     .catch(err => {
       console.error(err);
-      res.sendStatus(500);
-    });
-};
-
-export const getChallengesByCompany = async (req, res) => {
-  const { id: company_id } = req.params;
-  await getChallengesByCompanyId(company_id)
-    .then(data => res.status(200).json({
-      text: 'Private Challanges for a Company',
-      data,
-      type: 'success',
-    }))
-    .catch(err => {
-      console.error(err);
-      res.status(500).json({
-        text: 'Failed to get Private Challenges for a company',
-        type: 'failure',
-      });
-    });
-};
-
-export const getFilteredChallengesAPI = async (req, res) => {
-  const {
-    path, tags, company_id,
-    topic_id, difficulty, min_duration,
-    max_duration,
-  } = req.body;
-  await getFilteredChallenges({
-    path,
-    tags,
-    company_id,
-    topic_id,
-    difficulty,
-    min_duration,
-    max_duration,
-  })
-    .then(data => res.status(200).json({
-      text: 'Get Challenges based on filter',
-      data,
-      type: 'success',
-    }))
-    .catch(err => {
-      console.error(err);
-      res.sendStatus(500);
+      res.status(500);
     });
 };
 
 export const createChallenge = (req, res) => {
   const {
     topic_id, description, starter_repo,
-    difficulty, size, title, path, tags, duration, company_id,
+    difficulty, size, title,
   } = req.body;
 
-  createAChallenge({
+  createAChallenge(
     topic_id,
     description,
     starter_repo,
     difficulty,
     size,
     title,
-    path,
-    tags,
-    duration,
-    company_id,
-  })
+  )
     .then((data) => {
+      // console.log(data);
       res.send('Challenge created.');
     })
     .catch(err => {
       console.error(err);
-      res.sendStatus(500);
+      res.status(500);
     });
 };
 
 export const updateChallenge = (req, res) => {
   const {
     topic_id, description, starter_repo,
-    difficulty, size, title, path, tags, duration, company_id,
+    difficulty, size, title,
   } = req.body;
   const { id } = req.params;
-  updateAChallenge({
+  updateAChallenge(
     id,
     topic_id,
     description,
@@ -109,15 +62,11 @@ export const updateChallenge = (req, res) => {
     difficulty,
     size,
     title,
-    path,
-    tags,
-    duration,
-    company_id,
-  })
+  )
     .then(() => { res.send('Challenge Updated'); })
     .catch(err => {
       console.error(err);
-      res.senStatus(500);
+      res.status(500);
     });
 };
 
@@ -127,7 +76,7 @@ export const deleteChallenge = (req, res) => {
     .then(() => res.send('Deleted Challenge'))
     .catch(err => {
       console.error(err);
-      res.sendStatus(500);
+      res.status(500);
     });
 };
 
@@ -136,7 +85,7 @@ export const getLearnerChallenges = (req, res) => {
     .then(data => res.json(data))
     .catch(err => {
       console.error(err);
-      res.sendStatus(500);
+      res.status(500);
     });
 };
 
@@ -157,7 +106,7 @@ export const createLearnerChallenge = (req, res) => {
     .then(() => res.send(' Activity Challenge created'))
     .catch((err) => {
       console.error(err);
-      res.sendStatus(500);
+      res.send(500);
     });
 };
 
@@ -179,7 +128,7 @@ export const updateLearnerChallenge = (req, res) => {
     .then(() => res.send('Activity Challenge Updated'))
     .catch(err => {
       console.error(err);
-      res.sendStatus(500);
+      res.status(500);
     });
 };
 
@@ -191,6 +140,6 @@ export const deleteLearnerChallenge = (req, res) => {
     .then(() => res.send('Deleted Activity Challenge'))
     .catch(err => {
       console.error(err);
-      res.sendStatus(500);
+      res.status(500);
     });
 };
