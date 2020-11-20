@@ -43,14 +43,10 @@ export const createRubricsAPI = (req, res) => {
     rubric_parameters,
     type,
     path,
-    related_rubrics,
   } = req.body;
 
-  createRubrics(
-    milestone_id, rubric_name,
-    program, rubric_parameters, type, path,
-    related_rubrics,
-  ).then((data) => { res.json(data); })
+  createRubrics(milestone_id, rubric_name,
+    program, rubric_parameters, type, path).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
