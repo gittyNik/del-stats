@@ -142,9 +142,11 @@ export const createRubrics = (milestone_id, rubric_name,
   },
 );
 
-export const updateRubrics = (id, rubric_parameters, related_rubrics) => Rubrics.update({
+export const updateRubrics = (id, rubric_parameters,
+  related_rubrics, milestone_id) => Rubrics.update({
   rubric_parameters,
   related_rubrics,
+  milestone_id,
 }, { where: { id } });
 
 export const deleteRubric = (id) => Rubrics.destroy(
