@@ -43,20 +43,25 @@ export const createRubricsAPI = (req, res) => {
     rubric_parameters,
     type,
     path,
+    related_rubrics,
   } = req.body;
 
-  createRubrics(milestone_id, rubric_name,
-    program, rubric_parameters, type, path).then((data) => { res.json(data); })
+  createRubrics(
+    milestone_id, rubric_name,
+    program, rubric_parameters, type, path,
+    related_rubrics,
+  ).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
 export const updateRubricsAPI = (req, res) => {
   const {
     rubric_parameters,
+    related_rubrics,
   } = req.body;
   const { id } = req.params;
 
-  updateRubrics(id, rubric_parameters).then((data) => { res.json(data); })
+  updateRubrics(id, rubric_parameters, related_rubrics).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
