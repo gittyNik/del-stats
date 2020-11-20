@@ -53,10 +53,13 @@ export const createRubricsAPI = (req, res) => {
 export const updateRubricsAPI = (req, res) => {
   const {
     rubric_parameters,
+    related_rubrics,
+    milestone_id,
   } = req.body;
   const { id } = req.params;
 
-  updateRubrics(id, rubric_parameters).then((data) => { res.json(data); })
+  updateRubrics(id, rubric_parameters,
+    related_rubrics, milestone_id).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
