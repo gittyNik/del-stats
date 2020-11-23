@@ -2,7 +2,7 @@ import uuid from 'uuid/v4';
 import faker from 'faker';
 import { Date } from 'core-js';
 import _ from 'lodash';
-import { randomNum, generateArray, generateUuids } from '../../src/util/seederUtils';
+import { randomNum, generateUuids } from '../../src/util/seederUtils';
 
 const STATUS = [
   'active',
@@ -13,7 +13,6 @@ const STATUS = [
 ];
 
 const JOB_TYPE = ['internship', 'fulltime', 'intern2hire'];
-const LOCATIONS = ['Bangalore', 'Mumbai', 'Delhi', 'Gurgaon', 'Manali', 'Goa', 'Kochi'];
 const EXPERIENCE_REQUIRED = ['2+ Years', '1+ Years', 'Fresher'];
 
 const COMPANY = {
@@ -41,8 +40,6 @@ const COMPANY = {
 
 const CHALLENGE_DIFFICULTY = ['easy', 'medium', 'difficult'];
 const CHALLENGE_SIZE = ['tiny', 'small', 'large'];
-
-const POSTED_BY = {};
 
 const BREAKOUT_PATH = [
   'frontend',
@@ -113,7 +110,6 @@ jobPostings.end_range = jobPostings.start_range + randomNum(10);
 
 const seeder = {
   up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction((t) => {
-
     const addCompany = queryInterface.bulkInsert(
       'company_profiles', [COMPANY],
       { transaction: t },
@@ -147,12 +143,13 @@ const seeder = {
   }),
 
   down: queryInterface => queryInterface.sequelize.transaction(t => Promise.all([
-    queryInterface.bulkDelete('programs', null, { transaction: t }),
-    queryInterface.bulkDelete('resources', null, { transaction: t }),
-    queryInterface.bulkDelete('topics', null, { transaction: t }),
+    queryInterface.bulkDelete('company_profiles', null, { transaction: t }),
     queryInterface.bulkDelete('milestones', null, { transaction: t }),
+    queryInterface.bulkDelete('topics', null, { transaction: t }),
+    queryInterface.bulkDelete('assignments', null, { transaction: t }),
+    queryInterface.bulkDelete('job_postings', null, { transaction: t }),
   ])
-    .then(() => console.log('milestones, programs, resources, topics reverted.'))
+    .then(() => console.log('milestones, company_profiles, assignments, topics, job_postings, reverted.'))
     .catch(err => console.error(err))),
 };
 
