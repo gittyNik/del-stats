@@ -57,6 +57,9 @@ export const Rubrics = db.define('rubrics', {
     type: Sequelize.ENUM(...RUBRIC_PATH),
     defaultValue: 'common',
   },
+  related_rubrics: {
+    type: Sequelize.ARRAY(Sequelize.UUID),
+  },
 });
 
 export const getAllRubrics = () => Rubrics.findAll({});
@@ -68,13 +71,26 @@ export const getRubricsByProgram = (program, type) => Rubrics.findAll(
 export const getRubricsByMilestone = (
   milestone_id, program, type, rubric_for,
 ) => {
-  if (rubric_for) {
-    return db.query('select * from rubrics where program=:program and type=:type and rubric_for=:rubric_for and (milestone_id is null or milestone_id=:milestone_id);', {
+  if (milestone_id) {
+    if (rubric_for) {
+      return db.query('select * from rubrics where program=:program and type=:type and rubric_for=:rubric_for and (milestone_id is null or milestone_id=:milestone_id);', {
+        model: Rubrics,
+        replacements: {
+          program: `${program}`,
+          type: `${type}`,
+          rubric_for: `${rubric_for}`,
+          milestone_id: `${milestone_id}`,
+        },
+      }).then(data => data).catch(err => {
+        console.error(err);
+        throw Error(err);
+      });
+    }
+    return db.query('select * from rubrics where program=:program and type=:type and (milestone_id is null or milestone_id=:milestone_id);', {
       model: Rubrics,
       replacements: {
         program: `${program}`,
         type: `${type}`,
-        rubric_for: `${rubric_for}`,
         milestone_id: `${milestone_id}`,
       },
     }).then(data => data).catch(err => {
@@ -82,12 +98,24 @@ export const getRubricsByMilestone = (
       throw Error(err);
     });
   }
-  return db.query('select * from rubrics where program=:program and type=:type and (milestone_id is null or milestone_id=:milestone_id);', {
+  if (rubric_for) {
+    return db.query('select * from rubrics where program=:program and type=:type and rubric_for=:rubric_for;', {
+      model: Rubrics,
+      replacements: {
+        program: `${program}`,
+        type: `${type}`,
+        rubric_for: `${rubric_for}`,
+      },
+    }).then(data => data).catch(err => {
+      console.error(err);
+      throw Error(err);
+    });
+  }
+  return db.query('select * from rubrics where program=:program and type=:type;', {
     model: Rubrics,
     replacements: {
       program: `${program}`,
       type: `${type}`,
-      milestone_id: `${milestone_id}`,
     },
   }).then(data => data).catch(err => {
     console.error(err);
@@ -99,11 +127,9 @@ export const getRubricsById = id => Rubrics.findOne(
   { where: { id } },
 );
 
-export const createRubrics = (
-  milestone_id, rubric_name,
+export const createRubrics = (milestone_id, rubric_name,
   program, rubric_parameters, type, path,
-  related_rubrics,
-) => Rubrics.create(
+  related_rubrics) => Rubrics.create(
   {
     milestone_id,
     rubric_name,
@@ -116,8 +142,9 @@ export const createRubrics = (
   },
 );
 
-export const updateRubrics = (id, rubric_parameters,
-  related_rubrics, milestone_id) => Rubrics.update({
+export const updateRubrics = (
+  id, rubric_parameters, related_rubrics, milestone_id,
+) => Rubrics.update({
   rubric_parameters,
   related_rubrics,
   milestone_id,
