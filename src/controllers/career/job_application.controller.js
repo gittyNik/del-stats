@@ -89,9 +89,10 @@ export const createJobApplicationAPI = (req, res) => {
     job_posting_id,
     portfolio_id,
     assignment_due_date,
+    attached_assignment,
   } = req.body;
   return createJobApplication({
-    job_posting_id, portfolio_id, assignment_due_date,
+    job_posting_id, portfolio_id, assignment_due_date, attached_assignment,
   })
     .then(data => res.status(200).json({
       text: 'Created a Job Application',
