@@ -30,7 +30,7 @@ export const createSandbox = (req, res) => {
     .then(response => {
       // console.log(response.body);
       res.json({
-        text: 'Id of newly created codesandbox, used to redirect ex: https://codesanbox.io/embed/<id>',
+        text: 'Id of newly created codesandbox, used to redirect ex: https://codesandbox.io/embed/<id>',
         data: response.body,
       });
     })
@@ -52,7 +52,7 @@ export const createTemplate = (template, embed_options) => {
     .then(response =>
       // console.log(response.text);
       ({
-        text: 'Id of newly created codesandbox, used to redirect ex: https://codesanbox.io/embed/<id>',
+        text: 'Id of newly created codesandbox, used to redirect ex: https://codesandbox.io/embed/<id>',
         data: response.text,
       }))
     .catch(err => {
