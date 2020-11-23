@@ -66,7 +66,7 @@ export const getRubricsByProgram = (program, type) => Rubrics.findAll(
 );
 
 export const getRubricsByMilestone = (
-  milestone_id, program, type, rubric_for
+  milestone_id, program, type, rubric_for,
 ) => {
   if (rubric_for) {
     return db.query('select * from rubrics where program=:program and type=:type and rubric_for=:rubric_for and (milestone_id is null or milestone_id=:milestone_id);', {
@@ -99,8 +99,11 @@ export const getRubricsById = id => Rubrics.findOne(
   { where: { id } },
 );
 
-export const createRubrics = (milestone_id, rubric_name,
-  program, rubric_parameters, type, path) => Rubrics.create(
+export const createRubrics = (
+  milestone_id, rubric_name,
+  program, rubric_parameters, type, path,
+  related_rubrics,
+) => Rubrics.create(
   {
     milestone_id,
     rubric_name,
@@ -108,6 +111,7 @@ export const createRubrics = (milestone_id, rubric_name,
     rubric_parameters,
     type,
     path,
+    related_rubrics,
     created_at: Date.now(),
   },
 );
