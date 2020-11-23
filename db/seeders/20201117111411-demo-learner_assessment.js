@@ -178,7 +178,7 @@ const seeder = {
       addProgram, addLearning_ops_manager,
       addCohort, addCatalyst, addCohortAssessment,
       addLearner, addReviewedBy, addLearnerAssessment])
-      .then(() => console.log('Seeded Educator, Ping Template'))
+      .then(() => console.log('Seeded LearnerAssessment'))
       .catch(err => console.error(err));
   }),
 
@@ -187,7 +187,7 @@ const seeder = {
     queryInterface.bulkDelete('ping_templates', null, { transaction: t }),
     queryInterface.bulkDelete('pings', null, { transaction: t }),
   ])
-    .then(() => console.log('educators and ping templates reverted'))
+    .then(() => console.log('LearnerAssessment reverted'))
     .catch(err => console.error(err))),
 };
 
