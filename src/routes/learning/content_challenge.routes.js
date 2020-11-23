@@ -1,13 +1,14 @@
 import Express from 'express';
 import {
   getChallenges, createChallenge, updateChallenge, deleteChallenge,
-  getChallengesByTopic,
+  getChallengesByTopic, getChallengesByCompany, getFilteredChallengesAPI,
 } from '../../controllers/learning/challenge.controller';
 import {
   allowMultipleRoles,
   allowAdminsOnly,
 } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
+import { getChallengesByCompanyId } from '../../models/challenge';
 
 const {
   ADMIN, CATALYST, EDUCATOR,
@@ -34,6 +35,24 @@ router.get('/', getChallenges);
  * @apiGroup ContentChallenges
  */
 router.get('/topic/:id', getChallengesByTopic);
+
+/**
+ * @api {get} /learning/content/challenges/company/:id Get all Private challenges for a Company
+ * @apiDescription get all challenges uploaded by company
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetCompanyContentChallenges
+ * @apiGroup ContentChallenges
+ */
+router.get('/company/:id', getChallengesByCompany);
+
+/**
+ * @api {post} /learning/content/challenges/filter Get filtered challenges
+ * @apiDescription get all challenges based on filter
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetFilteredContentChallenges
+ * @apiGroup ContentChallenges
+ */
+router.post('/filter', getFilteredChallengesAPI);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowAdminsOnly);

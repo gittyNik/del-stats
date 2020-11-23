@@ -94,7 +94,8 @@ export const createJobPostingAPI = (req, res) => {
     id_recruiter,
     name_recruiter,
     added_by_recruiter = true,
-    attached_assignment,
+    default_assignment,
+    attached_assignments,
     start_range,
     end_range,
     job_type,
@@ -113,21 +114,23 @@ export const createJobPostingAPI = (req, res) => {
     updated_at: new Date(),
     recruiter_id,
   }];
-  createJobPosting(
+  createJobPosting({
+
     company_id,
     description,
     tags,
     status,
     posted_by,
     vacancies,
-    attached_assignment,
     start_range,
     end_range,
     job_type,
     locations,
     experience_required,
     title,
-  )
+    default_assignment,
+    attached_assignments,
+  })
     .then((data) => res.status(201).json({
       message: 'Job Posting created',
       data,
@@ -150,13 +153,14 @@ export const updateJobPostingAPI = (req, res) => {
     id_recruiter,
     name_recruiter,
     added_by_recruiter = true,
-    attached_assignment,
     start_range,
     end_range,
     job_type,
     locations,
     experience_required,
     title,
+    default_assignment,
+    attached_assignments,
   } = req.body;
   let user_name = name_recruiter;
   let recruiter_id = id_recruiter;
@@ -170,7 +174,8 @@ export const updateJobPostingAPI = (req, res) => {
     recruiter_id,
   }];
 
-  updateJobPostingById(
+  updateJobPostingById({
+
     id,
     company_id,
     description,
@@ -178,14 +183,15 @@ export const updateJobPostingAPI = (req, res) => {
     status,
     posted_by,
     vacancies,
-    attached_assignment,
     start_range,
     end_range,
     job_type,
     locations,
     experience_required,
     title,
-  ).then(() => res.status(200).json({
+    default_assignment,
+    attached_assignments,
+  }).then(() => res.status(200).json({
     message: 'Job Posting updated',
     type: 'success',
   }))
