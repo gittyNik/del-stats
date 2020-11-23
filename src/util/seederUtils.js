@@ -19,8 +19,7 @@ export const randomNum = (num) => Math.floor(Math.random() * (num || 10 - 1)) + 
 
 export const generateUuids = (n) => {
   const arrayUUID = Array.from({ length: (n || randomNum(5)) }, () => uuid());
-  // return postgres compatible array of uuid
-  return `{${arrayUUID.join(',')}}`;
+  return arrayUUID;
 };
 
 /**
@@ -29,7 +28,7 @@ export const generateUuids = (n) => {
  *
  * @param  {num} Num Array index, default to be random of 5
  * @param  {fn} function to feed individual elements
- * 
+ *
  * @return {num} random number from 0 to n
  */
 
