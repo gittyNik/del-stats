@@ -3,7 +3,7 @@ import uuid from 'uuid/v4';
 import request from 'superagent';
 import Redis from 'ioredis';
 import db from '../database';
-import { Cohort, getCohortIdFromLearnerId } from './cohort';
+import { Cohort, getCohortIdFromLearnerId, getCohortFromId } from './cohort';
 import { SocialConnection } from './social_connection';
 import { User, getProfile } from './user';
 import web from '../integrations/slack/delta-app/client';
@@ -453,5 +453,46 @@ export const moveLearnerToNewSlackChannel = async (
   } catch (err) {
     logger.error(err);
     return `Failed to move learner: ${learner_id} to another cohort slack channel: ${new_cohort_id}`;
+  }
+};
+
+export const addLearnersToDSAChannels = async (cohort_id) => {
+  const cohort = await getCohortFromId(cohort_id).then(c => c.get({ plain: true }));
+  const { duration, learners } = cohort;
+  let slack_channel_id;
+  switch (duration) {
+    case 16:
+      slack_channel_id = process.env.SLACK_SPE_DS_ALGO_FT_CHANNEL;
+      break;
+    case 26:
+      slack_channel_id = process.env.SLACK_SPE_DS_ALGO_PT_CHANNEL;
+      break;
+    default:
+      return {
+        err: 'Invalid duration for cohort',
+      };
+  }
+  const emails = await Promise.all(learners.map(async learner => getProfile(learner)
+    .then(data => data.get({ plain: true }))
+    .then(d => d.email)));
+  let slackIds = await getSlackIdsFromEmails(emails);
+  let temp = slackIds
+    .filter(id => typeof id === 'object')
+    .map(_id => _id.email);
+  slackIds = slackIds.filter(id => typeof id === 'string');
+  try {
+    const data = await addLearnerToAChannel(slack_channel_id, slackIds);
+    return {
+      slack_channel_id,
+      learner_not_added: temp,
+      data,
+    };
+  } catch (err) {
+    console.error(err);
+    return {
+      slack_channel_id,
+      learner_not_added: temp,
+      err,
+    };
   }
 };
