@@ -73,7 +73,7 @@ router.get('/', getDocumentsAll);
  * @apiName GetDocuments
  * @apiGroup Documents
  */
-router.get('/:id', getDocumentsByUserId);
+router.get('/:user_id', getDocumentsByUserId);
 
 /**
  * @api {get} /firewall/documents/docid/:id/ Get document by doc id
@@ -91,7 +91,7 @@ router.get('/docid/:id', getDocumentsByID);
  * @apiName GetUserDocumentResources
  * @apiGroup Documents
  */
-router.get('/status/:id', getDocumentsStatus);
+router.get('/status/:status', getDocumentsStatus);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowMultipleRoles([ADMIN, OPERATIONS, EDUCATOR]));

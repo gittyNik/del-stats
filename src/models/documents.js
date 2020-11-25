@@ -2,7 +2,13 @@ import Sequelize from 'sequelize';
 import _ from 'lodash';
 import db from '../database';
 
-export const application_status = ['requested', 'signed', 'payment-pending', 'payment-partial', 'payment-complete'];
+export const application_status = [
+  'requested',
+  'signed',
+  'payment-pending',
+  'payment-partial',
+  'payment-complete',
+];
 
 export const Documents = db.define('documents', {
   id: {
@@ -43,14 +49,7 @@ export const Documents = db.define('documents', {
   },
 });
 
-export const getAllDocuments = (req, res) => {
-  Documents.findAll({})
-    .then(data => res.json(data))
-    .catch(err => {
-      console.error(err);
-      res.status(500);
-    });
-};
+export const getAllDocuments = () => Documents.findAll({});
 
 export const getDocumentsFromId = id => Documents.findOne(
   { where: { id } },

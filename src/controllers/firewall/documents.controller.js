@@ -74,7 +74,7 @@ export const getDocumentsAll = (req, res) => {
 };
 
 export const getDocumentsStatus = (req, res) => {
-  const { status } = req.query;
+  const { status } = req.params;
   getDocumentsByStatus(status).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
