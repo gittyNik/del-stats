@@ -416,7 +416,8 @@ export const addPortfolioResume = (
 //     raw: true,
 //   });
 
-export const getLearnerList = async (limit = 10, offset = 0, company_id) => {
+export const getLearnerList = async (limit = 10, offset = 0,
+  company_id, application) => {
   let whereObj = {
     status: 'available',
   };
@@ -424,12 +425,15 @@ export const getLearnerList = async (limit = 10, offset = 0, company_id) => {
     model: User,
     attributes: ['name', 'email', 'phone', 'picture', 'status'],
   },
-  {
-    model: JobApplication,
-    attributes: ['job_posting_id', 'status'],
-    required: false,
-  },
   ];
+  if (application) {
+    let applicationInclude = {
+      model: JobApplication,
+      attributes: ['job_posting_id', 'status'],
+      required: false,
+    };
+    includeArray.push(applicationInclude);
+  }
   if (company_id) {
     let toInclude = {
       model: CompanyProfile,

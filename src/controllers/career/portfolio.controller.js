@@ -27,12 +27,14 @@ export const getAllPortfoliosAPI = (req, res) => {
 };
 
 export const getLearnerListAPI = (req, res) => {
-  let { limit, page, company_id } = req.query;
+  let {
+    limit, page, company_id, application,
+  } = req.query;
   let offset;
   if ((limit) && (page)) {
     offset = limit * (page - 1);
   }
-  return getLearnerList(limit, offset, company_id)
+  return getLearnerList(limit, offset, company_id, application)
     .then(data => res.status(200).json({
       message: 'List of all Available learners',
       data,

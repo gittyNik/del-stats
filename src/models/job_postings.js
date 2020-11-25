@@ -59,10 +59,6 @@ export const JobPosting = db.define('job_postings', {
   vacancies: {
     type: Sequelize.INTEGER,
   },
-  attached_assignment: {
-    type: Sequelize.UUID,
-    references: { model: 'challenges', key: 'id' },
-  },
   start_range: {
     type: Sequelize.FLOAT,
   },
@@ -72,6 +68,16 @@ export const JobPosting = db.define('job_postings', {
   job_type: Sequelize.ENUM(...JOB_TYPE),
   locations: Sequelize.ARRAY(Sequelize.STRING),
   experience_required: Sequelize.STRING,
+  default_assignment: {
+    type: Sequelize.UUID,
+    references: { model: 'challenges', key: 'id' },
+  },
+  attached_assignments: {
+    type: Sequelize.ARRAY({
+      type: Sequelize.UUID,
+      references: { model: 'challenges', key: 'id' },
+    }),
+  },
 });
 
 export const getJobPostingFromId = (id, role,
@@ -200,21 +206,23 @@ export const getJobPostingsByCompany = (
   );
 };
 
-export const createJobPosting = (
+export const createJobPosting = ({
+
   company_id,
   description,
   tags,
   status = 'active',
   posted_by,
   vacancies,
-  attached_assignment,
   start_range,
   end_range,
   job_type,
   locations,
   experience_required,
   title,
-) => JobPosting.create(
+  default_assignment,
+  attached_assignments,
+}) => JobPosting.create(
   {
     company_id,
     description,
@@ -223,17 +231,19 @@ export const createJobPosting = (
     created_at: new Date(),
     posted_by,
     vacancies,
-    attached_assignment,
     start_range,
     end_range,
     job_type,
     locations,
     experience_required,
     title,
+    default_assignment,
+    attached_assignments,
   },
 );
 
-export const updateJobPostingById = (
+export const updateJobPostingById = ({
+
   id,
   company_id,
   description,
@@ -241,14 +251,15 @@ export const updateJobPostingById = (
   status,
   posted_by,
   vacancies,
-  attached_assignment,
   start_range,
   end_range,
   job_type,
   locations,
   experience_required,
   title,
-) => JobPosting.findOne({
+  default_assignment,
+  attached_assignments,
+}) => JobPosting.findOne({
   where: {
     id,
   },
@@ -267,13 +278,14 @@ export const updateJobPostingById = (
       status,
       posted_by: jobPosting.posted_by,
       vacancies,
-      attached_assignment,
       start_range,
       end_range,
       job_type,
       locations,
       experience_required,
       title,
+      default_assignment,
+      attached_assignments,
     }, {
       where: {
         id,

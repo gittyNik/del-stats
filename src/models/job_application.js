@@ -63,6 +63,10 @@ export const JobApplication = db.define('job_applications', {
     type: Sequelize.ENUM(...APPLICATION_STATUS),
     defaultValue: 'active',
   },
+  attached_assignment: {
+    type: Sequelize.UUID,
+    references: { model: 'challenges', key: 'id' },
+  },
   assignment_status: {
     type: Sequelize.ENUM(...ASSIGNMENT_STATUS),
   },
@@ -176,7 +180,7 @@ export const getJobApplicationsForLearnerId = async ({
       attributes: [
         'title', 'company_id', 'job_type', 'views',
         'interested', 'vacancies', 'tags', 'locations',
-        'experience_required', 'attached_assignment',
+        'experience_required', 'default_assignment', 'attached_assignments',
       ],
       include: [{
         model: CompanyProfile,
@@ -237,16 +241,17 @@ export const getJobApplication = (id) => JobApplication
 
 export const createJobApplication = ({
   job_posting_id, portfolio_id, assignment_due_date,
-  status,
+  status, attached_assignment,
 }) => {
-  if (assignment_due_date) {
+  if (status === 'assignment') {
     return JobApplication.create({
       id: uuid(),
       job_posting_id,
       portfolio_id,
-      status: 'assignment',
+      status,
       assignment_status: 'sent',
       assignment_due_date,
+      attached_assignment,
       assignment_sent_date: Sequelize.literal('NOW()'),
       created_at: Sequelize.literal('NOW()'),
       updated_at: Sequelize.literal('NOW()'),
@@ -280,7 +285,10 @@ export const createJobApplicationForPortofolio = async (
   }
   let jobApplication = await createJobApplication(
     {
-      job_posting_id, portfolio_id, assignment_due_date,
+      job_posting_id,
+      portfolio_id,
+      assignment_due_date,
+      attached_assignment: assignment_id,
     },
   );
   // await updateLearnerChallenge(challengeDetails.challenge.id, jobApplication.id);
@@ -316,6 +324,7 @@ export const updateJobApplication = async ({
     offer_details,
     applicant_feedback,
     counsellor_notes,
+    attached_assignment: assignment_id,
   }, {
     where: { id },
   });
