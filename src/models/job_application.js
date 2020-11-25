@@ -20,6 +20,7 @@ const APPLICATION_STATUS = [
   'rejected',
   'closed',
   'shortlisted-by-soal',
+  'interested',
 ];
 
 const ASSIGNMENT_STATUS = [
