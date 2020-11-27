@@ -2,6 +2,11 @@ import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import db from '../database';
 
+const PLATFORM = [
+  'website',
+  'delta',
+];
+
 export const LearnerFaq = db.define('learner_faqs', {
   id: {
     type: Sequelize.UUID,
@@ -20,7 +25,6 @@ export const LearnerFaq = db.define('learner_faqs', {
       },
     ),
     defaultValue: [],
-    allowNull: false,
   },
   title: {
     type: Sequelize.STRING,
@@ -29,6 +33,12 @@ export const LearnerFaq = db.define('learner_faqs', {
   body: {
     type: Sequelize.STRING,
     allowNull: false,
+  },
+  platform: {
+    type: Sequelize.ENUM(...PLATFORM),
+  },
+  section: {
+    type: Sequelize.STRING,
   },
   helpful: {
     type: Sequelize.ARRAY(
@@ -76,16 +86,20 @@ export const getLearnerFaqById = (id) => LearnerFaq.findOne({
 
 export const getAllLearnerFaqs = () => LearnerFaq.findAll({ raw: true });
 
-export const createLearnerFaq = ({
-  program_id, title, body, user_id, topics,
-}) => LearnerFaq.create({
-  id: uuid(),
-  program_id,
-  title,
-  body,
-  topics,
-  updated_by: [user_id],
+export const getLearnerFaqByPlatform = platform => LearnerFaq.findAll({
+  where: {
+    platform
+  },
+  raw: true
 });
+
+export const createLearnerFaq = (
+  faq
+) => LearnerFaq.create({
+  id: uuid(),
+  ...faq
+});
+
 
 export const updateLearnerFaq = ({
   learner_faq_id, program_id, title, body, user_id, topics,
