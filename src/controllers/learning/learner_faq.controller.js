@@ -49,7 +49,7 @@ export const getAllFaqs = async (req, res) => {
 
 export const getAllFaqsByPlatformEndpoint = async (req, res) => {
   try {
-    const { platform } = req.body
+    const { platform } = req.params
     const learnerFaqs = await getLearnerFaqByPlatform(platform);
     res.status(200).json({
       text: 'All Learner Faqs Platform-wise',
