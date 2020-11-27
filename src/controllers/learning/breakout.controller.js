@@ -86,7 +86,7 @@ export const getLiveCohortsBreakouts = (req, res) => {
       let after_dates = new Date();
       after_dates.setDate(after_dates.getDate() - 21);
       let before_dates = new Date();
-      before_dates.setDate(before_dates.getDate() + 30);
+      before_dates.setDate(before_dates.getDate() + 60);
       let where = {
         cohort_id: {
           [Sequelize.Op.in]: cohortIds,
