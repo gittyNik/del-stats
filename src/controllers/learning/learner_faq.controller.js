@@ -6,6 +6,7 @@ import {
   deletelearnerFaq,
   toggleHelpfulLearnerFaq,
   toggleUnhelpfulLearnerFaq,
+  getLearnerFaqByPlatform
 } from '../../models/learner_faq';
 import { logger } from '../../util/logger';
 
@@ -46,12 +47,40 @@ export const getAllFaqs = async (req, res) => {
   }
 };
 
+export const getAllFaqsByPlatformEndpoint = async (req, res) => {
+  try {
+    const { platform } = req.body
+    const learnerFaqs = await getLearnerFaqByPlatform(platform);
+    res.status(200).json({
+      text: 'All Learner Faqs Platform-wise',
+      data: learnerFaqs,
+      type: 'success',
+    });
+  } catch (err) {
+    logger.error(err);
+    res.status(500).json({
+      type: 'failure',
+      err,
+    });
+  }  
+}
+
 export const createAlearnerFaq = async (req, res) => {
-  const { program_id, title, body, topics } = req.body;
+  const { title, body, platform } = req.body;
+  let program_id=null, topics=null, section=null
+  if (req.body.topics && req.body.program_id) {
+    program_id = req.body.program_id
+    topics = req.body.topics
+  } 
+  if (req.body.section) {
+    section = req.body.section
+  } 
   const user_id = req.jwtData.user.id;
+  let updated_by = []
+  updated_by.push(user_id)
   try {
     const learnerFaq = await createLearnerFaq({
-      program_id, title, body, user_id, topics
+      program_id, title, body, updated_by, topics, platform, section
     });
     res.status(201).json({
       text: 'Successfully created a learnerFaq',
