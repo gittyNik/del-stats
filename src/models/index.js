@@ -138,6 +138,7 @@ JobApplication.belongsTo(Portfolio, { foreignKey: 'portfolio_id' });
 Portfolio.hasMany(JobApplication);
 
 JobPosting.belongsTo(CompanyProfile, { foreignKey: 'company_id' });
+JobPosting.belongsTo(Challenge, { foreignKey: 'default_assignment' });
 // CompanyProfile.hasMany(JobPosting);
 
 // Challenges are now linked to job_application.
