@@ -1,7 +1,9 @@
 import uuid from 'uuid/v4';
 import faker from 'faker';
 import _ from 'lodash';
-import { randomNum } from '../../src/util/seederUtils';
+import {
+  randomNum, generateArray, cleanArray, generateUuids,
+} from '../../src/util/seederUtils';
 
 const APPLICATION_STAGE = [
   'firewall-test', 'isa-selection', 'cohort-selection_payment',
@@ -24,15 +26,13 @@ const APPLICATIONS = (user_id, cohort_applied) => ({
     'offered',
     'rejected',
     'joined',
-    'archieved']
-  ),
-  stage: _.sample(...APPLICATION_STAGE),
-  payment_details: Sequelize.JSON,
+    'archieved']),
+  stage: _.sample(APPLICATION_STAGE),
   is_isa: _.sample([true, false]),
   is_job_guarantee: _.sample([true, false]),
   created_at: new Date(),
   updated_at: new Date(),
-  payment_type: 'UPI'
+  payment_type: 'UPI',
 });
 
 const TEST = (application_id) => ({
@@ -40,22 +40,17 @@ const TEST = (application_id) => ({
   application_id,
   purpose: faker.lorem.sentence(),
   duration: randomNum(10000),
-  responses: [{ id: uuid(), response: faker.lorem.sentence() }],
-  scores: [randomNum(10), randomNum(10), randomNum(10)], // [syntax_score,logic_score,workflow_score]
+  responses: cleanArray([{ response: faker.lorem.sentence() }]), // array of json
+  scores: [randomNum(10), randomNum(10), randomNum(10)],
   start_time: new Date(),
-  sub_time: new Date(),
+  sub_time: faker.date.future(),
   browser_history: generateUuids(),
   created_at: new Date(),
-  updated_at: new Date()
+  updated_at: new Date(),
 });
 
 const seeder = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkInsert('courses', [
-      { title: 'Course 1', description: 'description 1', id: 1 },
-      { title: 'Course 2', description: 'description 2', id: 2 }
-    ], {});
-
     const users = await queryInterface.sequelize.query(
       `SELECT id from users;`
     );
@@ -66,8 +61,9 @@ const seeder = {
 
     await queryInterface.bulkInsert(
       'applications',
-      _.times(100, APPLICATIONS((_.sample(users)).id, (_.sample(cohorts)).id)),
-      {});
+      generateArray(10, APPLICATIONS, [(_.sample(users[0])).id, (_.sample(cohorts[0])).id]),
+      { payment_details: { type: new Sequelize.JSON() } },
+    );
 
     const applications = await queryInterface.sequelize.query(
       `SELECT id from applications;`
@@ -75,8 +71,12 @@ const seeder = {
 
     // eslint-disable-next-line no-return-await
     return await queryInterface.bulkInsert('tests',
-      _.times(100, TEST((_.sample(applications)).id)),
-      {});
+      generateArray(100, TEST, [(_.sample(applications[0])).id]),
+      {
+        application_id: { type: new Sequelize.UUID() },
+        browser_history: { type: new Sequelize.UUID() },
+        responses: { type: Sequelize.JSON },
+      });
   },
 
   down: async (queryInterface) => {

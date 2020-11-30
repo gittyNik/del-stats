@@ -1,19 +1,24 @@
 import uuid from 'uuid/v4';
 import faker from 'faker';
 import _ from 'lodash';
-import { randomNum, generateUuids } from '../../src/util/seederUtils';
+import {
+  randomNum, generateUuids, cleanArray, generateArray, cleanJSON,
+} from '../../src/util/seederUtils';
 
 const MILESTONE = {
   id: uuid(),
-  name: faker.company.companyName(),
-  // duration: randomNum(10),
-  // alias: faker.lorem.word(),
+  name: faker.lorem.word(),
+  duration: randomNum(10),
+  alias: faker.lorem.word(),
   prerequisite_milestones: generateUuids(5),
   problem_statement: faker.lorem.paragraph(),
-  // learning_competencies: [''],
+  learning_competencies: _.times(5, faker.lorem.word),
   guidelines: faker.lorem.text(),
   starter_repo: faker.internet.domainName(),
-  // releases: {},
+  releases: cleanJSON({
+    id: uuid(),
+    createdAt: new Date(),
+  }),
   created_at: new Date(),
   updated_by: null,
 };
@@ -41,9 +46,11 @@ const CHALLENGE = {
   title: faker.lorem.sentence(),
   description: faker.lorem.paragraph(),
   starter_repo: faker.internet.domainName(),
-  difficulty: _.sample(...CHALLENGE_DIFFICULTY),
-  size: _.sample(...CHALLENGE_SIZE),
+  difficulty: _.sample(CHALLENGE_DIFFICULTY),
+  size: _.sample(CHALLENGE_SIZE),
 };
+
+const LOCATIONS = ['Delhi', 'Mumbai', 'Hyderabad', 'Online'];
 
 const COMPANY = {
   id: uuid(),
@@ -57,15 +64,15 @@ const COMPANY = {
   created_at: new Date(),
   updated_at: new Date(),
   tags: generateUuids(),
-  // locations: generateArray(3, _.sample(LOCATIONS)),
+  locations: generateArray(3, _.sample, LOCATIONS),
   recruiters: generateUuids(),
-  updated_by: generateUuids(2),
+  updated_by: cleanArray([{ user: uuid() }]),
   status: _.sample([
     'active',
     'removed',
   ]),
-  level_of_candidates: [''],
-  roles: [''],
+  // level_of_candidates: [''],
+  // roles: [''],
 };
 
 const USER = {
@@ -96,12 +103,16 @@ const STATUS = [
   'partially-filled',
 ];
 
+const HIRING_STATUS = [
+  'available', 'currently-unavailable',
+  'hired',
+];
+
 const JOB_TYPE = ['internship', 'fulltime', 'intern2hire'];
 const EXPERIENCE_REQUIRED = ['2+ Years', '1+ Years', 'Fresher'];
 
 const JOB_POSTING = {
   id: uuid(),
-  name: 'Demo',
   title: `Product Engineer at ${COMPANY.name}`,
   company_id: COMPANY.id,
   description: faker.lorem.sentences(2),
@@ -109,14 +120,18 @@ const JOB_POSTING = {
   views: Math.floor(Math.random() * 1000),
   interested: Math.floor(Math.random() * 300),
   created_at: faker.date.between((Date(2020, randomNum(8), 1)), (Date(2012, 0, 1))),
-  updated_at: Date.now(),
+  updated_at: new Date(),
   tags: generateUuids(),
-  posted_by: generateUuids(),
+  // posted_by: cleanArray([{
+  //   name: faker.name.firstName(),
+  //   email: faker.internet.email(),
+  //   phone: faker.phone.phoneNumber('+91##########'),
+  // }]),
   vacancies: randomNum(10),
   attached_assignment: CHALLENGE.id,
   start_range: randomNum(5),
   job_type: _.sample(JOB_TYPE),
-  // locations: generateArray(3, _.sample(LOCATIONS)),
+  locations: generateArray(3, _.sample, LOCATIONS),
   experience_required: _.sample(EXPERIENCE_REQUIRED),
 };
 JOB_POSTING.end_range = JOB_POSTING.start_range + randomNum(10);
@@ -157,25 +172,25 @@ const INTERIEW_STATUS = [
 const PORTFOLIO = {
   id: uuid(),
   learner_id: USER.id,
-  showcase_projects: [{ project: faker.internet.domainName() }],
-  fields_of_interest: [{ project: faker.internet.word() }],
-  city_choices: [{ project: faker.internet.word() }],
-  educational_background: [{ project: faker.internet.sentance() }],
-  work_experience: [{ project: faker.internet.sentance() }],
+  showcase_projects: cleanArray([{ project: faker.internet.domainName() }]),
+  fields_of_interest: cleanArray([{ project: faker.internet.domainName() }]),
+  city_choices: cleanArray([{ project: faker.internet.domainWord() }]),
+  educational_background: cleanArray([{ project: faker.lorem.sentence() }]),
+  work_experience: cleanArray([{ project: faker.lorem.sentence() }]),
   experience_level: _.sample(EXPERIENCE_REQUIRED),
-  relevant_experience_level: faker.internet.sentance(),
-  skill_experience_level: [{ project: faker.internet.sentance() }],
+  relevant_experience_level: faker.lorem.sentence(),
+  skill_experience_level: cleanArray([{ project: faker.lorem.sentence() }]),
   review: faker.lorem.text(),
   reviewed_by: USER.id,
   status: _.sample(STATUS),
-  hiring_status: _.sample(STATUS),
+  hiring_status: _.sample(HIRING_STATUS),
   tags: generateUuids(),
   profile_views: randomNum(50),
   created_at: new Date(),
   updated_at: new Date(),
-  available_time_slots: [{ time: new Date() }],
-  updated_by: [{ user: uuid() }],
-  additional_links: [{ link: faker.internet.domainName() }],
+  available_time_slots: cleanArray([{ time: new Date() }]),
+  updated_by: cleanArray([{ user: uuid() }]),
+  additional_links: cleanArray([{ link: faker.internet.domainName() }]),
 };
 
 // job_applications
@@ -184,10 +199,10 @@ const JOB_APPLICATION = {
   job_posting_id: JOB_POSTING.id,
   portfolio_id: PORTFOLIO.id,
   review: faker.lorem.sentence(),
-  status: _.sample(...APPLICATION_STATUS),
-  assignment_status: _.sample(...ASSIGNMENT_STATUS),
-  offer_status: _.sample(...OFFER_STATUS),
-  interview_status: _.sample(...INTERIEW_STATUS),
+  status: _.sample(APPLICATION_STATUS),
+  assignment_status: _.sample(ASSIGNMENT_STATUS),
+  offer_status: _.sample(OFFER_STATUS),
+  interview_status: _.sample(INTERIEW_STATUS),
   assignment_due_date: new Date(),
   assignment_sent_date: new Date(),
   interview_date: faker.date.future(),
@@ -196,7 +211,7 @@ const JOB_APPLICATION = {
   updated_at: new Date(),
 };
 
-const LEARNER_CHALLENGE = {
+const LEARNER_CHALLENGE = () => ({
   id: uuid(),
   challenge_id: CHALLENGE.id,
   learner_id: USER.id,
@@ -207,14 +222,14 @@ const LEARNER_CHALLENGE = {
   created_at: new Date(),
   updated_at: new Date(),
   job_application_id: JOB_APPLICATION.id,
-};
+});
 
 const seeder = {
   up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(async (t) => {
     const addMilestones = queryInterface.bulkInsert(
       'milestones',
       [MILESTONE], { transaction: t },
-      { releases: { type: Sequelize.JSON() } },
+      { releases: { type: new Sequelize.JSON() } },
     );
 
     const addTopics = queryInterface.bulkInsert(
@@ -235,7 +250,7 @@ const seeder = {
     const addJobPosting = queryInterface.bulkInsert(
       'job_postings',
       [JOB_POSTING], { transaction: t },
-      { posted_by: { type: Sequelize.JSON() } },
+      { posted_by: { type: new Sequelize.JSON() } },
     );
 
     const addUser = queryInterface.bulkInsert(
@@ -277,7 +292,7 @@ const seeder = {
     );
 
     const addLearnerChallenge = queryInterface.bulkInsert(
-      'learner_challenges', [LEARNER_CHALLENGE],
+      'learner_challenges', _.times(100, LEARNER_CHALLENGE),
       { transaction: t }, {},
     );
 

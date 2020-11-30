@@ -1,19 +1,22 @@
 import uuid from 'uuid/v4';
 import faker from 'faker';
 import _ from 'lodash';
-import { randomNum, generateUuids } from '../../src/util/seederUtils';
+import { randomNum, generateUuids, cleanJSON } from '../../src/util/seederUtils';
 
 const MILESTONE = {
   id: uuid(),
-  name: faker.company.companyName(),
-  // duration: randomNum(10),
-  // alias: faker.lorem.word(),
+  name: faker.lorem.word(),
+  duration: randomNum(10),
+  alias: faker.lorem.word(),
   prerequisite_milestones: generateUuids(5),
   problem_statement: faker.lorem.paragraph(),
-  // learning_competencies: [''],
+  learning_competencies: _.times(5, faker.lorem.word),
   guidelines: faker.lorem.text(),
   starter_repo: faker.internet.domainName(),
-  // releases: {},
+  releases: cleanJSON({
+    id: uuid(),
+    createdAt: new Date(),
+  }),
   created_at: new Date(),
   updated_by: null,
 };
@@ -44,7 +47,10 @@ const TAG = () => ({
   moderator: generateUuids(),
   description: faker.lorem.sentence(),
   source: faker.internet.domainName(), // slack/web
-  details: faker.lorem.sentence(),
+  details: cleanJSON({
+    description: faker.lorem.sentence(),
+    source: faker.name.firstName(),
+  }),
   parent_tags: generateUuids(),
   child_tags: generateUuids(),
   similar_tags: generateUuids(),
@@ -55,7 +61,7 @@ module.exports = {
     const addMilestones = queryInterface.bulkInsert(
       'milestones',
       [MILESTONE], { transaction: t },
-      { releases: { type: Sequelize.JSON() } },
+      { releases: { type: new Sequelize.JSON() } },
     );
 
     const addTopics = queryInterface.bulkInsert(
@@ -65,7 +71,8 @@ module.exports = {
 
     const addTag = queryInterface.bulkInsert(
       'tags',
-      _.times(100, TAG), { transaction: t },
+      _.times(10, TAG), { transaction: t },
+      { details: { type: new Sequelize.JSON() } },
     );
 
     return Promise.all([addMilestones, addTopics, addTag])

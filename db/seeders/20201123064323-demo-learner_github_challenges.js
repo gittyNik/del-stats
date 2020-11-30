@@ -1,7 +1,7 @@
 import uuid from 'uuid/v4';
 import faker from 'faker';
 import _ from 'lodash';
-import { randomNum } from '../../src/util/seederUtils';
+import { randomNum, cleanArray } from '../../src/util/seederUtils';
 
 module.exports = {
   up: (queryInterface) => queryInterface.sequelize.transaction(async (t) => {
@@ -20,7 +20,7 @@ module.exports = {
       cohort_milestone_id: _.sample((cohort_milestones[0]).id),
       number_of_lines: randomNum(100),
       commits: randomNum(100),
-      repository_commits: [{ id: uuid(), url: faker.internet.domainName() }],
+      repository_commits: cleanArray([{ id: uuid(), url: faker.internet.domainName() }]),
       last_committed_at: new Date(),
       updated_at: new Date(),
     });

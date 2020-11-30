@@ -49,20 +49,24 @@ const seeder = {
         'rejected',
         'joined',
         'archieved']),
-      stage: _.sample(...APPLICATION_STAGE),
+      stage: _.sample(APPLICATION_STAGE),
       is_isa: _.sample([true, false]),
       is_job_guarantee: _.sample([true, false]),
       created_at: new Date(),
       updated_at: new Date(),
       payment_type: _.sample(['cash', 'cheque']),
+      payment_details: {
+        transactionId: uuid(),
+        status: 'successful',
+      },
     });
 
     const addApplications = queryInterface.bulkInsert(
       'applications',
       _.times(100, APPLICATION), { transaction: t },
       {
-        releases: { type: Sequelize.JSON() },
-        payment_details: { type: Sequelize.JSON() },
+        releases: { type: new Sequelize.JSON() },
+        payment_details: { type: new Sequelize.JSON() },
       },
     );
 

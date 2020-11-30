@@ -91,7 +91,7 @@ const cleanEntry = (obj) => {
 // Individual Rows
 const createCompanyProfile = (id, recruiter_id) => ({
   id,
-  name: faker.company.companyName(),
+
   description: faker.company.catchPhrase(),
   logo: 'http://placeimg.com/640/480/business',
   website: faker.internet.url(),

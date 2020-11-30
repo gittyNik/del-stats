@@ -108,8 +108,8 @@ const seeder = {
       'programs', [PROGRAM],
       { transaction: t },
       {
-        test_series: { type: Sequelize.JSON() },
-        milestone_review_rubric: { type: Sequelize.JSON() },
+        test_series: { type: new Sequelize.JSON() },
+        milestone_review_rubric: { type: new Sequelize.JSON() },
       },
     );
 
@@ -170,7 +170,7 @@ const seeder = {
     );
 
     const addLearnerAssessment = queryInterface.bulkInsert(
-      'assessments', [LearnerAssessment],
+      'assessments', _.times(1, LearnerAssessment),
       { transaction: t },
     );
 

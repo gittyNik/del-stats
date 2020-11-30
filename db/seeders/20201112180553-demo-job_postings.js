@@ -2,7 +2,7 @@ import uuid from 'uuid/v4';
 import faker from 'faker';
 import { Date } from 'core-js';
 import _ from 'lodash';
-import { randomNum, generateUuids } from '../../src/util/seederUtils';
+import { randomNum, generateUuids, cleanJSON, getSomeElements, cleanArray } from '../../src/util/seederUtils';
 
 const STATUS = [
   'active',
@@ -14,6 +14,7 @@ const STATUS = [
 
 const JOB_TYPE = ['internship', 'fulltime', 'intern2hire'];
 const EXPERIENCE_REQUIRED = ['2+ Years', '1+ Years', 'Fresher'];
+const LOCATIONS = ['Delhi', 'Mumbai', 'Hyderabad', 'Online'];
 
 const COMPANY = {
   id: uuid(),
@@ -27,9 +28,9 @@ const COMPANY = {
   created_at: new Date(),
   updated_at: new Date(),
   tags: generateUuids(),
-  // locations: generateArray(3, _.sample(LOCATIONS)),
+  locations: getSomeElements(LOCATIONS),
   recruiters: generateUuids(),
-  updated_by: generateUuids(2),
+  updated_by: cleanArray([{ user: uuid() }]),
   status: _.sample([
     'active',
     'removed',
@@ -49,19 +50,21 @@ const BREAKOUT_PATH = [
 
 const MILESTONE = {
   id: uuid(),
-  name: faker.company.companyName(),
+  name: faker.lorem.word(),
   duration: randomNum(10),
   alias: faker.lorem.word(),
   prerequisite_milestones: generateUuids(5),
   problem_statement: faker.lorem.paragraph(),
-  // learning_competencies: [''],
+  learning_competencies: _.times(5, faker.lorem.word),
   guidelines: faker.lorem.text(),
   starter_repo: faker.internet.domainName(),
-  // releases: {},
+  releases: cleanJSON({
+    id: uuid(),
+    createdAt: new Date(),
+  }),
   created_at: new Date(),
   updated_by: null,
 };
-
 const TOPIC = {
   id: uuid(),
   title: faker.lorem.sentence(randomNum(6)),
@@ -86,27 +89,47 @@ const ATTACHED_ASSIGNMENT = {
   size: _.sample(CHALLENGE_SIZE),
 };
 
-const jobPostings = {
-  id: uuid(),
-  name: 'Demo',
-  title: `Product Engineer at ${COMPANY.name}`,
-  company_id: COMPANY.id,
-  description: faker.lorem.sentences(2),
-  status: _.sample(STATUS),
-  views: Math.floor(Math.random() * 1000),
-  interested: Math.floor(Math.random() * 300),
-  created_at: faker.date.between((Date(2020, randomNum(8), 1)), (Date(2012, 0, 1))),
-  updated_at: Date.now(),
-  tags: generateUuids(),
-  posted_by: generateUuids(),
-  vacancies: randomNum(10),
-  attached_assignment: ATTACHED_ASSIGNMENT.id,
-  start_range: randomNum(5),
-  job_type: _.sample(JOB_TYPE),
-  // locations: generateArray(3, _.sample(LOCATIONS)),
-  experience_required: _.sample(EXPERIENCE_REQUIRED),
+const JOB_POSTING_EXCLUSIVITY = ['all', 'hired', 'non-hired'];
+
+const jobPostings = () => {
+  const returnObj = {
+    id: uuid(),
+    title: `Product Engineer at ${COMPANY.name}`,
+    company_id: COMPANY.id,
+    company: COMPANY.name,
+    description: faker.lorem.sentences(2),
+    status: _.sample(STATUS),
+    views: Math.floor(Math.random() * 1000),
+    interested: Math.floor(Math.random() * 300),
+    created_at: faker.date.between((Date(2020, randomNum(8), 1)), (Date(2012, 0, 1))),
+    updated_at: new Date(),
+    tags: generateUuids(),
+    posted_by: cleanArray([{
+      name: faker.name.firstName(),
+      email: faker.internet.email(),
+      phone: faker.phone.phoneNumber('+91##########'),
+    }]),
+    vacancies: randomNum(10),
+    industry: `${faker.lorem.word()} 'tech'`,
+    contact_person_details: cleanJSON({
+      name: faker.name.firstName(),
+      email: faker.internet.email(),
+      phone: faker.phone.phoneNumber('+91##########'),
+    }),
+    exclusivity: _.sample(JOB_POSTING_EXCLUSIVITY),
+    attached_assignment: ATTACHED_ASSIGNMENT.id,
+    start_range: randomNum(5),
+    end_range: randomNum(5),
+    salary_range: `${randomNum(100000)} - ${randomNum(100000)}`,
+    job_type: _.sample(JOB_TYPE),
+    locations: [LOCATIONS],
+    experience_required: _.sample(EXPERIENCE_REQUIRED),
+  };
+
+  jobPostings.end_range = jobPostings.start_range + randomNum(10);
+
+  return returnObj;
 };
-jobPostings.end_range = jobPostings.start_range + randomNum(10);
 
 const seeder = {
   up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction((t) => {
@@ -118,7 +141,7 @@ const seeder = {
     const addMilestones = queryInterface.bulkInsert(
       'milestones',
       [MILESTONE], { transaction: t },
-      { releases: { type: Sequelize.JSON() } },
+      { releases: { type: new Sequelize.JSON() } },
     );
 
     const addTopics = queryInterface.bulkInsert(
@@ -127,14 +150,14 @@ const seeder = {
     );
 
     const addAssignment = queryInterface.bulkInsert(
-      'assignments',
+      'challenges',
       [ATTACHED_ASSIGNMENT], { transaction: t },
     );
 
     const addJobPosting = queryInterface.bulkInsert(
       'job_postings',
-      [jobPostings], { transaction: t },
-      { posted_by: { type: Sequelize.JSON() } },
+      _.times(100, jobPostings), { transaction: t },
+      { posted_by: { type: new Sequelize.JSON() } },
     );
 
     return Promise.all([addCompany, addMilestones, addTopics, addAssignment, addJobPosting])

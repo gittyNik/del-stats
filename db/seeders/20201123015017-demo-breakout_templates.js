@@ -1,19 +1,24 @@
 import uuid from 'uuid/v4';
 import faker from 'faker';
 import _ from 'lodash';
-import { randomNum, generateUuids } from '../../src/util/seederUtils';
+import {
+  randomNum, generateUuids, cleanJSON, compatibleArray,
+} from '../../src/util/seederUtils';
 
 const MILESTONE = {
   id: uuid(),
-  name: faker.company.companyName(),
-  // duration: randomNum(10),
-  // alias: faker.lorem.word(),
+  name: faker.lorem.word(),
+  duration: randomNum(10),
+  alias: faker.lorem.word(),
   prerequisite_milestones: generateUuids(5),
   problem_statement: faker.lorem.paragraph(),
-  // learning_competencies: [''],
+  learning_competencies: _.times(5, faker.lorem.word),
   guidelines: faker.lorem.text(),
   starter_repo: faker.internet.domainName(),
-  // releases: {},
+  releases: cleanJSON({
+    id: uuid(),
+    createdAt: new Date(),
+  }),
   created_at: new Date(),
   updated_by: null,
 };
@@ -39,7 +44,7 @@ const DEMO_PROGRAM = {
   id: uuid(),
   name: faker.random.word(),
   location: faker.address.city(),
-  milestones: MILESTONE.id,
+  milestones: generateUuids(),
   duration: 2, // weeks
   test_series: {
     tests: [{
@@ -86,15 +91,23 @@ const TEMPLATE_TYPE = [
 
 const BREAKOUT_LEVEL = ['beginner', 'intermediate', 'advanced'];
 
-// breakout template hasn't migrated primary_catalyst and secondary_catalysts and updated by
+const CATALYST = {
+  id: uuid(),
+  name: faker.name.firstName(),
+  email: faker.internet.email(),
+  phone: faker.phone.phoneNumber(),
+  role: 'operations',
+  location: faker.address.streetAddress(true),
+};
+
 const BREAKOUT_TEMPLATE = () => ({
   id: uuid(),
   name: faker.random.word(),
-  topic_id: [TOPIC.id],
+  topic_id: generateUuids(),
   mandatory: _.sample(true, false),
-  level: _.sample(...BREAKOUT_LEVEL),
-  primary_catalyst: uuid(),
-  secondary_catalysts: generateUuids(),
+  level: _.sample(BREAKOUT_LEVEL),
+  primary_catalyst: CATALYST.id,
+  secondary_catalysts: compatibleArray([CATALYST.id]),
   // Will have sandbox url,
   // {'sandbox': {'template': {}}, 'zoom': {}}
   duration: randomNum(60),
@@ -102,11 +115,11 @@ const BREAKOUT_TEMPLATE = () => ({
   after_days: randomNum(30),
   created_at: new Date(),
   updated_at: new Date(),
-  updated_by: generateUuids(),
+  updated_by: null,
   cohort_duration: randomNum(60),
   program_id: DEMO_PROGRAM.id,
-  status: _.sample(...TEMPLATE_STATUS),
-  type: _.sample(...TEMPLATE_TYPE),
+  status: _.sample(TEMPLATE_STATUS),
+  type: _.sample(TEMPLATE_TYPE),
 });
 
 module.exports = {
@@ -114,12 +127,22 @@ module.exports = {
     const addMilestones = queryInterface.bulkInsert(
       'milestones',
       [MILESTONE], { transaction: t },
-      { releases: { type: Sequelize.JSON() } },
+      { releases: { type: new Sequelize.JSON() } },
     );
 
     const addTopics = queryInterface.bulkInsert(
       'topics',
       [TOPIC], { transaction: t },
+    );
+
+    const addCatalyst = queryInterface.bulkInsert(
+      'users', [CATALYST],
+      { transaction: t },
+      {
+        profile: { type: new Sequelize.JSON() },
+        status: { type: new Sequelize.ARRAY(Sequelize.JSON) },
+        status_reason: { type: new Sequelize.ARRAY(Sequelize.JSON) },
+      },
     );
 
     const addPrograms = queryInterface.bulkInsert(
@@ -139,7 +162,7 @@ module.exports = {
       },
     );
 
-    return Promise.all([addMilestones, addTopics, addPrograms, addBreakoutTemplate])
+    return Promise.all([addMilestones, addTopics, addPrograms, addCatalyst, addBreakoutTemplate])
       .then(() => console.log('Seeded Breakout Templates'))
       .catch(err => console.error(err));
   }),

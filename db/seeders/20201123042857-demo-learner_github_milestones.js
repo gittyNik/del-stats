@@ -1,7 +1,7 @@
 import uuid from 'uuid/v4';
 import faker from 'faker';
 import _ from 'lodash';
-import { randomNum } from '../../src/util/seederUtils';
+import { randomNum, generateArray, cleanArray } from '../../src/util/seederUtils';
 
 module.exports = {
   up: (queryInterface) => queryInterface.sequelize.transaction(async (t) => {
@@ -22,10 +22,11 @@ module.exports = {
       id: uuid(),
       user_id: (_.sample(users[0])).id,
       team_id: (_.sample(milestone_learner_teams[0])).id,
+      created_at: new Date(),
       cohort_milestone_id: (_.sample(cohort_milestones[0])).id,
       number_of_lines: randomNum(100000),
       commits: randomNum(2000),
-      repository_commits: randomNum(200),
+      repository_commits: cleanArray(generateArray(10, () => ({ id: uuid(), source: `github.com/${faker.lorem.word()}` }))),
       last_committed_at: faker.date.past(),
     });
 

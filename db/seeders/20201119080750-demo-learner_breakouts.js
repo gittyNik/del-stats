@@ -1,19 +1,24 @@
 import uuid from 'uuid/v4';
 import faker from 'faker';
 import _ from 'lodash';
-import { randomNum, generateUuids } from '../../src/util/seederUtils';
+import {
+  randomNum, generateUuids, cleanArray, cleanJSON, compatibleArray,
+} from '../../src/util/seederUtils';
 
 const MILESTONE = {
   id: uuid(),
-  name: faker.company.companyName(),
+  name: faker.lorem.word(),
   duration: randomNum(10),
   alias: faker.lorem.word(),
   prerequisite_milestones: generateUuids(5),
   problem_statement: faker.lorem.paragraph(),
-  // learning_competencies: [''],
+  learning_competencies: _.times(5, faker.lorem.word),
   guidelines: faker.lorem.text(),
   starter_repo: faker.internet.domainName(),
-  // releases: {},
+  releases: cleanJSON({
+    id: uuid(),
+    createdAt: new Date(),
+  }),
   created_at: new Date(),
   updated_by: null,
 };
@@ -57,7 +62,7 @@ const CATALYST = {
   name: faker.name.firstName(),
   email: faker.internet.email(),
   phone: faker.phone.phoneNumber(),
-  role: 'operations',
+  role: 'catalyst',
   location: faker.address.streetAddress(true),
 };
 
@@ -75,21 +80,21 @@ const PROGRAM = {
 const BREAKOUT_TEMPLATES = {
   id: uuid(),
   name: faker.name.firstName(),
-  topic_id: TOPIC.id,
+  topic_id: compatibleArray([TOPIC.id]),
   mandatory: _.sample([false, true]),
-  level: _.sample(...BREAKOUT_LEVEL),
+  level: _.sample(BREAKOUT_LEVEL),
   primary_catalyst: CATALYST.id,
-  secondary_catalysts: [CATALYST.id],
+  secondary_catalysts: compatibleArray([CATALYST.id]),
   duration: randomNum(10),
   time_scheduled: new Date(),
   after_days: randomNum(10),
   created_at: new Date(),
   updated_at: new Date(),
-  updated_by: [CATALYST.id],
+  updated_by: compatibleArray([CATALYST.id]),
   cohort_duration: randomNum(10),
   program_id: PROGRAM.id,
-  status: _.sample(...TEMPLATE_STATUS),
-  type: _.sample(...TEMPLATE_TYPE),
+  status: _.sample(TEMPLATE_STATUS),
+  type: _.sample(TEMPLATE_TYPE),
 };
 
 // for cohort
@@ -137,9 +142,9 @@ const EVENT_STATUS = ['scheduled', 'started', 'cancelled', 'aborted', 'running']
 const TEAM_BREAKOUT = {
   id: uuid(),
   team_id: uuid(),
-  type: _.sample(...BREAKOUT_TYPE),
+  type: _.sample(BREAKOUT_TYPE),
   time_scheduled: new Date(),
-  status: _.sample(...EVENT_STATUS),
+  status: _.sample(EVENT_STATUS),
   duration: 18000000,
   notes: faker.lorem.sentence(10),
   created_at: new Date(),
@@ -152,17 +157,17 @@ const COHORT_BREAKOUT = {
   type: _.sample(BREAKOUT_TYPE),
   breakout_template_id: BREAKOUT_TEMPLATES.id,
   domain: faker.internet.domainName(),
-  topic_id: uuid(),
-  cohort_id: uuid(),
+  topic_id: TOPIC.id,
+  cohort_id: COHORT.id,
   time_scheduled: new Date(),
   duration: 1800000 * 3,
   location: faker.address.streetAddress(true),
   catalyst_id: CATALYST.id,
-  status: _.sample(...EVENT_STATUS),
+  status: _.sample(EVENT_STATUS),
   catalyst_notes: faker.lorem.sentence(),
   catalyst_feedback: faker.lorem.sentence(),
   attendance_count: randomNum(120),
-  updated_by: [CATALYST.id],
+  updated_by: compatibleArray([CATALYST.id]),
   time_taken_by_catalyst: randomNum(180000000),
   time_started: new Date(),
 };
@@ -177,25 +182,24 @@ const LEARNER = {
   location: faker.address.streetAddress(true),
 };
 
-const LEARNER_BREAKOUT = {
+const LEARNER_BREAKOUT = () => ({
   id: uuid(),
   cohort_breakout_id: COHORT_BREAKOUT.id,
   learner_id: LEARNER.id,
   learner_notes: faker.lorem.sentence(),
-  learner_feedback: faker.lorem.sentence(10),
+  learner_feedback: faker.lorem.sentence(),
   team_breakout_id: TEAM_BREAKOUT.id,
   attendance: _.sample([true, false]),
   created_at: new Date(),
   updated_at: new Date(),
-};
+});
 
 const seeder = {
   up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction((t) => {
-
     const addMilestones = queryInterface.bulkInsert(
       'milestones',
       [MILESTONE], { transaction: t },
-      { releases: { type: Sequelize.JSON() } },
+      { releases: { type: new Sequelize.JSON() } },
     );
 
     const addTopics = queryInterface.bulkInsert(
@@ -207,8 +211,8 @@ const seeder = {
       'programs', [PROGRAM],
       { transaction: t },
       {
-        test_series: { type: Sequelize.JSON() },
-        milestone_review_rubric: { type: Sequelize.JSON() },
+        test_series: { type: new Sequelize.JSON() },
+        milestone_review_rubric: { type: new Sequelize.JSON() },
       },
     );
 
@@ -223,9 +227,9 @@ const seeder = {
     );
 
     const addBreakoutTemplate = queryInterface.bulkInsert(
-      '', [BREAKOUT_TEMPLATES],
+      'breakout_templates', [BREAKOUT_TEMPLATES],
       { transaction: t },
-      { details: { type: Sequelize.JSON() }, }
+      { details: { type: new Sequelize.JSON() } },
     );
 
     const addLearning_ops_manager = queryInterface.bulkInsert(
@@ -246,8 +250,8 @@ const seeder = {
     const addTeamBreakout = queryInterface.bulkInsert(
       'team_breakout', [TEAM_BREAKOUT],
       { transaction: t },
-      { details: { type: Sequelize.JSON() }, }
-    )
+      { details: { type: new Sequelize.JSON() } },
+    );
 
     const addLearner = queryInterface.bulkInsert(
       'users', [LEARNER],
@@ -263,15 +267,16 @@ const seeder = {
       'cohort_breakouts', [COHORT_BREAKOUT],
       { transaction: t },
       {
-        details: { type: Sequelize.JSON() },
-        team_feedback: { type: Sequelize.JSON() },
-      });
+        details: { type: new Sequelize.JSON() },
+        team_feedback: { type: new Sequelize.JSON() },
+      },
+    );
 
     const addLearnerBreakout = queryInterface.bulkInsert(
-      'learner_breakouts', [LEARNER_BREAKOUT],
+      'learner_breakouts', _.times(100, LEARNER_BREAKOUT),
       { transaction: t },
       {
-        review_feedback: { type: Sequelize.JSON() },
+        review_feedback: { type: new Sequelize.JSON() },
       },
     );
 

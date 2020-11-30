@@ -1,6 +1,7 @@
 import uuid from 'uuid/v4';
 import faker from 'faker';
 import _ from 'lodash';
+import { cleanJSON } from '../../src/util/seederUtils';
 
 const USER_ROLES = ['learner', 'educator', 'enabler', 'catalyst', 'admin',
   'guest', 'superadmin', 'reviewer', 'operations', 'recruiter', 'career-services'];
@@ -19,7 +20,7 @@ const USER = {
 
 const SOCIAL_CONNECTION = () => ({
   id: uuid(),
-  user_id: USER().id,
+  user_id: USER.id,
   provider: _.sample(providers),
   username: faker.name.firstName(),
   email: faker.internet.email(),
@@ -27,6 +28,9 @@ const SOCIAL_CONNECTION = () => ({
   expiry: faker.date.future(),
   created_at: new Date(),
   updated_at: new Date(),
+  profile: cleanJSON({
+    description: faker.lorem.sentence(),
+  }),
 });
 //  profile: Sequelize.JSON,
 
@@ -34,8 +38,8 @@ module.exports = {
   up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(async (t) => {
     const addUser = queryInterface.bulkInsert(
       'users',
-      [USER()], { transaction: t },
-      { releases: { type: Sequelize.JSON() } },
+      [USER], { transaction: t },
+      { releases: { type: new Sequelize.JSON() } },
     );
 
     const addSocialConnection = queryInterface.bulkInsert(

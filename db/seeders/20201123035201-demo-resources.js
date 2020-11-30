@@ -1,19 +1,24 @@
 import uuid from 'uuid/v4';
 import faker from 'faker';
 import _ from 'lodash';
-import { randomNum, generateUuids } from '../../src/util/seederUtils';
+import {
+  randomNum, generateUuids, cleanJSON, compatibleArray,
+} from '../../src/util/seederUtils';
 
 const MILESTONE = {
   id: uuid(),
-  name: faker.company.companyName(),
-  // duration: randomNum(10),
-  // alias: faker.lorem.word(),
+  name: faker.lorem.word(),
+  duration: randomNum(10),
+  alias: faker.lorem.word(),
   prerequisite_milestones: generateUuids(5),
   problem_statement: faker.lorem.paragraph(),
-  // learning_competencies: [''],
+  learning_competencies: _.times(5, faker.lorem.word),
   guidelines: faker.lorem.text(),
   starter_repo: faker.internet.domainName(),
-  // releases: {},
+  releases: cleanJSON({
+    id: uuid(),
+    createdAt: new Date(),
+  }),
   created_at: new Date(),
   updated_by: null,
 };
@@ -39,7 +44,7 @@ const DEMO_PROGRAM = {
   id: uuid(),
   name: faker.random.word(),
   location: faker.address.city(),
-  milestones: MILESTONE.id,
+  milestones: generateUuids(),
   duration: 2, // weeks
   test_series: {
     tests: [{
@@ -91,13 +96,13 @@ const RESOURCE = () => ({
   url: faker.internet.domainName(),
   owner: USER.id,
   moderator: USER.id,
-  thumbnail: faker.internet.avatar,
+  thumbnail: faker.internet.avatar(),
   type: _.sample(['article', 'repo', 'video', 'tweet']),
   program: DEMO_PROGRAM.id,
   add_time: new Date(),
   level: _.sample(['beginner', 'intermediate', 'advanced']),
   tags: _.times(3, faker.random.word),
-  tagged: [TOPIC.id],
+  tagged: compatibleArray([TOPIC.id]),
 });
 
 module.exports = {
@@ -105,7 +110,7 @@ module.exports = {
     const addMilestones = queryInterface.bulkInsert(
       'milestones',
       [MILESTONE], { transaction: t },
-      { releases: { type: Sequelize.JSON() } },
+      { releases: { type: new Sequelize.JSON() } },
     );
 
     const addTopics = queryInterface.bulkInsert(

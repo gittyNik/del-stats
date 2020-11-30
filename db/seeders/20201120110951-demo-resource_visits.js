@@ -1,20 +1,23 @@
 import uuid from 'uuid/v4';
 import faker from 'faker';
 import _ from 'lodash';
-import { randomNum, generateUuids, generateArray } from '../../src/util/seederUtils';
+import { randomNum, generateUuids, cleanJSON } from '../../src/util/seederUtils';
 
 // milestones
 const MILESTONE = {
   id: uuid(),
-  name: faker.company.companyName(),
-  // duration: randomNum(10),
-  // alias: faker.lorem.word(),
+  name: faker.lorem.word(),
+  duration: randomNum(10),
+  alias: faker.lorem.word(),
   prerequisite_milestones: generateUuids(5),
   problem_statement: faker.lorem.paragraph(),
-  // learning_competencies: [''],
+  learning_competencies: _.times(5, faker.lorem.word),
   guidelines: faker.lorem.text(),
   starter_repo: faker.internet.domainName(),
-  // releases: {},
+  releases: cleanJSON({
+    id: uuid(),
+    createdAt: new Date(),
+  }),
   created_at: new Date(),
   updated_by: null,
 };
@@ -40,12 +43,6 @@ const USER = {
   location: faker.address.city(),
   // picture: faker.internet.avatar(), not migrated on table
 };
-
-const BREAKOUT_PATH = [
-  'frontend',
-  'backend',
-  'common',
-];
 
 const TOPIC = {
   id: uuid(),
@@ -86,6 +83,9 @@ const RESOURCE_VISITS = () => ({
   source: faker.internet.domainName(),
   created_at: new Date(),
   updated_at: new Date(),
+  details: {
+    visits: randomNum(20000),
+  },
 });
 
 const seeder = {
@@ -93,7 +93,7 @@ const seeder = {
     const addMilestones = queryInterface.bulkInsert(
       'milestones',
       [MILESTONE], { transaction: t },
-      { releases: { type: Sequelize.JSON() } },
+      { releases: { type: new Sequelize.JSON() } },
     );
 
     const addUser = queryInterface.bulkInsert(
@@ -115,8 +115,8 @@ const seeder = {
       'programs', [PROGRAM],
       { transaction: t },
       {
-        test_series: { type: Sequelize.JSON() },
-        milestone_review_rubric: { type: Sequelize.JSON() },
+        test_series: { type: new Sequelize.JSON() },
+        milestone_review_rubric: { type: new Sequelize.JSON() },
       },
     );
 
@@ -124,7 +124,7 @@ const seeder = {
       'resources', [RESOURCE],
       { transaction: t },
       {
-        details: { type: Sequelize.JSON() },
+        details: { type: new Sequelize.JSON() },
       },
     );
 
@@ -132,7 +132,7 @@ const seeder = {
       'resource_visits', _.times(100, RESOURCE_VISITS),
       { transaction: t },
       {
-        details: { type: Sequelize.JSON() },
+        details: { type: new Sequelize.JSON() },
       },
     );
 
