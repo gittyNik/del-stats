@@ -214,7 +214,7 @@ export const EsignRequest = (req, res) => {
       notify_signers,
       send_sign_link,
       file_name).then(esignStatus => {
-      createUserEntry(id, esignStatus, 'requested');
+        createUserEntry({ user_id: id, document_details: esignStatus, status: 'requested' });
       return res.json(esignStatus);
     });
   });
