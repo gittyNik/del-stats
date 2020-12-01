@@ -1,5 +1,11 @@
 import db from '../../src/database';
-import { createUserEntry, empty_user_documents, createOrUpdateUserDocument } from '../../src/models/documents';
+import {
+  createUserEntry,
+  empty_user_documents,
+  createOrUpdateUserDocument,
+  getDocumentsByUser,
+  insertIndividualDocument
+} from '../../src/models/documents';
 
 describe('Should get and update user documents for a user', () => {
   beforeAll(() => {
@@ -39,13 +45,13 @@ describe('Should get and update user documents for a user', () => {
   });
 
   describe('Create a user document', () => {
-    test.only('should create a userDocument', async () => {
+    test('should create a userDocument', async () => {
       const ud = await createOrUpdateUserDocument();
       console.log(ud);
       expect(ud).toBeDefined();
     });
 
-    test.only('should update an existing mandatory doucment', async () => {
+    test('should update an existing mandatory doucment', async () => {
       const singleDocument = {
         document_name: 'learner-aadhar-front',
         document_path: 'path/to/aadhar-front.png',
@@ -55,7 +61,7 @@ describe('Should get and update user documents for a user', () => {
       expect(res).toBeDefined();
     });
 
-    test.only('should update an existing document from options front', async () => {
+    test('should update an existing document from options front', async () => {
       const singleDocument = {
         document_name: 'learner-dl-front',
         document_path: 'path/to/learner-dl-front.png',
@@ -66,4 +72,29 @@ describe('Should get and update user documents for a user', () => {
     })
 
   });
+
+  describe('Create or get user document in DB', () => {
+    test('get Documents By user ', async () => {
+      const user_id = '7c0bb3e2-aecb-47ed-a86e-91ebb8717f94';
+      const res = await getDocumentsByUser(user_id);
+      console.log(res.user_document);
+      console.log(typeof res.user_document);
+      expect(res).toBeDefined();
+    });
+
+    test.only('inserIndividualDocument learner-mandatory', async () => {
+      const user_id = '7c0bb3e2-aecb-47ed-a86e-91ebb8717f94';
+      const document = {
+        document_name: 'learner-dl-front',
+        document_path: 'path/to/learner-dl.png',
+      };
+      const res = await insertIndividualDocument(user_id, document);
+      console.log(res);
+      expect(res).toBeDefined();
+      expect(res.user_documents).toEqual([
+        expect.objectContaining({ ...document }),
+        expect.anything()
+      ])
+    })
+  })
 });

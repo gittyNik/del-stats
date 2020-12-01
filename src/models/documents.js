@@ -83,26 +83,28 @@ export const empty_user_documents = () => ([
   user_document_factory('guardian-options-back', false, guardian_options_back),
 ]);
 
-export const createOrUpdateUserDocument = (document) => {
+export const createOrUpdateUserDocument = (document, user_documents) => {
   if (typeof document === 'undefined') {
     return empty_user_documents();
   }
-  const empty = empty_user_documents();
+  const { document_name, is_verified, document_path, details } = document;
+  const empty = user_documents || empty_user_documents();
   const optional_ud = empty.find(_ud => {
     if (_ud.list) {
-      return _ud.list.includes(document.document_name);
+      return _ud.list.includes(document_name);
     }
     return false;
   });
   if (optional_ud) {
-    optional_ud.document_name = document.document_name;
-    optional_ud.is_verified = document.is_verified || false;
-    optional_ud.document_path = document.document_path;
+    optional_ud.document_name = document_name;
+    optional_ud.is_verified = is_verified || false;
+    optional_ud.document_path = document_path;
     return empty;
   }
-  const ud = empty.find(_ud => _ud.document_name === document.document_name);
-  ud.is_verified = document.is_verified || false;
-  ud.document_path = document.document_path;
+  const ud = empty.find(_ud => _ud.document_name === document_name);
+  ud.is_verified = is_verified || false;
+  ud.document_path = document_path;
+  ud.details = details || { comment: '', updated_by: '', updated_at: '' };
   return empty;
 };
 
@@ -175,7 +177,7 @@ export const createUserEntry = ({
   payment_status,
   is_isa,
   is_verified,
-  user_documents: createOrupdateUserDocument(user_document),
+  user_documents: createOrUpdateUserDocument(user_document),
 });
 
 export const insertIndividualDocument = (
@@ -192,18 +194,18 @@ export const insertIndividualDocument = (
       document should contain these properties
       const {document_name, is_verified, document_path} = document;
       */
-      return createUserEntry({ user_id, user_document: document });
+      return createUserEntry({ user_id, user_document: document }).then(d => d.get({ plain: true }));
     }
-    const { document_name, is_verified, document_path } = document;
-    const user_documents = learnerDocument.user_documents;
+    // const { document_name, is_verified, document_path } = document;
 
     return learnerDocument.update({
-      user_documents: learnerDocument.user_documents,
+      user_documents: createOrUpdateUserDocument(document, learnerDocument.user_documents),
     }, {
       where: {
         user_id,
       },
-    });
+    })
+      .then(d => d.get({ plain: true }));
   });
 
 export const updateUserEntry = (user_id, document_details, status, payment_status,
