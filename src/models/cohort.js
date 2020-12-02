@@ -125,11 +125,23 @@ export const getFutureCohorts = () => {
   });
 };
 
+export const addLearnerPaths = (learners) => learners.map(learner => {
+  if (learner['user.status']) {
+    if (learner['user.status'].indexOf('frontend') > -1) {
+      learner.path = 'Frontend';
+    } else {
+      learner.path = 'Backend';
+    }
+  }
+  return learner;
+});
+
 const populateCohortsWithLearners = (cohorts) => {
   const learnerGetters = cohorts.map((cohort) => User.findAll({
     where: { id: { [Sequelize.Op.in]: cohort.learners } },
   }).then((learners) => {
-    cohort.learnerDetails = learners;
+    let updatedLearners = addLearnerPaths(learners);
+    cohort.learnerDetails = updatedLearners;
     return cohort;
   }));
   return Promise.all(learnerGetters);
@@ -378,7 +390,7 @@ export const addLearner = async (learners, cohort_id) => {
   try {
     for (let i = 0; i < learners.length; i++) {
       let learner_id = learners[i];
-      await changeUserRole(learner_id, USER_ROLES.LEARNER)
+      await changeUserRole(learner_id, USER_ROLES.LEARNER);
       let cohort = await addLearnerToCohort(learner_id, cohort_id);
       let application = await updateCohortJoining(learner_id, cohort_id);
       let team = await addLearnerToGithubTeam(learner_id, cohort_id);

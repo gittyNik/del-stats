@@ -3,10 +3,9 @@ import uuid from 'uuid/v4';
 import _ from 'lodash';
 import moment from 'moment';
 import db from '../database';
-import { Cohort, getLearnersForCohort } from './cohort';
+import { Cohort, addLearnerPaths } from './cohort';
 import {
   CohortBreakout, getAllBreakoutsInCohortMilestone,
-  createLearnerBreakoutsForMilestone,
 } from './cohort_breakout';
 import { Program } from './program';
 import { Milestone } from './milestone';
@@ -102,7 +101,8 @@ const populateTeamsWithLearners = teams => {
   const learnerGetters = teams.map(team => User.findAll({
     where: { id: { [Sequelize.Op.in]: team.learners } },
   }).then(learners => {
-    team.learners = learners;
+    let updatedLearners = addLearnerPaths(learners);
+    team.learners = updatedLearners;
     return team;
   }));
   return Promise.all(learnerGetters);
