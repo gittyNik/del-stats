@@ -100,6 +100,8 @@ CohortMilestone.prototype.getUsers = function getCurrentUsers() {
 const populateTeamsWithLearners = teams => {
   const learnerGetters = teams.map(team => User.findAll({
     where: { id: { [Sequelize.Op.in]: team.learners } },
+    attributes: { exclude: ['profile'] },
+    raw: true,
   }).then(learners => {
     let updatedLearners = addLearnerPaths(learners);
     team.learners = updatedLearners;

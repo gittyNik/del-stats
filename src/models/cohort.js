@@ -126,8 +126,8 @@ export const getFutureCohorts = () => {
 };
 
 export const addLearnerPaths = (learners) => learners.map(learner => {
-  if (learner['user.status']) {
-    if (learner['user.status'].indexOf('frontend') > -1) {
+  if (learner.status) {
+    if (learner.status.indexOf('frontend') > -1) {
       learner.path = 'Frontend';
     } else {
       learner.path = 'Backend';
@@ -138,7 +138,11 @@ export const addLearnerPaths = (learners) => learners.map(learner => {
 
 const populateCohortsWithLearners = (cohorts) => {
   const learnerGetters = cohorts.map((cohort) => User.findAll({
-    where: { id: { [Sequelize.Op.in]: cohort.learners } },
+    where: {
+      id: { [Sequelize.Op.in]: cohort.learners },
+    },
+    attributes: { exclude: ['profile'] },
+    raw: true,
   }).then((learners) => {
     let updatedLearners = addLearnerPaths(learners);
     cohort.learnerDetails = updatedLearners;

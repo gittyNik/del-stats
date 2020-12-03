@@ -1,6 +1,7 @@
 import Sequelize, { Op } from 'sequelize';
 import uuid from 'uuid';
 import db from '../database';
+import { createRepositoryifnotPresent, addFileToRepo } from '../integrations/github/controllers/repository.controller';
 
 export const CHALLENGE_DIFFICULTY = ['easy', 'medium', 'difficult'];
 export const CHALLENGE_SIZE = ['tiny', 'small', 'large'];
@@ -76,10 +77,9 @@ export const getFilteredChallenges = ({
   },
 }, { raw: true });
 
-export const createAChallenge = ({
+export const createAChallenge = async ({
   topic_id,
   description,
-  starter_repo,
   difficulty,
   size,
   title,
@@ -87,21 +87,35 @@ export const createAChallenge = ({
   tags,
   duration,
   company_id,
-}) => Challenge.create(
-  {
-    id: uuid(),
-    topic_id,
-    description,
-    starter_repo,
-    difficulty,
-    size,
-    title,
-    path,
-    tags,
-    duration,
-    company_id,
-  },
-);
+  user_name,
+}) => {
+  let repo_name = title.replace(/\s/g, '');
+  if (repo_name) {
+    repo_name = `${repo_name.toLowerCase()}_${Math.floor(new Date().getTime() / 1000)}`;
+
+    let starter_repo = repo_name;
+    await createRepositoryifnotPresent(repo_name, true);
+
+    await addFileToRepo(repo_name, `Added README.md by ${user_name}`,
+      description, 'README.md');
+    return Challenge.create(
+      {
+        id: uuid(),
+        topic_id,
+        description,
+        starter_repo,
+        difficulty,
+        size,
+        title,
+        path,
+        tags,
+        duration,
+        company_id,
+      },
+    );
+  }
+  return { error: 'Invalid name for repo' };
+};
 
 export const updateAChallenge = ({
   id,

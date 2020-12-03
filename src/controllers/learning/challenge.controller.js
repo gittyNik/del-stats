@@ -73,6 +73,7 @@ export const createChallenge = (req, res) => {
     topic_id, description, starter_repo,
     difficulty, size, title, path, tags, duration, company_id,
   } = req.body;
+  let user_name = req.jwtData.user.name;
 
   createAChallenge({
     topic_id,
@@ -85,6 +86,7 @@ export const createChallenge = (req, res) => {
     tags,
     duration,
     company_id,
+    user_name,
   })
     .then((data) => {
       res.send('Challenge created.');
