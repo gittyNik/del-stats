@@ -3,7 +3,7 @@ import {
   getDocumentsByID, getDocumentsByUserId,
   getDocumentsStatus, updateUser, createUser,
   getDocumentsAll, EsignRequest, getSignUrl,
-  insertUserDocument,
+  insertUserDocument, verifySingleUserDocumentAPI,
 } from '../../controllers/firewall/documents.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -55,7 +55,7 @@ router.post('/:id/esign', EsignRequest);
  * @apiName GetUserDocumentResources
  * @apiGroup Documents
  */
-router.post('/save', insertUserDocument);
+router.post('/save/:user_id', insertUserDocument);
 
 /**
  * @api {get} /firewall/documents Get all Documents
@@ -137,4 +137,6 @@ router.patch('/:id', updateUser);
  */
 // router.delete('/:id', deleteOne);
 
+
+router.post('/verify/', verifySingleUserDocumentAPI)
 export default router;

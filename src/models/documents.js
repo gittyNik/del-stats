@@ -96,14 +96,14 @@ export const createOrUpdateUserDocument = (document, user_documents) => {
     return false;
   });
   if (optional_ud) {
-    optional_ud.document_name = document_name;
+    optional_ud.document_name = document_name || optional_ud.document_name;
     optional_ud.is_verified = is_verified || false;
-    optional_ud.document_path = document_path;
+    optional_ud.document_path = document_path || optional_ud.document_path;
     return empty;
   }
   const ud = empty.find(_ud => _ud.document_name === document_name);
   ud.is_verified = is_verified || false;
-  ud.document_path = document_path;
+  ud.document_path = document_path || ud.document_path;
   ud.details = details || { comment: '', updated_by: '', updated_at: '' };
   return empty;
 };
@@ -216,3 +216,27 @@ export const updateUserEntry = (user_id, document_details, status, payment_statu
   is_isa,
   is_verified,
 }, { where: { user_id } });
+
+export const verifySingleUserDocument = async (
+  user_id,
+  document_name,
+  is_verified,
+  comment,
+  updated_by) => {
+  const documentRow = await getDocumentsByUser(user_id);
+  // const
+  const updated_user_documents = createOrUpdateUserDocument(
+    {
+      document_name,
+      is_verified,
+      details: { comment, updated_by, updated_at: new Date() },
+    },
+    documentRow[0].user_documents,
+  );
+  return Documents.update({
+    user_documents: updated_user_documents,
+  }, {
+    where: { user_id },
+    returning: true,
+  });
+};

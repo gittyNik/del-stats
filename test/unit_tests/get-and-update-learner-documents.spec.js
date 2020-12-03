@@ -82,7 +82,7 @@ describe('Should get and update user documents for a user', () => {
       expect(res).toBeDefined();
     });
 
-    test.only('inserIndividualDocument learner-mandatory', async () => {
+    test('inserIndividualDocument learner-mandatory', async () => {
       const user_id = '7c0bb3e2-aecb-47ed-a86e-91ebb8717f94';
       const document = {
         document_name: 'learner-dl-front',
@@ -95,6 +95,12 @@ describe('Should get and update user documents for a user', () => {
         expect.objectContaining({ ...document }),
         expect.anything()
       ])
+    });
+
+    test.only('get list of all document names', async () => {
+      const res = empty_user_documents();
+      console.log(res);
+      expect(res).toBeDefined();
     })
   })
 });
