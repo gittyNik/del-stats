@@ -126,7 +126,7 @@ router.post('/', createLearnerBreakout);
 router.post('/learner', learnerBreakoutsCreate);
 
 /**
- * @api {patch} /cohorts/breakout Schedule a Breakout for Cohort
+ * @api {patch} /learning/ops/breakouts/breakout Schedule a Breakout for Cohort
  * @apiHeader {String} authorization JWT Token.
  * @apiName ScheduleBreakouts
  * @apiGroup Cohort
@@ -134,7 +134,7 @@ router.post('/learner', learnerBreakoutsCreate);
 router.post('/breakout', createUpdateCohortBreakout);
 
 /**
- * @api {post} /cohorts/autoattendance/:breakout_id/:catalyst_id Auto mark attendance for a Breakout
+ * @api {post} /learning/ops/breakouts/autoattendance/:breakout_id/:catalyst_id Auto mark attendance for a Breakout
  * @apiHeader {String} authorization JWT Token.
  * @apiName ScheduleBreakouts
  * @apiGroup CohortBreakouts
@@ -142,7 +142,7 @@ router.post('/breakout', createUpdateCohortBreakout);
 router.get('/autoattendance/:breakout_id/:catalyst_id', autoMarkBreakoutAttendance);
 
 /**
- * @api {post} /cohorts/finished Schedule a Breakout for Cohort
+ * @api {post} /learning/ops/breakouts/finished Schedule a Breakout for Cohort
  * @apiHeader {String} authorization JWT Token.
  * @apiName ScheduleBreakouts
  * @apiGroup Cohort

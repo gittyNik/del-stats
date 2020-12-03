@@ -141,7 +141,7 @@ export const getAllJobPostings = ({
       whereObj,
       include: [{
         model: CompanyProfile,
-        attributes: ['name', 'logo'],
+        attributes: ['name', 'logo', 'website', 'level_of_candidates'],
       },
       {
         model: Challenge,
