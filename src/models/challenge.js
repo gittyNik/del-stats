@@ -89,7 +89,7 @@ export const createAChallenge = async ({
   company_id,
   user_name,
 }) => {
-  let repo_name = title.replace(/\s/g, '');
+  let repo_name = title.replace(/\s/g, '_');
   if (repo_name) {
     repo_name = `${repo_name.toLowerCase()}_${Math.floor(new Date().getTime() / 1000)}`;
 

@@ -11,10 +11,6 @@ import {
   beginParallelCohorts,
   getLiveCohorts,
 } from '../../models/cohort';
-import {
-  createOrUpdateCohortBreakout,
-  markBreakoutFinished,
-} from '../../models/cohort_breakout';
 
 import { USER_ROLES } from '../../models/user';
 
@@ -83,51 +79,6 @@ export const getUpcomingCohorts = (req, res) => {
       res.send({ data });
     })
     .catch(() => res.sendStatus(404));
-};
-
-export const createUpdateCohortBreakout = (req, res) => {
-  let {
-    cohort_id, topic_id, time_scheduled, catalyst_id,
-  } = req.body;
-  const { id: user_id, role } = req.jwtData.user;
-  if (user_id === catalyst_id || role === USER_ROLES.SUPERADMIN) {
-    createOrUpdateCohortBreakout(
-      topic_id,
-      cohort_id,
-      time_scheduled,
-      req.jwtData.user.name,
-    )
-      .then((data) => {
-        res.status(201).json({
-          data,
-        });
-      })
-      .catch((err) => res.status(500).send({
-        err,
-      }));
-  } else {
-    res.status(403).send('You do not have access to this data!');
-  }
-};
-
-export const markCompleteBreakout = (req, res) => {
-  let {
-    cohort_breakout_id, catalyst_id,
-  } = req.body;
-  const { id: user_id, role } = req.jwtData.user;
-  if (user_id === catalyst_id || role === USER_ROLES.SUPERADMIN) {
-    markBreakoutFinished(cohort_breakout_id, req.jwtData.user.name)
-      .then((data) => {
-        res.status(201).json({
-          data,
-        });
-      })
-      .catch((err) => res.status(500).send({
-        err,
-      }));
-  } else {
-    res.status(403).send('You do not have access to this data!');
-  }
 };
 
 export const beginCohort = (req, res) => {

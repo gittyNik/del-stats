@@ -178,7 +178,7 @@ export const createRepositoryifnotPresent = async (
   isTemplate = true,
 ) => {
   // Create repository for Challenge
-
+  console.log(isTemplate);
   let isPresent = await isExistingRepository(repo);
 
   if (!isPresent) {
@@ -190,11 +190,11 @@ export const createRepositoryifnotPresent = async (
 export const addFileToRepo = async (repo, message,
   content, path) => {
   let base64content = Buffer.from(content).toString('base64');
-  return octokit.repos.createOrUpdateFileContents({
+  return octokit.repos.createOrUpdateFile({
     owner: org,
     repo,
     path,
     message,
-    base64content,
+    content: base64content,
   });
 };
