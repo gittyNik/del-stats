@@ -20,7 +20,7 @@ import { sendFirewallResult } from '../../integrations/slack/team-app/controller
 import { scheduleFirewallRetry } from '../queue.controller';
 import { updateDealApplicationStatus } from '../../integrations/hubspot/controllers/deals.controller';
 import { PAYMENT_TYPES } from '../../integrations/instamojo/instamojo.controller';
-import { logger } from '../../util/logger';
+import logger from '../../util/logger';
 
 export const getAllApplications = (req, res) => {
   Application.findAll({
@@ -112,11 +112,11 @@ export const addApplication = (req, res) => {
           });
       })
       .catch((err) => {
-        console.error(err);
+        logger.error(err);
         res.sendStatus(500);
       });
   }).catch(err => {
-    console.error(err);
+    logger.error(err);
     res.sendStatus(500);
   });
 };
@@ -131,10 +131,10 @@ const populateTestResponses = application => {
 // h.o. function
 const notifyApplicationSubmitted = (phone) => (application) => Promise.all([
   sendSms(phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
-    .catch(err => console.error(err)),
+    .catch(err => logger.error(err)),
   populateTestResponses(application)
     .then(appli => sendFirewallResult(appli, phone))
-    .catch(err => console.error(err)),
+    .catch(err => logger.error(err)),
 ])
   .then(() => application);
 
@@ -180,7 +180,7 @@ export const updateApplication = (req, res) => {
       .then(notifyApplicationReview(req.body.phone, status))
       .then(application => res.send(application))
       .catch((err) => {
-        console.error(err);
+        logger.error(err);
         res.sendStatus(500);
       });
   } else {
@@ -289,7 +289,7 @@ export const payment = async (req, res) => {
         payment_details: pd,
       }, { where: { id }, returning: true, plain: true })
         .then(() => {
-          // console.log(result[1].dataValues);
+          // logger.info(result[1].dataValues);
           res.status(200).send({
             message: 'Payment Details containing the instamojo redirect url',
             data: response.body.payment_request,
@@ -347,7 +347,7 @@ export const getApplicationStats = (req, res) => {
       });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };

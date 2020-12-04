@@ -1,7 +1,10 @@
+//  optional
+import logger from './logger';
+
 const NaturalLanguageUnderstandingV1 = require('watson-developer-cloud/natural-language-understanding/v1.js');
 require('dotenv').config({
   silent: true,
-}); //  optional
+});
 
 const nlu = new NaturalLanguageUnderstandingV1({
   version: '2018-04-05',
@@ -13,9 +16,9 @@ const getWatsonData = (link) => {
   const urlRegex = new RegExp(urlFormat);
 
   return new Promise((resolve, reject) => {
-    // console.log('$$$$$$$$$$$$$$');
-    // console.log(link);
-    // console.log(urlRegex);
+    // logger.info('$$$$$$$$$$$$$$');
+    // logger.info(link);
+    // logger.info(urlRegex);
 
     if (link.match(urlRegex)) {
       const options = {
@@ -35,7 +38,7 @@ const getWatsonData = (link) => {
       };
       nlu.analyze(options, (err, res) => {
         if (err) {
-          console.log(err);
+          logger.error(err);
           reject();
         }
         resolve(res);
@@ -46,6 +49,6 @@ const getWatsonData = (link) => {
   });
 };
 
-// getWatsonData("https://stackoverflow.com/questions/43099808/bash-sequelize-command-not-found").then(d => console.log(d)).catch(e => console.log(e))
+// getWatsonData("https://stackoverflow.com/questions/43099808/bash-sequelize-command-not-found").then(d => logger.info(d)).catch(e => logger.info(e))
 
 // export default getWatsonData;

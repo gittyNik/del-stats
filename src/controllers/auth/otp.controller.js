@@ -7,13 +7,14 @@ import {
 import { getSoalToken } from '../../util/token';
 import { createOrUpdateContact } from '../../integrations/hubspot/controllers/contacts.controller';
 import { sendMessageToSlackChannel } from '../../integrations/slack/team-app/controllers/milestone.controller';
+import logger from '../../util/logger';
 
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, 'Use {{otp}} to login with DELTA. Please do not share it with anybody! {SOAL Team}');
 
 export const requestOTP = (phone, res) => {
   sendOtp.setOtpExpiry(5);
   sendOtp.send(phone, 'SOALIO', (error, data) => {
-    console.log(data);
+    logger.info(data);
     if (error === null && data.type === 'success') {
       res.send(data);
     } else { res.sendStatus(400); }
@@ -44,7 +45,7 @@ export const sendOTP = (req, res) => {
         }).then(() => {
           requestOTP(phone, res);
         }).catch(err => {
-          console.error(err);
+          logger.error(err);
           res.sendStatus(500);
         });
       }
@@ -69,8 +70,8 @@ export const retryOTP = (req, res) => {
 
   // retryVoice Boolean value to enable Voice Call or disable Voice Call and use SMS
   sendOtp.retry(phone, retryVoice, (error, data) => {
-    // console.log(data);
-    if (error) console.error(error);
+    // logger.info(data);
+    if (error) logger.error(error);
     res.send(data);
   });
 };
@@ -83,7 +84,7 @@ const signInUser = (phone, res) => {
       soalToken: getSoalToken(user),
     });
   }).catch((e) => {
-    console.error(e);
+    logger.error(e);
     res.sendStatus(404);
   });
 };
@@ -104,7 +105,7 @@ const register = (data, res) => {
       soalToken: getSoalToken(user),
     }));
   }).catch(err => {
-    console.error(err);
+    logger.error(err);
     res.sendStatus(500);
   });
 };
@@ -124,7 +125,7 @@ const recruiterRegister = (data, res) => {
       soalToken: getSoalToken(user),
     }))
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -151,7 +152,7 @@ export const verifyOTP = (req, res) => {
       }
     } else {
       // if (data.type == 'error') // OTP verification failed
-      console.log(`User ${fullName} failed OTP for phone: ${phone}`);
+      logger.info(`User ${fullName} failed OTP for phone: ${phone}`);
       console.warn(`Data received from MSG91 api: ${data.message}`);
       console.warn(`Data type from MSG91 api: ${data.type}`);
       console.warn(`Error received from MSG91 api: ${error}`);

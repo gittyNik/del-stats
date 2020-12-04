@@ -17,7 +17,7 @@ import {
 } from '../../integrations/github/controllers';
 import { urlGoogle, getTokensFromCode } from '../../util/calendar-util';
 import { createCalendarEventsForLearner } from '../../models/learner_breakout';
-import { logger } from '../../util/logger';
+import logger from '../../util/logger';
 
 dotenv.config();
 
@@ -247,7 +247,7 @@ export const signinWithGithub = (req, res) => {
         // save the profile details in session and ask for otp authentication
         res.status(404).send('No user found with email');
       } else {
-        console.error(`Sign in failed: ${err}`);
+        logger.error(`Sign in failed: ${err}`);
         res.status(500).send('Authentication Failed');
       }
     });
@@ -289,7 +289,7 @@ const addGoogleProfile = ({
 // sends redirect url if not found.
 export const checkGoogleOrSendRedirectUrl = async (req, res) => {
   const { userId } = req.jwtData;
-  // console.log(req.jwtData);
+  // logger.info(req.jwtData);
   logger.info(' user_id: ', userId);
   const result = await SocialConnection.findOne({
     where: {
@@ -352,7 +352,7 @@ export const handleGoogleCallback = async (req, res) => {
             expiry,
             user,
           });
-          // console.log(dataSC.user);
+          // logger.info(dataSC.user);
           // Create calendar events if user is learner
           if (user.role === USER_ROLES.LEARNER) {
             try {

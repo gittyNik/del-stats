@@ -2,14 +2,15 @@ import 'dotenv/config';
 import db from '../database';
 import { createSuperAdmin } from '../models/user';
 import { getSoalToken } from './token';
+import logger from './logger';
 
-console.log('Welcome admin!');
+logger.info('Welcome admin!');
 
 db.authenticate()
   .then(createSuperAdmin)
   .then(([user, isNew]) => {
     if (isNew) {
-      console.log('Created a new superadmin');
+      logger.info('Created a new superadmin');
     }
-    console.log(`Token is : ${getSoalToken(user)}`);
-  }).catch(err => console.error('Database failure: Try running db migrations', err));
+    logger.info(`Token is : ${getSoalToken(user)}`);
+  }).catch(err => logger.error('Database failure: Try running db migrations', err));

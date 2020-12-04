@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { User } from '../../models/user';
+import logger from '../../util/logger';
 
 const sendAuthFailure = (res) => {
   res.header('WWW-Authenticate', 'Bearer realm="Access to Delta API"');
@@ -14,7 +15,7 @@ export const authenticateRequest = (req, res, next) => {
   const token = req.headers.authorization.split(' ').pop();
   jwt.verify(token, process.env.JWT_SECRET, (err, jwtData) => {
     if (err || !jwtData) {
-      // console.error(err);
+      // logger.error(err);
       console.warn('User is not authorized');
       sendAuthFailure(res);
     } else {

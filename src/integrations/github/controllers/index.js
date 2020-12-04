@@ -22,7 +22,7 @@ import {
   deleteGithubRepository,
   isExistingRepository,
   addTeamAccessToRepo,
-  removeCollaboratorFromRepository
+  removeCollaboratorFromRepository,
 } from './repository.controller';
 import {
   getAllAuthoredCommits,
@@ -86,6 +86,7 @@ import {
 import {
   getTopicById,
 } from '../../../models/topic';
+import logger from '../../../util/logger';
 
 // Returns latest commit object of given user {{username}} in repository {{repo_name}}
 const getRecentCommit = async (req, res) => {
@@ -1027,7 +1028,7 @@ export const getRecentCommitInCohort = async (req, res) => {
     const latestCommit = await getLatestCommitInCohort(cohort_milestone_id);
     res.send({ data: latestCommit });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).send(err);
   }
 };

@@ -2,6 +2,7 @@
 import uuid from 'uuid/v4';
 import faker from 'faker';
 import moment from 'moment';
+import logger from '../../src/util/logger';
 
 faker.locale = 'en_IND';
 
@@ -56,11 +57,11 @@ const HIRING_STATUS = [
 ];
 // Helper functions
 function cleanArray(arr) {
-  return '{"' + arr.map(e => cleanEntry(e)).join('", "') + '"}'
+  return `{"${arr.map(e => cleanEntry(e)).join('", "')}"}`;
 }
 
 function cleanEntry(obj) {
-  return JSON.stringify(obj).replace(/"/g, '\\"')
+  return JSON.stringify(obj).replace(/"/g, '\\"');
 }
 
 const getSomeElements = (array) => faker.random.arrayElements(array, faker.random.number({
@@ -175,10 +176,10 @@ const seeder = {
       { transaction: t },
     );
     return Promise.all([addPortfolios, addLinkedin])
-      .then(() => console.log('Seeded Porfolio and linkedin table'))
+      .then(() => logger.info('Seeded Porfolio and linkedin table'))
       .catch(err => {
         console.error(err);
-        console.log('=======================================');
+        logger.info('=======================================');
         console.error(err.message);
       });
   }),
@@ -192,7 +193,7 @@ const seeder = {
       }, { transaction: t },
     ),
   ]))
-    .then(() => console.log('portfolio table is deleted and linkedin social connection are removed'))
+    .then(() => logger.info('portfolio table is deleted and linkedin social connection are removed'))
     .catch(err => console.error(err)),
 };
 

@@ -4,6 +4,7 @@ import {
   getJobApplication, updateJobApplication, deleteJobApplication,
   createJobApplicationForPortofolio,
 } from '../../models/job_application';
+import logger from '../../util/logger';
 
 export const getAllJobApplicationsAPI = async (req, res) => {
   let {
@@ -20,7 +21,7 @@ export const getAllJobApplicationsAPI = async (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -42,7 +43,7 @@ export const getJobApplicationsByCompanyAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -65,7 +66,7 @@ export const getJobApplicationsForLearnerIdAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -79,7 +80,7 @@ export const getJobApplicationAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -100,7 +101,7 @@ export const createJobApplicationAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -123,7 +124,7 @@ export const sendAssignmentAndCreateApplication = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -160,7 +161,7 @@ export const updateJobApplicationAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -175,7 +176,7 @@ export const deleteJobApplicationAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };

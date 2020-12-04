@@ -9,6 +9,8 @@ import {
 
 } from '../../src/models/learner_faq';
 
+import logger from '../../util/logger';
+
 faker.locale = 'en';
 
 describe('Learner Faqs', () => {
@@ -17,7 +19,7 @@ describe('Learner Faqs', () => {
       .authenticate()
       .then(async () => {
         const res = await db.query('SELECT current_database()');
-        console.log(`DB connected: ${res[0][0].current_database}`);
+        logger.info(`DB connected: ${res[0][0].current_database}`);
       });
   });
 
@@ -41,7 +43,7 @@ describe('Learner Faqs', () => {
         user_id,
         topic
       }).then(data => data.get({ plain: true }));
-      console.log(res);
+      logger.info(res);
       expect(res).toBeDefined();
       expect(res).toMatchObject({
         program_id,
@@ -53,7 +55,7 @@ describe('Learner Faqs', () => {
 
     test('get all learner faqs', async () => {
       const faqs = await getAllLearnerFaqs();
-      console.log(faqs);
+      logger.info(faqs);
       expect(faqs).toBeDefined();
       expect(faqs.length).toBeDefined();
     })
@@ -68,8 +70,8 @@ describe('Learner Faqs', () => {
         learner_faq_id,
         user_id,
       });
-      console.log(updated_faq);
-      console.log(updated_faq.updated_by);
+      logger.info(updated_faq);
+      logger.info(updated_faq.updated_by);
       expect(updated_faq).toBeDefined();
       expect(updated_faq.updated_by).toContain(user_id);
       expect(updated_faq).toMatchObject({
@@ -82,14 +84,14 @@ describe('Learner Faqs', () => {
     test('should delete a learnerFaq', async () => {
       const learner_faq_id = '975ebffa-9e31-4578-b598-c4d21d6fcc5c';
       const res = await deletelearnerFaq(learner_faq_id);
-      console.log(res);
+      logger.info(res);
       expect(res).toBeDefined();
     });
     test('toggle helpful count in LearnerFaq', async () => {
       const learner_faq_id = '975ebffa-9e31-4578-b598-c4d21d6fcc5c';
       const user_id = '46c721b0-3a0a-487a-bc69-bc39311b7f7c';
       const res = await toggleHelpfulLearnerFaq({ learner_faq_id, user_id });
-      console.log(res);
+      logger.info(res);
       expect(res).toBeDefined();
     });
 
@@ -97,7 +99,7 @@ describe('Learner Faqs', () => {
       const learner_faq_id = '975ebffa-9e31-4578-b598-c4d21d6fcc5c';
       const user_id = '46c721b0-3a0a-487a-bc69-bc39311b7f7c';
       const res = await toggleUnhelpfulLearnerFaq({ learner_faq_id, user_id });
-      console.log(res);
+      logger.info(res);
       expect(res).toBeDefined();
     })
   })

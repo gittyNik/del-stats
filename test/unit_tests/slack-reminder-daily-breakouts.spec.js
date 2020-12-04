@@ -6,7 +6,7 @@ import _ from 'lodash';
 import { getTopicNameById } from '../../src/models/topic';
 import { postTodaysBreakouts } from '../../src/integrations/slack/delta-app/controllers/web.controller';
 import { getSlackIdForLearner } from '../../src/models/slack_channels';
-
+import logger from '../../util/logger';
 
 describe('Should get payload for daily slack reminder', () => {
   beforeAll(() => {
@@ -14,7 +14,7 @@ describe('Should get payload for daily slack reminder', () => {
       .authenticate()
       .then(async () => {
         const res = await db.query('SELECT current_database()');
-        console.log(`DB connected: ${res[0][0].current_database}`);
+        logger.info(`DB connected: ${res[0][0].current_database}`);
       });
   });
 
@@ -26,7 +26,7 @@ describe('Should get payload for daily slack reminder', () => {
   describe('Main route', () => {
     test('should return the final object', async () => {
       const res = await getTodaysCohortBreakouts();
-      console.log(res);
+      logger.info(res);
       expect(res).toBeDefined();
     });
 
@@ -35,8 +35,8 @@ describe('Should get payload for daily slack reminder', () => {
 
       const res = await postTodaysBreakouts(payload);
       // const payload = await CohortBreakout.findAll({ where: { id: 'fc45f6d4-d7d0-4552-b671-0e4ff72d9ad2' } })
-      console.log(JSON.stringify(payload, null, 2));
-      console.log(res);
+      logger.info(JSON.stringify(payload, null, 2));
+      logger.info(res);
       expect(payload).toBeDefined();
       expect(res).toBeDefined();
     })
@@ -45,7 +45,7 @@ describe('Should get payload for daily slack reminder', () => {
   describe('testing seperately', () => {
     test('Get live cohorts', async () => {
       const liveCohorts = await getLiveCohorts();
-      console.log(liveCohorts);
+      logger.info(liveCohorts);
       expect(liveCohorts).toBeDefined();
     })
 
@@ -70,21 +70,21 @@ describe('Should get payload for daily slack reminder', () => {
         raw: true
       })
       // res.map(breakout => {
-      //   console.log(`Type: ${breakout.type} and Topics: ${breakout.details.topics}`);
+      //   logger.info(`Type: ${breakout.type} and Topics: ${breakout.details.topics}`);
 
       // })
-      console.log(res.length);
-      console.log(res[0]);
-      console.log(new Date(res[0].time_scheduled).getHours());
+      logger.info(res.length);
+      logger.info(res[0]);
+      logger.info(new Date(res[0].time_scheduled).getHours());
       // const groupby = _.groupBy(res, res => res.cohort_id);
 
-      // // console.log(groupby);
+      // // logger.info(groupby);
       // for (let cohort_id of Object.keys(groupby)) {
-      //   // console.log(cohort_id);
+      //   // logger.info(cohort_id);
       //   groupby[cohort_id] = _.groupBy(groupby[cohort_id], iter => iter.type);
-      //   // console.log(groupby[cohort_id]);
+      //   // logger.info(groupby[cohort_id]);
       // }
-      // console.log(groupby);
+      // logger.info(groupby);
 
       expect(res).toBeDefined();
     });
@@ -93,13 +93,13 @@ describe('Should get payload for daily slack reminder', () => {
       // const slackID = 'G018GBH1NSG';
       const topic_id = '89ac075c-c6c9-430d-97bf-b48f1d973272';
       const topic_name = await getTopicNameById(topic_id);
-      console.log(topic_name);
+      logger.info(topic_name);
       expect(topic_name).toBeDefined();
     })
 
     test('post message on slack', async () => {
       const res = await postTodaysBreakouts();
-      console.log(res);
+      logger.info(res);
       expect(res).toBeDefined();
     })
   })

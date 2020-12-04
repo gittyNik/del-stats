@@ -1,11 +1,12 @@
 import { uuid } from 'uuid/v4';
 import { PingTemplate } from '../../models/ping_template';
+import logger from '../../util/logger';
 
 export const getAllPingTemplates = (req, res) => {
   PingTemplate.findAll({})
     .then(data => res.json(data))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -30,7 +31,7 @@ export const createPingTemplate = (req, res) => {
   })
     .then(() => res.send('PingTemplate Created.'))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -57,7 +58,7 @@ export const updatePingTemplate = (req, res) => {
   })
     .then(() => res.send('PingTemplate Updated.'))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -69,7 +70,7 @@ export const deletePingTemplate = (req, res) => {
   })
     .then(() => res.send('PingTemplate Deleted.'))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };

@@ -1,11 +1,12 @@
 import uuid from 'uuid/v4';
 import { Pong } from '../../models/pong';
+import logger from '../../util/logger';
 
 export const getPongs = (req, res) => {
   Pong.findAll({})
     .then(data => res.json(data))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -25,7 +26,7 @@ export const createPong = (req, res) => {
   })
     .then(() => res.send('Pong created'))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -46,7 +47,7 @@ export const updatePong = (req, res) => {
   })
     .then(() => res.send('Pong Updated'))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -58,7 +59,7 @@ export const deletePong = (req, res) => {
   })
     .then(() => res.send('Pong Deleted'))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.send(500);
     });
 };

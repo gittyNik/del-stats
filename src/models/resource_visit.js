@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import db from '../database';
+import logger from '../util/logger';
 
 export const ResourceVisit = db.define('resource_visits', {
   id: {
@@ -32,7 +33,7 @@ export const logResourceVisitByFirewallUser = (resource_id, user_id) => Resource
 });
 
 export const getFirewallResourceVisitsByUser = user_id =>
-  // console.log(user_id);
+  // logger.info(user_id);
   ResourceVisit.aggregate('resource_id', 'count', {
     where: {
       user_id,

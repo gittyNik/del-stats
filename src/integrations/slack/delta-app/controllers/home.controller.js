@@ -2,6 +2,7 @@ import request from 'superagent';
 import { WebClient } from '@slack/web-api';
 import { composeHome } from '../views/home.view';
 import { getLiveCohorts } from '../../../../models/cohort';
+import logger from '../../../../util/logger';
 
 const { SLACK_DELTA_BOT_TOKEN } = process.env;
 
@@ -11,7 +12,7 @@ const web = new WebClient(SLACK_DELTA_BOT_TOKEN);
 export const publishHome = user_id => getLiveCohorts()
   .then(composeHome)
   .then(view => {
-    // console.log(JSON.stringify(view));
+    // logger.info(JSON.stringify(view));
     web.views.publish({
       view,
       user_id,
@@ -19,12 +20,12 @@ export const publishHome = user_id => getLiveCohorts()
   });
 
 export const publishWelcome = user_id => {
-  console.log('publishing welcome message', user_id);
+  logger.info('publishing welcome message', user_id);
 };
 
 // scopes: channels:manage
 export const createChannel = async (channel_name, user_ids) => {
-  // console.log('channel Created. ', channel_name);
+  // logger.info('channel Created. ', channel_name);
   let response = await request
     .post('https://slack.com/api/conversations.create')
     .set('content-type', 'application/json')
@@ -79,10 +80,10 @@ export const inviteToSlackSPE = async (emailList) => Promise.all(emailList.map(a
     if (response.body.ok === true) {
       return `${email} : OK`;
     }
-    console.error(response.body);
+    logger.error(response.body);
     return `${email}: Failed`;
   } catch (e) {
-    console.error(e);
+    logger.error(e);
     return `Failed to send invite to ${email}`;
   }
 }));

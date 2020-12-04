@@ -7,7 +7,7 @@ import { Cohort, getCohortIdFromLearnerId, getCohortFromId } from './cohort';
 import { SocialConnection } from './social_connection';
 import { User, getProfile } from './user';
 import web from '../integrations/slack/delta-app/client';
-import { logger } from '../util/logger';
+import logger from '../util/logger';
 import 'dotenv/config';
 
 export const SlackChannel = db.define('slack_channels', {
@@ -34,13 +34,13 @@ export const createSlackChannelRow = (cohort_id, channelId) => SlackChannel
     channels: [channelId],
   })
   .then(data =>
-    // console.log(data.toJSON());
+    // logger.info(data.toJSON());
     data.toJSON());
 
 export const getChannelIdForCohort = (cohort_id) => SlackChannel
   .findOne({ attributes: ['channels'], where: { cohort_id }, raw: true })
   .then(data =>
-    // console.log(data.channels);
+    // logger.info(data.channels);
     data.channels[0]);
 
 const getChannelName = async (cohort_id) => {
@@ -58,7 +58,7 @@ const getChannelName = async (cohort_id) => {
       duration = 'pt';
       break;
     default:
-      console.error('Cohort duration need to be 16 or 26');
+      logger.error('Cohort duration need to be 16 or 26');
   }
   const monthNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun',
     'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
@@ -82,14 +82,14 @@ export const getEducatorsSlackID = async () => {
     .get('https://slack.com/api/conversations.members')
     .query(`channel=${channelId}`)
     .set('Authorization', `Bearer ${SLACK_DELTA_ADMIN_TOKEN}`);
-  // console.log(listMembers.body.members);
+  // logger.info(listMembers.body.members);
   listMembers = listMembers.body.members;
   let emailList = listMembers.map(async (member) => {
     let userInfo = await request
       .get('https://slack.com/api/users.info')
       .query(`user=${member}`)
       .set('Authorization', `Bearer ${SLACK_DELTA_ADMIN_TOKEN}`);
-    // console.log(userInfo);
+    // logger.info(userInfo);
     return userInfo.body.user.profile.email;
   });
 
@@ -100,7 +100,7 @@ export const getEducatorsSlackID = async () => {
       .get('https://slack.com/api/users.lookupByEmail')
       .set('Authorization', `Bearer ${SLACK_DELTA_BOT_TOKEN}`)
       .query(`email=${email}`);
-    // console.log(res.body);
+    // logger.info(res.body);
     if (res.body.ok) {
       return res.body.user.id;
     }
@@ -129,7 +129,7 @@ export const getTeamSlackIDs = async () => {
 
 export const getLearnerSlackIds = async (cohort_id) => {
   const cohort = await Cohort.findByPk(cohort_id);
-  // console.log(cohort.learners);
+  // logger.info(cohort.learners);
   let learnerIds = await Promise.all(cohort.learners.map(async (user_id) => {
     try {
       let social = await SocialConnection
@@ -145,7 +145,7 @@ export const getLearnerSlackIds = async (cohort_id) => {
         username: social.username,
       };
     } catch (error) {
-      // console.log('Hello', error);
+      // logger.info('Hello', error);
       return { notRegistered: user_id };
     }
   }));
@@ -156,7 +156,7 @@ export const getLearnerSlackIds = async (cohort_id) => {
 export const createChannel = async (cohort_id) => {
   const { SLACK_DELTA_BOT_TOKEN } = process.env;
   const channelName = await getChannelName(cohort_id);
-  // console.log(channelName);
+  // logger.info(channelName);
   let emptyChannel = await request
     .post('https://slack.com/api/conversations.create')
     .set('Content-Type', 'application/x-www-form-urlencoded')
@@ -196,7 +196,7 @@ export const createChannel = async (cohort_id) => {
         channel: channelWithTeam.body.channel,
       };
     }
-    // console.log(channelWithTeam.body);
+    // logger.info(channelWithTeam.body);
     return {
       text: 'Channel created and error in inviting',
       channel: emptyChannel.body,
@@ -259,7 +259,7 @@ export const getSlackIdsFromEmails = async (emailIds) => {
         email: emailId,
       };
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       return {
         text: `Error with ${emailId}`,
         email: emailId,
@@ -267,7 +267,7 @@ export const getSlackIdsFromEmails = async (emailIds) => {
     }
   };
   let slackIds = await Promise.all(emailIds.map(email => slackId(email)));
-  // console.log(slackIds);
+  // logger.info(slackIds);
   return slackIds;
 };
 
@@ -310,7 +310,7 @@ const createChannelFromSlackIds = async (cohort_id, channelName, slackIds) => {
         channel,
       };
     }
-    console.error(channel);
+    logger.error(channel);
     return {
       text: 'Channel created but failed to invite users.',
       slackIds,
@@ -355,7 +355,7 @@ export const beginChannel = async (cohort_id, emailList) => {
   const slackUser = learnerIds.filter(l => !l.text);
 
   const channel = await createChannelFromSlackIds(cohort_id, channelName, [...teamIds, ...slackUser]);
-  // console.log(JSON.stringify(channel, null, 2));
+  // logger.info(JSON.stringify(channel, null, 2));
   return {
     text: 'Creating slack channel, inviting soal team and learners',
     data: {
@@ -488,7 +488,7 @@ export const addLearnersToDSAChannels = async (cohort_id) => {
       data,
     };
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     return {
       slack_channel_id,
       learner_not_added: temp,

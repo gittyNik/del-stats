@@ -7,6 +7,7 @@ import { ResourceComment } from '../../models/resource_comment';
 import { ResourceReport } from '../../models/resource_report';
 import { ResourceVote } from '../../models/resource_vote';
 import { logResourceVisitByFirewallUser } from '../../models/resource_visit';
+import logger from '../../util/logger';
 
 export const getLatest = (req, res) => {
   Resource.findAll({
@@ -26,11 +27,11 @@ export const getFirewall = (req, res) => {
       know, think, play, reflect,
     }))
     .then(data => {
-      // console.log(data);
+      // logger.info(data);
       res.send({ data });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -42,20 +43,20 @@ export const getTaggedResources = (req, res) => {
       res.send({ data });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
 
 export const searchTaggedResources = (req, res) => {
   const { text } = req.query;
-  // console.log(text);
+  // logger.info(text);
   searchResources(text.toLowerCase())
     .then(data => {
       res.send({ data });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -66,13 +67,13 @@ export const logResourceVisit = (req, res) => {
 
   logResourceVisitByFirewallUser(resource_id, user_id)
     .then(visit => {
-      // console.log(visit);
+      // logger.info(visit);
       res.send({
         text: 'Successfully logged',
       });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -130,11 +131,11 @@ export const getResourceUrl = (req, res) => {
   const { url } = req.body;
   getResourceByUrl(url)
     .then(data => {
-      // console.log(data);
+      // logger.info(data);
       res.send({ data });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -143,11 +144,11 @@ export const getTopicResource = (req, res) => {
   const { topic_id } = req.params;
   getResourceByTopic(topic_id)
     .then(data => {
-      // console.log(data);
+      // logger.info(data);
       res.send({ data });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -158,7 +159,7 @@ export const create = (req, res) => {
   } = req.body;
   getResourceByUrl(url)
     .then(data => {
-      // console.log(data);
+      // logger.info(data);
       if (data) {
         res.send({ data });
       } else {
@@ -179,18 +180,18 @@ export const create = (req, res) => {
               res.json({ text: 'Added Resource', data: resource_added });
             })
               .catch(err => {
-                console.error(err);
+                logger.error(err);
                 res.sendStatus(500);
               });
           })
           .catch(err => {
-            console.error(err);
+            logger.error(err);
             res.sendStatus(500);
           });
       }
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -288,7 +289,7 @@ export const addReport = (req, res) => {
   const id = uuid();
   const { resource_id } = req.params;
   const { report } = req.body;
-  // console.log(id, resource_id, report);
+  // logger.info(id, resource_id, report);
   return ResourceReport.create({
     id, resource_id, report,
   })

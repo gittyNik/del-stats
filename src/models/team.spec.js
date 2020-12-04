@@ -3,8 +3,9 @@ import models from './index';
 import { splitTeams, createMilestoneTeams, deleteMilestoneTeams } from './team';
 import { getCurrentCohortMilestones } from './cohort_milestone';
 import database from '../database';
+import logger from '../../util/logger';
 
-// console.log(models);
+// logger.info(models);
 const { Team } = models;
 
 let cohortMilestone, originalTeams = [];
@@ -41,7 +42,7 @@ it('should generate teams for a milestone', () => {
         }
       });
   }
-  console.log('skipped the test');
+  logger.info('skipped the test');
 });
 
 it('should create teams for a milestone', () => {
@@ -51,5 +52,5 @@ it('should create teams for a milestone', () => {
         expect(teams.length).toBeTruthy();
       })
   }
-  console.log('skipped the test');
+  logger.info('skipped the test');
 });

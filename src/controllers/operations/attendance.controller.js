@@ -4,6 +4,7 @@ import { Cohort } from '../../models/cohort';
 import { LearnerBreakout } from '../../models/learner_breakout';
 import { User } from '../../models/user';
 import { CohortBreakout } from '../../models/cohort_breakout';
+import logger from '../../util/logger';
 
 const { lte } = Sequelize.Op;
 
@@ -68,7 +69,7 @@ export const getAllLiveCohortAttendance = async () => {
       'user.status',
       'user.email',
       // Groupby can't compare json. Parse it to jsonb[]
-      Sequelize.cast(Sequelize.col('user.status_reason'),'jsonb[]'),
+      Sequelize.cast(Sequelize.col('user.status_reason'), 'jsonb[]'),
       'cohort_breakout.cohort_id',
       'cohort_breakout.type',
     ],
@@ -95,9 +96,9 @@ export const getAllLiveCohortAttendance = async () => {
       required: false,
     },
     ],
-    group: ['attendance', 'learner_id', 'user.name','user.email',
+    group: ['attendance', 'learner_id', 'user.name', 'user.email',
       'cohort_breakout.cohort_id', 'cohort_breakout.type',
-      'user.phone', 'user.status', Sequelize.cast(Sequelize.col('user.status_reason'),'jsonb[]'),
+      'user.phone', 'user.status', Sequelize.cast(Sequelize.col('user.status_reason'), 'jsonb[]'),
     ],
     raw: true,
     order: Sequelize.literal('learner_id, attendance_count DESC'),
@@ -152,7 +153,7 @@ export const getAttendanceForCohorts = (req, res) => {
       data,
     }))
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };

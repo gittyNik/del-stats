@@ -1,11 +1,12 @@
 import uuid from 'uuid/v4';
 import { Program } from '../../models/program';
+import logger from '../../util/logger';
 
 export const getPrograms = (req, res) => {
   Program.findAll({})
     .then(data => res.json(data))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -17,7 +18,7 @@ export const getProgram = (req, res) => {
   })
     .then(data => res.json(data))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -38,7 +39,7 @@ export const createProgram = (req, res) => {
   })
     .then(data => res.json(data))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -59,7 +60,7 @@ export const updateProgram = (req, res) => {
   }, { where: { id } })
     .then(() => res.send('Program Successfully updated'))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -71,7 +72,7 @@ export const deleteProgram = (req, res) => {
   })
     .then(() => res.send('Program Deleted.'))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500).send('Unable to Delete Program.');
     });
 };

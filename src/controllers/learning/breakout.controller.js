@@ -28,7 +28,7 @@ import { CohortMilestone } from '../../models/cohort_milestone';
 import { getLiveCohorts, Cohort } from '../../models/cohort';
 import { User, USER_ROLES } from '../../models/user';
 import { Milestone } from '../../models/milestone';
-import { logger } from '../../util/logger';
+import logger from '../../util/logger';
 
 const {
   between, gte,
@@ -38,7 +38,7 @@ export const getBreakouts = (req, res) => {
   CohortBreakout.findAll({})
     .then((data) => res.json(data))
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -122,12 +122,12 @@ export const getLiveCohortsBreakouts = (req, res) => {
           data,
         }))
         .catch((err) => {
-          console.error(err);
+          logger.error(err);
           res.status(500);
         });
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -152,7 +152,7 @@ export const createBreakout = (req, res) => {
       createScheduledMeeting(topic_id, time, duration, agenda, 2, catalyst_id),
     ])
       .then(([sandbox, videoMeeting]) => {
-        // console.log('VideoMeeting Created');
+        // logger.info('VideoMeeting Created');
         let details = {
           sandbox,
           zoom: videoMeeting,
@@ -187,7 +187,7 @@ export const createBreakout = (req, res) => {
           catalyst_feedback,
         )
           .then((data) => {
-            // console.log(data);
+            // logger.info(data);
             res.status(201).json({
               message: 'Breakout, video meeting and sandbox created',
               data,
@@ -196,7 +196,7 @@ export const createBreakout = (req, res) => {
           })
           .catch((err) => {
             deleteMeetingFromZoom(details.zoom.id);
-            console.error('Failed to create Cohort Breakout', err);
+            logger.error('Failed to create Cohort Breakout', err);
             res.send(500).json({
               message: `Reason for error: ${err}`,
               type: 'failure',
@@ -204,7 +204,7 @@ export const createBreakout = (req, res) => {
           });
       })
       .catch(err => {
-        console.error('Failed to create Code Sanbdbox and Videomeeting', err);
+        logger.error('Failed to create Code Sanbdbox and Videomeeting', err);
         res.send(500).json({
           message: `Reason for error: ${err}`,
           type: 'failure',
@@ -214,7 +214,7 @@ export const createBreakout = (req, res) => {
     // todo: pass template, and embedd_options as args
     createSandbox()
       .then((sandbox) => {
-        // console.log(data);
+        // logger.info(data);
         let details = {
           sandbox,
         };
@@ -246,7 +246,7 @@ export const createBreakout = (req, res) => {
           catalyst_feedback,
         )
           .then(data => {
-            // console.log('Breakout created with code sandbox only', data);
+            // logger.info('Breakout created with code sandbox only', data);
             res.status(201).json({
               message: 'Breakout and sandbox created',
               data,
@@ -254,7 +254,7 @@ export const createBreakout = (req, res) => {
             });
           })
           .catch((err) => {
-            console.error('Failed to create Breakout', err);
+            logger.error('Failed to create Breakout', err);
             res.send(500).json({
               message: `Reason for error: ${err}`,
               type: 'failure',
@@ -262,7 +262,7 @@ export const createBreakout = (req, res) => {
           });
       })
       .catch(err => {
-        console.error('Failed to create codesandbox', err);
+        logger.error('Failed to create codesandbox', err);
         res.send(500).json({
           message: `Reason for error: ${err}`,
           type: 'failure',
@@ -303,7 +303,7 @@ export const createBreakout = (req, res) => {
           catalyst_feedback,
         )
           .then((data) => {
-            // console.log(data);
+            // logger.info(data);
             res.status(201).json({
               message: 'Breakout and video meeting created',
               data,
@@ -312,7 +312,7 @@ export const createBreakout = (req, res) => {
           })
           .catch((err) => {
             deleteMeetingFromZoom(details.zoom.id);
-            console.error(
+            logger.error(
               'Failed to create Breakout after creating video meeting',
               err,
             );
@@ -361,7 +361,7 @@ export const createBreakout = (req, res) => {
       catalyst_feedback,
     )
       .then((data) => {
-        // console.log(data);
+        // logger.info(data);
         res.status(201).json({
           message: 'Breakout created',
           data,
@@ -369,7 +369,7 @@ export const createBreakout = (req, res) => {
         });
       })
       .catch((err) => {
-        console.error(
+        logger.error(
           'Failed to create Breakout after creating video meeting',
           err,
         );
@@ -421,7 +421,7 @@ export const updateBreakout = (req, res) => {
   )
     .then(() => res.send('Cohort Breakout updated.'))
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -434,7 +434,7 @@ export const deleteBreakout = (req, res) => {
   })
     .then(() => res.send('Deleted Cohort Breakout. '))
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -469,7 +469,7 @@ export const getAllCohortBreakouts = (req, res) => {
       });
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.json({
         text: 'Failed to get list of all breakouts in this cohort',
         data: null,
@@ -482,7 +482,7 @@ export const getBreakoutsForCohortMilestone = async (req, res) => {
   const { cohort_id, milestone_id } = req.params;
 
   let breakouts = await getAllBreakoutsInCohortMilestone(cohort_id, milestone_id);
-  // console.log('RESPONSE: ', breakouts);
+  // logger.info('RESPONSE: ', breakouts);
   breakouts = breakouts.filter(breakout => breakout != null);
   res.json({
     text: 'List of all breakouts in a cohort milestone',
@@ -603,8 +603,8 @@ export const updateCohortBreakout = async (req, res) => {
     })
       .then(_cb => _cb[0])
       .catch(err => {
-        console.error('Failed to update CohortBreakout');
-        console.error(err);
+        logger.error('Failed to update CohortBreakout');
+        logger.error(err);
         res.status(500).json([err.name, err.message]);
       });
     // const learnerBreakoutEvents = await updateCalendarEventInLearnerBreakout(id);
@@ -613,7 +613,7 @@ export const updateCohortBreakout = async (req, res) => {
       // learnerBreakoutEvents,
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json([err.name, err.message]);
   }
 };
@@ -638,7 +638,7 @@ export const updateMilestoneByDays = async (cohortId, updateByDays, user_id = nu
     attributes: ['id', 'release_time', 'review_scheduled'],
     raw: true,
   }).then(cohortMilestones => {
-    // console.log('Updating Milestone timings');
+    // logger.info('Updating Milestone timings');
     Promise.all(cohortMilestones.map(cohortMilestone => {
       // Calculating Milestone start and end time
       let updatedReleaseTime = calculateAfterDays(cohortMilestone.release_time, updateByDays);
@@ -713,7 +713,7 @@ export const updateMilestonesBreakoutTimelines = async (req, res) => {
       res.status(201).json({ data });
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.status(500).send({ err });
     });
 };
@@ -727,7 +727,7 @@ export const createCohortMilestoneLearnerBreakouts = async (req, res) => {
       res.status(201).json({ data });
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.status(500).send({ err });
     });
 };
@@ -744,7 +744,7 @@ export const updateSanboxDetails = async (req, res) => {
       res.status(201).json({ data });
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.status(500).send({ err });
     });
 };
@@ -765,7 +765,7 @@ export const validateAttendanceForBreakout = async (req, res) => {
       res.status(201).json({ data });
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.status(500).send({ err });
     });
 };

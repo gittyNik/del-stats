@@ -1,5 +1,6 @@
 import moment from 'moment';
 import hubspot from './auth.controller';
+import logger from '../../../util/logger';
 
 const getPropertyName = name => {
   switch (name) {
@@ -32,6 +33,7 @@ const getPropertyName = name => {
 
 const createProperties = data => {
   let properties = [];
+  // eslint-disable-next-line no-restricted-syntax
   for (let key in data) {
     if (data[key] !== undefined) {
       // TODO: format date and add it to the property
@@ -107,7 +109,7 @@ export const getDealById = (req, res) => {
       data: deal,
     });
   }).catch(err => {
-    console.error(err);
+    logger.error(err);
     res.sendStatus(500);
   });
 };

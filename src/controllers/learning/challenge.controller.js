@@ -5,12 +5,13 @@ import {
 
 } from '../../models/challenge';
 import { LearnerChallenge } from '../../models/learner_challenge';
+import logger from '../../util/logger';
 
 export const getChallenges = (req, res) => {
   Challenge.findAll({})
     .then((data) => { res.json(data); })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -20,7 +21,7 @@ export const getChallengesByTopic = (req, res) => {
   getChallengesByTopicId(id)
     .then((data) => { res.json(data); })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -34,7 +35,7 @@ export const getChallengesByCompany = async (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500).json({
         text: 'Failed to get Private Challenges for a company',
         type: 'failure',
@@ -63,7 +64,7 @@ export const getFilteredChallengesAPI = async (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -90,7 +91,7 @@ export const createChallenge = (req, res) => {
       res.send('Challenge created.');
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -116,7 +117,7 @@ export const updateChallenge = (req, res) => {
   })
     .then(() => { res.send('Challenge Updated'); })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.senStatus(500);
     });
 };
@@ -126,7 +127,7 @@ export const deleteChallenge = (req, res) => {
   deleteAChallenge(id)
     .then(() => res.send('Deleted Challenge'))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -135,7 +136,7 @@ export const getLearnerChallenges = (req, res) => {
   LearnerChallenge.findAll({})
     .then(data => res.json(data))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -156,7 +157,7 @@ export const createLearnerChallenge = (req, res) => {
   })
     .then(() => res.send(' Activity Challenge created'))
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -178,7 +179,7 @@ export const updateLearnerChallenge = (req, res) => {
   })
     .then(() => res.send('Activity Challenge Updated'))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -190,7 +191,7 @@ export const deleteLearnerChallenge = (req, res) => {
   })
     .then(() => res.send('Deleted Activity Challenge'))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };

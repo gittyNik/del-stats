@@ -73,6 +73,8 @@
     "nodemailer": "^4.6.4",
     "pg": "^7.18.2",
     "pg-native": "^3.0.0",
+    "pino": "^6.7.0",
+    "pino-pretty": "^4.3.0",
     "query-string": "^6.13.1",
     "regenerator-runtime": "^0.13.5",
     "sendotp": "github:msg91/sendotp-node#096de78",
@@ -82,13 +84,11 @@
     "superagent": "^3.8.2",
     "twitter": "^1.7.1",
     "uuid": "^3.4.0",
-    "watson-developer-cloud": "^3.5.3",
-    "winston": "^3.3.3",
-    "winston-papertrail": "^1.0.5",
-    "winston-transport": "git+https://git@github.com/winstonjs/winston-transport.git"
+    "watson-developer-cloud": "^3.5.3"
   },
   "devDependencies": {
     "@babel/node": "^7.10.3",
+    "@types/pino": "^6.3.4",
     "apidoc": "^0.17.6",
     "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.21.2",

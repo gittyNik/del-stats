@@ -11,6 +11,7 @@ import { removeLearnerBreakouts, createLearnerBreakouts, createLearnerBreakoutsF
 import { moveLearnerToNewGithubTeam, deleteGithubRepository, addLearnerToGithubTeam } from '../integrations/github/controllers';
 import { removeLearnerFromSlackChannel, moveLearnerToNewSlackChannel, addLearnersToCohortChannel } from './slack_channels';
 import { removeLearnerFromGithubTeam } from '../integrations/github/controllers/teams.controller';
+import logger from '../util/logger';
 
 export const COHORT_STATUS = [
   'upcoming',
@@ -219,14 +220,14 @@ export const beginCohortWithId = (cohort_id) => Promise.all([
       cohort.duration,
       cohort.program_id,
     ).then((allBreakouts) => {
-      // console.log(`All breakouts scheduled for the cohort ${cohort_id} `);
+      // logger.info(`All breakouts scheduled for the cohort ${cohort_id} `);
     });
-    // console.log(milestones);
+    // logger.info(milestones);
     cohort.milestones = milestones;
     return cohort;
   })
   .catch((err) => {
-    console.error(err);
+    logger.error(err);
     return null;
   });
 
@@ -242,14 +243,14 @@ export const beginParallelCohorts = (cohort_ids) => Promise.all(
         cohort.duration,
         cohort.program_id,
       ).then((allBreakouts) => {
-      // console.log(`All breakouts scheduled for the cohort ${cohort_id} `);
+      // logger.info(`All breakouts scheduled for the cohort ${cohort_id} `);
       });
-      // console.log(milestones);
+      // logger.info(milestones);
       cohort.milestones = milestones;
       return cohort;
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       return null;
     })),
 );
@@ -378,7 +379,7 @@ export const addLearner = async (learners, cohort_id) => {
   try {
     for (let i = 0; i < learners.length; i++) {
       let learner_id = learners[i];
-      await changeUserRole(learner_id, USER_ROLES.LEARNER)
+      await changeUserRole(learner_id, USER_ROLES.LEARNER);
       let cohort = await addLearnerToCohort(learner_id, cohort_id);
       let application = await updateCohortJoining(learner_id, cohort_id);
       let team = await addLearnerToGithubTeam(learner_id, cohort_id);

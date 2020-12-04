@@ -1,4 +1,5 @@
 import { beginChannel, addLearnersToDSAChannels } from '../../models/slack_channels';
+import logger from '../../util/logger';
 
 export const createChannelForCohort = async (req, res) => {
   const { cohort_id, emailList } = req.body;
@@ -14,9 +15,9 @@ export const addLearnersToDSAChannelsAPI = async (req, res) => {
       text: `Add learners in cohort[${cohort_id}] to DS-Algo channel`,
       data: response,
       type: 'success',
-    })
+    });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.sendStatus(500);
   }
 };

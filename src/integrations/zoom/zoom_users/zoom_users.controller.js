@@ -1,3 +1,5 @@
+import logger from '../../../util/logger';
+
 const request = require('superagent');
 const jwt = require('jsonwebtoken');
 
@@ -22,17 +24,17 @@ export const userInfo = (req, res) => {
       // role_id: '',
     })
     .then(data => {
-      // console.log(data);
-      // console.log(data.body);
+      // logger.info(data);
+      // logger.info(data.body);
       res.json({
         text: 'List/Array of all users in the zoom account',
         data: data.body.users,
       });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
 
-export const temp = () => console.log('TODO');
+export const temp = () => logger.info('TODO');

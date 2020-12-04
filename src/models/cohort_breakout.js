@@ -37,7 +37,7 @@ import {
 import { postAttendaceInCohortChannel } from '../integrations/slack/delta-app/controllers/web.controller';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 import { createEvent, deleteEvent, updateEvent } from '../integrations/calendar/calendar.model';
-import { logger } from '../util/logger';
+import logger from '../util/logger';
 import { getSlackIdForLearner } from './slack_channels';
 // import sandbox from 'bullmq/dist/classes/sandbox';
 
@@ -132,7 +132,7 @@ export const findOneCohortBreakout = (
   attributes: attributesObj,
 })
   .then(data => data)
-  .catch(err => console.log(err));
+  .catch(err => logger.error(err));
 
 export const findAllCohortBreakout = (
   where, attributes, include, order,
@@ -331,7 +331,7 @@ export const createNewBreakout = (
   if (typeof topic_id !== 'undefined' && Array.isArray(topic_id) && topic_id.length > 0) {
     [topic_id] = topic_id;
   }
-  // console.log(`${time_scheduled} ${duration} ${location}`);
+  // logger.info(`${time_scheduled} ${duration} ${location}`);
   return CohortBreakout.create({
     id: uuid(),
     breakout_template_id,
@@ -392,7 +392,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
           catalyst_id, details, type, team_feedback, catalyst_notes,
         )
           .then(data =>
-            // console.log('Breakout created with codesandbox and videoMeeting');
+            // logger.info('Breakout created with codesandbox and videoMeeting');
             data.toJSON());
       });
     // eslint-disable-next-line no-else-return
@@ -404,7 +404,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
         time_scheduled, duration, location,
         catalyst_id, details, type, team_feedback, catalyst_notes,
       ).then(data =>
-        // console.log('Breakout created with code sandbox only', data);
+        // logger.info('Breakout created with code sandbox only', data);
         data);
     });
   } else if (isVideoMeeting) {
@@ -417,7 +417,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
           catalyst_id, details, type, team_feedback, catalyst_notes,
         )
           .then(data =>
-            // console.log('Breakout and video meeting created Created');
+            // logger.info('Breakout and video meeting created Created');
             data);
       });
   } else {
@@ -427,7 +427,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
       catalyst_id, details, type, team_feedback, catalyst_notes,
     )
       .then(data =>
-        // console.log('Breakout created without video meeting created Created', data);
+        // logger.info('Breakout created without video meeting created Created', data);
         data);
   }
 };
@@ -476,11 +476,11 @@ export const createCohortBreakouts = (
       let breakout = BreakoutWithOptions(breakoutsWithCohortName[i]);
       breakouts.push(breakout);
     }
-    // console.log('<----- BREAKOUT OBJECT -------->', breakouts.length);
+    // logger.info('<----- BREAKOUT OBJECT -------->', breakouts.length);
     return Promise.all(breakouts);
   })
   .catch(err => {
-    console.error('Failed to location for a cohort', err);
+    logger.error('Failed to location for a cohort', err);
     return null;
   });
 
@@ -492,7 +492,7 @@ export const getAllBreakoutsInCohort = (cohort_id) => CohortBreakout.findAll({
 })
   .then(allBreakouts => allBreakouts)
   .catch(err => {
-    console.error('Unable to find all breakouts in the cohort', err);
+    logger.error('Unable to find all breakouts in the cohort', err);
     return null;
   });
 
@@ -505,7 +505,7 @@ export const getAllBreakoutsInCohortMilestone = (cohort_id,
 })
   .then(async (topics) => {
     let breakouts = await topics.map(async (topic) => {
-      // console.log('TOPIC', topic);
+      // logger.info('TOPIC', topic);
       let breakout = await CohortBreakout.findOne({
         where: {
           topic_id: topic.id,
@@ -519,7 +519,7 @@ export const getAllBreakoutsInCohortMilestone = (cohort_id,
       })
         .then(data => data)
         .catch(err => {
-          console.error(err);
+          logger.error(err);
           return null;
         });
       return breakout;
@@ -539,7 +539,7 @@ export const getAllBreakoutsInCohortMilestone = (cohort_id,
     return Promise.all(breakouts);
   })
   .catch(err => {
-    console.error('Unable to find topics for the milestone', err);
+    logger.error('Unable to find topics for the milestone', err);
     return null;
   });
 
@@ -698,7 +698,7 @@ export const getCalendarDetailsOfCohortBreakout = async (id) => {
   });
   let summary;
   let description;
-  // console.log(cohort_breakout);
+  // logger.info(cohort_breakout);
   const {
     type, domain, breakout_template_id,
     time_scheduled, duration, location, status,
@@ -787,7 +787,7 @@ export const updateCohortBreakouts = ({ whereObject, updateObject }) => CohortBr
   .update(updateObject, { returning: true, where: whereObject })
   .then(([rowUpdated, updatedCB]) => updatedCB.map(_cb => _cb.toJSON()))
   .catch(err => {
-    console.error(err);
+    logger.error(err);
     return 'Error updating cohort breakout';
   });
 
@@ -935,8 +935,8 @@ export const getMilestoneDetailsForReview = (cohort_breakout_id) => CohortBreako
     return milestone_details;
   })
   .catch(err => {
-    console.error(err);
-    console.error('Unable to get Milestone details for cohort_breakout ', cohort_breakout_id);
+    logger.error(err);
+    logger.error('Unable to get Milestone details for cohort_breakout ', cohort_breakout_id);
     return false;
   });
 

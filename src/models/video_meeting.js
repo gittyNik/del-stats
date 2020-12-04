@@ -14,6 +14,7 @@ import { changeTimezone } from './breakout_template';
 import {
   notifyAttendanceLearnerInChannel,
 } from '../integrations/slack/delta-app/controllers/web.controller';
+import logger from '../util/logger';
 
 const { in: opIn, between } = Sequelize.Op;
 
@@ -71,14 +72,14 @@ export const deleteMeetingFromZoom = (video_id) => {
     .set('User-Agent', 'Zoom-api-Jwt-Request')
     .then(data => {
       if (data.status === 204) {
-        // console.log('Meeting successfully deleted');
+        // logger.info('Meeting successfully deleted');
         return true;
       }
-      console.error(`failed to delete Meeting ${video_id}`);
+      logger.error(`failed to delete Meeting ${video_id}`);
       return false;
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       return false;
     });
 };
@@ -140,7 +141,7 @@ export const createScheduledMeeting = async (topic, start_time,
 
   // Logic for using Pro Zoom accounts
   if ((catalyst_email === null) || (catalyst_email === undefined)) {
-    // console.log('trying to create meeting');
+    // logger.info('trying to create meeting');
     // Calculate End time for Meeting
     let starting_time = new Date(start_time);
     let end_time = new Date(start_time);
@@ -177,12 +178,12 @@ export const createScheduledMeeting = async (topic, start_time,
     .set('User-Agent', 'Zoom-api-Jwt-Request')
     .set('content-type', 'application/json')
     .then(data => {
-      // console.log(data);
+      // logger.info(data);
       const {
         id, status,
         start_url, join_url, h323_password,
       } = data.body;
-      // console.log(`ZOOM MEETING --> id: ${id}, status: ${status}, join_url: ${join_url}`);
+      // logger.info(`ZOOM MEETING --> id: ${id}, status: ${status}, join_url: ${join_url}`);
       return VideoMeeting.create({
         id: uuid(),
         video_id: id,
@@ -193,8 +194,8 @@ export const createScheduledMeeting = async (topic, start_time,
         zoom_user: catalyst_email,
       })
         .then(video =>
-          // console.log('meeting updated in db.');
-          // console.log(video);
+          // logger.info('meeting updated in db.');
+          // logger.info(video);
           ({
             id,
             status,
@@ -205,14 +206,14 @@ export const createScheduledMeeting = async (topic, start_time,
         .catch(err => {
           // todo: delete the meeting from Zoom.
           deleteMeetingFromZoom(id);
-          console.error('meeting created on zoom but error in storing to DB', err);
+          logger.error('meeting created on zoom but error in storing to DB', err);
           return {
             text: 'Failed to save the video details on DB.',
           };
         });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       return {
         text: 'Failed to create meeting',
       };
@@ -269,7 +270,7 @@ export const learnerAttendance = async (participant, catalyst_id,
             notifyAttendanceLearnerInChannel(cohort_breakout_id, user_email, inTime);
           }
         } catch (err) {
-          console.error(`Error while sending message to learner: ${err}`);
+          logger.error(`Error while sending message to learner: ${err}`);
         }
         attendance = false;
       }
@@ -287,11 +288,11 @@ export const learnerAttendance = async (participant, catalyst_id,
           attendanceCount -= 1;
         }
         if (err instanceof TypeError) {
-          console.error(`${user_email} not present in social connections`);
-          console.error(err);
+          logger.error(`${user_email} not present in social connections`);
+          logger.error(err);
         } else {
-          console.error(`${user_email} does not have learner breakout ${cohort_breakout_id}`);
-          console.error(err);
+          logger.error(`${user_email} does not have learner breakout ${cohort_breakout_id}`);
+          logger.error(err);
         }
       }
     } else {
@@ -341,7 +342,7 @@ export const markIndividualAttendance = async (participants, catalyst_id,
         cohort_breakout_id, attentiveness_threshold, duration_threshold);
       return attendance_count;
     } catch (err) {
-      console.error('error in finding user', err);
+      logger.error('error in finding user', err);
       return 0;
     }
   }));
@@ -360,7 +361,7 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
   cohort_breakout_id, attentiveness_threshold = 70, duration_threshold = 600) => {
   const { ZOOM_BASE_URL } = process.env;
   const page_size = 100;
-  // console.log('Marking attendance for Cohort Breakout id', cohort_breakout_id);
+  // logger.info('Marking attendance for Cohort Breakout id', cohort_breakout_id);
 
   return (request
     .get(`${ZOOM_BASE_URL}report/meetings/${meeting_id}/participants?page_size=${page_size}`) // todo: need to assign delta user to zoom user
@@ -374,14 +375,14 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
         total_records,
         next_page_token,
       } = data.body;
-      // console.log(`Fetched data for Zoom Meeting: ${meeting_id}`);
+      // logger.info(`Fetched data for Zoom Meeting: ${meeting_id}`);
       return markIndividualAttendance(
         participants, catalyst_id,
         cohort_breakout_id, attentiveness_threshold, duration_threshold,
       )
         .then(attendanceCountArray => {
           const attendanceCount = attendanceCountArray.reduce(add);
-          // console.log('Attendance Count.', attendanceCount);
+          // logger.info('Attendance Count.', attendanceCount);
           return CohortBreakout.update({
             attendance_count: attendanceCount,
             update_at: Date.now(),
@@ -391,14 +392,14 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
             },
           });
         }).catch(err => {
-          console.error('Failed to update Cohort attendance count', err);
+          logger.error('Failed to update Cohort attendance count', err);
           return {
             text: `Failed to update Cohort attendance count for ${cohort_breakout_id} .`,
           };
         });
     })
     .catch(err =>
-      // console.log(err);
+      // logger.error(err);
       ({
         text: `Failed to get breakout details from Zoom ${cohort_breakout_id}`,
       }))
@@ -435,7 +436,7 @@ export const updateVideoMeeting = async (meetingId, updatedTime) => {
     }
     return false;
   } catch (err) {
-    console.error(`Error updating zoom meeting ${err}`);
+    logger.error(`Error updating zoom meeting ${err}`);
     return false;
   }
 };

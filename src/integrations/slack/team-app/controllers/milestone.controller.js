@@ -7,6 +7,7 @@ import { Topic } from '../../../../models/topic';
 import { composeMilestoneModal, milestoneReviewMessage } from '../views/milestone.view';
 import { getLearnerBreakoutsForACohortBreakout } from '../../../../models/learner_breakout';
 import { getProfile } from '../../../../models/user';
+import logger from '../../../../util/logger';
 
 const { SLACK_TEAM_BOT_TOKEN } = process.env;
 
@@ -16,13 +17,13 @@ const web = new WebClient(SLACK_TEAM_BOT_TOKEN);
 export const showMilestoneDetails = (cohort_id, trigger_id) => {
   getCurrentMilestoneOfCohortDelta(cohort_id)
     .then(milestone => {
-      // console.log(milestone);
+      // logger.info(milestone);
       const view = composeMilestoneModal(milestone);
       return web.views.open({
         view,
         trigger_id,
       });
-    }).catch(err => console.error(err));
+    }).catch(err => logger.error(err));
 };
 
 export const markMilestoneAsReviewed = (payload, respond) => {
@@ -30,7 +31,7 @@ export const markMilestoneAsReviewed = (payload, respond) => {
 
   markMilestoneReview(cohort_milestone_id)
     .then(({ milestoneId, cohortId }) =>
-      // console.log('milestone review saved!', milestoneId);
+      // logger.info('milestone review saved!', milestoneId);
       // respond({ text: 'Milestone review saved' });
       Promise.all([
         Milestone.findByPk(milestoneId),
@@ -41,7 +42,7 @@ export const markMilestoneAsReviewed = (payload, respond) => {
           web.chat.postMessage(view);
         })
         .catch(err => {
-          console.error(err);
+          logger.error(err);
           // respond({ text: 'Failed to save review' });
         }));
 };
@@ -87,9 +88,9 @@ export const showCompletedBreakoutOnSlack = (
         },
       ],
       channel: process.env.SLACK_CLOCKWORK_CHANNEL,
-    })
+    });
   })
-  .catch(err => console.log('SEND SLACK MESSAGE ERROR', err));
+  .catch(err => logger.info('SEND SLACK MESSAGE ERROR', err));
 
 export const sendMessageToSlackChannel = (text, context, channel) => web.chat.postMessage({
   text,
@@ -111,7 +112,7 @@ export const sendMessageToSlackChannel = (text, context, channel) => web.chat.po
   ],
   channel,
 })
-  .catch(err => console.log(err));
+  .catch(err => logger.error(err));
 
 export const markTopicAsFinished = (topic_id, cohort_id, username) => {
   const sendMessageToSlack = Promise.all([
@@ -138,9 +139,9 @@ export const markTopicAsFinished = (topic_id, cohort_id, username) => {
       ],
       channel: process.env.SLACK_CLOCKWORK,
     })
-      .catch(err => console.log(err)));
+      .catch(err => logger.error(err)));
 
   createOrUpdateCohortBreakout(topic_id, cohort_id, new Date())
     .then(sendMessageToSlack)
-    .catch(err => console.log(err));
+    .catch(err => logger.error(err));
 };

@@ -1,3 +1,5 @@
+import logger from '../../../../util/logger';
+
 export const footerBlock = {
   type: 'context',
   elements: [
@@ -24,7 +26,7 @@ const emptyNoteBlock = {
 
 const buildTopicBlocks = (milestone, isProgram = false) => {
   const topics = isProgram ? milestone.programTopics : milestone.topics;
-  console.log(isProgram, milestone.programTopics);
+  logger.info(isProgram, milestone.programTopics);
   if (!milestone || !topics) return [];
   const blocks = [
     {
