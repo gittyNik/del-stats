@@ -25,7 +25,7 @@ const tag_ids = [
   '3cba40b8-6d80-4061-be58-97f90cb05e26',
   'e66046dd-72ca-452a-a5cf-cdafb455dd0c',
   '4fda6134-fdc9-4758-999e-06d4ace074dc',
-  '2865822b-badc-495a-8c53-995b1b702201'
+  '2865822b-badc-495a-8c53-995b1b702201',
 ];
 // const recruiters = _.range(10).map(() => uuid())
 const recruiters = [
@@ -38,7 +38,7 @@ const recruiters = [
   '4b9ff46b-a0f7-4a12-a31c-d843429098ef',
   'ce0dc038-6a34-4f44-acf1-30d7cc78ed4a',
   'effb0e6a-6753-4f69-ae3d-8b259b077d26',
-  'de038d8b-ff08-40de-93b0-a5f15eb7a00c'
+  'de038d8b-ff08-40de-93b0-a5f15eb7a00c',
 ];
 
 const company_ids = [
@@ -78,15 +78,9 @@ const getSomeElements = (array) => faker.random.arrayElements(array, faker.rando
   min: 1, max: array.length,
 }));
 
-const cleanArray = (arr) => {
-  return '{"' + arr.map(e => cleanEntry(e)).join('", "') + '"}'
-}
+const cleanArray = (arr) => '{"' + arr.map(e => cleanEntry(e)).join('", "') + '"}';
 
-const cleanEntry = (obj) => {
-  return JSON.stringify(obj).replace(/"/g, '\\"')
-}
-
-
+const cleanEntry = (obj) => JSON.stringify(obj).replace(/"/g, '\\"');
 
 // Individual Rows
 const createCompanyProfile = (id, recruiter_id) => ({
@@ -134,8 +128,7 @@ const seeder = {
       });
   }),
 
-  down: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(transaction => {
-    return Promise.all([
+  down: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(transaction => Promise.all([
       queryInterface.bulkDelete('company_profiles', null, { transaction }),
       queryInterface.bulkDelete(
         'users',
@@ -149,8 +142,7 @@ const seeder = {
         console.error(err);
         console.log('====================================');
         console.error(err.message);
-      });
-  }),
+      })),
 };
 
 export default seeder;

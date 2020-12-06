@@ -17,6 +17,7 @@ import {
   addLearnerEndpoint,
   beginParallelCohort,
   liveCohorts,
+  autoMarkBreakoutAttendance,
 } from '../../controllers/learning/cohort.controller';
 import {
   createBreakouts,
@@ -122,22 +123,6 @@ router.patch('/movelearner', moveLearnertoDifferentCohortEndpoint);
  * @apiGroup Cohort
  */
 router.delete('/removeLearner', removeLearnerEndpoint);
-
-/**
- * @api {patch} /cohorts/breakout Schedule a Breakout for Cohort
- * @apiHeader {String} authorization JWT Token.
- * @apiName ScheduleBreakouts
- * @apiGroup Cohort
- */
-router.post('/breakout', createUpdateCohortBreakout);
-
-/**
- * @api {post} /cohorts/breakout/finished Schedule a Breakout for Cohort
- * @apiHeader {String} authorization JWT Token.
- * @apiName ScheduleBreakouts
- * @apiGroup Cohort
- */
-router.post('/finished', markCompleteBreakout);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowSuperAdminOnly);

@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = {
   up: (qi, Sequelize) => qi.sequelize.transaction(transaction => Promise.all([
     qi.addColumn('learner_faqs', 'section', {
@@ -9,5 +7,5 @@ module.exports = {
 
   down: (qi, Sequelize) => qi.sequelize.transaction(transaction => Promise.all([
     qi.removeColumn('learner_faqs', 'section', { transaction }),
-  ]))
+  ])),
 };

@@ -19,6 +19,8 @@ const APPLICATION_STATUS = [
   'hired',
   'rejected',
   'closed',
+  'shortlisted-by-soal',
+  'interested',
 ];
 
 const ASSIGNMENT_STATUS = [
@@ -34,6 +36,8 @@ const OFFER_STATUS = [
   'accepted',
   'candidate-rejected',
   'recruiter-rejected',
+  'soal-rejected',
+  '',
 ];
 
 const INTERIEW_STATUS = [
@@ -60,6 +64,7 @@ export const JobApplication = db.define('job_applications', {
   review: Sequelize.TEXT,
   status: {
     type: Sequelize.ENUM(...APPLICATION_STATUS),
+    defaultValue: 'active',
   },
   attached_assignment: {
     type: Sequelize.UUID,
@@ -67,7 +72,6 @@ export const JobApplication = db.define('job_applications', {
   },
   assignment_status: {
     type: Sequelize.ENUM(...ASSIGNMENT_STATUS),
-    defaultValue: 'active',
   },
   offer_status: {
     type: Sequelize.ENUM(...OFFER_STATUS),
@@ -239,19 +243,32 @@ export const getJobApplication = (id) => JobApplication
   });
 
 export const createJobApplication = ({
-  job_posting_id, portfolio_id, assignment_due_date, attached_assignment,
-}) => JobApplication.create({
-  id: uuid(),
-  job_posting_id,
-  portfolio_id,
-  attached_assignment,
-  status: 'assignment',
-  assignment_status: 'sent',
-  assignment_due_date,
-  assignment_sent_date: Sequelize.literal('NOW()'),
-  created_at: Sequelize.literal('NOW()'),
-  updated_at: Sequelize.literal('NOW()'),
-});
+  job_posting_id, portfolio_id, assignment_due_date,
+  status, attached_assignment,
+}) => {
+  if (status === 'assignment') {
+    return JobApplication.create({
+      id: uuid(),
+      job_posting_id,
+      portfolio_id,
+      status,
+      assignment_status: 'sent',
+      assignment_due_date,
+      attached_assignment,
+      assignment_sent_date: Sequelize.literal('NOW()'),
+      created_at: Sequelize.literal('NOW()'),
+      updated_at: Sequelize.literal('NOW()'),
+    });
+  }
+  return JobApplication.create({
+    id: uuid(),
+    job_posting_id,
+    portfolio_id,
+    status,
+    created_at: Sequelize.literal('NOW()'),
+    updated_at: Sequelize.literal('NOW()'),
+  });
+};
 
 export const createJobApplicationForPortofolio = async (
   {
@@ -316,15 +333,14 @@ export const updateJobApplication = async ({
   });
 };
 
-export const updateJobApplicationBypass = (application, id) => JobApplication
-  .update({
-    ...application,
-  }, {
-    where: {
-      id,
-    },
-    returning: true,
-  });
+export const updateJobApplicationBypass = (application, id) => JobApplication.update({
+  ...application,
+}, {
+  where: {
+    id,
+  },
+  returning: true,
+});
 
 export const deleteJobApplication = (id) => JobApplication
   .destroy({ where: { id } })

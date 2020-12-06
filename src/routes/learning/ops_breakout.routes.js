@@ -13,6 +13,9 @@ import {
   getBreakoutsForCohortMilestone,
   updateSanboxDetails,
   validateAttendanceForBreakout,
+  createUpdateCohortBreakout,
+  autoMarkBreakoutAttendance,
+  markCompleteBreakout,
 } from '../../controllers/learning/breakout.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -121,6 +124,30 @@ router.post('/', createLearnerBreakout);
  * @apiParam {String} learner_id Id of learner
  */
 router.post('/learner', learnerBreakoutsCreate);
+
+/**
+ * @api {patch} /learning/ops/breakouts/breakout Schedule a Breakout for Cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ScheduleBreakouts
+ * @apiGroup Cohort
+ */
+router.post('/breakout', createUpdateCohortBreakout);
+
+/**
+ * @api {post} /learning/ops/breakouts/autoattendance/:breakout_id/:catalyst_id Auto mark attendance for a Breakout
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ScheduleBreakouts
+ * @apiGroup CohortBreakouts
+ */
+router.get('/autoattendance/:breakout_id/:catalyst_id', autoMarkBreakoutAttendance);
+
+/**
+ * @api {post} /learning/ops/breakouts/finished Schedule a Breakout for Cohort
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ScheduleBreakouts
+ * @apiGroup Cohort
+ */
+router.post('/finished', markCompleteBreakout);
 
 /**
  * @api {get} /learning/ops/breakouts/mark_attendance Mark attendance of the breakout

@@ -154,7 +154,7 @@ export const Esign = (template_values, signers,
     .then(data => data)
     .catch(err => {
       console.error(err);
-      let data = { message: 'Failed to send Esign request', status: 'Failure' };
+      let data = { message: `Failed to send Esign request: ${err}`, status: 'Failure' };
       return data;
     })
   );
@@ -214,7 +214,7 @@ export const EsignRequest = (req, res) => {
       notify_signers,
       send_sign_link,
       file_name).then(esignStatus => {
-      createUserEntry(id, esignStatus, 'requested');
+      createUserEntry(id, JSON.parse(esignStatus.text), 'requested');
       return res.json(esignStatus);
     });
   });

@@ -294,11 +294,19 @@ export const createOrUpdateCohortBreakout = (
   )).then(showCompletedBreakoutOnSlack(cohort_topic_id, cohort_id, name));
 });
 
+export const autoMarkAttendance = async (
+  cohort_breakout_id,
+) => {
+  let cohortBreakout = await CohortBreakout.findByPk(cohort_breakout_id);
+  let attendance = await markZoomAttendance(cohortBreakout);
+  return attendance;
+};
+
 export const markBreakoutFinished = (
   cohort_breakout_id, name = '',
 ) => markBreakoutComplete(cohort_breakout_id)
   .then((completeBreakout) => Promise.all([
-    markZoomAttendance(completeBreakout[1]),
+    // markZoomAttendance(completeBreakout[1]),
     showCompletedBreakoutOnSlack(
       completeBreakout[1].topicId,
       completeBreakout[1].cohortId,
