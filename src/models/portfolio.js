@@ -6,6 +6,7 @@ import { USER_ROLES, User } from './user';
 import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
 import { SocialConnection } from './social_connection';
 import { JobApplication } from './job_application';
+import { CompanyProfile } from './company_profile';
 import { getReviewRubricForALearner } from './learner_breakout';
 
 const {
@@ -415,22 +416,39 @@ export const addPortfolioResume = (
 //     raw: true,
 //   });
 
-export const getLearnerList = async (limit = 10, offset = 0) => {
+export const getLearnerList = async (limit = 10, offset = 0,
+  company_id, application) => {
+  let whereObj = {
+    status: 'available',
+  };
+  let includeArray = [{
+    model: User,
+    attributes: ['name', 'email', 'phone', 'picture', 'status'],
+  },
+  ];
+  if (application) {
+    let applicationInclude = {
+      model: JobApplication,
+      attributes: ['job_posting_id', 'status'],
+      required: false,
+    };
+    includeArray.push(applicationInclude);
+  }
+  if (company_id) {
+    let toInclude = {
+      model: CompanyProfile,
+      as: 'ShortlistedPortfoliosForCompanies',
+      where: {
+        id: company_id,
+      },
+      required: true,
+    };
+    includeArray.push(toInclude);
+  }
   const { count, rows: portfolios } = await Portfolio
     .findAndCountAll({
-      where: {
-        status: 'available',
-      },
-      include: [{
-        model: User,
-        attributes: ['name', 'email', 'phone', 'picture', 'status'],
-      },
-      {
-        model: JobApplication,
-        attributes: ['job_posting_id', 'status'],
-        required: false,
-      },
-      ],
+      where: whereObj,
+      include: includeArray,
       offset,
       limit,
       raw: true,
@@ -442,10 +460,12 @@ export const getLearnerList = async (limit = 10, offset = 0) => {
       picture = await getViewUrlS3(portfolio['user.picture'], '', 'profile_picture');
       portfolio.profile_picture = picture.signedRequest;
     }
-    if (portfolio['user.status'].indexOf('frontend') > -1) {
-      portfolio.path = 'Frontend';
-    } else {
-      portfolio.path = 'Backend';
+    if (portfolio['user.status']) {
+      if (portfolio['user.status'].indexOf('frontend') > -1) {
+        portfolio.path = 'Frontend';
+      } else {
+        portfolio.path = 'Backend';
+      }
     }
     const social_connections = await SocialConnection.findAll({
       where: {
