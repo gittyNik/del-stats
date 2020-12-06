@@ -36,6 +36,8 @@ const OFFER_STATUS = [
   'accepted',
   'candidate-rejected',
   'recruiter-rejected',
+  'soal-rejected',
+  '',
 ];
 
 const INTERIEW_STATUS = [
