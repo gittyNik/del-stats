@@ -11,12 +11,12 @@ import { USER_ROLES } from '../../models/user';
 import { getChallengesByCompanyId } from '../../models/challenge';
 
 const {
-  ADMIN, CATALYST, EDUCATOR,
+  ADMIN, CATALYST, EDUCATOR, RECRUITER, CAREER_SERVICES,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, RECRUITER, CAREER_SERVICES]));
 
 /**
  * @api {get} /learning/content/challenges Get all Content Challenges
@@ -55,7 +55,7 @@ router.get('/company/:id', getChallengesByCompany);
 router.post('/filter', getFilteredChallengesAPI);
 
 // Restrict modifications for any applicant to the cohorts
-router.use(allowAdminsOnly);
+router.use(allowMultipleRoles([ADMIN, EDUCATOR, RECRUITER, CAREER_SERVICES]));
 
 /**
  * @api {post} /learning/content/challenges/ Add Content Challenge
@@ -86,6 +86,8 @@ router.post('/', createChallenge);
  * @apiParam {String="tiny","small","large"} size Size of the challenge.
  */
 router.patch('/:id', updateChallenge);
+
+router.use(allowMultipleRoles([ADMIN]));
 
 /**
  * @api {delete} /learning/content/challenges/:id Delete Content Challenge
