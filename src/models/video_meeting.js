@@ -384,6 +384,7 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
           // console.log('Attendance Count.', attendanceCount);
           return CohortBreakout.update({
             attendance_count: attendanceCount,
+            status: 'running',
             update_at: Date.now(),
           }, {
             where: {
