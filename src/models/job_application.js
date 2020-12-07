@@ -103,7 +103,7 @@ export const JobApplication = db.define('job_applications', {
 
 export const getAllJobApplications = ({ limit, offset }) => {
   // default parameters
-  limit = limit || 10;
+  limit = limit || 30;
 
   return JobApplication
     .findAndCountAll({
@@ -128,7 +128,7 @@ export const getAllJobApplications = ({ limit, offset }) => {
 export const getJobApplicationsByCompany = ({
   company_id, status, limit, offset,
 }) => {
-  limit = limit || 10;
+  limit = limit || 30;
 
   let whereObj = {
     '$job_posting.company_id$': company_id,
@@ -166,7 +166,7 @@ export const getJobApplicationsByCompany = ({
 export const getJobApplicationsForLearnerId = async ({
   learner_id, status, limit, offset,
 }) => {
-  limit = limit || 10;
+  limit = limit || 30;
   let whereObj = {
     '$portfolio.learner_id$': learner_id,
   };
@@ -326,7 +326,10 @@ export const updateJobApplication = async ({
     },
   })
     .then((learnerJobApplication) => {
-      learnerJobApplication.updated_by.push(...updated_by);
+      if (learnerJobApplication.updated_by === null) {
+        learnerJobApplication.updated_by = [];
+      }
+      learnerJobApplication.updated_by.push(updated_by);
 
       return JobApplication.update({
         job_posting_id,
