@@ -329,7 +329,7 @@ export const updateJobApplication = async ({
       if (learnerJobApplication.updated_by === null) {
         learnerJobApplication.updated_by = [];
       }
-      learnerJobApplication.updated_by.push(updated_by);
+      learnerJobApplication.updated_by.push(...updated_by);
 
       return JobApplication.update({
         job_posting_id,
