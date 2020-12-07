@@ -144,11 +144,11 @@ export const updateJobApplicationAPI = (req, res) => {
   } = req.body;
   const user_name = req.jwtData.user.name;
   const user_id = req.jwtData.user.id;
-  let updated_by = {
+  let updated_by = [{
     user_name,
     updated_at: new Date(),
     user_id,
-  };
+  }];
   return updateJobApplication({
     id,
     job_posting_id,
