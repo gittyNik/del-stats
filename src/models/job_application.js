@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
-import { Portfolio } from './portfolio';
+import { Portfolio, updatePortfolioStatus } from './portfolio';
 import db from '../database';
 import { JobPosting } from './job_postings';
 import {
@@ -21,6 +21,7 @@ const APPLICATION_STATUS = [
   'closed',
   'shortlisted-by-soal',
   'interested',
+  'offered',
 ];
 
 const ASSIGNMENT_STATUS = [
@@ -97,6 +98,7 @@ export const JobApplication = db.define('job_applications', {
   updated_at: {
     type: Sequelize.DATE,
   },
+  updated_by: Sequelize.ARRAY(Sequelize.JSON),
 });
 
 export const getAllJobApplications = ({ limit, offset }) => {
@@ -303,7 +305,7 @@ export const updateJobApplication = async ({
   assignment_status, offer_status,
   interview_status, assignment_due_date, interview_date,
   offer_details, applicant_feedback, counsellor_notes, assignment_id,
-  learner_id,
+  learner_id, updated_by,
 }) => {
   if ((assignment_id) && (assignment_status === 'started')) {
     await learnerChallengesFindOrCreate(
@@ -314,23 +316,39 @@ export const updateJobApplication = async ({
     );
   }
 
-  JobApplication.update({
-    job_posting_id,
-    portfolio_id,
-    review,
-    status,
-    assignment_status,
-    offer_status,
-    interview_status,
-    assignment_due_date,
-    interview_date,
-    offer_details,
-    applicant_feedback,
-    counsellor_notes,
-    attached_assignment: assignment_id,
-  }, {
-    where: { id },
-  });
+  if (offer_status === 'accepted') {
+    await updatePortfolioStatus(portfolio_id, 'hired', updated_by);
+  }
+
+  return JobApplication.findOne({
+    where: {
+      id,
+    },
+  })
+    .then((learnerJobApplication) => {
+      learnerJobApplication.updated_by.push(...updated_by);
+
+      return JobApplication.update({
+        job_posting_id,
+        portfolio_id,
+        review,
+        status,
+        assignment_status,
+        offer_status,
+        interview_status,
+        assignment_due_date,
+        interview_date,
+        offer_details,
+        applicant_feedback,
+        counsellor_notes,
+        attached_assignment: assignment_id,
+        updated_by: learnerJobApplication.updated_by,
+      }, {
+        where: { id },
+        returning: true,
+        raw: true,
+      });
+    });
 };
 
 export const updateJobApplicationBypass = (application, id) => JobApplication.update({
