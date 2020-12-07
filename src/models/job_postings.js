@@ -130,7 +130,7 @@ export const getAllJobPostings = ({
   status,
   company_id,
 }) => {
-  limit = limit || 10;
+  limit = limit || 30;
   status = status || 'active';
   let whereObj = { status };
   if (company_id) {
@@ -160,7 +160,7 @@ export const getJobPostingsByStatus = (
     status,
   },
 ) => {
-  limit = limit || 10;
+  limit = limit || 30;
   status = status || 'active';
   let whereObj = { status };
   return JobPosting.findAndCountAll(
@@ -184,7 +184,7 @@ export const getJobPostingsByCompany = (
     offset,
   },
 ) => {
-  limit = limit || 10;
+  limit = limit || 30;
   status = status || 'active';
   let whereObj = { status };
   if (company_id) {

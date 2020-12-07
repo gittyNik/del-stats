@@ -107,7 +107,7 @@ export const getCompanyProfileFromId = (id, role) => CompanyProfile.findOne({
 });
 
 export const getAllCompanyProfiles = (
-  limit = 10,
+  limit = 30,
   offset = 0,
   status = 'active',
 ) => CompanyProfile.findAndCountAll(
