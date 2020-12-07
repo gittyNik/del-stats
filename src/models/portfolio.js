@@ -312,6 +312,24 @@ export const updatePortfolioById = (
     });
   });
 
+export const updatePortfolioStatus = (id, hiring_status, updated_by) => Portfolio.findOne({
+  where: {
+    id,
+  },
+})
+  .then((learnerPortfolio) => {
+    learnerPortfolio.updated_by.push(...updated_by);
+
+    return Portfolio.update({
+      hiring_status,
+      updated_by: learnerPortfolio.updated_by,
+    }, {
+      where: {
+        id,
+      },
+    });
+  });
+
 export const updatePortfolioForLearner = (
   learner_id,
   showcase_projects,
@@ -384,7 +402,6 @@ export const addPortfolioResume = (
     };
 
     return Portfolio.update({
-      learner_id,
       resume,
       updated_by: learnerPortfolio.updated_by,
     }, {
@@ -420,6 +437,7 @@ export const getLearnerList = async (limit = 10, offset = 0,
   company_id, application) => {
   let whereObj = {
     status: 'available',
+    hiring_status: 'available',
   };
   let includeArray = [{
     model: User,
