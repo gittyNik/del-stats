@@ -71,20 +71,18 @@ export const retryOTP = (req, res) => {
   sendOtp.retry(phone, retryVoice, (error, data) => {
     // console.log(data);
     if (error) console.error(error);
-    res.send(data);
+    return res.send(data);
   });
 };
 
 // todo: clean up
 const signInUser = (phone, res) => {
-  getUserFromPhone(phone).then(user => {
-    res.send({
-      user,
-      soalToken: getSoalToken(user),
-    });
-  }).catch((e) => {
+  getUserFromPhone(phone).then(user => res.send({
+    user,
+    soalToken: getSoalToken(user),
+  })).catch((e) => {
     console.error(e);
-    res.sendStatus(404);
+    return res.sendStatus(404);
   });
 };
 
@@ -105,7 +103,7 @@ const register = (data, res) => {
     }));
   }).catch(err => {
     console.error(err);
-    res.sendStatus(500);
+    return res.sendStatus(500);
   });
 };
 
@@ -162,7 +160,7 @@ export const verifyOTP = (req, res) => {
       } catch (err2) {
         console.warn('Unable to send message to slack');
       }
-      res.sendStatus(401);
+      return res.sendStatus(401);
     }
   });
 };
