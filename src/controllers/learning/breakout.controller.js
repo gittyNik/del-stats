@@ -73,6 +73,7 @@ export const autoMarkBreakoutAttendance = (req, res) => {
       .then((data) => {
         res.status(201).json({
           data,
+          message: 'Learner attendance data',
         });
       })
       .catch((err) => res.status(500).send({

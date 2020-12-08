@@ -14,6 +14,9 @@ import { changeTimezone } from './breakout_template';
 import {
   notifyAttendanceLearnerInChannel,
 } from '../integrations/slack/delta-app/controllers/web.controller';
+import {
+  getLearnerAttendanceForBreakout,
+} from '../controllers/learning/learner_breakout.controller';
 
 const { in: opIn, between } = Sequelize.Op;
 
@@ -379,10 +382,9 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
         participants, catalyst_id,
         cohort_breakout_id, attentiveness_threshold, duration_threshold,
       )
-        .then(attendanceCountArray => {
+        .then(async attendanceCountArray => {
           const attendanceCount = attendanceCountArray.reduce(add);
-          // console.log('Attendance Count.', attendanceCount);
-          return CohortBreakout.update({
+          await CohortBreakout.update({
             attendance_count: attendanceCount,
             status: 'running',
             update_at: Date.now(),
@@ -391,6 +393,8 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
               id: cohort_breakout_id,
             },
           });
+
+          return getLearnerAttendanceForBreakout(cohort_breakout_id);
         }).catch(err => {
           console.error('Failed to update Cohort attendance count', err);
           return {
@@ -398,12 +402,12 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
           };
         });
     })
-    .catch(err =>
-      // console.log(err);
-      ({
+    .catch(err => {
+      console.log(err);
+      return {
         text: `Failed to get breakout details from Zoom ${cohort_breakout_id}`,
-      }))
-  );
+      };
+    }));
 };
 
 export const updateVideoMeeting = async (meetingId, updatedTime) => {

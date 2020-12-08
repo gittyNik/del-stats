@@ -64,17 +64,20 @@ export const createLearnerBreakout = (req, res) => {
     });
 };
 
+export const getLearnerAttendanceForBreakout = (cohort_breakout_id) => LearnerBreakout.findAll({
+  where: {
+    cohort_breakout_id,
+  },
+  include: [{
+    model: User,
+    attributes: ['name', 'status'],
+  }],
+  raw: true,
+});
+
 export const getLearnerBreakoutsByBreakoutId = (req, res) => {
   const { cohort_breakout_id } = req.params;
-  LearnerBreakout.findAll({
-    where: {
-      cohort_breakout_id,
-    },
-    include: [{
-      model: User,
-      attributes: ['name', 'status'],
-    }],
-  })
+  getLearnerAttendanceForBreakout(cohort_breakout_id)
     .then((data) => res.json({
       text: 'Learner breakouts for a cohort breakout',
       data,
