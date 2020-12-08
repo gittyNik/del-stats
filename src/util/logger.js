@@ -27,7 +27,7 @@ function wrap(logger) {
 }
 
 const logger = wrap(pino({
-  level: process.env.NODE_ENV === 'production' ? 'error' : 'info',
+  level: process.env.NODE_ENV === 'production' ? 'error' : 'debug',
   prettyPrint: { colorize: true },
   translateTime: true,
   timestamp: process.env.NODE_ENV === 'production' ? true : pino.stdTimeFunctions.isoTime,

@@ -644,8 +644,8 @@ export const updateMilestoneByDays = async (cohortId, updateByDays, user_id = nu
       let updatedReleaseTime = calculateAfterDays(cohortMilestone.release_time, updateByDays);
       let updatedReviewScheduled = calculateAfterDays(cohortMilestone.review_scheduled,
         updateByDays);
-      console.debug(`Previous meeting time ${cohortMilestone.release_time}`);
-      console.debug(`Updated meeting time ${updatedReleaseTime}`);
+      logger.debug(`Previous meeting time ${cohortMilestone.release_time}`);
+      logger.debug(`Updated meeting time ${updatedReleaseTime}`);
 
       if (updatedReviewScheduled > currentDateTime) {
         CohortMilestone.update(

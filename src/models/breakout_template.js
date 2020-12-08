@@ -196,7 +196,7 @@ const createLearnerBreakouts = async (cohortBreakouts, cohort_id) => {
     learnerBreakouts.push(breakout);
   }
   let allLearnerBreakouts = Promise.all(learnerBreakouts);
-  console.debug(`Total Learner Breakouts created for cohort_id: ${cohort_id} is ${allLearnerBreakouts.length}`);
+  logger.debug(`Total Learner Breakouts created for cohort_id: ${cohort_id} is ${allLearnerBreakouts.length}`);
   return allLearnerBreakouts;
 };
 
