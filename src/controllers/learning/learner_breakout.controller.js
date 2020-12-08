@@ -72,7 +72,6 @@ export const getLearnerAttendanceForBreakout = (cohort_breakout_id) => LearnerBr
     model: User,
     attributes: ['name', 'status'],
   }],
-  raw: true,
 });
 
 export const getLearnerBreakoutsByBreakoutId = (req, res) => {

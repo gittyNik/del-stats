@@ -196,9 +196,10 @@ export const markZoomAttendance = (cohort_breakout_details) => {
   } catch (err) {
     // If meeting does not have zoom url
     // If zoom meeting url creation has failed
-    console.warn('Meeting missing Zoom url');
+    console.error(`Error in auto marking attendance: ${err}`);
+    // console.warn('Meeting missing Zoom url');
     // console.warn(cohort_breakout_details);
-    return { message: 'Meeting marked as complete' };
+    throw Error('Meeting missing Zoom url');
   }
 };
 

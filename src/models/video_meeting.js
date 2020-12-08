@@ -395,18 +395,7 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
           });
 
           return getLearnerAttendanceForBreakout(cohort_breakout_id);
-        }).catch(err => {
-          console.error('Failed to update Cohort attendance count', err);
-          return {
-            text: `Failed to update Cohort attendance count for ${cohort_breakout_id} .`,
-          };
         });
-    })
-    .catch(err => {
-      console.log(err);
-      return {
-        text: `Failed to get breakout details from Zoom ${cohort_breakout_id}`,
-      };
     }));
 };
 
