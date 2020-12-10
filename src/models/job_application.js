@@ -307,8 +307,9 @@ export const updateJobApplication = async ({
   offer_details, applicant_feedback, counsellor_notes, assignment_id,
   learner_id, updated_by,
 }) => {
+  let learnerAssignment;
   if ((assignment_id) && (assignment_status === 'started')) {
-    await learnerChallengesFindOrCreate(
+    learnerAssignment = await learnerChallengesFindOrCreate(
       assignment_id,
       learner_id,
       false,
@@ -331,7 +332,7 @@ export const updateJobApplication = async ({
       }
       learnerJobApplication.updated_by.push(...updated_by);
 
-      return JobApplication.update({
+      let jobApplication = JobApplication.update({
         job_posting_id,
         portfolio_id,
         review,
@@ -351,6 +352,8 @@ export const updateJobApplication = async ({
         returning: true,
         raw: true,
       });
+      jobApplication.learnerAssignment = learnerAssignment;
+      return jobApplication;
     });
 };
 
