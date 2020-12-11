@@ -326,13 +326,13 @@ export const updateJobApplication = async ({
       id,
     },
   })
-    .then((learnerJobApplication) => {
+    .then(async (learnerJobApplication) => {
       if (learnerJobApplication.updated_by === null) {
         learnerJobApplication.updated_by = [];
       }
       learnerJobApplication.updated_by.push(...updated_by);
 
-      let jobApplication = JobApplication.update({
+      let jobApplication = await JobApplication.update({
         job_posting_id,
         portfolio_id,
         review,
@@ -352,8 +352,8 @@ export const updateJobApplication = async ({
         returning: true,
         raw: true,
       });
-      jobApplication.learnerAssignment = learnerAssignment;
-      return jobApplication;
+      jobApplication[1][0].learnerAssignment = learnerAssignment;
+      return jobApplication[1][0];
     });
 };
 
