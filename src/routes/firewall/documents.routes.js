@@ -9,14 +9,14 @@ import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, EDUCATOR, LEARNER, OPERATIONS, REVIEWER, CATALYST, CAREER_SERVICES,
+  ADMIN, EDUCATOR, LEARNER, OPERATIONS, REVIEWER, CATALYST, CAREER_SERVICES, GUEST,
 } = USER_ROLES;
 // import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
 
 router.use(allowMultipleRoles([ADMIN, LEARNER,
-  OPERATIONS, EDUCATOR, REVIEWER, CATALYST, CAREER_SERVICES]));
+  OPERATIONS, EDUCATOR, REVIEWER, CATALYST, CAREER_SERVICES, GUEST]));
 
 /**
  * @api {get} /firewall/documents/sign-request/ Upload files to AWS
@@ -27,7 +27,7 @@ router.use(allowMultipleRoles([ADMIN, LEARNER,
  */
 router.post('/sign-request', getSignUrl);
 
-router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]));
+router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER, GUEST]));
 
 /**
  * @api {patch} /firewall/documents/:id/esign Send Esign Request to User
@@ -137,6 +137,5 @@ router.patch('/:id', updateUser);
  */
 // router.delete('/:id', deleteOne);
 
-
-router.post('/verify/', verifySingleUserDocumentAPI)
+router.post('/verify/', verifySingleUserDocumentAPI);
 export default router;
