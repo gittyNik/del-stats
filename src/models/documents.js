@@ -2,7 +2,111 @@ import Sequelize from 'sequelize';
 import _ from 'lodash';
 import db from '../database';
 
-export const application_status = ['requested', 'signed', 'payment-pending', 'payment-partial', 'payment-complete'];
+export const application_status = [
+  'requested',
+  'signed',
+  'payment-pending',
+  'payment-partial',
+  'payment-complete',
+];
+
+export const mandatory = {
+  AADHAR_FRONT: 'aadhar-front',
+  AADHAR_BACK: 'aadhar-back',
+  BANK_STATEMENT: 'bank-statement',
+  GRADUATION_CERTIFICATE: 'graduation-certificate',
+  PROOF_OF_INCOME: 'proof-of-income',
+};
+
+export const learner_options_front = {
+  LEARNER_PAN_CARD_FRONT: 'learner-pan-card-front',
+  LEARNER_DL_FRONT: 'learner-dl-front',
+  LEARNER_RATION_CARD_FRONT: 'learner-ration-card-front',
+  LEARNER_VOTER_ID_FRONT: 'learner-voter-id-front',
+  LEARNER_PASSPORT: 'learner-passport',
+};
+
+export const learner_options_back = {
+  LEARNER_PAN_CARD_BACK: 'learner-pan-card-back',
+  LEARNER_DL_BACK: 'learner-dl-back',
+  LEARNER_RATION_CARD_BACK: 'learner-ration-card-front',
+  LEARNER_VOTER_ID_BACK: 'learner-voter-id-back',
+};
+
+export const guardian_options_front = {
+  GUARDIAN_PAN_CARD_FRONT: 'guardian-pan-card-front',
+  GUARDIAN_DL_FRONT: 'guadian-dl-front',
+  GUARDIAN_RATION_CARD_FRONT: 'guadian-ration-card-front',
+  GUARDIAN_VOTER_ID_FRONT: 'guadian-voter-id-front',
+  GUARDIAN_PASSPORT: 'guadian-passport',
+};
+
+export const guardian_options_back = {
+  GUARDIAN_PAN_CARD_BACK: 'guadian-pan-card-back',
+  GUARDIAN_DL_BACK: 'guadian-dl-back',
+  GUARDIAN_RATION_CARD_BACK: 'guadian-ration-card-front',
+  GUARDIAN_VOTER_ID_BACK: 'guadian-voter-id-back',
+};
+
+const user_document_factory = (document_name, is_required, options = false) => {
+
+  const ud = {
+    document_name,
+    is_required,
+    is_verified: false,
+    document_path: '',
+    details: {
+      comment: '',
+      updated_by: '',
+      updated_at: '',
+    },
+  };
+  if (options) {
+    ud.list = Object.keys(options).map(k => options[k]);
+    ud.selected = '';
+  }
+  return ud;
+};
+
+export const empty_user_documents = () => ([
+  user_document_factory(`learner-${mandatory.AADHAR_FRONT}`, true),
+  user_document_factory(`learner-${mandatory.AADHAR_BACK}`, true),
+  user_document_factory(`learner-${mandatory.BANK_STATEMENT}`, true),
+  user_document_factory(`learner-${mandatory.GRADUATION_CERTIFICATE}`, true),
+  user_document_factory('learner-options-front', true, learner_options_front),
+  user_document_factory('learner-options-back', false, learner_options_back),
+  user_document_factory(`guardian-${mandatory.AADHAR_FRONT}`, true),
+  user_document_factory(`guardian-${mandatory.AADHAR_BACK}`, true),
+  user_document_factory(`guardian-${mandatory.BANK_STATEMENT}`, true),
+  user_document_factory(`guardian-${mandatory.PROOF_OF_INCOME}`, true),
+  user_document_factory('guardian-options-front', true, guardian_options_front),
+  user_document_factory('guardian-options-back', false, guardian_options_back),
+]);
+
+export const createOrUpdateUserDocument = (document, user_documents) => {
+  if (typeof document === 'undefined') {
+    return empty_user_documents();
+  }
+  const { document_name, is_verified, document_path, details } = document;
+  const empty = user_documents || empty_user_documents();
+  const optional_ud = empty.find(_ud => {
+    if (_ud.list) {
+      return _ud.list.includes(document_name);
+    }
+    return false;
+  });
+  if (optional_ud) {
+    optional_ud.document_name = document_name || optional_ud.document_name;
+    optional_ud.is_verified = is_verified || false;
+    optional_ud.document_path = document_path || optional_ud.document_path;
+    return empty;
+  }
+  const ud = empty.find(_ud => _ud.document_name === document_name);
+  ud.is_verified = is_verified || false;
+  ud.document_path = document_path || ud.document_path;
+  ud.details = details || { comment: '', updated_by: '', updated_at: '' };
+  return empty;
+};
 
 export const Documents = db.define('documents', {
   id: {
@@ -43,14 +147,7 @@ export const Documents = db.define('documents', {
   },
 });
 
-export const getAllDocuments = (req, res) => {
-  Documents.findAll({})
-    .then(data => res.json(data))
-    .catch(err => {
-      console.error(err);
-      res.status(500);
-    });
-};
+export const getAllDocuments = () => Documents.findAll({});
 
 export const getDocumentsFromId = id => Documents.findOne(
   { where: { id } },
@@ -70,17 +167,18 @@ export const getDocumentsByUser = user_id => Documents.findAll(
   },
 );
 
-export const createUserEntry = (user_id, document_details, status, payment_status,
-  is_isa = false, is_verified = false) => Documents.create(
-  {
-    user_id,
-    document_details,
-    status,
-    payment_status,
-    is_isa,
-    is_verified,
-  },
-);
+export const createUserEntry = ({
+  user_id, document_details, status, payment_status,
+  is_isa = false, is_verified = false, user_document,
+}) => Documents.create({
+  user_id,
+  document_details,
+  status,
+  payment_status,
+  is_isa,
+  is_verified,
+  user_documents: createOrUpdateUserDocument(user_document),
+});
 
 export const insertIndividualDocument = (
   user_id,
@@ -92,21 +190,22 @@ export const insertIndividualDocument = (
 })
   .then((learnerDocument) => {
     if (_.isEmpty(learnerDocument)) {
-      return Documents.create({
-        user_id,
-        user_documents: [document],
-      });
+      /*
+      document should contain these properties
+      const {document_name, is_verified, document_path} = document;
+      */
+      return createUserEntry({ user_id, user_document: document }).then(d => d.get({ plain: true }));
     }
-
-    learnerDocument.user_documents.push(...document);
+    // const { document_name, is_verified, document_path } = document;
 
     return learnerDocument.update({
-      user_documents: learnerDocument.user_documents,
+      user_documents: createOrUpdateUserDocument(document, learnerDocument.user_documents),
     }, {
       where: {
         user_id,
       },
-    });
+    })
+      .then(d => d.get({ plain: true }));
   });
 
 export const updateUserEntry = (user_id, document_details, status, payment_status,
@@ -117,3 +216,27 @@ export const updateUserEntry = (user_id, document_details, status, payment_statu
   is_isa,
   is_verified,
 }, { where: { user_id } });
+
+export const verifySingleUserDocument = async (
+  user_id,
+  document_name,
+  is_verified,
+  comment,
+  updated_by) => {
+  const documentRow = await getDocumentsByUser(user_id);
+  // const
+  const updated_user_documents = createOrUpdateUserDocument(
+    {
+      document_name,
+      is_verified,
+      details: { comment, updated_by, updated_at: new Date() },
+    },
+    documentRow[0].user_documents,
+  );
+  return Documents.update({
+    user_documents: updated_user_documents,
+  }, {
+    where: { user_id },
+    returning: true,
+  });
+};

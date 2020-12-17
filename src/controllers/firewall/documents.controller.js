@@ -5,6 +5,7 @@ import {
   getDocumentsByStatus, getDocumentsByUser,
   getDocumentsFromId, createUserEntry, updateUserEntry,
   getAllDocuments, insertIndividualDocument,
+  verifySingleUserDocument,
 } from '../../models/documents';
 import { User } from '../../models/user';
 
@@ -74,13 +75,14 @@ export const getDocumentsAll = (req, res) => {
 };
 
 export const getDocumentsStatus = (req, res) => {
-  const { status } = req.query;
+  const { status } = req.params;
   getDocumentsByStatus(status).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
 export const getDocumentsByUserId = (req, res) => {
-  const { user_id } = req.query;
+  const { user_id } = req.params;
+
   getDocumentsByUser(user_id).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
@@ -214,7 +216,7 @@ export const EsignRequest = (req, res) => {
       notify_signers,
       send_sign_link,
       file_name).then(esignStatus => {
-      createUserEntry(id, esignStatus, 'requested');
+        createUserEntry({ user_id: id, document_details: esignStatus, status: 'requested' });
       return res.json(esignStatus);
     });
   });
@@ -305,11 +307,17 @@ export const getSignUrl = async (req, res) => {
   }
 };
 
+/**
+ *
+ * @param {String} req.body.document_name Name of the Document
+ * @param {Boolean} req.body.is_verified Default value is false
+ * @param {String} req.body.document_path path to the uploaded document
+ */
 export const insertUserDocument = async (req, res) => {
-  const { document } = req.body;
-  const user_id = req.jwtData.user.id;
+  const { document_name, is_verified = false, document_path } = req.body;
+  const { user_id } = req.params;
   try {
-    let response = await insertIndividualDocument(user_id, document);
+    let response = await insertIndividualDocument(user_id, { document_name, is_verified, document_path });
     return res.json({
       message: 'Document added successfully!',
       data: response,
@@ -323,3 +331,24 @@ export const insertUserDocument = async (req, res) => {
     });
   }
 };
+
+export const verifySingleUserDocumentAPI = async (req, res) => {
+  const {
+    document_name, is_verified, comment, learner_id,
+  } = req.body;
+  const user_id = req.jwtData.user.id;
+  try {
+    const response = await verifySingleUserDocument(learner_id, document_name, is_verified, comment, user_id);
+    return res.status(201).json({
+      message: 'Updated a single User document successfully!',
+      data: response,
+      type: 'success',
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: 'Unable to update user document',
+      type: 'failure',
+    });
+  }
+}

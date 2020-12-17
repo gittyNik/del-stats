@@ -3,7 +3,7 @@ import {
   getDocumentsByID, getDocumentsByUserId,
   getDocumentsStatus, updateUser, createUser,
   getDocumentsAll, EsignRequest, getSignUrl,
-  insertUserDocument,
+  insertUserDocument, verifySingleUserDocumentAPI,
 } from '../../controllers/firewall/documents.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -55,7 +55,7 @@ router.post('/:id/esign', EsignRequest);
  * @apiName GetUserDocumentResources
  * @apiGroup Documents
  */
-router.post('/save', insertUserDocument);
+router.post('/save/:user_id', insertUserDocument);
 
 /**
  * @api {get} /firewall/documents Get all Documents
@@ -73,7 +73,7 @@ router.get('/', getDocumentsAll);
  * @apiName GetDocuments
  * @apiGroup Documents
  */
-router.get('/:id', getDocumentsByUserId);
+router.get('/:user_id', getDocumentsByUserId);
 
 /**
  * @api {get} /firewall/documents/docid/:id/ Get document by doc id
@@ -91,7 +91,7 @@ router.get('/docid/:id', getDocumentsByID);
  * @apiName GetUserDocumentResources
  * @apiGroup Documents
  */
-router.get('/status/:id', getDocumentsStatus);
+router.get('/status/:status', getDocumentsStatus);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowMultipleRoles([ADMIN, OPERATIONS, EDUCATOR]));
@@ -137,4 +137,6 @@ router.patch('/:id', updateUser);
  */
 // router.delete('/:id', deleteOne);
 
+
+router.post('/verify/', verifySingleUserDocumentAPI)
 export default router;
