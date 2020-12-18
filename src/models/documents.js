@@ -49,7 +49,6 @@ export const guardian_options_back = {
 };
 
 const user_document_factory = (document_name, is_required, options = false) => {
-
   const ud = {
     document_name,
     is_required,
@@ -87,7 +86,9 @@ export const createOrUpdateUserDocument = (document, user_documents) => {
   if (typeof document === 'undefined') {
     return empty_user_documents();
   }
-  const { document_name, is_verified, document_path, details } = document;
+  const {
+ document_name, is_verified, document_path, details 
+} = document;
   const empty = user_documents || empty_user_documents();
   const optional_ud = empty.find(_ud => {
     if (_ud.list) {
@@ -170,15 +171,37 @@ export const getDocumentsByUser = user_id => Documents.findAll(
 export const createUserEntry = ({
   user_id, document_details, status, payment_status,
   is_isa = false, is_verified = false, user_document,
-}) => Documents.create({
-  user_id,
-  document_details,
-  status,
-  payment_status,
-  is_isa,
-  is_verified,
-  user_documents: createOrUpdateUserDocument(user_document),
-});
+}) => Documents.findOne({
+  where: {
+    user_id,
+  },
+})
+  .then((userDocuments) => {
+    if (_.isEmpty(userDocuments)) {
+      return Documents.create({
+        user_id,
+        document_details,
+        status,
+        payment_status,
+        is_isa,
+        is_verified,
+        user_documents: createOrUpdateUserDocument(user_document),
+      });
+    }
+
+    return userDocuments.update({
+      document_details,
+      status,
+      payment_status,
+      is_isa,
+      is_verified,
+      user_documents: createOrUpdateUserDocument(user_document),
+    }, {
+      where: {
+        user_id,
+      },
+    });
+  });
 
 export const insertIndividualDocument = (
   user_id,

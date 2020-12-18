@@ -216,7 +216,7 @@ export const EsignRequest = (req, res) => {
       notify_signers,
       send_sign_link,
       file_name).then(esignStatus => {
-        createUserEntry({ user_id: id, document_details: esignStatus, status: 'requested' });
+      createUserEntry({ user_id: id, document_details: esignStatus, status: 'requested' });
       return res.json(esignStatus);
     });
   });
@@ -351,4 +351,4 @@ export const verifySingleUserDocumentAPI = async (req, res) => {
       type: 'failure',
     });
   }
-}
+};
