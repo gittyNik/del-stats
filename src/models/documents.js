@@ -19,33 +19,33 @@ export const mandatory = {
 };
 
 export const learner_options_front = {
-  LEARNER_PAN_CARD_FRONT: 'learner-pan-card-front',
-  LEARNER_DL_FRONT: 'learner-dl-front',
+  LEARNER_PAN_CARD_FRONT: 'learner-PAN-card-front',
+  LEARNER_DL_FRONT: 'learner-driving-license-front',
   LEARNER_RATION_CARD_FRONT: 'learner-ration-card-front',
-  LEARNER_VOTER_ID_FRONT: 'learner-voter-id-front',
+  LEARNER_VOTER_ID_FRONT: 'learner-voter-ID-front',
   LEARNER_PASSPORT: 'learner-passport',
 };
 
 export const learner_options_back = {
-  LEARNER_PAN_CARD_BACK: 'learner-pan-card-back',
-  LEARNER_DL_BACK: 'learner-dl-back',
+  LEARNER_PAN_CARD_BACK: 'learner-PAN-card-back',
+  LEARNER_DL_BACK: 'learner-driving-license-back',
   LEARNER_RATION_CARD_BACK: 'learner-ration-card-front',
-  LEARNER_VOTER_ID_BACK: 'learner-voter-id-back',
+  LEARNER_VOTER_ID_BACK: 'learner-voter-ID-back',
 };
 
 export const guardian_options_front = {
-  GUARDIAN_PAN_CARD_FRONT: 'guardian-pan-card-front',
-  GUARDIAN_DL_FRONT: 'guadian-dl-front',
-  GUARDIAN_RATION_CARD_FRONT: 'guadian-ration-card-front',
-  GUARDIAN_VOTER_ID_FRONT: 'guadian-voter-id-front',
-  GUARDIAN_PASSPORT: 'guadian-passport',
+  GUARDIAN_PAN_CARD_FRONT: 'guardian-PAN-card-front',
+  GUARDIAN_DL_FRONT: 'guardian-driving-license-front',
+  GUARDIAN_RATION_CARD_FRONT: 'guardian-ration-card-front',
+  GUARDIAN_VOTER_ID_FRONT: 'guardian-voter-ID-front',
+  GUARDIAN_PASSPORT: 'guardian-passport',
 };
 
 export const guardian_options_back = {
-  GUARDIAN_PAN_CARD_BACK: 'guadian-pan-card-back',
-  GUARDIAN_DL_BACK: 'guadian-dl-back',
-  GUARDIAN_RATION_CARD_BACK: 'guadian-ration-card-front',
-  GUARDIAN_VOTER_ID_BACK: 'guadian-voter-id-back',
+  GUARDIAN_PAN_CARD_BACK: 'guardian-PAN-card-back',
+  GUARDIAN_DL_BACK: 'guardian-driving-license-back',
+  GUARDIAN_RATION_CARD_BACK: 'guardian-ration-card-front',
+  GUARDIAN_VOTER_ID_BACK: 'guardian-voter-ID-back',
 };
 
 const user_document_factory = (document_name, is_required, options = false) => {
