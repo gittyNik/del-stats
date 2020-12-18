@@ -82,7 +82,7 @@ export const createInterviewEndpoint = async (req, res) => {
       job_application = await updateJobApplicationBypass({
         status: 'interview',
         interview_status: 'scheduled',
-        updated_by,
+        updated_by: [updated_by],
       }, job_application_id);
     }
     res.send({

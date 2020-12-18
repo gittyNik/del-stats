@@ -56,7 +56,7 @@ router.use('/operations', operations);
 router.use('/calendar', calendarRouter);
 
 // Code Interview
-router.use('/codeinterview', codeInterviewRouter)
+router.use('/codeinterview', codeInterviewRouter);
 
 /**
  * @api {get} / Get sample response
