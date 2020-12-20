@@ -1,12 +1,17 @@
 import request from 'superagent';
 import _ from 'lodash';
 import AWS from 'aws-sdk';
+import axios from 'axios';
+import crypto from 'crypto';
+
 import {
   getDocumentsByStatus, getDocumentsByUser,
   getDocumentsFromId, createUserEntry, updateUserEntry,
   getAllDocuments, insertIndividualDocument,
+  updateMandateDetailsForLearner, updateDebitDetailsForLearner,
 } from '../../models/documents';
 import { User } from '../../models/user';
+import { uploadFile } from '../emailer/emailer.controller';
 
 const {
   AWS_DOCUMENT_BUCKET,
@@ -158,6 +163,85 @@ export const Esign = (template_values, signers,
       return data;
     })
   );
+};
+
+const processWebHookData = async (entities, payload, id, event) => {
+  let message = 'Hello';
+  return message;
+  // if (entities.filter(element => element.includes('mandate'))) {
+  //   // Mandate details
+  //   let mandate_details = payload.api_mandate;
+  //   return updateMandateDetailsForLearner(mandate_details.id, mandate_details);
+  // }
+  // // eNach debit details
+  // let debit_details = payload.nach_debit;
+  // // console.log(event)
+  // return updateDebitDetailsForLearner(debit_details.id, debit_details);
+};
+
+export const digioEnachWebHook = (req, res) => {
+  const {
+    entities, payload, id, event,
+  } = req.body;
+
+  console.log('Request Body');
+  console.log(req.body);
+  console.log('Request Headers');
+  console.log(req.headers);
+
+  let digioWebhookSecret = process.env.DIGIO_WEBHOOK_SECRET;
+  let checkSum = crypto.createHmac('sha256', digioWebhookSecret).update(JSON.stringify(req.body));
+
+  console.log('checkSum');
+  console.log(checkSum.digest('base64'));
+
+  processWebHookData(entities, payload, id, event)
+    .then((data) => res.json({
+      text: data,
+    }))
+    .catch((err) => {
+      console.error(err);
+      res.status(500);
+    });
+};
+
+export const downloadEsignAgreement = async (user_id) => {
+  let userDocument = await getDocumentsByUser(user_id);
+
+  let esignDocumentDetails = userDocument.document_details.id;
+  const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
+
+  return axios.get(`${DIGIO_BASE_URL}v2/client/document/download?document_id=${esignDocumentDetails}`, {
+    headers: {
+      Authorization: `Basic ${BASE_64_TOKEN}`,
+    },
+    responseType: 'arraybuffer',
+  })
+    .then(async (res) => {
+      let pdfFile = res.data;
+      let { bucketName, basePath } = type_upload.agreement;
+      await uploadFile(bucketName, `${basePath}/${userDocument.document_details.file_name}.pdf`,
+        pdfFile, 'application/pdf');
+      // TODO: Upload document path in DB
+      return 'Document uploaded successfully!';
+    })
+    .catch((error) => {
+      console.error(error);
+      throw Error('Document download failed!');
+    });
+};
+
+export const downloadEsignDocument = (req, res) => {
+  const { id } = req.params;
+
+  downloadEsignAgreement(id)
+    .then((data) => res.json({
+      text: data,
+    }))
+    .catch((err) => {
+      console.error(err);
+      res.status(500);
+    });
 };
 
 // TODO: Testing pending

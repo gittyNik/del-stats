@@ -3,7 +3,8 @@ import {
   getDocumentsByID, getDocumentsByUserId,
   getDocumentsStatus, updateUser, createUser,
   getDocumentsAll, EsignRequest, getSignUrl,
-  insertUserDocument,
+  insertUserDocument, downloadEsignDocument,
+  digioEnachWebHook,
 } from '../../controllers/firewall/documents.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -14,6 +15,16 @@ const {
 // import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
+
+/**
+ * DO NOT ADD AUTHENTICATION
+ * @api {get} /firewall/documents/webhook/ Digio WebHook
+ * @apiDescription Digio Webhook needs no Authentication
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName DigioWebHook
+ * @apiGroup Documents
+ */
+router.post('/webhook', digioEnachWebHook);
 
 router.use(allowMultipleRoles([ADMIN, LEARNER,
   OPERATIONS, EDUCATOR, REVIEWER, CATALYST, CAREER_SERVICES]));
@@ -74,6 +85,15 @@ router.get('/', getDocumentsAll);
  * @apiGroup Documents
  */
 router.get('/:id', getDocumentsByUserId);
+
+/**
+ * @api {get} /firewall/documents/esign/:id/download Download document for user
+ * @apiDescription Download Esign document for User
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName DownloadDocuments
+ * @apiGroup Documents
+ */
+router.get('/esign/:id/download', downloadEsignDocument);
 
 /**
  * @api {get} /firewall/documents/docid/:id/ Get document by doc id

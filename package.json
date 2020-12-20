@@ -50,6 +50,7 @@
     "apidoc-swagger": "github:schoolofacceleratedlearning/apidoc-swagger",
     "async": "^3.2.0",
     "aws-sdk": "^2.701.0",
+    "axios": "^0.21.0",
     "bullmq": "^1.8.13",
     "compression": "^1.7.4",
     "core-js": "^3.6.5",
