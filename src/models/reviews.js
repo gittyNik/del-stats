@@ -9,7 +9,7 @@ import { changeTimezone } from './breakout_template';
 import { getUserByEmail, User } from './user';
 import { Cohort, getCohortFromLearnerId } from './cohort';
 import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
-import Topic from './topic';
+import { Topic } from './topic';
 
 const GITHUB_BASE = process.env.GITHUB_TEAM_BASE;
 
@@ -277,9 +277,13 @@ export const calculateReviewTime = (reviewDate, reviewForTeam) => {
   let time_split = reviewForTeam.time_scheduled.split(':');
   let scheduled_time = new Date(reviewDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
 
-  scheduled_time.setDate(reviewDate.getDate() + (((
-    WEEK_VALUES[reviewForTeam.review_day.toLowerCase()]
-    + 7 - reviewDate.getDay()) % 7) + (7 * reviewForTeam.week)));
+  scheduled_time.setDate(reviewDate.getDate() + (
+    (
+      (
+        WEEK_VALUES[reviewForTeam.review_day.toLowerCase()] + 7 - reviewDate.getDay()
+      ) % 7
+    )
+  ));
 
   scheduled_time.setHours(time_split[0], time_split[1], time_split[2]);
 
