@@ -2,21 +2,20 @@ import Express from 'express';
 import {
   getChallenges, createChallenge, updateChallenge, deleteChallenge,
   getChallengesByTopic, getChallengesByCompany, getFilteredChallengesAPI,
+  getChallengesById,
 } from '../../controllers/learning/challenge.controller';
 import {
   allowMultipleRoles,
-  allowAdminsOnly,
 } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
-import { getChallengesByCompanyId } from '../../models/challenge';
 
 const {
-  ADMIN, CATALYST, EDUCATOR,
+  ADMIN, CATALYST, EDUCATOR, RECRUITER, CAREER_SERVICES, LEARNER,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, RECRUITER, CAREER_SERVICES, LEARNER]));
 
 /**
  * @api {get} /learning/content/challenges Get all Content Challenges
@@ -26,6 +25,15 @@ router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
  * @apiGroup ContentChallenges
  */
 router.get('/', getChallenges);
+
+/**
+ * @api {get} /learning/content/challenges/:id Get Challenges ID
+ * @apiDescription get all Content Challenges
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetContentChallenges
+ * @apiGroup ContentChallenges
+ */
+router.get('/:id', getChallengesById);
 
 /**
  * @api {get} /learning/content/challenges/topic/:id Get all Content Challenges by Topic
@@ -55,7 +63,7 @@ router.get('/company/:id', getChallengesByCompany);
 router.post('/filter', getFilteredChallengesAPI);
 
 // Restrict modifications for any applicant to the cohorts
-router.use(allowAdminsOnly);
+router.use(allowMultipleRoles([ADMIN, EDUCATOR, RECRUITER, CAREER_SERVICES, LEARNER]));
 
 /**
  * @api {post} /learning/content/challenges/ Add Content Challenge
@@ -86,6 +94,8 @@ router.post('/', createChallenge);
  * @apiParam {String="tiny","small","large"} size Size of the challenge.
  */
 router.patch('/:id', updateChallenge);
+
+router.use(allowMultipleRoles([ADMIN]));
 
 /**
  * @api {delete} /learning/content/challenges/:id Delete Content Challenge

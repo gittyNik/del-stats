@@ -31,6 +31,22 @@ async function downloadFile(bucket, objectKey) {
   }
 }
 
+export const uploadFile = async (bucket, objectKey, body, contentType) => {
+  try {
+    const params = {
+      Bucket: bucket,
+      Key: objectKey,
+      Body: body,
+      ContentType: contentType,
+    };
+
+    const data = await s3.putObject(params).promise();
+    return data;
+  } catch (e) {
+    throw new Error(`Could not retrieve file from S3: ${e.message}`);
+  }
+};
+
 export const replaceFields = (key, value, htmlFile) => htmlFile.replace(`{{${key}}}`, value);
 
 export const sendEmail = async (from_name, to_users, subject,

@@ -10,6 +10,10 @@ import {
   updateSanboxUrl,
   findOneCohortBreakout,
   getLearnersForCohortBreakout,
+
+  createOrUpdateCohortBreakout,
+  markBreakoutFinished,
+  autoMarkAttendance,
 } from '../../models/cohort_breakout';
 import {
   createScheduledMeeting,
@@ -33,6 +37,72 @@ import { logger } from '../../util/logger';
 const {
   between, gte,
 } = Sequelize.Op;
+
+export const createUpdateCohortBreakout = (req, res) => {
+  let {
+    cohort_id, topic_id, time_scheduled, catalyst_id,
+  } = req.body;
+  const { id: user_id, role } = req.jwtData.user;
+  if (user_id === catalyst_id || role === USER_ROLES.SUPERADMIN) {
+    createOrUpdateCohortBreakout(
+      topic_id,
+      cohort_id,
+      time_scheduled,
+      req.jwtData.user.name,
+    )
+      .then((data) => {
+        res.status(201).json({
+          data,
+        });
+      })
+      .catch((err) => res.status(500).send({
+        err,
+      }));
+  } else {
+    res.status(403).send('You do not have access to this data!');
+  }
+};
+
+export const autoMarkBreakoutAttendance = (req, res) => {
+  let {
+    breakout_id, catalyst_id,
+  } = req.params;
+  const { id: user_id, role } = req.jwtData.user;
+  if (user_id === catalyst_id || role === USER_ROLES.SUPERADMIN) {
+    autoMarkAttendance(breakout_id)
+      .then((data) => {
+        res.status(201).json({
+          data,
+          message: 'Learner attendance data',
+        });
+      })
+      .catch((err) => res.status(500).send({
+        err,
+      }));
+  } else {
+    res.status(403).send('You do not have access to mark attendance for this breakout!');
+  }
+};
+
+export const markCompleteBreakout = (req, res) => {
+  let {
+    cohort_breakout_id, catalyst_id,
+  } = req.body;
+  const { id: user_id, role } = req.jwtData.user;
+  if (user_id === catalyst_id || role === USER_ROLES.SUPERADMIN) {
+    markBreakoutFinished(cohort_breakout_id, req.jwtData.user.name)
+      .then((data) => {
+        res.status(201).json({
+          data,
+        });
+      })
+      .catch((err) => res.status(500).send({
+        err,
+      }));
+  } else {
+    res.status(403).send('You do not have access to this data!');
+  }
+};
 
 export const getBreakouts = (req, res) => {
   CohortBreakout.findAll({})

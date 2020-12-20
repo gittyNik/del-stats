@@ -196,9 +196,10 @@ export const markZoomAttendance = (cohort_breakout_details) => {
   } catch (err) {
     // If meeting does not have zoom url
     // If zoom meeting url creation has failed
-    console.warn('Meeting missing Zoom url');
+    console.error(`Error in auto marking attendance: ${err}`);
+    // console.warn('Meeting missing Zoom url');
     // console.warn(cohort_breakout_details);
-    return { message: 'Meeting marked as complete' };
+    throw Error('Meeting missing Zoom url');
   }
 };
 
@@ -294,11 +295,19 @@ export const createOrUpdateCohortBreakout = (
   )).then(showCompletedBreakoutOnSlack(cohort_topic_id, cohort_id, name));
 });
 
+export const autoMarkAttendance = async (
+  cohort_breakout_id,
+) => {
+  let cohortBreakout = await CohortBreakout.findByPk(cohort_breakout_id);
+  let attendance = await markZoomAttendance(cohortBreakout);
+  return attendance;
+};
+
 export const markBreakoutFinished = (
   cohort_breakout_id, name = '',
 ) => markBreakoutComplete(cohort_breakout_id)
   .then((completeBreakout) => Promise.all([
-    markZoomAttendance(completeBreakout[1]),
+    // markZoomAttendance(completeBreakout[1]),
     showCompletedBreakoutOnSlack(
       completeBreakout[1].topicId,
       completeBreakout[1].cohortId,

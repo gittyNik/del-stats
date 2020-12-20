@@ -2,12 +2,13 @@ import Sequelize from 'sequelize';
 import _ from 'lodash';
 import db from '../database';
 
-export const application_status = [
+export const document_status = [
   'requested',
-  'signed',
-  'payment-pending',
-  'payment-partial',
-  'payment-complete',
+  'verifying',
+  'rejected',
+  'change-requested',
+  'verified',
+  'completed',
 ];
 
 export const mandatory = {
@@ -87,8 +88,8 @@ export const createOrUpdateUserDocument = (document, user_documents) => {
     return empty_user_documents();
   }
   const {
- document_name, is_verified, document_path, details 
-} = document;
+    document_name, is_verified, document_path, details,
+  } = document;
   const empty = user_documents || empty_user_documents();
   const optional_ud = empty.find(_ud => {
     if (_ud.list) {
@@ -136,8 +137,22 @@ export const Documents = db.define('documents', {
     type: Sequelize.JSON,
     allowNull: true,
   },
+  mandate_details: {
+    type: Sequelize.JSON,
+    allowNull: true,
+  },
+  mandate_id: {
+    type: Sequelize.STRING,
+  },
+  nach_debit_id: {
+    type: Sequelize.STRING,
+  },
+  nach_debit_details: {
+    type: Sequelize.ARRAY(Sequelize.JSON),
+  },
   status: {
-    type: Sequelize.ENUM(...application_status),
+    type: Sequelize.ENUM(...document_status),
+    defaultValue: 'requested',
     allowNull: false,
   },
   updated_by: {
@@ -161,12 +176,29 @@ export const getDocumentsByStatus = status => Documents.findAll(
   },
 );
 
-export const getDocumentsByUser = user_id => Documents.findAll(
+export const getDocumentsByUser = user_id => Documents.findOne(
   {
     where: { user_id },
     raw: true,
   },
 );
+
+export const updateMandateDetailsForLearner = (mandate_id, mandate_details) => Documents.update({
+  mandate_details,
+}, {
+  where: {
+    mandate_id,
+  },
+});
+
+export const updateDebitDetailsForLearner = (nach_debit_id,
+  nach_debit_details) => Documents.update({
+  nach_debit_details,
+}, {
+  where: {
+    nach_debit_id,
+  },
+});
 
 export const createUserEntry = ({
   user_id, document_details, status, payment_status,
@@ -217,7 +249,10 @@ export const insertIndividualDocument = (
       document should contain these properties
       const {document_name, is_verified, document_path} = document;
       */
-      return createUserEntry({ user_id, user_document: document }).then(d => d.get({ plain: true }));
+      return createUserEntry({
+        user_id,
+        user_document: document,
+      }).then(d => d.get({ plain: true }));
     }
     // const { document_name, is_verified, document_path } = document;
 

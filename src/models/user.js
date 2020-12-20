@@ -47,6 +47,7 @@ export const User = db.define(
     email: Sequelize.STRING,
     phone: Sequelize.STRING,
     role: Sequelize.STRING,
+    roles: Sequelize.ARRAY(Sequelize.STRING),
     location: Sequelize.STRING,
     profile: Sequelize.JSON,
     picture: Sequelize.STRING,
@@ -138,6 +139,7 @@ export const getOrCreateUser = phone => User.findOrCreate({
   defaults: {
     id: uuid(),
     role: USER_ROLES.GUEST,
+    roles: [USER_ROLES.GUEST],
   },
 });
 
@@ -161,6 +163,7 @@ export const createSuperAdmin = () => User.findOrCreate({
   where: {
     email: DEFAULT_USER,
     role: USER_ROLES.SUPERADMIN,
+    roles: [USER_ROLES.SUPERADMIN],
   },
   raw: true,
   defaults: {
@@ -260,8 +263,9 @@ export const addUserStatus = (
   throw Error('Status not valid');
 };
 
-export const changeUserRole = (learner_id, role) => User.update({
+export const changeUserRole = (learner_id, role, roles) => User.update({
   role,
+  roles,
 }, {
   where: {
     id: learner_id,

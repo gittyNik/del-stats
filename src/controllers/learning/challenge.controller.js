@@ -2,6 +2,7 @@ import uuid from 'uuid/v4';
 import {
   Challenge, createAChallenge, updateAChallenge, deleteAChallenge,
   getChallengesByTopicId, getChallengesByCompanyId, getFilteredChallenges,
+  getChallengeByChallengeId,
 
 } from '../../models/challenge';
 import { LearnerChallenge } from '../../models/learner_challenge';
@@ -25,11 +26,25 @@ export const getChallengesByTopic = (req, res) => {
     });
 };
 
+export const getChallengesById = (req, res) => {
+  const { id } = req.params;
+  getChallengeByChallengeId(id)
+    .then((data) => res.status(200).json({
+      text: 'Challenge Details',
+      data,
+      type: 'success',
+    }))
+    .catch(err => {
+      console.error(err);
+      res.sendStatus(500);
+    });
+};
+
 export const getChallengesByCompany = async (req, res) => {
   const { id: company_id } = req.params;
   await getChallengesByCompanyId(company_id)
     .then(data => res.status(200).json({
-      text: 'Private Challanges for a Company',
+      text: 'Private Challenges for a Company',
       data,
       type: 'success',
     }))
@@ -73,6 +88,7 @@ export const createChallenge = (req, res) => {
     topic_id, description, starter_repo,
     difficulty, size, title, path, tags, duration, company_id,
   } = req.body;
+  let user_name = req.jwtData.user.name;
 
   createAChallenge({
     topic_id,
@@ -85,6 +101,7 @@ export const createChallenge = (req, res) => {
     tags,
     duration,
     company_id,
+    user_name,
   })
     .then((data) => {
       res.send('Challenge created.');

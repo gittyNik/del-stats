@@ -22,7 +22,7 @@ import {
   deleteGithubRepository,
   isExistingRepository,
   addTeamAccessToRepo,
-  removeCollaboratorFromRepository
+  removeCollaboratorFromRepository,
 } from './repository.controller';
 import {
   getAllAuthoredCommits,
