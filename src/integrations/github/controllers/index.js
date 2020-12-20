@@ -906,15 +906,39 @@ export const getAllStats = async (req, res) => {
       // Update any new changes to Milestone Repo
       const ONE_HOUR = 1 * 60 * 60 * 1000;
       const NOW = new Date();
-      if ((NOW - lastMilestoneUpdatedAt) > ONE_HOUR) {
-        await getGithubStatsForUser(cohort_milestone_id, user_id);
+      if ((NOW - lastMilestoneUpdatedAt.last_committed_at) > ONE_HOUR) {
+        let teamMilestoneCommit = await getGithubStatsForUser(cohort_milestone_id, user_id);
+        let {
+          contributorsRepo,
+          learnerCommits,
+          team_id,
+        } = teamMilestoneCommit;
+
+        await Promise.all(learnerCommits.map(
+          async (eachLearnerCommit) => createStatForSingleLearner(
+            eachLearnerCommit,
+            team_id,
+            cohort_milestone_id,
+            contributorsRepo,
+          ),
+        ));
       }
 
       if (updateChallenges) {
         // Update any new changes to Challenges
         let currentDate = new Date();
-        await getGithubChallengesStatsPerUser(cohort_id, lastChallengeUpdated,
+        let challengesCommits = await getGithubChallengesStatsPerUser(cohort_id,
+          lastChallengeUpdated,
           currentDate, user_id);
+        let {
+          challengeId: learner_challenge_id,
+          contributorsRepo,
+          learnerCommits,
+        } = challengesCommits;
+
+        await createStatForSingleLearner(
+          learnerCommits, null, cohort_milestone_id, contributorsRepo, learner_challenge_id,
+        );
       }
 
       let cohortDetails = await getCohortFromId(cohort_id);
@@ -956,6 +980,7 @@ export const getAllStats = async (req, res) => {
         message = commitDetails.commit.message;
         commit_date = commitDetails.commit.commit_date;
       } catch (err) {
+        console.warn(err);
         author = "You haven't";
         console.warn(`Unable to get committer details: ${user_id}`);
       }
@@ -967,6 +992,7 @@ export const getAllStats = async (req, res) => {
         challenge_user = LatestChallengeInCohortId['user.name'];
       } catch (err) {
         // Reads No one has created challenge recently on frontend
+        console.warn(err);
         challenge_user_id = user_id;
         challenge_user = 'No one';
       }

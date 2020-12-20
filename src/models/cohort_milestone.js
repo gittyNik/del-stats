@@ -291,14 +291,22 @@ export const populateLearnerStats = async (
             // Commits for week for Learner
             if (user_id === eachUser.user_id) {
               let weekCommittedIndex = weekDateRange.date_array.indexOf(commitDate);
-              weekDateRange.commit_array[weekCommittedIndex].commits += 1;
+              try {
+                weekDateRange.commit_array[weekCommittedIndex].commits += 1;
+              } catch (err) {
+                console.warn(err);
+              }
             }
 
             // Commits for first to last committed date
-            let committedIndex = milestoneDateRange.date_array.indexOf(commitDate);
-            individualUserCommits.userCommitsDayWise[committedIndex].commits += 1;
+            try {
+              let committedIndex = milestoneDateRange.date_array.indexOf(commitDate);
+              individualUserCommits.userCommitsDayWise[committedIndex].commits += 1;
 
-            teamCommitsDayWise[committedIndex].commits += 1;
+              teamCommitsDayWise[committedIndex].commits += 1;
+            } catch (err1) {
+              console.warn(err1);
+            }
           }
         });
         userCommitsDayWise.push(individualUserCommits);
