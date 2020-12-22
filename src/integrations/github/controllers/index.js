@@ -454,23 +454,28 @@ export const getGithubStatsForUser = async (
   );
   // For Every Cohort fetch Teams
   // For each team get Milestone repo
-  let github_repo = cohortMilestonesTeams.github_repo_link;
-  let teamLearners = cohortMilestonesTeams.learners;
-  let team_id = cohortMilestonesTeams.id;
+  try {
+    let github_repo = cohortMilestonesTeams.github_repo_link;
+    let teamLearners = cohortMilestonesTeams.learners;
+    let team_id = cohortMilestonesTeams.id;
 
-  // Get Github token for one learner and use it to get all commits
-  let socialConnection = await getGithubConnecionByUserId(teamLearners[0]);
-  let contributorsRepo = await getContributorsInRepo(github_repo, socialConnection);
+    // Get Github token for one learner and use it to get all commits
+    let socialConnection = await getGithubConnecionByUserId(teamLearners[0]);
+    let contributorsRepo = await getContributorsInRepo(github_repo, socialConnection);
 
-  // For every learner fetch commits from a milestone repo
-  let learnerCommits = await Promise.all(teamLearners.map(
-    async oneLearner => apiForOneLearnerGithubMilestone(oneLearner,
-      github_repo,
-      socialConnection),
-  ));
-  return {
-    learnerCommits, cohort_milestone_id, contributorsRepo, team_id,
-  };
+    // For every learner fetch commits from a milestone repo
+    let learnerCommits = await Promise.all(teamLearners.map(
+      async oneLearner => apiForOneLearnerGithubMilestone(oneLearner,
+        github_repo,
+        socialConnection),
+    ));
+    return {
+      learnerCommits, cohort_milestone_id, contributorsRepo, team_id,
+    };
+  } catch (err) {
+    console.warn('Github Repo link is missing');
+    return null;
+  }
 };
 
 export const getGithubChallengesStats = async (cohort_id, start_date, end_date) => {
@@ -856,6 +861,7 @@ export const getLatestCommitCohort = async (cohort_id) => {
   let lastChallenge = await getLastChallengeInCohort(cohort_milestones);
 
   let lastMilestone = await getLastMilestoneCommitInCohort(cohort_milestones);
+  console.log(lastMilestone);
 
   if ((lastChallenge === null) && (lastMilestone)) {
     return lastMilestone;
@@ -887,7 +893,7 @@ export const getAllStats = async (req, res) => {
     }
     if (lastChallengeUpdated === null) {
       lastChallengeUpdated = new Date();
-      lastChallengeUpdated.setDate(lastChallengeUpdated.getDate() - 1);
+      lastChallengeUpdated.setDate(lastChallengeUpdated.getDate() - 10);
     }
     let updateChallenges = await getLearnerChallengesAfterDate(
       lastChallengeUpdated,
@@ -908,20 +914,22 @@ export const getAllStats = async (req, res) => {
       const NOW = new Date();
       if ((NOW - lastMilestoneUpdatedAt.last_committed_at) > ONE_HOUR) {
         let teamMilestoneCommit = await getGithubStatsForUser(cohort_milestone_id, user_id);
-        let {
-          contributorsRepo,
-          learnerCommits,
-          team_id,
-        } = teamMilestoneCommit;
-
-        await Promise.all(learnerCommits.map(
-          async (eachLearnerCommit) => createStatForSingleLearner(
-            eachLearnerCommit,
-            team_id,
-            cohort_milestone_id,
+        if (teamMilestoneCommit !== null) {
+          let {
             contributorsRepo,
-          ),
-        ));
+            learnerCommits,
+            team_id,
+          } = teamMilestoneCommit;
+
+          await Promise.all(learnerCommits.map(
+            async (eachLearnerCommit) => createStatForSingleLearner(
+              eachLearnerCommit,
+              team_id,
+              cohort_milestone_id,
+              contributorsRepo,
+            ),
+          ));
+        }
       }
 
       if (updateChallenges) {
@@ -930,15 +938,19 @@ export const getAllStats = async (req, res) => {
         let challengesCommits = await getGithubChallengesStatsPerUser(cohort_id,
           lastChallengeUpdated,
           currentDate, user_id);
-        let {
-          challengeId: learner_challenge_id,
-          contributorsRepo,
-          learnerCommits,
-        } = challengesCommits;
 
-        await createStatForSingleLearner(
-          learnerCommits, null, cohort_milestone_id, contributorsRepo, learner_challenge_id,
-        );
+        await Promise.all(challengesCommits.map(teamMilestoneCommit => {
+          let {
+            challengeId: learner_challenge_id,
+            contributorsRepo,
+            learnerCommits,
+          } = teamMilestoneCommit;
+
+          let commitsData = createStatForSingleLearner(
+            learnerCommits, null, cohort_milestone_id, contributorsRepo, learner_challenge_id,
+          );
+          return commitsData;
+        }));
       }
 
       let cohortDetails = await getCohortFromId(cohort_id);

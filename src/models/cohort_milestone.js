@@ -29,6 +29,14 @@ import {
 
 import { getResourceByTopic } from './resource';
 
+export class NoMilestoneCommits extends Error {
+  constructor(message, cause) {
+    super(message);
+    this.cause = cause;
+    this.name = 'NoMilestoneCommits';
+  }
+}
+
 export const CohortMilestone = db.define('cohort_milestones', {
   id: {
     primaryKey: true,
@@ -329,7 +337,7 @@ export const populateLearnerStats = async (
       return stats;
     }
   }
-  throw new Error('No commits in Cohort Milestone');
+  throw new NoMilestoneCommits('No commits in Cohort Milestone');
 };
 
 export const findBreakoutsForMilestone = async (cohort_id, milestone_id, cohortMilestoneId) => {
