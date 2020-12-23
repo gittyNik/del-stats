@@ -132,6 +132,89 @@ export const updateUser = (req, res) => {
     .catch(err => res.status(500).send(err));
 };
 
+export const getEnachDetails = (mandate_id) => {
+  const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
+
+  return (request
+    .get(`${DIGIO_BASE_URL}v3/client/mandate/${mandate_id}`)
+    .set('Authorization', `Basic ${BASE_64_TOKEN}`)
+    .set('content-type', 'application/json')
+    .then(data => data)
+    .catch(err => {
+      console.error(err);
+      let data = { message: `Failed to send Esign request: ${err}`, status: 'Failure' };
+      return data;
+    })
+  );
+};
+
+export const saveEnachDetails = async (mandate_id, user_id) => {
+  let enachDetails = await getEnachDetails(mandate_id);
+
+  let updatedDocument = await updateUserEntry({
+    user_id,
+    mandate_id,
+    mandate_details: enachDetails,
+  });
+
+  return updatedDocument;
+};
+
+export const saveEnachMandate = (req, res) => {
+  const { mandate_id, user_id } = req.body;
+
+  saveEnachDetails(mandate_id, user_id)
+    .then((data) => res.json({
+      text: data,
+    }))
+    .catch((err) => {
+      console.error(err);
+      res.status(500);
+    });
+};
+
+export const createDebitRequest = () => {
+  const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
+
+  const requestObject = {
+    umrn: 'UMRN2984366445219389',
+    amount: 9.0,
+    settlement_date: '2019-04-10',
+    corporate_account_number: '123456789',
+    corporate_config_id: 'TSE180110115609336HGUGFNECH30001',
+    destination_bank_id: 'HDFC0000158',
+    customer_account_number: '01581000136321',
+    customer_name: 'devesh',
+    frequency: 'monthly',
+  };
+
+  return (request
+    .post(`${DIGIO_BASE_URL}v3/client/nach_debit/scheduled/register`)
+    .send(requestObject)
+    .set('Authorization', `Basic ${BASE_64_TOKEN}`)
+    .set('content-type', 'application/json')
+    .then(data => data)
+    .catch(err => {
+      console.error(err);
+      let data = { message: `Failed to send Esign request: ${err}`, status: 'Failure' };
+      return data;
+    })
+  );
+};
+
+export const createDebitRequestNach = (req, res) => {
+  const { id } = req.body;
+
+  createDebitRequest()
+    .then((data) => res.json({
+      text: data,
+    }))
+    .catch((err) => {
+      console.error(err);
+      res.status(500);
+    });
+};
+
 export const Esign = (template_values, signers,
   template_id,
   sign_coordinates,
@@ -220,9 +303,10 @@ export const downloadEsignAgreement = async (user_id) => {
     .then(async (res) => {
       let pdfFile = res.data;
       let { bucketName, basePath } = type_upload.agreement;
-      await uploadFile(bucketName, `${basePath}/${userDocument.document_details.file_name}.pdf`,
+      let documentPath = `${basePath}/${userDocument.document_details.file_name}.pdf`;
+      await uploadFile(bucketName, documentPath,
         pdfFile, 'application/pdf');
-      // TODO: Upload document path in DB
+      userDocument.document_details.path = documentPath;
       return 'Document uploaded successfully!';
     })
     .catch((error) => {

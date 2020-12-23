@@ -7,6 +7,7 @@ import documentsRouter from './documents.routes';
 import agreementTemplateRouter from './agreement_template.routes';
 import { getPublicStats } from '../../controllers/firewall/firewall.controller';
 import authenticate from '../../controllers/auth/auth.controller';
+import webhookRouter from './webhook.routes';
 
 const router = Express.Router();
 // Public routes
@@ -17,6 +18,8 @@ const router = Express.Router();
  * @apiGroup Firewall
  */
 router.get('/stats', getPublicStats);
+
+router.use('/webhook', webhookRouter);
 // Private routes
 router.use(authenticate);
 router.use('/applications', applicationRouter);

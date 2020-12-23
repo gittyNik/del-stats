@@ -140,11 +140,21 @@ export const insertIndividualDocument = (
     });
   });
 
-export const updateUserEntry = (user_id, document_details, status, payment_status,
-  is_isa = false, is_verified = false) => Documents.update({
+export const updateUserEntry = (
+  user_id, document_details, status, payment_status,
+  is_isa = false, is_verified = false,
+  mandate_id,
+  mandate_details,
+  nach_debit_id,
+  nach_debit_details,
+) => Documents.update({
   document_details,
   status,
   payment_status,
   is_isa,
   is_verified,
+  mandate_id,
+  mandate_details,
+  nach_debit_id,
+  nach_debit_details,
 }, { where: { user_id } });

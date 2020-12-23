@@ -4,30 +4,22 @@ import {
   getDocumentsStatus, updateUser, createUser,
   getDocumentsAll, EsignRequest, getSignUrl,
   insertUserDocument, downloadEsignDocument,
-  digioEnachWebHook,
+  saveEnachMandate,
+  createDebitRequestNach,
 } from '../../controllers/firewall/documents.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
   ADMIN, EDUCATOR, LEARNER, OPERATIONS, REVIEWER, CATALYST, CAREER_SERVICES,
+  GUEST,
 } = USER_ROLES;
 // import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
 
-/**
- * DO NOT ADD AUTHENTICATION
- * @api {get} /firewall/documents/webhook/ Digio WebHook
- * @apiDescription Digio Webhook needs no Authentication
- * @apiHeader {String} authorization JWT Token.
- * @apiName DigioWebHook
- * @apiGroup Documents
- */
-router.post('/webhook', digioEnachWebHook);
-
 router.use(allowMultipleRoles([ADMIN, LEARNER,
-  OPERATIONS, EDUCATOR, REVIEWER, CATALYST, CAREER_SERVICES]));
+  OPERATIONS, EDUCATOR, REVIEWER, CATALYST, CAREER_SERVICES, GUEST]));
 
 /**
  * @api {get} /firewall/documents/sign-request/ Upload files to AWS
@@ -38,7 +30,14 @@ router.use(allowMultipleRoles([ADMIN, LEARNER,
  */
 router.post('/sign-request', getSignUrl);
 
-router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]));
+/**
+ * @api {get} /firewall/documents/save-mandate/ Save mandate details
+ * @apiDescription save mandate details
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName SaveMandateDetails
+ * @apiGroup Documents
+ */
+router.post('/save-mandate', saveEnachMandate);
 
 /**
  * @api {patch} /firewall/documents/:id/esign Send Esign Request to User
@@ -58,6 +57,8 @@ router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]))
  * @apiParam {Json} signers signer details
  */
 router.post('/:id/esign', EsignRequest);
+
+router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]));
 
 /**
  * @api {get} /firewall/documents/save/ save document
@@ -115,6 +116,15 @@ router.get('/status/:id', getDocumentsStatus);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowMultipleRoles([ADMIN, OPERATIONS, EDUCATOR]));
+
+/**
+ * @api {get} /firewall/documents/create-debit/ Credit Debit request
+ * @apiDescription create debit request
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName CreateDebitRequest
+ * @apiGroup Documents
+ */
+router.post('/create-debit', createDebitRequestNach);
 
 /**
  * @api {post} /firewall/documents/ Add Users Documents
