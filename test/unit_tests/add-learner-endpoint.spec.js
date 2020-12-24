@@ -6,7 +6,7 @@ import { addLearnersToCohortChannel } from '../../src/models/slack_channels';
 import { addLearnerToGithubTeam } from '../../src/integrations/github/controllers';
 import { teamNameFormat } from '../../src/integrations/github/controllers/teams.controller';
 import { createLearnerBreakoutsForCurrentMS } from '../../src/models/learner_breakout';
-import logger from '../../util/logger';
+import logger from '../../src/util/logger';
 describe('Testing Add learner controller', () => {
   beforeAll(() => {
     return db

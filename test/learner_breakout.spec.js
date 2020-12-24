@@ -12,7 +12,7 @@ import eachSeries from 'async/eachSeries'
 import faker from 'faker';
 import { createEvent } from '../src/integrations/calendar/calendar.model';
 import log from 'async/log';
-import logger from '../../util/logger';
+import logger from '../src/util/logger';
 
 // const createLearnerBreakout = (cohort_breakout_id, learner_id) => {
 //   return LearnerBreakout

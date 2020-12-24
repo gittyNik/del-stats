@@ -9,7 +9,7 @@ import {
   getTeamSlackIDs, createSlackChannelRow, getChannelIdForCohort,
   beginChannel
 } from '../src/models/slack_channels';
-import logger from '../../util/logger';
+import logger from '../src/util/logger';
 
 
 const { Cohort, User, SlackChannel, SocialConnection } = models;

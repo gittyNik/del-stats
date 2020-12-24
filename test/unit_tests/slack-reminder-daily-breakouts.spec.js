@@ -6,7 +6,7 @@ import _ from 'lodash';
 import { getTopicNameById } from '../../src/models/topic';
 import { postTodaysBreakouts } from '../../src/integrations/slack/delta-app/controllers/web.controller';
 import { getSlackIdForLearner } from '../../src/models/slack_channels';
-import logger from '../../util/logger';
+import logger from '../../src/util/logger';
 
 describe('Should get payload for daily slack reminder', () => {
   beforeAll(() => {

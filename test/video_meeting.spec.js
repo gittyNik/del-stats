@@ -6,11 +6,10 @@ import models from '../src/models';
 import db from '../src/database';
 import { updateVideoMeeting } from '../src/models/video_meeting';
 import { CohortBreakout } from '../src/models/cohort_breakout';
-import logger from '../../util/logger';
+import logger from '../src/util/logger';
 
 
 const { PORT } = process.env;
-
 
 describe('Testing Zoom Meetings', () => {
   // const sequelize = new Sequelize(dbConfig.test);
