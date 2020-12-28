@@ -249,7 +249,8 @@ export const Esign = (template_values, signers,
 };
 
 const processWebHookData = async (entities, payload, id, event) => {
-  if (entities.filter(element => element.includes('mandate'))) {
+  let find_items = entities.filter(element => element.includes('mandate'));
+  if (find_items.length > 0) {
     // Mandate details
     let mandate_details = payload.api_mandate;
     console.log(`Mandate ID for Enach: ${mandate_details.id}`);
@@ -268,19 +269,19 @@ export const digioEnachWebHook = (req, res) => {
 
   console.debug('Request Body');
   console.debug(req.body);
-  console.debug('Request Headers');
-  console.debug(req.headers);
+  // console.debug('Request Headers');
+  // console.debug(req.headers);
 
   let digioWebhookSecret = process.env.DIGIO_WEBHOOK_SECRET;
   const secretHash = crypto.createHmac('sha256', digioWebhookSecret).update(JSON.stringify(req.body));
 
   const checkSum = secretHash.digest('hex');
 
-  console.debug('checkSum');
-  console.debug(checkSum);
+  // console.debug('checkSum');
+  // console.debug(checkSum);
 
   const requestCheckSum = req.headers['x-digio-checksum'];
-  console.log(requestCheckSum);
+  // console.debug(requestCheckSum);
 
   if (requestCheckSum === checkSum) {
     return processWebHookData(entities, payload, id, event)
