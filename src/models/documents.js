@@ -90,6 +90,7 @@ export const updateMandateDetailsForLearner = (mandate_id, mandate_details) => D
   where: {
     mandate_id,
   },
+  returning: true,
 });
 
 export const updateDebitDetailsForLearner = (nach_debit_id,
@@ -99,6 +100,7 @@ export const updateDebitDetailsForLearner = (nach_debit_id,
   where: {
     nach_debit_id,
   },
+  returning: true,
 });
 
 export const createUserEntry = (user_id, document_details, status, payment_status,

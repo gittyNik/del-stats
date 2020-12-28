@@ -249,17 +249,16 @@ export const Esign = (template_values, signers,
 };
 
 const processWebHookData = async (entities, payload, id, event) => {
-  let message = 'Hello';
-  return message;
-  // if (entities.filter(element => element.includes('mandate'))) {
-  //   // Mandate details
-  //   let mandate_details = payload.api_mandate;
-  //   return updateMandateDetailsForLearner(mandate_details.id, mandate_details);
-  // }
-  // // eNach debit details
-  // let debit_details = payload.nach_debit;
-  // // console.log(event)
-  // return updateDebitDetailsForLearner(debit_details.id, debit_details);
+  if (entities.filter(element => element.includes('mandate'))) {
+    // Mandate details
+    let mandate_details = payload.api_mandate;
+    console.log(`Mandate ID for Enach: ${mandate_details.id}`);
+    return updateMandateDetailsForLearner(mandate_details.id, mandate_details);
+  }
+  // eNach debit details
+  let debit_details = payload.nach_debit;
+  console.log(`Debit ID for Enach: ${debit_details.id}`);
+  return updateDebitDetailsForLearner(debit_details.id, debit_details);
 };
 
 export const digioEnachWebHook = (req, res) => {
@@ -267,25 +266,42 @@ export const digioEnachWebHook = (req, res) => {
     entities, payload, id, event,
   } = req.body;
 
-  console.log('Request Body');
-  console.log(req.body);
-  console.log('Request Headers');
-  console.log(req.headers);
+  console.debug('Request Body');
+  console.debug(req.body);
+  console.debug('Request Headers');
+  console.debug(req.headers);
 
   let digioWebhookSecret = process.env.DIGIO_WEBHOOK_SECRET;
-  let checkSum = crypto.createHmac('sha256', digioWebhookSecret).update(JSON.stringify(req.body));
+  const secretHash = crypto.createHmac('sha256', digioWebhookSecret).update(JSON.stringify(req.body));
 
-  console.log('checkSum');
-  console.log(checkSum.digest('base64'));
+  const checkSum = secretHash.digest('hex');
 
-  processWebHookData(entities, payload, id, event)
-    .then((data) => res.json({
-      text: data,
-    }))
-    .catch((err) => {
-      console.error(err);
-      res.status(500);
-    });
+  console.debug('checkSum');
+  console.debug(checkSum);
+
+  const requestCheckSum = req.headers['x-digio-checksum'];
+  console.log(requestCheckSum);
+
+  if (requestCheckSum === checkSum) {
+    return processWebHookData(entities, payload, id, event)
+      .then((data) => {
+        if (data[0] === 0) {
+          console.error('Enach details does exist in documents');
+          return res.status(500).send();
+        }
+        return res.json({
+          data: data[1],
+          message: 'Updated enach details',
+          type: 'success',
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        return res.status(500).send();
+      });
+  }
+  let message = 'Signatures does not match';
+  return res.status(401).json({ message, type: 'failure' });
 };
 
 export const downloadEsignAgreement = async (user_id) => {

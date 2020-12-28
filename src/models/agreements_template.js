@@ -17,7 +17,6 @@ export const AgreementTemplates = db.define('agreement_templates', {
   },
   document_identifier: {
     type: Sequelize.STRING,
-    unique: true,
     allowNull: false,
   },
   program: {
