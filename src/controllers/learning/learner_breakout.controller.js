@@ -101,7 +101,15 @@ export const markAttendance = (req, res) => {
       },
     )),
   )
-    .then(() => {
+    .then(async () => {
+      await CohortBreakout.update({
+        status: 'running',
+        update_at: Date.now(),
+      }, {
+        where: {
+          id: learnerBreakouts[0].cohort_breakout_id,
+        },
+      });
       res.json({
         text: 'Mark attendance success',
       });
