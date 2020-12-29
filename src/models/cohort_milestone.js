@@ -302,7 +302,7 @@ export const populateLearnerStats = async (
               try {
                 weekDateRange.commit_array[weekCommittedIndex].commits += 1;
               } catch (err) {
-                console.warn(err);
+                console.warn('No commits for given week');
               }
             }
 
@@ -313,7 +313,7 @@ export const populateLearnerStats = async (
 
               teamCommitsDayWise[committedIndex].commits += 1;
             } catch (err1) {
-              console.warn(err1);
+              console.warn('No commits for given week');
             }
           }
         });

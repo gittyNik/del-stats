@@ -861,7 +861,7 @@ export const getLatestCommitCohort = async (cohort_id) => {
   let lastChallenge = await getLastChallengeInCohort(cohort_milestones);
 
   let lastMilestone = await getLastMilestoneCommitInCohort(cohort_milestones);
-  console.log(lastMilestone);
+  // console.log(lastMilestone);
 
   if ((lastChallenge === null) && (lastMilestone)) {
     return lastMilestone;

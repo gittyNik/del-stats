@@ -13,6 +13,8 @@ const deltaHandler = job => {
     console.log('processing slack_firewall_stats');
     sendFirewallDailyStats().then(() => {
       console.log('sending firewall stats from previous day');
+    }).catch(err => {
+      console.warn('Unable to send firewall stats');
     });
   }
 

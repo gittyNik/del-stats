@@ -95,9 +95,9 @@ const register = (data, res) => {
     email = email.toLowerCase();
     let isExistingUser = await getUserByEmail(email);
     if (isExistingUser !== null) {
-      res.status(409).send('User email exists');
+      return res.status(409).send('User email exists');
     }
-    createUser({ name, phone, email }).then(user => res.send({
+    return createUser({ name, phone, email }).then(user => res.send({
       user,
       soalToken: getSoalToken(user),
     }));

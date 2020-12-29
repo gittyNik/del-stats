@@ -14,7 +14,7 @@ export const addLearnersToDSAChannelsAPI = async (req, res) => {
       text: `Add learners in cohort[${cohort_id}] to DS-Algo channel`,
       data: response,
       type: 'success',
-    })
+    });
   } catch (err) {
     console.error(err);
     res.sendStatus(500);

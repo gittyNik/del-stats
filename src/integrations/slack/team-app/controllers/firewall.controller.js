@@ -15,7 +15,11 @@ const webhook = new IncomingWebhook(SLACK_FIREWALL_WEBHOOK);
 */
 export const sendFirewallResult = (application, phone) => {
   const view = buildFirewallResult(phone, phone, application.test_series);
-  webhook.send(view);
+  try {
+    webhook.send(view);
+  } catch (err) {
+    console.warn('Failed to send message to slack');
+  }
 };
 
 export const sendFirewallDailyStats = () => getStatsForDay()
@@ -24,8 +28,13 @@ export const sendFirewallDailyStats = () => getStatsForDay()
       text: `Firewall statistics: ${JSON.stringify(stats)}`,
       channel: process.env.SLACK_LEARNER_INTERVIEWS_CHANNEL,
     };
-    console.log(msg);
-    return web.chat.postMessage(msg);
+    // console.log(msg);
+    try {
+      return web.chat.postMessage(msg);
+    } catch (err) {
+      console.warn('Failed to send message to slack');
+      return true;
+    }
   });
 
 /*
