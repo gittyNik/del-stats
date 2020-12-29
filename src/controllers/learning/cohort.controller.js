@@ -148,7 +148,7 @@ export const moveLearnertoDifferentCohortEndpoint = async (req, res) => {
       future_cohort_id,
     );
     res.send({
-      message: 'Move Learner Endpoint',
+      message: `Learners moved from ${current_cohort_id} to Cohort: ${future_cohort_id}`,
       data: bk,
       type: 'success',
     });
@@ -170,7 +170,7 @@ export const removeLearnerEndpoint = async (req, res) => {
 export const addLearnerEndpoint = (req, res) => {
   const { learners, cohort_id } = req.body;
   addLearner(learners, cohort_id).then(data => res.status(200).send({
-    message: 'Add Learner Endpoint Result',
+    message: `Learners added to new cohort: ${cohort_id}`,
     data,
     type: 'success',
   })).catch(err => {

@@ -389,18 +389,16 @@ export const addLearner = async (learners, cohort_id) => {
   let cohort_milestone = await getLiveCohortMilestone(cohort_id);
   let cohort_breakouts = await getCohortBreakoutsBetweenDates(cohort_id,
     cohort_milestone.release_time, cohort_milestone.review_scheduled);
-  let data = [];
+  let data = { learners, cohort_id };
 
   try {
-    for (let i = 0; i < learners.length; i++) {
-      let learner_id = learners[i];
-      await changeUserRole(learner_id, USER_ROLES.LEARNER);
-      let cohort = await addLearnerToCohort(learner_id, cohort_id);
-      let application = await updateCohortJoining(learner_id, cohort_id);
-      let team = await addLearnerToGithubTeam(learner_id, cohort_id);
-      let lBreakout = await createLearnerBreakoutsForCurrentMS(learner_id, cohort_breakouts);
-      data.push([cohort, application, team, lBreakout]);
-    }
+    await learners.map(learner_id => Promise.all([
+      changeUserRole(learner_id, USER_ROLES.LEARNER),
+      addLearnerToCohort(learner_id, cohort_id),
+      updateCohortJoining(learner_id, cohort_id),
+      addLearnerToGithubTeam(learner_id, cohort_id),
+      createLearnerBreakoutsForCurrentMS(learner_id, cohort_breakouts),
+    ]));
     await addLearnersToCohortChannel(cohort_id, learners);
     return data;
   } catch (err) {
