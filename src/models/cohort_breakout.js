@@ -806,6 +806,7 @@ export const getCohortBreakoutsBetweenDates = (
 ) => CohortBreakout.findAll({
   where: {
     cohort_id,
+    type: 'lecture',
     time_scheduled: {
       [Op.and]: {
         [Op.lte]: end_date,
