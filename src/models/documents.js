@@ -158,21 +158,45 @@ export const insertIndividualDocument = (
     });
   });
 
-export const updateUserEntry = (
+export const updateUserEntry = ({
   user_id, document_details, status, payment_status,
   is_isa = false, is_verified = false,
   mandate_id,
   mandate_details,
   nach_debit_id,
   nach_debit_details,
-) => Documents.update({
-  document_details,
-  status,
-  payment_status,
-  is_isa,
-  is_verified,
-  mandate_id,
-  mandate_details,
-  nach_debit_id,
-  nach_debit_details,
-}, { where: { user_id } });
+}) => Documents.findOne({
+  where: {
+    user_id,
+  },
+})
+  .then((learnerDocument) => {
+    if (_.isEmpty(learnerDocument)) {
+      return null;
+    }
+
+    if (nach_debit_details) {
+      if (learnerDocument.nach_debit_details) {
+        learnerDocument.nach_debit_details.push(nach_debit_details);
+      } else {
+        learnerDocument.nach_debit_details = [];
+        learnerDocument.nach_debit_details.push(nach_debit_details);
+      }
+    }
+
+    return learnerDocument.update({
+      document_details,
+      status,
+      payment_status,
+      is_isa,
+      is_verified,
+      mandate_id,
+      mandate_details,
+      nach_debit_id,
+      nach_debit_details: learnerDocument.nach_debit_details,
+    }, {
+      where: {
+        user_id,
+      },
+    });
+  });

@@ -142,7 +142,7 @@ export const getEnachDetails = (mandate_id) => {
     .then(data => data)
     .catch(err => {
       console.error(err);
-      let data = { message: `Failed to send Esign request: ${err}`, status: 'Failure' };
+      let data = { message: `Failed to send Enach request: ${err}`, status: 'Failure' };
       return data;
     })
   );
@@ -154,7 +154,7 @@ export const saveEnachDetails = async (mandate_id, user_id) => {
   let updatedDocument = await updateUserEntry({
     user_id,
     mandate_id,
-    mandate_details: enachDetails,
+    mandate_details: enachDetails.body,
   });
 
   return updatedDocument;
@@ -176,12 +176,12 @@ export const saveEnachMandate = (req, res) => {
 export const createDebitRequest = (
   settlement_date, frequency,
   amount, dest_ifsc, dest_acc_no,
-  customer_name,
+  customer_name, umrn,
 ) => {
   const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
 
   const requestObject = {
-    umrn: process.env.UMRN,
+    umrn,
     amount,
     settlement_date,
     corporate_account_number: process.env.PAYMENT_ACC_NUMBER,
@@ -199,29 +199,45 @@ export const createDebitRequest = (
     .set('content-type', 'application/json')
     .then(data => data)
     .catch(err => {
-      console.error(err);
-      let data = { message: `Failed to send Esign request: ${err}`, status: 'Failure' };
-      return data;
+      let message = err.response.body;
+      console.error(message);
+      throw Error(message.message);
     })
   );
+};
+
+export const saveDebitRequest = async (settlement_date, frequency,
+  amount, dest_ifsc, dest_acc_no,
+  customer_name, user_id, umrn) => {
+  const triggerDebit = await createDebitRequest(
+    settlement_date, frequency,
+    amount, dest_ifsc, dest_acc_no,
+    customer_name, umrn,
+  );
+
+  let nach_debit_details = triggerDebit.body;
+
+  let nach_debit_id = nach_debit_details.id;
+
+  return updateUserEntry({ user_id, nach_debit_id, nach_debit_details });
 };
 
 export const createDebitRequestNach = (req, res) => {
   const {
     settlement_date, frequency,
     amount, dest_ifsc, dest_acc_no,
-    customer_name,
+    customer_name, learner_id, umrn,
   } = req.body;
 
-  createDebitRequest(settlement_date, frequency,
+  saveDebitRequest(settlement_date, frequency,
     amount, dest_ifsc, dest_acc_no,
-    customer_name)
+    customer_name, learner_id, umrn)
     .then((data) => res.json({
       text: data,
     }))
     .catch((err) => {
       console.error(err);
-      res.status(500);
+      return res.status(500);
     });
 };
 
@@ -409,7 +425,7 @@ export const EsignRequest = (req, res) => {
       notify_signers,
       send_sign_link,
       file_name).then(esignStatus => {
-      createUserEntry(id, JSON.parse(esignStatus.text), 'requested');
+      createUserEntry(id, esignStatus.body, 'requested');
       return res.json(esignStatus);
     });
   });
