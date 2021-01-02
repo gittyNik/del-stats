@@ -173,19 +173,23 @@ export const saveEnachMandate = (req, res) => {
     });
 };
 
-export const createDebitRequest = () => {
+export const createDebitRequest = (
+  settlement_date, frequency,
+  amount, dest_ifsc, dest_acc_no,
+  customer_name,
+) => {
   const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
 
   const requestObject = {
-    umrn: 'UMRN2984366445219389',
-    amount: 9.0,
-    settlement_date: '2019-04-10',
-    corporate_account_number: '123456789',
-    corporate_config_id: 'TSE180110115609336HGUGFNECH30001',
-    destination_bank_id: 'HDFC0000158',
-    customer_account_number: '01581000136321',
-    customer_name: 'devesh',
-    frequency: 'monthly',
+    umrn: process.env.UMRN,
+    amount,
+    settlement_date,
+    corporate_account_number: process.env.PAYMENT_ACC_NUMBER,
+    corporate_config_id: process.env.CORPORATE_CONFIG_ID,
+    destination_bank_id: dest_ifsc,
+    customer_account_number: dest_acc_no,
+    customer_name,
+    frequency,
   };
 
   return (request
@@ -203,9 +207,15 @@ export const createDebitRequest = () => {
 };
 
 export const createDebitRequestNach = (req, res) => {
-  const { id } = req.body;
+  const {
+    settlement_date, frequency,
+    amount, dest_ifsc, dest_acc_no,
+    customer_name,
+  } = req.body;
 
-  createDebitRequest()
+  createDebitRequest(settlement_date, frequency,
+    amount, dest_ifsc, dest_acc_no,
+    customer_name)
     .then((data) => res.json({
       text: data,
     }))
