@@ -5,6 +5,7 @@ import db from '../database';
 import {
   Cohort,
   getLearnersForCohort,
+  getCohortFromId,
 } from './cohort';
 import {
   getTopicIdsByMilestone,
@@ -27,12 +28,13 @@ import {
 import { BreakoutTemplate } from './breakout_template';
 import {
   getUsersWithStatus,
+  getUserName,
 } from './user';
 import {
   getDataForMilestoneName,
 } from './cohort_milestone';
 import {
-  showCompletedBreakoutOnSlack,
+  showCompletedBreakoutOnSlack, postOverlappingBreakouts,
 } from '../integrations/slack/team-app/controllers/milestone.controller';
 import { postAttendaceInCohortChannel } from '../integrations/slack/delta-app/controllers/web.controller';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
@@ -898,6 +900,52 @@ export const getTodaysCohortBreakouts = async () => {
     }
   }
   return breakouts;
+};
+
+export const getNDaysCohortBreakouts = async (n_days) => {
+  let n_days_plus = n_days + 1;
+  // todo: Need a better way to get start of the day in Asia/Kolkata timezone.
+  const todaysBreakouts = await db.query("select c1.* from cohort_breakouts c1 where exists(select 1 from cohort_breakouts c2 where tstzrange(c2.time_scheduled, c2.time_scheduled + make_interval(secs => c2.duration / 1000), '[]') && tstzrange(c1.time_scheduled, c1.time_scheduled + make_interval(secs => c1.duration / 1000), '[]') and c2.catalyst_id = c1.catalyst_id and c2.topic_id <> c1.topic_id and c2.id <> c1.id and time_scheduled between now() + ':n_days days'::INTERVAL and now() + ':n_days_plus days'::INTERVAL) order by c1.time_scheduled;", {
+    model: CohortBreakout,
+    replacements: {
+      n_days,
+      n_days_plus,
+    },
+    raw: true,
+  });
+
+  let duplicateBreakouts = await Promise.all(todaysBreakouts.map(async breakout => {
+    let cohortDetails = await getCohortFromId(breakout.cohort_id);
+    let userDetails = await getUserName(breakout.catalyst_id);
+    const time = new Date(breakout.time_scheduled).toLocaleTimeString([], {
+      timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit',
+    });
+    try {
+      breakout.topics = breakout.details.topics.replace(/\n(?!$)/g, ', ');
+      breakout.topics = breakout.topics.replace(/\n/, '');
+      if (breakout.type === 'assessment') {
+        const learnerSlackId = await getSlackIdForLearner(breakout.details.learner_id);
+        breakout.topics = `Assessment for <@${learnerSlackId}>`;
+      }
+    } catch (err) {
+      breakout.topics = await getTopicNameById(breakout.topic_id);
+    }
+    let duration = (cohortDetails.duration === 16) ? 'Full-Time' : 'Part-time';
+    breakout.catalyst = `Catalyst: ${userDetails.name}`;
+    breakout.catalyst_time = `${userDetails.name} ${time}`;
+    breakout.topics = `Cohort: *${cohortDetails.name}* ${duration} ${cohortDetails.location} \n ${breakout.topics} at *${time}* \n`;
+    return breakout;
+  }));
+
+  const groupedDuplicates = _.groupBy(duplicateBreakouts, 'catalyst_time');
+
+  return groupedDuplicates;
+};
+
+export const getDuplicateBreakouts = async (n_days) => {
+  const payload = await getNDaysCohortBreakouts(n_days);
+  const res = await postOverlappingBreakouts(n_days, payload);
+  return res;
 };
 
 export const updateOneCohortBreakouts = async (details, cohort_breakout) => {
