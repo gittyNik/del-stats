@@ -189,16 +189,34 @@ export const updateMandateDetailsForLearner = (mandate_id, mandate_details) => D
   where: {
     mandate_id,
   },
+  returning: true,
 });
 
 export const updateDebitDetailsForLearner = (nach_debit_id,
-  nach_debit_details) => Documents.update({
-  nach_debit_details,
-}, {
+  nach_debit_details) => Documents.findOne({
   where: {
     nach_debit_id,
   },
-});
+})
+  .then((learnerDocument) => {
+    if (_.isEmpty(learnerDocument)) {
+      throw Error('Nach debit details not present in DB');
+    }
+
+    if (learnerDocument.nach_debit_details === null) {
+      learnerDocument.nach_debit_details = [];
+    }
+    learnerDocument.nach_debit_details.push(nach_debit_details);
+
+    return learnerDocument.update({
+      nach_debit_details: learnerDocument.nach_debit_details,
+    }, {
+      where: {
+        nach_debit_id,
+      },
+      returning: true,
+    });
+  });
 
 export const createUserEntry = ({
   user_id, document_details, status, payment_status,
@@ -266,15 +284,6 @@ export const insertIndividualDocument = (
       .then(d => d.get({ plain: true }));
   });
 
-export const updateUserEntry = (user_id, document_details, status, payment_status,
-  is_isa = false, is_verified = false) => Documents.update({
-  document_details,
-  status,
-  payment_status,
-  is_isa,
-  is_verified,
-}, { where: { user_id } });
-
 export const verifySingleUserDocument = async (
   user_id,
   document_name,
@@ -298,3 +307,46 @@ export const verifySingleUserDocument = async (
     returning: true,
   });
 };
+
+export const updateUserEntry = ({
+  user_id, document_details, status, payment_status,
+  is_isa = false, is_verified = false,
+  mandate_id,
+  mandate_details,
+  nach_debit_id,
+  nach_debit_details,
+}) => Documents.findOne({
+  where: {
+    user_id,
+  },
+})
+  .then((learnerDocument) => {
+    if (_.isEmpty(learnerDocument)) {
+      return null;
+    }
+
+    if (nach_debit_details) {
+      if (learnerDocument.nach_debit_details) {
+        learnerDocument.nach_debit_details.push(nach_debit_details);
+      } else {
+        learnerDocument.nach_debit_details = [];
+        learnerDocument.nach_debit_details.push(nach_debit_details);
+      }
+    }
+
+    return learnerDocument.update({
+      document_details,
+      status,
+      payment_status,
+      is_isa,
+      is_verified,
+      mandate_id,
+      mandate_details,
+      nach_debit_id,
+      nach_debit_details: learnerDocument.nach_debit_details,
+    }, {
+      where: {
+        user_id,
+      },
+    });
+  });

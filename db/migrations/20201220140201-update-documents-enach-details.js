@@ -5,8 +5,7 @@ const migration = {
       allowNull: true,
     }, { transaction }),
     qi.addColumn('documents', 'mandate_id', {
-      type: Sequelize.JSON,
-      allowNull: true,
+      type: Sequelize.STRING,
     }, { transaction }),
     qi.addColumn('documents', 'nach_debit_id', {
       type: Sequelize.STRING,

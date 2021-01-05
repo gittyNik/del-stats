@@ -6,26 +6,19 @@ import {
   insertUserDocument, verifySingleUserDocumentAPI,
   downloadEsignDocument,
   digioEnachWebHook,
+  saveEnachMandate,
+  createDebitRequestNach, createMandate,
 } from '../../controllers/firewall/documents.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, EDUCATOR, LEARNER, OPERATIONS, REVIEWER, CATALYST, CAREER_SERVICES, GUEST,
+  ADMIN, EDUCATOR, LEARNER, OPERATIONS, REVIEWER, CATALYST, CAREER_SERVICES,
+  GUEST,
 } = USER_ROLES;
 // import { apiNotReady } from '../../controllers/api.controller';
 
 const router = Express.Router();
-
-/**
- * DO NOT ADD AUTHENTICATION
- * @api {get} /firewall/documents/webhook/ Digio WebHook
- * @apiDescription Digio Webhook needs no Authentication
- * @apiHeader {String} authorization JWT Token.
- * @apiName DigioWebHook
- * @apiGroup Documents
- */
-router.post('/webhook', digioEnachWebHook);
 
 router.use(allowMultipleRoles([ADMIN, LEARNER,
   OPERATIONS, EDUCATOR, REVIEWER, CATALYST, CAREER_SERVICES, GUEST]));
@@ -40,6 +33,14 @@ router.use(allowMultipleRoles([ADMIN, LEARNER,
 router.post('/sign-request', getSignUrl);
 
 router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER, GUEST]));
+/**
+ * @api {get} /firewall/documents/save-mandate/ Save mandate details
+ * @apiDescription save mandate details
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName SaveMandateDetails
+ * @apiGroup Documents
+ */
+router.post('/save-mandate', saveEnachMandate);
 
 /**
  * @api {patch} /firewall/documents/:id/esign Send Esign Request to User
@@ -59,6 +60,26 @@ router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER, G
  * @apiParam {Json} signers signer details
  */
 router.post('/:id/esign', EsignRequest);
+
+/**
+ * @api {get} /firewall/documents/create-debit/ Credit Debit request
+ * @apiDescription create debit request
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName CreateDebitRequest
+ * @apiGroup Documents
+ */
+router.post('/create-debit', createDebitRequestNach);
+
+/**
+ * @api {get} /firewall/documents/create-mandate/ Credit Mandate request
+ * @apiDescription create mandate request
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName CreateDebitRequest
+ * @apiGroup Documents
+ */
+router.post('/create-mandate', createMandate);
+
+router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]));
 
 /**
  * @api {get} /firewall/documents/save/ save document

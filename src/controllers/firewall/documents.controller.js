@@ -107,12 +107,14 @@ export const createUser = (req, res) => {
     is_isa,
     is_verified,
   } = req.body;
-  createUserEntry(user_id,
+  createUserEntry({
+    user_id,
     document_details,
     status,
     payment_status,
     is_isa,
-    is_verified).then((data) => { res.json(data); })
+    is_verified,
+  }).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
@@ -132,6 +134,240 @@ export const updateUser = (req, res) => {
     is_isa,
     is_verified).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
+};
+
+export const getEnachDetails = (mandate_id) => {
+  const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
+
+  return (request
+    .get(`${DIGIO_BASE_URL}v3/client/mandate/${mandate_id}`)
+    .set('Authorization', `Basic ${BASE_64_TOKEN}`)
+    .set('content-type', 'application/json')
+    .then(data => data)
+    .catch(err => {
+      console.error(err);
+      let data = { message: `Failed to send Enach request: ${err}`, status: 'Failure' };
+      return data;
+    })
+  );
+};
+
+export const saveEnachDetails = async (mandate_id, user_id) => {
+  let enachDetails = await getEnachDetails(mandate_id);
+
+  let updatedDocument = await updateUserEntry({
+    user_id,
+    mandate_id,
+    mandate_details: enachDetails.body,
+  });
+
+  return updatedDocument;
+};
+
+export const saveEnachMandate = (req, res) => {
+  const { mandate_id, user_id } = req.body;
+
+  saveEnachDetails(mandate_id, user_id)
+    .then((data) => res.json({
+      text: data,
+    }))
+    .catch((err) => {
+      console.error(err);
+      res.status(500);
+    });
+};
+
+export const createMandateRequest = (
+  {
+    customer_email, mandate_amount,
+    activation_date, is_recurring,
+    frequency, user_id,
+    customer_name, customer_account_number,
+    customer_bank_ifsc, customer_account_type,
+    customer_ref_number,
+  },
+) => {
+  const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
+
+  const requestObject = {
+    customer_identifier: customer_email,
+    auth_mode: 'api',
+    mandate_type: 'create',
+    corporate_config_id: process.env.CORPORATE_CONFIG_ID,
+    mandate_data: {
+      maximum_amount: mandate_amount,
+      instrument_type: 'debit',
+      first_collection_date: activation_date,
+      is_recurring,
+      frequency,
+      management_category: 'A001',
+      customer_name,
+      customer_account_number,
+      destination_bank_id: customer_bank_ifsc,
+      customer_account_type,
+      customer_ref_number,
+    },
+
+  };
+
+  return (request
+    .post(`${DIGIO_BASE_URL}v3/client/mandate/create_form`)
+    .send(requestObject)
+    .set('Authorization', `Basic ${BASE_64_TOKEN}`)
+    .set('content-type', 'application/json')
+    .then(data => data)
+    .catch(err => {
+      let message = err.response.body;
+      console.error(message);
+      throw Error(message.message);
+    })
+  );
+};
+
+export const createDebitRequest = (
+  settlement_date, frequency,
+  amount, dest_ifsc, dest_acc_no,
+  customer_name, umrn,
+) => {
+  const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
+
+  const requestObject = {
+    umrn,
+    amount,
+    settlement_date,
+    corporate_account_number: process.env.PAYMENT_ACC_NUMBER,
+    corporate_config_id: process.env.CORPORATE_CONFIG_ID,
+    destination_bank_id: dest_ifsc,
+    customer_account_number: dest_acc_no,
+    customer_name,
+    frequency,
+  };
+
+  return (request
+    .post(`${DIGIO_BASE_URL}v3/client/nach_debit/scheduled/register`)
+    .send(requestObject)
+    .set('Authorization', `Basic ${BASE_64_TOKEN}`)
+    .set('content-type', 'application/json')
+    .then(data => data)
+    .catch(err => {
+      let message = err.response.body;
+      console.error(message);
+      throw Error(message.message);
+    })
+  );
+};
+
+export const saveDebitRequest = async (settlement_date, frequency,
+  amount, dest_ifsc, dest_acc_no,
+  customer_name, user_id, umrn) => {
+  const triggerDebit = await createDebitRequest(
+    settlement_date, frequency,
+    amount, dest_ifsc, dest_acc_no,
+    customer_name, umrn,
+  );
+
+  let nach_debit_details = triggerDebit.body;
+
+  let nach_debit_id = nach_debit_details.id;
+
+  return updateUserEntry({ user_id, nach_debit_id, nach_debit_details });
+};
+
+export const saveMandateDetails = async ({
+  customer_email, mandate_amount,
+  activation_date, is_recurring,
+  frequency, user_id,
+  customer_name, customer_account_number,
+  customer_bank_ifsc, customer_account_type,
+}) => {
+  // Create random alphanumeric string which can be shared with users for tracking
+  const customer_ref_number = (+new Date()).toString(36).slice(-8);
+  console.log(customer_ref_number);
+
+  // Send api request for mandate creation
+  const mandateResponse = await createMandateRequest({
+    customer_email,
+    mandate_amount,
+    activation_date,
+    is_recurring,
+    frequency,
+    user_id,
+    customer_name,
+    customer_account_number,
+    customer_bank_ifsc,
+    customer_account_type,
+    customer_ref_number,
+  });
+
+  let mandateDetails = JSON.parse(mandateResponse.text);
+
+  return updateUserEntry({
+    user_id,
+    mandate_id: mandateDetails.mandate_id,
+    mandate_details: mandateDetails,
+  });
+};
+
+export const createMandate = (req, res) => {
+  const {
+    customer_email, mandate_amount,
+    activation_date, is_recurring,
+    frequency, user_id,
+    customer_name, customer_account_number,
+    customer_bank_ifsc, customer_account_type,
+    customer_ref_number,
+  } = req.body;
+
+  // Frequency Options:
+  // Adhoc[means “As on when presented”]
+  // IntraDay
+  // Daily
+  // Weekly
+  // Monthly
+  // BiMonthly
+  // Quarterly
+  // Semiannually
+  // Yearly
+
+  saveMandateDetails({
+    customer_email,
+    mandate_amount,
+    activation_date,
+    is_recurring,
+    frequency,
+    user_id,
+    customer_name,
+    customer_account_number,
+    customer_bank_ifsc,
+    customer_account_type,
+    customer_ref_number,
+  })
+    .then((data) => res.json({
+      text: data,
+    }))
+    .catch((err) => {
+      console.error(err);
+      return res.status(500);
+    });
+};
+
+export const createDebitRequestNach = (req, res) => {
+  const {
+    settlement_date, frequency,
+    amount, dest_ifsc, dest_acc_no,
+    customer_name, learner_id, umrn,
+  } = req.body;
+
+  saveDebitRequest(settlement_date, frequency,
+    amount, dest_ifsc, dest_acc_no,
+    customer_name, learner_id, umrn)
+    .then((data) => res.json({
+      text: data,
+    }))
+    .catch((err) => {
+      console.error(err);
+      return res.status(500);
+    });
 };
 
 export const Esign = (template_values, signers,
@@ -168,17 +404,17 @@ export const Esign = (template_values, signers,
 };
 
 const processWebHookData = async (entities, payload, id, event) => {
-  let message = 'Hello';
-  return message;
-  // if (entities.filter(element => element.includes('mandate'))) {
-  //   // Mandate details
-  //   let mandate_details = payload.api_mandate;
-  //   return updateMandateDetailsForLearner(mandate_details.id, mandate_details);
-  // }
-  // // eNach debit details
-  // let debit_details = payload.nach_debit;
-  // // console.log(event)
-  // return updateDebitDetailsForLearner(debit_details.id, debit_details);
+  let find_items = entities.filter(element => element.includes('mandate'));
+  if (find_items.length > 0) {
+    // Mandate details
+    let mandate_details = payload.api_mandate;
+    console.log(`Mandate ID for Enach: ${mandate_details.id}`);
+    return updateMandateDetailsForLearner(mandate_details.id, mandate_details);
+  }
+  // eNach debit details
+  let debit_details = payload.nach_debit;
+  console.log(`Debit ID for Enach: ${debit_details.id}`);
+  return updateDebitDetailsForLearner(debit_details.id, debit_details);
 };
 
 export const digioEnachWebHook = (req, res) => {
@@ -186,25 +422,42 @@ export const digioEnachWebHook = (req, res) => {
     entities, payload, id, event,
   } = req.body;
 
-  console.log('Request Body');
-  console.log(req.body);
-  console.log('Request Headers');
-  console.log(req.headers);
+  console.debug('Request Body');
+  console.debug(req.body);
+  // console.debug('Request Headers');
+  // console.debug(req.headers);
 
   let digioWebhookSecret = process.env.DIGIO_WEBHOOK_SECRET;
-  let checkSum = crypto.createHmac('sha256', digioWebhookSecret).update(JSON.stringify(req.body));
+  const secretHash = crypto.createHmac('sha256', digioWebhookSecret).update(JSON.stringify(req.body));
 
-  console.log('checkSum');
-  console.log(checkSum.digest('base64'));
+  const checkSum = secretHash.digest('hex');
 
-  processWebHookData(entities, payload, id, event)
-    .then((data) => res.json({
-      text: data,
-    }))
-    .catch((err) => {
-      console.error(err);
-      res.status(500);
-    });
+  // console.debug('checkSum');
+  // console.debug(checkSum);
+
+  const requestCheckSum = req.headers['x-digio-checksum'];
+  // console.debug(requestCheckSum);
+
+  if (requestCheckSum === checkSum) {
+    return processWebHookData(entities, payload, id, event)
+      .then((data) => {
+        if (data[0] === 0) {
+          console.error('Enach details does exist in documents');
+          return res.status(500).send();
+        }
+        return res.json({
+          data: data[1],
+          message: 'Updated enach details',
+          type: 'success',
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        return res.status(500).send();
+      });
+  }
+  let message = 'Signatures does not match';
+  return res.status(401).json({ message, type: 'failure' });
 };
 
 export const downloadEsignAgreement = async (user_id) => {
@@ -222,9 +475,10 @@ export const downloadEsignAgreement = async (user_id) => {
     .then(async (res) => {
       let pdfFile = res.data;
       let { bucketName, basePath } = type_upload.agreement;
-      await uploadFile(bucketName, `${basePath}/${userDocument.document_details.file_name}.pdf`,
+      let documentPath = `${basePath}/${userDocument.document_details.file_name}.pdf`;
+      await uploadFile(bucketName, documentPath,
         pdfFile, 'application/pdf');
-      // TODO: Upload document path in DB
+      userDocument.document_details.path = documentPath;
       return 'Document uploaded successfully!';
     })
     .catch((error) => {
@@ -300,7 +554,7 @@ export const EsignRequest = (req, res) => {
       notify_signers,
       send_sign_link,
       file_name).then(esignStatus => {
-      createUserEntry(id, JSON.parse(esignStatus.text), 'requested');
+      createUserEntry({ user_id: id, document_details: JSON.parse(esignStatus.text), status: 'requested' });
       return res.json(esignStatus);
     });
   });
