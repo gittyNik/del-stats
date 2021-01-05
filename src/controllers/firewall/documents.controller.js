@@ -105,12 +105,14 @@ export const createUser = (req, res) => {
     is_isa,
     is_verified,
   } = req.body;
-  createUserEntry(user_id,
+  createUserEntry({
+    user_id,
     document_details,
     status,
     payment_status,
     is_isa,
-    is_verified).then((data) => { res.json(data); })
+    is_verified,
+  }).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 
@@ -173,6 +175,53 @@ export const saveEnachMandate = (req, res) => {
     });
 };
 
+export const createMandateRequest = (
+  {
+    customer_email, mandate_amount,
+    activation_date, is_recurring,
+    frequency, user_id,
+    customer_name, customer_account_number,
+    customer_bank_ifsc, customer_account_type,
+    customer_ref_number,
+  },
+) => {
+  const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
+
+  const requestObject = {
+    customer_identifier: customer_email,
+    auth_mode: 'api',
+    mandate_type: 'create',
+    corporate_config_id: process.env.CORPORATE_CONFIG_ID,
+    mandate_data: {
+      maximum_amount: mandate_amount,
+      instrument_type: 'debit',
+      first_collection_date: activation_date,
+      is_recurring,
+      frequency,
+      management_category: 'A001',
+      customer_name,
+      customer_account_number,
+      destination_bank_id: customer_bank_ifsc,
+      customer_account_type,
+      customer_ref_number,
+    },
+
+  };
+
+  return (request
+    .post(`${DIGIO_BASE_URL}v3/client/mandate/create_form`)
+    .send(requestObject)
+    .set('Authorization', `Basic ${BASE_64_TOKEN}`)
+    .set('content-type', 'application/json')
+    .then(data => data)
+    .catch(err => {
+      let message = err.response.body;
+      console.error(message);
+      throw Error(message.message);
+    })
+  );
+};
+
 export const createDebitRequest = (
   settlement_date, frequency,
   amount, dest_ifsc, dest_acc_no,
@@ -220,6 +269,84 @@ export const saveDebitRequest = async (settlement_date, frequency,
   let nach_debit_id = nach_debit_details.id;
 
   return updateUserEntry({ user_id, nach_debit_id, nach_debit_details });
+};
+
+export const saveMandateDetails = async ({
+  customer_email, mandate_amount,
+  activation_date, is_recurring,
+  frequency, user_id,
+  customer_name, customer_account_number,
+  customer_bank_ifsc, customer_account_type,
+}) => {
+  // Create random alphanumeric string which can be shared with users for tracking
+  const customer_ref_number = (+new Date()).toString(36).slice(-8);
+  console.log(customer_ref_number);
+
+  // Send api request for mandate creation
+  const mandateResponse = await createMandateRequest({
+    customer_email,
+    mandate_amount,
+    activation_date,
+    is_recurring,
+    frequency,
+    user_id,
+    customer_name,
+    customer_account_number,
+    customer_bank_ifsc,
+    customer_account_type,
+    customer_ref_number,
+  });
+
+  let mandateDetails = JSON.parse(mandateResponse.text);
+
+  return updateUserEntry({
+    user_id,
+    mandate_id: mandateDetails.mandate_id,
+    mandate_details: mandateDetails,
+  });
+};
+
+export const createMandate = (req, res) => {
+  const {
+    customer_email, mandate_amount,
+    activation_date, is_recurring,
+    frequency, user_id,
+    customer_name, customer_account_number,
+    customer_bank_ifsc, customer_account_type,
+    customer_ref_number,
+  } = req.body;
+
+  // Frequency Options:
+  // Adhoc[means “As on when presented”]
+  // IntraDay
+  // Daily
+  // Weekly
+  // Monthly
+  // BiMonthly
+  // Quarterly
+  // Semiannually
+  // Yearly
+
+  saveMandateDetails({
+    customer_email,
+    mandate_amount,
+    activation_date,
+    is_recurring,
+    frequency,
+    user_id,
+    customer_name,
+    customer_account_number,
+    customer_bank_ifsc,
+    customer_account_type,
+    customer_ref_number,
+  })
+    .then((data) => res.json({
+      text: data,
+    }))
+    .catch((err) => {
+      console.error(err);
+      return res.status(500);
+    });
 };
 
 export const createDebitRequestNach = (req, res) => {
@@ -425,7 +552,7 @@ export const EsignRequest = (req, res) => {
       notify_signers,
       send_sign_link,
       file_name).then(esignStatus => {
-      createUserEntry(id, esignStatus.body, 'requested');
+      createUserEntry({ user_id: id, document_details: JSON.parse(esignStatus.text), status: 'requested' });
       return res.json(esignStatus);
     });
   });

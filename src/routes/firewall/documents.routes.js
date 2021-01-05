@@ -5,7 +5,7 @@ import {
   getDocumentsAll, EsignRequest, getSignUrl,
   insertUserDocument, downloadEsignDocument,
   saveEnachMandate,
-  createDebitRequestNach,
+  createDebitRequestNach, createMandate,
 } from '../../controllers/firewall/documents.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -125,6 +125,15 @@ router.use(allowMultipleRoles([ADMIN, OPERATIONS, EDUCATOR]));
  * @apiGroup Documents
  */
 router.post('/create-debit', createDebitRequestNach);
+
+/**
+ * @api {get} /firewall/documents/create-mandate/ Credit Mandate request
+ * @apiDescription create mandate request
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName CreateDebitRequest
+ * @apiGroup Documents
+ */
+router.post('/create-mandate', createMandate);
 
 /**
  * @api {post} /firewall/documents/ Add Users Documents
