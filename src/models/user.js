@@ -2,6 +2,7 @@ import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import _ from 'lodash';
 import db from '../database';
+import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
 
 const { DEFAULT_USER } = process.env;
 
@@ -38,6 +39,17 @@ const AVAILABLE_USER_STATUS = [
   'graduated',
   'past-learner',
   'other',
+];
+
+const NOTIFY_SLACK_STATUSES = [
+  'respawning core phase',
+  'respawning focus phase',
+  'long leave',
+  'admission terminated',
+  'back after absence',
+  'irregular',
+  'medical emergency',
+  'dropout',
 ];
 
 export const User = db.define(
@@ -230,6 +242,16 @@ export const addUserStatus = (
       .then((userStatus) => {
         if (_.isEmpty(userStatus)) {
           throw Error('User does not exist');
+        }
+
+        try {
+          if (NOTIFY_SLACK_STATUSES.indexOf(status) > -1) {
+            const message = `*${userStatus.name}* ${userStatus.email} has been marked: *${status}*`;
+            const context = 'Learner status update';
+            sendMessageToSlackChannel(message, context, process.env.LEARNER_AFFAIRS);
+          }
+        } catch (err) {
+          console.warn('Failed to send slack message');
         }
 
         let statusDetails = {

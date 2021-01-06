@@ -914,32 +914,35 @@ export const getNDaysCohortBreakouts = async (n_days) => {
     raw: true,
   });
 
-  let duplicateBreakouts = await Promise.all(todaysBreakouts.map(async breakout => {
-    let cohortDetails = await getCohortFromId(breakout.cohort_id);
-    let userDetails = await getUserName(breakout.catalyst_id);
-    const time = new Date(breakout.time_scheduled).toLocaleTimeString([], {
-      timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit',
-    });
-    try {
-      breakout.topics = breakout.details.topics.replace(/\n(?!$)/g, ', ');
-      breakout.topics = breakout.topics.replace(/\n/, '');
-      if (breakout.type === 'assessment') {
-        const learnerSlackId = await getSlackIdForLearner(breakout.details.learner_id);
-        breakout.topics = `Assessment for <@${learnerSlackId}>`;
+  if (todaysBreakouts) {
+    let duplicateBreakouts = await Promise.all(todaysBreakouts.map(async breakout => {
+      let cohortDetails = await getCohortFromId(breakout.cohort_id);
+      let userDetails = await getUserName(breakout.catalyst_id);
+      const time = new Date(breakout.time_scheduled).toLocaleTimeString([], {
+        timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit',
+      });
+      try {
+        breakout.topics = breakout.details.topics.replace(/\n(?!$)/g, ', ');
+        breakout.topics = breakout.topics.replace(/\n/, '');
+        if (breakout.type === 'assessment') {
+          const learnerSlackId = await getSlackIdForLearner(breakout.details.learner_id);
+          breakout.topics = `Assessment for <@${learnerSlackId}>`;
+        }
+      } catch (err) {
+        breakout.topics = await getTopicNameById(breakout.topic_id);
       }
-    } catch (err) {
-      breakout.topics = await getTopicNameById(breakout.topic_id);
-    }
-    let duration = (cohortDetails.duration === 16) ? 'Full-Time' : 'Part-time';
-    breakout.catalyst = `Catalyst: ${userDetails.name}`;
-    breakout.catalyst_time = `${userDetails.name} ${time}`;
-    breakout.topics = `Cohort: *${cohortDetails.name}* ${duration} ${cohortDetails.location} \n ${breakout.topics} at *${time}* \n`;
-    return breakout;
-  }));
+      let duration = (cohortDetails.duration === 16) ? 'Full-Time' : 'Part-time';
+      breakout.catalyst = userDetails.name;
+      breakout.breakout_time = time;
+      breakout.topics = `Cohort: *${cohortDetails.name}* ${duration} ${cohortDetails.location} \n ${breakout.topics} at *${time}* \n`;
+      return breakout;
+    }));
 
-  const groupedDuplicates = _.groupBy(duplicateBreakouts, 'catalyst_time');
+    const groupedDuplicates = _.groupBy(duplicateBreakouts, 'catalyst');
 
-  return groupedDuplicates;
+    return groupedDuplicates;
+  }
+  return null;
 };
 
 export const getDuplicateBreakouts = async (n_days) => {

@@ -185,12 +185,24 @@ export const createScheduledMeeting = async (topic, start_time,
         id, status,
         start_url, join_url, h323_password,
       } = data.body;
+      let updated_start_url;
+      let updated_join_url;
+      if (start_url.length > 200) {
+        updated_start_url = start_url.substring(0, 200);
+      } else {
+        updated_start_url = start_url;
+      }
+      if (join_url.length > 200) {
+        updated_join_url = join_url.substring(0, 200);
+      } else {
+        updated_join_url = join_url;
+      }
       // console.log(`ZOOM MEETING --> id: ${id}, status: ${status}, join_url: ${join_url}`);
       return VideoMeeting.create({
         id: uuid(),
         video_id: id,
-        start_url,
-        join_url,
+        start_url: updated_start_url,
+        join_url: updated_join_url,
         duration,
         start_time: db_update_time,
         zoom_user: catalyst_email,

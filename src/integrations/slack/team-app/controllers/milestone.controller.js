@@ -91,11 +91,39 @@ export const showCompletedBreakoutOnSlack = (
   })
   .catch(err => console.log('SEND SLACK MESSAGE ERROR', err));
 
+export const sendMessageToSlackChannel = (text, context, channel) => web.chat.postMessage({
+  text,
+  blocks: [
+    {
+      type: 'context',
+      elements: [{
+        type: 'mrkdwn',
+        text: context,
+      }],
+    },
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text,
+      },
+    },
+  ],
+  channel,
+})
+  .catch(err => console.log(err));
+
 export const postOverlappingBreakouts = async (n_days, overlappingBreakouts) => {
   const channelId = process.env.SLACK_PE_SCHEDULING_CHANNEL;
+  let n_day = new Date();
+  n_day.setDate(n_day.getDate() + n_days);
+  let context = `<!channel> Overlapping sessions for date: *${n_day.getDate()}-${n_day.getMonth() + 1}-${n_day.getFullYear()}*`;
+
+  if (overlappingBreakouts === null) {
+    const textMessage = 'No Catalyst overlapping sessions for the day';
+    sendMessageToSlackChannel(textMessage, context, channelId);
+  }
   const postOnChannel = async (textBody) => {
-    let n_day = new Date();
-    n_day.setDate(n_day.getDate() + n_days);
     const payloadBlocks = [
       {
         type: 'section',
@@ -113,7 +141,7 @@ export const postOverlappingBreakouts = async (n_days, overlappingBreakouts) => 
             type: 'context',
             elements: [{
               type: 'mrkdwn',
-              text: `<!channel> Overlapping sessions for date: *${n_day.getDate()}-${n_day.getMonth() + 1}-${n_day.getFullYear()}*`,
+              text: context,
             }],
           },
           {
@@ -139,7 +167,6 @@ export const postOverlappingBreakouts = async (n_days, overlappingBreakouts) => 
   let data = [];
   let breakout_text = '';
 
-  // eslint-disable-next-line no-restricted-syntax
   Object.entries(overlappingBreakouts).forEach(([key, breakout]) => {
     // let b_type;
     breakout_text += `Catalyst: *${key}*\n\n${'_'.repeat(50)}\n\n`;
@@ -148,16 +175,16 @@ export const postOverlappingBreakouts = async (n_days, overlappingBreakouts) => 
       switch (eachBreakout.type) {
         case 'lecture':
           // b_type = (breakout.details.type === 'tep') ? 'Tech Breakouts' : 'MindCasts';
-          b_topic = `${eachBreakout.topics}\n`;
+          b_topic = `*${eachBreakout.breakout_time}* ${eachBreakout.topics}\n`;
           breakout_text += `${b_topic}`;
           break;
         case 'reviews':
           // b_type = 'Reviews';
-          b_topic = `${eachBreakout.topics}\n`;
+          b_topic = `*${eachBreakout.breakout_time}* ${eachBreakout.topics}\n`;
           breakout_text += b_topic;
           break;
         case 'assessment':
-          b_topic = `${eachBreakout.topics}\n`;
+          b_topic = `*${eachBreakout.breakout_time}* ${eachBreakout.topics}\n`;
           breakout_text += b_topic;
           break;
         // no default
@@ -166,7 +193,7 @@ export const postOverlappingBreakouts = async (n_days, overlappingBreakouts) => 
     breakout_text += `${'_'.repeat(50)}\n`;
   });
   try {
-    // eslint-disable-next-line no-await-in-loop
+    console.log(breakout_text);
     const res = await postOnChannel(breakout_text);
     data.push(res);
   } catch (err) {
@@ -176,28 +203,6 @@ export const postOverlappingBreakouts = async (n_days, overlappingBreakouts) => 
   }
   return data;
 };
-
-export const sendMessageToSlackChannel = (text, context, channel) => web.chat.postMessage({
-  text,
-  blocks: [
-    {
-      type: 'context',
-      elements: [{
-        type: 'mrkdwn',
-        text: context,
-      }],
-    },
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text,
-      },
-    },
-  ],
-  channel,
-})
-  .catch(err => console.log(err));
 
 export const markTopicAsFinished = (topic_id, cohort_id, username) => {
   const sendMessageToSlack = Promise.all([
