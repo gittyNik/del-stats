@@ -121,7 +121,7 @@ export const postOverlappingBreakouts = async (n_days, overlappingBreakouts) => 
 
   if (overlappingBreakouts === null) {
     const textMessage = 'No Catalyst overlapping sessions for the day';
-    sendMessageToSlackChannel(textMessage, context, channelId);
+    return sendMessageToSlackChannel(textMessage, context, channelId);
   }
   const postOnChannel = async (textBody) => {
     const payloadBlocks = [
