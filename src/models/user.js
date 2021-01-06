@@ -248,7 +248,7 @@ export const addUserStatus = (
           if (NOTIFY_SLACK_STATUSES.indexOf(status) > -1) {
             const message = `*${userStatus.name}* ${userStatus.email} has been marked: *${status}*`;
             const context = 'Learner status update';
-            sendMessageToSlackChannel(message, context, process.env.LEARNER_AFFAIRS);
+            sendMessageToSlackChannel(message, context, process.env.SLACK_LEARNER_AFFAIRS);
           }
         } catch (err) {
           console.warn('Failed to send slack message');
