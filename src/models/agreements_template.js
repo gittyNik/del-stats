@@ -42,6 +42,24 @@ export const AgreementTemplates = db.define('agreement_templates', {
   modified_by: {
     type: Sequelize.ARRAY(Sequelize.JSON),
   },
+  // Field related to learner documents
+  is_learner_document: {
+    type: Sequelize.BOOLEAN, // flag to differentiate learner documents from agreement documents
+    default: false,
+  },
+  non_isa_type: {
+    type: Sequelize.STRING, // Ex: Loan, Upfront etc.
+    allowNull: true,
+  },
+  document_category: {
+    type: Sequelize.STRING, // Name of the options. Ex: learner-option-1 or guardian-option-1
+    allowNull: true,
+  },
+  is_required: Sequelize.BOOLEAN,
+  document_count: {
+    type: Sequelize.INTEGER, // Number of documents needed. For aadhar=2(front and back)
+    default: 1,
+  },
 });
 
 export const getAgreementTemplate = (
@@ -61,6 +79,7 @@ export const getAgreementTemplate = (
           program,
           cohort_duration,
           is_isa,
+          is_learner_document: false,
         },
         attributes: ['document_identifier', 'payment_details'],
         raw: true,
@@ -75,6 +94,7 @@ export const getAgreementTemplate = (
         is_isa,
         is_job_guarantee,
         payment_type,
+        is_learner_document: false,
       },
       attributes: ['document_identifier', 'payment_details'],
       raw: true,

@@ -3,11 +3,14 @@ import {
   getDocumentsByID, getDocumentsByUserId,
   getDocumentsStatus, updateUser, createUser,
   getDocumentsAll, EsignRequest, getSignUrl,
-  insertUserDocument, verifySingleUserDocumentAPI,
   downloadEsignDocument,
+<<<<<<< HEAD
   digioEnachWebHook,
   saveEnachMandate,
   createDebitRequestNach, createMandate,
+=======
+  digioEnachWebHook, getLearnerDocumentsJsonAPI,
+>>>>>>> Get user_documents in json
 } from '../../controllers/firewall/documents.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -112,6 +115,14 @@ router.post('/', createUser);
  * @apiGroup Documents
  */
 router.post('/save/:user_id', insertUserDocument);
+// /**
+//  * @api {get} /firewall/documents/save/ save document
+//  * @apiDescription upload Document
+//  * @apiHeader {String} authorization JWT Token.
+//  * @apiName GetUserDocumentResources
+//  * @apiGroup Documents
+//  */
+// router.post('/save/:user_id', insertUserDocument);
 
 router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]));
 
@@ -123,6 +134,8 @@ router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]))
  * @apiGroup Documents
  */
 router.get('/', getDocumentsAll);
+
+router.get('/user-documents-json', getLearnerDocumentsJsonAPI);
 
 /**
  * @api {get} /firewall/documents/esign/:id/download Download document for user
@@ -179,5 +192,4 @@ router.patch('/:id', updateUser);
  */
 // router.delete('/:id', deleteOne);
 
-router.post('/verify/', verifySingleUserDocumentAPI);
 export default router;

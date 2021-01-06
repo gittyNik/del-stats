@@ -14,6 +14,7 @@ import {
   updateMandateDetailsForLearner, updateDebitDetailsForLearner,
   getDocumentsByEsignId,
   updateEsignDetailsForLearner,
+  getLearnerDocumentsJSON,
 } from '../../models/documents';
 import { User } from '../../models/user';
 import { uploadFile } from '../emailer/emailer.controller';
@@ -748,43 +749,24 @@ export const getSignUrl = async (req, res) => {
  * @param {Boolean} req.body.is_verified Default value is false
  * @param {String} req.body.document_path path to the uploaded document
  */
-export const insertUserDocument = async (req, res) => {
-  const { document_name, is_verified = false, document_path } = req.body;
-  const { user_id } = req.params;
-  try {
-    let response = await insertIndividualDocument(user_id,
-      { document_name, is_verified, document_path });
-    return res.json({
-      message: 'Document added successfully!',
-      data: response,
-      type: 'success',
-    });
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({
-      message: 'Unable to save document',
-      type: 'failure',
-    });
-  }
-};
 
-export const verifySingleUserDocumentAPI = async (req, res) => {
+export const getLearnerDocumentsJsonAPI = async (req, res) => {
   const {
-    document_name, is_verified, comment, learner_id,
-  } = req.body;
-  const user_id = req.jwtData.user.id;
+    is_isa,
+    program,
+    non_isa_type,
+  } = req.query;
   try {
-    const response = await verifySingleUserDocument(learner_id,
-      document_name, is_verified, comment, user_id);
-    return res.status(201).json({
-      message: 'Updated a single User document successfully!',
-      data: response,
+    const user_documents = await getLearnerDocumentsJSON({ program, is_isa, non_isa_type });
+    return res.status(200).json({
+      message: 'Get user documents',
+      user_documents,
       type: 'success',
     });
   } catch (err) {
     console.error(err);
     return res.status(500).json({
-      message: 'Unable to update user document',
+      message: 'Unable to get user documents',
       type: 'failure',
     });
   }
