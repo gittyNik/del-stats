@@ -6,6 +6,7 @@ import {
   submitApplication,
   getApplicationStage,
   setApplicationStage,
+  offerISA,
 } from '../../models/application';
 import { Program } from '../../models/program';
 import { Cohort } from '../../models/cohort';
@@ -84,9 +85,8 @@ export const getLiveApplications = (req, res) => {
 export const addApplication = (req, res) => {
   const { id: user_id, profile } = req.jwtData.user;
   const { program_id } = req.body;
-  updateDealApplicationStatus(profile.hubspotDealId, 'applied').then(() => {
-      return Program.findOne({ where: { id: program_id } });
-    })
+  updateDealApplicationStatus(profile.hubspotDealId, 'applied')
+    .then(() => Program.findOne({ where: { id: program_id } }))
     .then((program) => { // existence of cohort verified
       if (program === null) {
         return Promise.reject('program not found');
@@ -163,7 +163,7 @@ export const updateApplication = (req, res) => {
       .then(data => res.send({ data }))
       .catch(() => res.sendStatus(500));
   } else if (status) {
-    updateDealApplicationStatus(profile.hubspotDealId, status).then(result => Application.update({
+    updateDealApplicationStatus(profile.hubspotDealId, status).then(_result => Application.update({
       status,
       updated_at: new Date(),
     }, { where: { id }, returning: true }))
@@ -359,5 +359,17 @@ export const setApplicationStageAPI = (req, res) => {
 
   setApplicationStage(user_id, stage, cohort_applied,
     is_isa, is_job_guarantee, payment_type).then(data => res.status(200).json(data))
+    .catch(() => res.sendStatus(500));
+};
+
+export const setOfferedISA = (req, res) => {
+  const { user_id } = req.params; // user_id
+  const { offered_status } = req.body;
+  offerISA(user_id, offered_status)
+    .then(data => res.status(201).json({
+      message: 'offered ISA',
+      data,
+      type: 'success',
+    }))
     .catch(() => res.sendStatus(500));
 };
