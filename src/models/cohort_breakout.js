@@ -1001,4 +1001,19 @@ export const getMilestoneDetailsForReview = (cohort_breakout_id) => CohortBreako
     return false;
   });
 
+export const overlappingCatalystBreakout = async (
+  {
+    catalyst_id, time_start, time_end, types,
+  },
+) => CohortBreakout.findAll({
+  where: {
+    catalyst_id,
+    time_scheduled: { [Sequelize.Op.between]: [time_start, time_end] },
+    type: {
+      [Sequelize.Op.in]: types,
+    },
+  },
+  raw: true,
+});
+
 export default CohortBreakout;
