@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
-import { CohortBreakout, BreakoutWithOptions } from './cohort_breakout';
+import { over } from 'lodash';
+import { CohortBreakout, BreakoutWithOptions, overlappingCatalystBreakout } from './cohort_breakout';
 import { getLiveMilestones, getCohortLiveMilestones } from './cohort_milestone';
 import { getTeamsbyCohortMilestoneId } from './team';
 import { LearnerBreakout } from './learner_breakout';
@@ -308,7 +309,7 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
   let name = milestonecohort['cohort.name'];
   let location = milestonecohort['cohort.location'];
 
-  learnerTeams.forEach((eachTeam, teamIndex) => {
+  learnerTeams.forEach(async (eachTeam, teamIndex) => {
     let {
       cohort_id,
       'cohort.name': cohortName,
@@ -371,6 +372,56 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
 
     let timeSlot = calculateReviewTime(milestonecohort.review_scheduled, reviewForTeam);
     let { review_duration, reviewer } = reviewForTeam;
+
+    // Logic to check for Overlapping session for Catalyst
+    let endTime = new Date(timeSlot.getTime());
+    endTime.setTime(endTime.getTime() + parseInt(review_duration, 10));
+
+    // check for overlaps
+    let overlaps = await overlappingCatalystBreakout({
+      catalyst_id: reviewer,
+      time_start: timeSlot,
+      time_end: endTime,
+      types: ['reviews', 'assessment'],
+    });
+    if (overlaps.length > 1) {
+      let loopCount = 0;
+      console.warn('Reviewer has breakout at this time, rescheduling');
+      while (overlaps.length > 1) {
+        reviewForTeam = reviewSlots[indexForReview];
+        // Remove assessment that gets assigned
+        reviewSlots.splice(indexForReview, 1);
+        if (reviewForTeam === undefined) {
+          reviewForTeam = { ...defaultSlot };
+          let warning_context = `EXTRA Reviews created for ${name} ${cohort_duration} ${location} on first slot`;
+          let warning_message = 'WARNING! WARNING! Extra Reviews created than available slots. Please reschedule.';
+          sendMessageToSlackChannel(warning_message,
+            warning_context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
+        }
+
+        timeSlot = calculateReviewTime(milestonecohort.review_scheduled, reviewForTeam);
+        review_duration = reviewForTeam.review_duration;
+        reviewer = reviewForTeam.reviewer;
+
+        // Logic to check for Overlapping session for Catalyst
+        endTime = new Date(timeSlot.getTime());
+        endTime.setTime(endTime.getTime() + parseInt(review_duration, 10));
+
+        // check for overlaps
+        // eslint-disable-next-line no-await-in-loop
+        overlaps = await overlappingCatalystBreakout({
+          catalyst_id: reviewer,
+          time_start: timeSlot,
+          time_end: endTime,
+          types: ['reviews', 'assessment'],
+        });
+
+        loopCount += 1;
+        if (loopCount === 2) {
+          break;
+        }
+      }
+    }
     count += 1;
     createReviewEntry(
       id,
