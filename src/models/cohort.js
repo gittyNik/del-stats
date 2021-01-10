@@ -1,7 +1,9 @@
 import Sequelize from 'sequelize';
 // import { Program } from './program';
 import { Application, updateCohortJoining } from './application';
-import { User, USER_ROLES, changeUserRole } from './user';
+import {
+  User, USER_ROLES, changeUserRole, addUserStatus,
+} from './user';
 import db from '../database';
 import { createCohortMilestones, CohortMilestone, getLiveCohortMilestone } from './cohort_milestone';
 import { getCohortBreakoutsBetweenDates } from './cohort_breakout';
@@ -344,10 +346,52 @@ export const addLearnerToCohort = async (learner_id, cohort_id) => {
   );
 };
 
+export const addLearnerStatus = async (
+  {
+    user_id,
+    updated_by_id,
+    updated_by_name,
+    cohort_id,
+    future_cohort_id,
+    status,
+  },
+) => {
+  let futureCohort;
+  if (future_cohort_id) {
+    futureCohort = await getCohortFromId(future_cohort_id);
+  }
+  let currentCohort = await getCohortFromId(cohort_id);
+  let status_reason;
+
+  if (status === 'moved') {
+    status_reason = `Moved from current cohort: ${currentCohort.name} to future cohort: ${futureCohort.name}`;
+  } else if (status === 'staged') {
+    status_reason = `Learner staged from ${currentCohort.name}`;
+  } else if (status === 'removed') {
+    status_reason = `Learner removed from cohort: ${currentCohort.name}`;
+  } else if (status === 'added-to-cohort') {
+    status_reason = `Learner added to cohort: ${currentCohort.name}`;
+  }
+
+  return addUserStatus({
+    id: user_id,
+    status,
+    status_reason,
+    updated_by_id,
+    updated_by_name,
+    cohort_id,
+    cohort_name: currentCohort.name,
+  });
+};
+
 export const moveLearnertoDifferentCohort = async (
-  learners,
-  current_cohort_id,
-  future_cohort_id,
+  {
+    learners,
+    current_cohort_id,
+    future_cohort_id,
+    updated_by_id,
+    updated_by_name,
+  },
 ) => learners.map(learner_id => Promise.all([
   removeLearnerFromCohort(learner_id, current_cohort_id),
   addLearnerToCohort(learner_id, future_cohort_id),
@@ -360,12 +404,22 @@ export const moveLearnertoDifferentCohort = async (
   removeLearnerBreakouts(learner_id, current_cohort_id),
   createLearnerBreakouts(learner_id, future_cohort_id),
   moveLearnerToNewSlackChannel(learner_id, current_cohort_id, future_cohort_id),
+  addLearnerStatus({
+    user_id: learner_id,
+    updated_by_id,
+    updated_by_name,
+    cohort_id: current_cohort_id,
+    future_cohort_id,
+    status: 'moved',
+  }),
 ]));
 
-export const removeLearner = async (
+export const removeLearner = async ({
   learner_id,
   current_cohort_id,
-) => Promise.all([
+  updated_by_id,
+  updated_by_name,
+}) => Promise.all([
   removeLearnerFromCohort(learner_id, current_cohort_id),
   removeLearnerFromGithubTeam(
     learner_id,
@@ -375,6 +429,13 @@ export const removeLearner = async (
   changeUserRole(learner_id, USER_ROLES.GUEST),
 ])
   .then(async (data) => {
+    await addLearnerStatus({
+      user_id: learner_id,
+      updated_by_id,
+      updated_by_name,
+      cohort_id: current_cohort_id,
+      status: 'removed',
+    });
     try {
       const slackResponse = await removeLearnerFromSlackChannel(learner_id, current_cohort_id);
       data.push(slackResponse);
@@ -385,7 +446,9 @@ export const removeLearner = async (
     }
   });
 
-export const addLearner = async (learners, cohort_id) => {
+export const addLearner = async ({
+  learners, cohort_id, updated_by_id, updated_by_name,
+}) => {
   let cohort_milestone = await getLiveCohortMilestone(cohort_id);
   let cohort_breakouts = await getCohortBreakoutsBetweenDates(cohort_id,
     cohort_milestone.release_time, cohort_milestone.review_scheduled);
@@ -398,6 +461,13 @@ export const addLearner = async (learners, cohort_id) => {
       updateCohortJoining(learner_id, cohort_id),
       addLearnerToGithubTeam(learner_id, cohort_id),
       createLearnerBreakoutsForCurrentMS(learner_id, cohort_breakouts),
+      addLearnerStatus({
+        user_id: learner_id,
+        updated_by_id,
+        updated_by_name,
+        cohort_id,
+        status: 'added-to-cohort',
+      }),
     ]));
     await addLearnersToCohortChannel(cohort_id, learners);
     return data;

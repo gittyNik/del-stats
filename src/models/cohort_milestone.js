@@ -526,14 +526,21 @@ export const getCohortMilestoneById = (milestone_id, user_id) => CohortMilestone
 }).then(milestone => populateMilestone(milestone, user_id));
 
 function* calculateReleaseTime(cohort_start, pending,
-  cohort_duration, cohort_program, duration) {
+  cohort_duration, cohort_program, milestones) {
   const DAY_MSEC = 86400000;
   let milestone_duration = 0;
+  // Need better logic for assessments
+  const ASSESSMENT_MILESTONES = [
+    'b6202bb4-41dd-4f7e-8a0f-003c4b3909bb',
+    'a1855024-6caa-478d-8093-5af69219229e',
+  ];
+  const CAPSTONE_MILESTONES = [
+    'e1384e68-ae92-4049-98ef-bba7aae0bf4a',
+    '45925f89-5b3f-48b5-b355-dcaaf5d52207',
+  ];
   const start = new Date(cohort_start);
   let end;
-  if (duration) {
-    milestone_duration = duration;
-  } else if (cohort_duration === 16) {
+  if (cohort_duration === 16) {
     milestone_duration = 7;
   } else {
     milestone_duration = 14;
@@ -559,6 +566,14 @@ function* calculateReleaseTime(cohort_start, pending,
     }
     yield { start, end };
     start.setTime(+end + 1000);
+    let currentilestone = ASSESSMENT_MILESTONES.indexOf(milestones[milestones.length - pending]);
+    let capstoneMilestones = CAPSTONE_MILESTONES.indexOf(milestones[milestones.length - pending]);
+    if (currentilestone > -1) {
+      milestone_duration = 7;
+    }
+    if (capstoneMilestones > -1) {
+      milestone_duration = 14;
+    }
     end.setTime(+end + DAY_MSEC * milestone_duration);
   }
 }
@@ -571,7 +586,7 @@ export const createCohortMilestones = cohort_id => Cohort.findByPk(cohort_id, {
   const cohort_duration = cohort.duration;
   const cohort_program_id = cohort.program_id;
   const release = calculateReleaseTime(cohort.start_date,
-    milestones.length, cohort_duration, cohort_program_id, milestones.duration);
+    milestones.length, cohort_duration, cohort_program_id, milestones);
   const cohort_milestones = milestones.map(milestone_id => {
     const { value } = release.next();
 

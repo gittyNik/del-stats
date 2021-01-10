@@ -39,6 +39,9 @@ const AVAILABLE_USER_STATUS = [
   'graduated',
   'past-learner',
   'other',
+  'staged',
+  'removed',
+  'added-to-cohort',
 ];
 
 const NOTIFY_SLACK_STATUSES = [
@@ -50,6 +53,9 @@ const NOTIFY_SLACK_STATUSES = [
   'irregular',
   'medical emergency',
   'dropout',
+  'staged',
+  'removed',
+  'moved',
 ];
 
 export const User = db.define(
@@ -229,10 +235,10 @@ export const removeUserStatus = (
   }
 });
 
-export const addUserStatus = (
+export const addUserStatus = ({
   id, status, status_reason, updated_by_id, updated_by_name, milestone_id, milestone_name,
   cohort_id, cohort_name,
-) => {
+}) => {
   if (AVAILABLE_USER_STATUS.indexOf(status) > -1) {
     return User.findOne({
       where: {
@@ -246,7 +252,7 @@ export const addUserStatus = (
 
         try {
           if (NOTIFY_SLACK_STATUSES.indexOf(status) > -1) {
-            const message = `*${userStatus.name}* ${userStatus.email} has been marked: *${status}*`;
+            const message = `*${userStatus.name}* ${userStatus.email} has been marked: *${status}* by ${updated_by_name}`;
             const context = 'Learner status update';
             sendMessageToSlackChannel(message, context, process.env.SLACK_LEARNER_AFFAIRS);
           }
