@@ -2,8 +2,11 @@ import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import db from '../database';
 import { PaymentIntervals } from './payment_intervals'
+import { Application } from './application';
 
 const TYPE = ['upfront', 'loan']
+
+const { Op } = Sequelize;
 
 const PaymentDetails = db.define('payment_details', {
     id: {
@@ -58,7 +61,41 @@ const getAllDetails = () => PaymentDetails.findAll({
   include: [{ model: PaymentIntervals, attributes: ['interval_1', 'interval_2', 'interval_3', 'interval_4', 'interval_5']}]
 })
 
+const getApplicantPlans = (applicant_id) => {
+  return Application.findOne({
+    where: {
+      id: applicant_id
+    }
+  })
+  .then(applicant => applicant.dataValues)
+  .then(applicant => {
+    if (applicant.upfront_plan_5_enabled) {
+      return PaymentDetails.findAll({
+        where: {
+          type: "upfront"
+        },
+        include: [{ model: PaymentIntervals, attributes: ['interval_1', 'interval_2', 'interval_3', 'interval_4', 'interval_5']}]
+      })
+    } else {
+      return PaymentDetails.findAll({
+        where: {
+          [Op.and]: [
+            {type: "upfront"},
+            {
+              alias: {
+                [Op.ne]: "Plan 5"
+              }
+            }  
+          ]
+        },
+        include: [{ model: PaymentIntervals, attributes: ['interval_1', 'interval_2', 'interval_3', 'interval_4', 'interval_5']}]
+      })
+    }
+  })
+}
+
 export {
   PaymentDetails,
-  getAllDetails
+  getAllDetails,
+  getApplicantPlans
 };
