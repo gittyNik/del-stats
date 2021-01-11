@@ -356,7 +356,7 @@ export const createMandate = (req, res) => {
         });
       }
       console.error(err);
-      return res.status(500);
+      return res.sendStatus(500);
     });
 };
 
