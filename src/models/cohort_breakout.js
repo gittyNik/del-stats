@@ -5,6 +5,7 @@ import db from '../database';
 import {
   Cohort,
   getLearnersForCohort,
+  getCohortFromId,
 } from './cohort';
 import {
   getTopicIdsByMilestone,
@@ -27,12 +28,13 @@ import {
 import { BreakoutTemplate } from './breakout_template';
 import {
   getUsersWithStatus,
+  getUserName,
 } from './user';
 import {
   getDataForMilestoneName,
 } from './cohort_milestone';
 import {
-  showCompletedBreakoutOnSlack,
+  showCompletedBreakoutOnSlack, postOverlappingBreakouts,
 } from '../integrations/slack/team-app/controllers/milestone.controller';
 import { postAttendaceInCohortChannel } from '../integrations/slack/delta-app/controllers/web.controller';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
@@ -196,9 +198,10 @@ export const markZoomAttendance = (cohort_breakout_details) => {
   } catch (err) {
     // If meeting does not have zoom url
     // If zoom meeting url creation has failed
-    console.warn('Meeting missing Zoom url');
+    console.error(`Error in auto marking attendance: ${err}`);
+    // console.warn('Meeting missing Zoom url');
     // console.warn(cohort_breakout_details);
-    return { message: 'Meeting marked as complete' };
+    throw Error('Meeting missing Zoom url');
   }
 };
 
@@ -294,11 +297,19 @@ export const createOrUpdateCohortBreakout = (
   )).then(showCompletedBreakoutOnSlack(cohort_topic_id, cohort_id, name));
 });
 
+export const autoMarkAttendance = async (
+  cohort_breakout_id,
+) => {
+  let cohortBreakout = await CohortBreakout.findByPk(cohort_breakout_id);
+  let attendance = await markZoomAttendance(cohortBreakout);
+  return attendance;
+};
+
 export const markBreakoutFinished = (
   cohort_breakout_id, name = '',
 ) => markBreakoutComplete(cohort_breakout_id)
   .then((completeBreakout) => Promise.all([
-    markZoomAttendance(completeBreakout[1]),
+    // markZoomAttendance(completeBreakout[1]),
     showCompletedBreakoutOnSlack(
       completeBreakout[1].topicId,
       completeBreakout[1].cohortId,
@@ -797,6 +808,7 @@ export const getCohortBreakoutsBetweenDates = (
 ) => CohortBreakout.findAll({
   where: {
     cohort_id,
+    type: 'lecture',
     time_scheduled: {
       [Op.and]: {
         [Op.lte]: end_date,
@@ -890,6 +902,55 @@ export const getTodaysCohortBreakouts = async () => {
   return breakouts;
 };
 
+export const getNDaysCohortBreakouts = async (n_days) => {
+  let n_days_plus = n_days + 1;
+  // todo: Need a better way to get start of the day in Asia/Kolkata timezone.
+  const todaysBreakouts = await db.query("select c1.* from cohort_breakouts c1 where exists(select 1 from cohort_breakouts c2 where tstzrange(c2.time_scheduled, c2.time_scheduled + make_interval(secs => c2.duration / 1000), '[]') && tstzrange(c1.time_scheduled, c1.time_scheduled + make_interval(secs => c1.duration / 1000), '[]') and c2.catalyst_id = c1.catalyst_id and c2.topic_id <> c1.topic_id and c2.id <> c1.id and time_scheduled between now() + ':n_days days'::INTERVAL and now() + ':n_days_plus days'::INTERVAL) order by c1.time_scheduled;", {
+    model: CohortBreakout,
+    replacements: {
+      n_days,
+      n_days_plus,
+    },
+    raw: true,
+  });
+
+  if (todaysBreakouts) {
+    let duplicateBreakouts = await Promise.all(todaysBreakouts.map(async breakout => {
+      let cohortDetails = await getCohortFromId(breakout.cohort_id);
+      let userDetails = await getUserName(breakout.catalyst_id);
+      const time = new Date(breakout.time_scheduled).toLocaleTimeString([], {
+        timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit',
+      });
+      try {
+        breakout.topics = breakout.details.topics.replace(/\n(?!$)/g, ', ');
+        breakout.topics = breakout.topics.replace(/\n/, '');
+        if (breakout.type === 'assessment') {
+          const learnerSlackId = await getSlackIdForLearner(breakout.details.learner_id);
+          breakout.topics = `Assessment for <@${learnerSlackId}>`;
+        }
+      } catch (err) {
+        breakout.topics = await getTopicNameById(breakout.topic_id);
+      }
+      let duration = (cohortDetails.duration === 16) ? 'Full-Time' : 'Part-time';
+      breakout.catalyst = userDetails.name;
+      breakout.breakout_time = time;
+      breakout.topics = `Cohort: *${cohortDetails.name}* ${duration} ${cohortDetails.location} \n ${breakout.topics} at *${time}* \n`;
+      return breakout;
+    }));
+
+    const groupedDuplicates = _.groupBy(duplicateBreakouts, 'catalyst');
+
+    return groupedDuplicates;
+  }
+  return null;
+};
+
+export const getDuplicateBreakouts = async (n_days) => {
+  const payload = await getNDaysCohortBreakouts(n_days);
+  const res = await postOverlappingBreakouts(n_days, payload);
+  return res;
+};
+
 export const updateOneCohortBreakouts = async (details, cohort_breakout) => {
   let whereObject = {};
   if (cohort_breakout.type === 'lecture') {
@@ -939,5 +1000,20 @@ export const getMilestoneDetailsForReview = (cohort_breakout_id) => CohortBreako
     console.error('Unable to get Milestone details for cohort_breakout ', cohort_breakout_id);
     return false;
   });
+
+export const overlappingCatalystBreakout = async (
+  {
+    catalyst_id, time_start, time_end, types,
+  },
+) => CohortBreakout.findAll({
+  where: {
+    catalyst_id,
+    time_scheduled: { [Sequelize.Op.between]: [time_start, time_end] },
+    type: {
+      [Sequelize.Op.in]: types,
+    },
+  },
+  raw: true,
+});
 
 export default CohortBreakout;

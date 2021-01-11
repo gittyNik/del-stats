@@ -64,17 +64,19 @@ export const createLearnerBreakout = (req, res) => {
     });
 };
 
+export const getLearnerAttendanceForBreakout = (cohort_breakout_id) => LearnerBreakout.findAll({
+  where: {
+    cohort_breakout_id,
+  },
+  include: [{
+    model: User,
+    attributes: ['name', 'status'],
+  }],
+});
+
 export const getLearnerBreakoutsByBreakoutId = (req, res) => {
   const { cohort_breakout_id } = req.params;
-  LearnerBreakout.findAll({
-    where: {
-      cohort_breakout_id,
-    },
-    include: [{
-      model: User,
-      attributes: ['name', 'status'],
-    }],
-  })
+  getLearnerAttendanceForBreakout(cohort_breakout_id)
     .then((data) => res.json({
       text: 'Learner breakouts for a cohort breakout',
       data,
@@ -99,7 +101,15 @@ export const markAttendance = (req, res) => {
       },
     )),
   )
-    .then(() => {
+    .then(async () => {
+      await CohortBreakout.update({
+        status: 'running',
+        update_at: Date.now(),
+      }, {
+        where: {
+          id: learnerBreakouts[0].cohort_breakout_id,
+        },
+      });
       res.json({
         text: 'Mark attendance success',
       });

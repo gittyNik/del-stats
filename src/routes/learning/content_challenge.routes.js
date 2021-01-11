@@ -1,21 +1,21 @@
 import Express from 'express';
 import {
   getChallenges, createChallenge, updateChallenge, deleteChallenge,
-  getChallengesByTopic,
+  getChallengesByTopic, getChallengesByCompany, getFilteredChallengesAPI,
+  getChallengesById,
 } from '../../controllers/learning/challenge.controller';
 import {
   allowMultipleRoles,
-  allowAdminsOnly,
 } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, CATALYST, EDUCATOR,
+  ADMIN, CATALYST, EDUCATOR, RECRUITER, CAREER_SERVICES, LEARNER,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, RECRUITER, CAREER_SERVICES, LEARNER]));
 
 /**
  * @api {get} /learning/content/challenges Get all Content Challenges
@@ -27,6 +27,15 @@ router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
 router.get('/', getChallenges);
 
 /**
+ * @api {get} /learning/content/challenges/:id Get Challenges ID
+ * @apiDescription get all Content Challenges
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetContentChallenges
+ * @apiGroup ContentChallenges
+ */
+router.get('/:id', getChallengesById);
+
+/**
  * @api {get} /learning/content/challenges/topic/:id Get all Content Challenges by Topic
  * @apiDescription get all Content Challenges
  * @apiHeader {String} authorization JWT Token.
@@ -35,8 +44,26 @@ router.get('/', getChallenges);
  */
 router.get('/topic/:id', getChallengesByTopic);
 
+/**
+ * @api {get} /learning/content/challenges/company/:id Get all Private challenges for a Company
+ * @apiDescription get all challenges uploaded by company
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetCompanyContentChallenges
+ * @apiGroup ContentChallenges
+ */
+router.get('/company/:id', getChallengesByCompany);
+
+/**
+ * @api {post} /learning/content/challenges/filter Get filtered challenges
+ * @apiDescription get all challenges based on filter
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetFilteredContentChallenges
+ * @apiGroup ContentChallenges
+ */
+router.post('/filter', getFilteredChallengesAPI);
+
 // Restrict modifications for any applicant to the cohorts
-router.use(allowAdminsOnly);
+router.use(allowMultipleRoles([ADMIN, EDUCATOR, RECRUITER, CAREER_SERVICES, LEARNER]));
 
 /**
  * @api {post} /learning/content/challenges/ Add Content Challenge
@@ -67,6 +94,8 @@ router.post('/', createChallenge);
  * @apiParam {String="tiny","small","large"} size Size of the challenge.
  */
 router.patch('/:id', updateChallenge);
+
+router.use(allowMultipleRoles([ADMIN]));
 
 /**
  * @api {delete} /learning/content/challenges/:id Delete Content Challenge

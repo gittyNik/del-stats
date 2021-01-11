@@ -4,6 +4,9 @@ import {
   getAllPortfolios, createPortfolio, updatePortfolioById,
   updatePortfolioForLearner, addPortfolioResume, getLearnerList,
 } from '../../models/portfolio';
+import {
+  addShortlistedLearners,
+} from '../../models/shortlisted_portfolios';
 
 export const getAllPortfoliosAPI = (req, res) => {
   let { limit, page } = req.query;
@@ -24,12 +27,14 @@ export const getAllPortfoliosAPI = (req, res) => {
 };
 
 export const getLearnerListAPI = (req, res) => {
-  let { limit, page } = req.query;
+  let {
+    limit, page, company_id, application,
+  } = req.query;
   let offset;
   if ((limit) && (page)) {
     offset = limit * (page - 1);
   }
-  return getLearnerList(limit, offset)
+  return getLearnerList(limit, offset, company_id, application)
     .then(data => res.status(200).json({
       message: 'List of all Available learners',
       data,
@@ -83,6 +88,30 @@ export const getPortfolioById = (req, res) => {
   getAPortfolio({ id, role })
     .then(data => res.status(201).json({
       message: 'Portfolios fetched',
+      data,
+      type: 'success',
+    }))
+    .catch(err => {
+      console.error(err.stack);
+      res.status(500);
+    });
+};
+
+export const addPortfolioToCompany = (req, res) => {
+  const {
+    portfolio_id,
+    company_id,
+  } = req.body;
+  const user_name = req.jwtData.user.name;
+  const user_id = req.jwtData.user.id;
+  let updated_by = [{
+    user_name,
+    updated_at: new Date(),
+    user_id,
+  }];
+  addShortlistedLearners(portfolio_id, company_id, updated_by)
+    .then(data => res.status(201).json({
+      message: 'Added Portfolio to Company',
       data,
       type: 'success',
     }))

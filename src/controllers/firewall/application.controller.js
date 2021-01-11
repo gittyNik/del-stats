@@ -139,7 +139,8 @@ const notifyApplicationSubmitted = (phone) => (application) => Promise.all([
   .then(() => application);
 
 export const submitApplicationAndNotify = (id, phone) => submitApplication(id)
-  .then(notifyApplicationSubmitted(phone));
+  .then(notifyApplicationSubmitted(phone))
+  .catch(err => console.warn(err));
 
 // TODO: send all sms using worker. Reduce the delay on web services
 export const notifyApplicationReview = (phone, status) => (application) => {

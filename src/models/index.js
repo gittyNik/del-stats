@@ -44,6 +44,7 @@ import { LearnerInterviews } from './learner_interviews';
 import { LearnerRecruiters } from './learner_recruiter';
 import { JobPosting } from './job_postings';
 import { CompanyProfile } from './company_profile';
+import { ShortlistedPortfolios } from './shortlisted_portfolios';
 
 // TODO: describe all associations here
 
@@ -137,15 +138,31 @@ JobApplication.belongsTo(Portfolio, { foreignKey: 'portfolio_id' });
 Portfolio.hasMany(JobApplication);
 
 JobPosting.belongsTo(CompanyProfile, { foreignKey: 'company_id' });
+JobPosting.belongsTo(Challenge, { foreignKey: 'default_assignment' });
 // CompanyProfile.hasMany(JobPosting);
 
-JobPosting.belongsTo(Challenge, { foreignKey: 'attached_assignment' });
+// Challenges are now linked to job_application.
+// JobPosting.belongsTo(Challenge, { foreignKey: 'attached_assignment' });
+JobApplication.belongsTo(Challenge, { foreignKey: 'attached_assignment' });
 
 JobApplication.belongsTo(JobPosting, { foreignKey: 'job_posting_id' });
 JobPosting.hasMany(JobApplication);
 
 JobApplication.hasOne(LearnerChallenge, { as: 'ApplicationChallenges', foreignKey: 'job_application_id' });
 LearnerChallenge.belongsTo(JobApplication, { as: 'LearnerChallenges', foreignKey: 'job_application_id' });
+
+// Many to many relation between CompanyProfile and Portfolio through ShortlistedLearners table
+CompanyProfile.belongsToMany(Portfolio, {
+  through: ShortlistedPortfolios,
+  foreignKey: 'company_id',
+  as: 'ShortlistedForCompanies',
+});
+
+Portfolio.belongsToMany(CompanyProfile, {
+  through: ShortlistedPortfolios,
+  foreignKey: 'portfolio_id',
+  as: 'ShortlistedPortfoliosForCompanies',
+});
 
 // User.belongsTo(Cohort);
 // Cohort.hasMany(User, { foreignKey: 'learners' });

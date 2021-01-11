@@ -8,7 +8,7 @@ import {
   removeUserStatus,
   addProfilePicture,
   getUserByEmail,
-} from "../../models/user";
+} from '../../models/user';
 import {
   belowThresholdLearners,
 } from '../../models/team';
@@ -149,7 +149,7 @@ export const getUsersByRole = (req, res) => {
   })
     .then((data) => {
       res.json({
-        text: "Users: " + role,
+        text: `Users: ${role}`,
         data,
       });
     })
@@ -158,7 +158,6 @@ export const getUsersByRole = (req, res) => {
       res.sendStatus(500);
     });
 };
-
 
 export const removeUserStatusApi = (req, res) => {
   let {
@@ -187,9 +186,17 @@ export const updateUserStatus = (req, res) => {
   } = req.body;
   let { id, name } = req.jwtData.user;
 
-  addUserStatus(user_id, status, reason, id, name,
-    milestone_id, milestone_name,
-    cohort_id, cohort_name).then(data => {
+  addUserStatus({
+    user_id,
+    status,
+    status_reason: reason,
+    updated_by_name: name,
+    updated_by_id: id,
+    milestone_id,
+    milestone_name,
+    cohort_id,
+    cohort_name,
+  }).then(data => {
     res.json({
       text: 'Added User status',
       data,
@@ -245,14 +252,14 @@ export const getUserByEmailAPI = async (req, res) => {
         role,
       },
     },
-    { raw: true }
+    { raw: true },
   )
     .then((data) => {
       if (data === null) {
         res.sendStatus(404);
       }
       res.json({
-        text: "User by email",
+        text: 'User by email',
         data,
       });
     })

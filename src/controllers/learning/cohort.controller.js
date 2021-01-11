@@ -11,10 +11,6 @@ import {
   beginParallelCohorts,
   getLiveCohorts,
 } from '../../models/cohort';
-import {
-  createOrUpdateCohortBreakout,
-  markBreakoutFinished,
-} from '../../models/cohort_breakout';
 
 import { USER_ROLES } from '../../models/user';
 
@@ -85,51 +81,6 @@ export const getUpcomingCohorts = (req, res) => {
     .catch(() => res.sendStatus(404));
 };
 
-export const createUpdateCohortBreakout = (req, res) => {
-  let {
-    cohort_id, topic_id, time_scheduled, catalyst_id,
-  } = req.body;
-  const { id: user_id, role } = req.jwtData.user;
-  if (user_id === catalyst_id || role === USER_ROLES.SUPERADMIN) {
-    createOrUpdateCohortBreakout(
-      topic_id,
-      cohort_id,
-      time_scheduled,
-      req.jwtData.user.name,
-    )
-      .then((data) => {
-        res.status(201).json({
-          data,
-        });
-      })
-      .catch((err) => res.status(500).send({
-        err,
-      }));
-  } else {
-    res.status(403).send('You do not have access to this data!');
-  }
-};
-
-export const markCompleteBreakout = (req, res) => {
-  let {
-    cohort_breakout_id, catalyst_id,
-  } = req.body;
-  const { id: user_id, role } = req.jwtData.user;
-  if (user_id === catalyst_id || role === USER_ROLES.SUPERADMIN) {
-    markBreakoutFinished(cohort_breakout_id, req.jwtData.user.name)
-      .then((data) => {
-        res.status(201).json({
-          data,
-        });
-      })
-      .catch((err) => res.status(500).send({
-        err,
-      }));
-  } else {
-    res.status(403).send('You do not have access to this data!');
-  }
-};
-
 export const beginCohort = (req, res) => {
   const { id } = req.params;
 
@@ -190,14 +141,20 @@ export const getCohortByLearnerId = (req, res) => {
 
 export const moveLearnertoDifferentCohortEndpoint = async (req, res) => {
   const { learners, current_cohort_id, future_cohort_id } = req.body;
+  const updated_by_id = req.jwtData.user.id;
+  const updated_by_name = req.jwtData.user.name;
   try {
     let bk = await moveLearnertoDifferentCohort(
-      learners,
-      current_cohort_id,
-      future_cohort_id,
+      {
+        learners,
+        current_cohort_id,
+        future_cohort_id,
+        updated_by_id,
+        updated_by_name,
+      },
     );
     res.send({
-      message: 'Move Learner Endpoint',
+      message: `Learners moved from ${current_cohort_id} to Cohort: ${future_cohort_id}`,
       data: bk,
       type: 'success',
     });
@@ -208,7 +165,16 @@ export const moveLearnertoDifferentCohortEndpoint = async (req, res) => {
 
 export const removeLearnerEndpoint = async (req, res) => {
   const { learner_id, current_cohort_id } = req.body;
-  let bk = await removeLearner(learner_id, current_cohort_id);
+  const updated_by_id = req.jwtData.user.id;
+  const updated_by_name = req.jwtData.user.name;
+  let bk = await removeLearner(
+    {
+      learner_id,
+      current_cohort_id,
+      updated_by_id,
+      updated_by_name,
+    },
+  );
   res.send({
     message: 'Remove Learner Endpoint',
     data: bk,
@@ -218,8 +184,17 @@ export const removeLearnerEndpoint = async (req, res) => {
 
 export const addLearnerEndpoint = (req, res) => {
   const { learners, cohort_id } = req.body;
-  addLearner(learners, cohort_id).then(data => res.status(200).send({
-    message: 'Add Learner Endpoint Result',
+  const updated_by_id = req.jwtData.user.id;
+  const updated_by_name = req.jwtData.user.name;
+  addLearner(
+    {
+      learners,
+      cohort_id,
+      updated_by_id,
+      updated_by_name,
+    },
+  ).then(data => res.status(200).send({
+    message: `Learners added to new cohort: ${cohort_id}`,
     data,
     type: 'success',
   })).catch(err => {

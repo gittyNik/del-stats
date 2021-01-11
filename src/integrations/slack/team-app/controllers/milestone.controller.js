@@ -87,7 +87,7 @@ export const showCompletedBreakoutOnSlack = (
         },
       ],
       channel: process.env.SLACK_CLOCKWORK_CHANNEL,
-    })
+    });
   })
   .catch(err => console.log('SEND SLACK MESSAGE ERROR', err));
 
@@ -112,6 +112,97 @@ export const sendMessageToSlackChannel = (text, context, channel) => web.chat.po
   channel,
 })
   .catch(err => console.log(err));
+
+export const postOverlappingBreakouts = async (n_days, overlappingBreakouts) => {
+  const channelId = process.env.SLACK_PE_SCHEDULING_CHANNEL;
+  let n_day = new Date();
+  n_day.setDate(n_day.getDate() + n_days);
+  let context = `<!channel> Overlapping sessions for date: *${n_day.getDate()}-${n_day.getMonth() + 1}-${n_day.getFullYear()}*`;
+
+  if (overlappingBreakouts === null) {
+    const textMessage = 'No Catalyst overlapping sessions for the day';
+    return sendMessageToSlackChannel(textMessage, context, channelId);
+  }
+  const postOnChannel = async (textBody) => {
+    const payloadBlocks = [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: textBody,
+        },
+      },
+    ];
+    try {
+      const slackResponse = await web.chat.postMessage({
+        channel: channelId,
+        blocks: [
+          {
+            type: 'context',
+            elements: [{
+              type: 'mrkdwn',
+              text: context,
+            }],
+          },
+          {
+            type: 'divider',
+          },
+          ...payloadBlocks,
+          {
+            type: 'context',
+            elements: [{
+              type: 'mrkdwn',
+              text: 'Any changes to the above will be updated only on <https://delta.soal.io|DELTA> - please keep an eye out.',
+            }],
+          },
+        ],
+      });
+      return slackResponse;
+    } catch (err) {
+      console.error(err);
+      console.error(`Failed to post on slack channel ${channelId} and breakout text: ${textBody}`);
+      return false;
+    }
+  };
+  let data = [];
+  let breakout_text = '';
+
+  Object.entries(overlappingBreakouts).forEach(([key, breakout]) => {
+    // let b_type;
+    breakout_text += `Catalyst: *${key}*\n\n${'_'.repeat(50)}\n\n`;
+    breakout.forEach(eachBreakout => {
+      let b_topic;
+      switch (eachBreakout.type) {
+        case 'lecture':
+          // b_type = (breakout.details.type === 'tep') ? 'Tech Breakouts' : 'MindCasts';
+          b_topic = `*${eachBreakout.breakout_time}* ${eachBreakout.topics}\n`;
+          breakout_text += `${b_topic}`;
+          break;
+        case 'reviews':
+          // b_type = 'Reviews';
+          b_topic = `*${eachBreakout.breakout_time}* ${eachBreakout.topics}\n`;
+          breakout_text += b_topic;
+          break;
+        case 'assessment':
+          b_topic = `*${eachBreakout.breakout_time}* ${eachBreakout.topics}\n`;
+          breakout_text += b_topic;
+          break;
+        // no default
+      }
+    });
+    breakout_text += `${'_'.repeat(50)}\n`;
+  });
+  try {
+    console.log(breakout_text);
+    const res = await postOnChannel(breakout_text);
+    data.push(res);
+  } catch (err) {
+    data.push({
+      text: 'failed to postOnChannel',
+    });
+  }
+  return data;
+};
 
 export const markTopicAsFinished = (topic_id, cohort_id, username) => {
   const sendMessageToSlack = Promise.all([

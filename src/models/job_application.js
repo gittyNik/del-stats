@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
-import { Portfolio } from './portfolio';
+import { Portfolio, updatePortfolioStatus } from './portfolio';
 import db from '../database';
 import { JobPosting } from './job_postings';
 import {
@@ -19,6 +19,9 @@ const APPLICATION_STATUS = [
   'hired',
   'rejected',
   'closed',
+  'shortlisted-by-soal',
+  'interested',
+  'offered',
 ];
 
 const ASSIGNMENT_STATUS = [
@@ -34,6 +37,8 @@ const OFFER_STATUS = [
   'accepted',
   'candidate-rejected',
   'recruiter-rejected',
+  'soal-rejected',
+  '',
 ];
 
 const INTERIEW_STATUS = [
@@ -60,10 +65,14 @@ export const JobApplication = db.define('job_applications', {
   review: Sequelize.TEXT,
   status: {
     type: Sequelize.ENUM(...APPLICATION_STATUS),
+    defaultValue: 'active',
+  },
+  attached_assignment: {
+    type: Sequelize.UUID,
+    references: { model: 'challenges', key: 'id' },
   },
   assignment_status: {
     type: Sequelize.ENUM(...ASSIGNMENT_STATUS),
-    defaultValue: 'active',
   },
   offer_status: {
     type: Sequelize.ENUM(...OFFER_STATUS),
@@ -89,11 +98,12 @@ export const JobApplication = db.define('job_applications', {
   updated_at: {
     type: Sequelize.DATE,
   },
+  updated_by: Sequelize.ARRAY(Sequelize.JSON),
 });
 
 export const getAllJobApplications = ({ limit, offset }) => {
   // default parameters
-  limit = limit || 10;
+  limit = limit || 30;
 
   return JobApplication
     .findAndCountAll({
@@ -118,7 +128,7 @@ export const getAllJobApplications = ({ limit, offset }) => {
 export const getJobApplicationsByCompany = ({
   company_id, status, limit, offset,
 }) => {
-  limit = limit || 10;
+  limit = limit || 30;
 
   let whereObj = {
     '$job_posting.company_id$': company_id,
@@ -156,7 +166,7 @@ export const getJobApplicationsByCompany = ({
 export const getJobApplicationsForLearnerId = async ({
   learner_id, status, limit, offset,
 }) => {
-  limit = limit || 10;
+  limit = limit || 30;
   let whereObj = {
     '$portfolio.learner_id$': learner_id,
   };
@@ -175,7 +185,7 @@ export const getJobApplicationsForLearnerId = async ({
       attributes: [
         'title', 'company_id', 'job_type', 'views',
         'interested', 'vacancies', 'tags', 'locations',
-        'experience_required', 'attached_assignment',
+        'experience_required', 'default_assignment', 'attached_assignments',
       ],
       include: [{
         model: CompanyProfile,
@@ -236,17 +246,31 @@ export const getJobApplication = (id) => JobApplication
 
 export const createJobApplication = ({
   job_posting_id, portfolio_id, assignment_due_date,
-}) => JobApplication.create({
-  id: uuid(),
-  job_posting_id,
-  portfolio_id,
-  status: 'assignment',
-  assignment_status: 'sent',
-  assignment_due_date,
-  assignment_sent_date: Sequelize.literal('NOW()'),
-  created_at: Sequelize.literal('NOW()'),
-  updated_at: Sequelize.literal('NOW()'),
-});
+  status, attached_assignment,
+}) => {
+  if (status === 'assignment') {
+    return JobApplication.create({
+      id: uuid(),
+      job_posting_id,
+      portfolio_id,
+      status,
+      assignment_status: 'sent',
+      assignment_due_date,
+      attached_assignment,
+      assignment_sent_date: Sequelize.literal('NOW()'),
+      created_at: Sequelize.literal('NOW()'),
+      updated_at: Sequelize.literal('NOW()'),
+    });
+  }
+  return JobApplication.create({
+    id: uuid(),
+    job_posting_id,
+    portfolio_id,
+    status,
+    created_at: Sequelize.literal('NOW()'),
+    updated_at: Sequelize.literal('NOW()'),
+  });
+};
 
 export const createJobApplicationForPortofolio = async (
   {
@@ -266,7 +290,10 @@ export const createJobApplicationForPortofolio = async (
   }
   let jobApplication = await createJobApplication(
     {
-      job_posting_id, portfolio_id, assignment_due_date,
+      job_posting_id,
+      portfolio_id,
+      assignment_due_date,
+      attached_assignment: assignment_id,
     },
   );
   // await updateLearnerChallenge(challengeDetails.challenge.id, jobApplication.id);
@@ -278,10 +305,11 @@ export const updateJobApplication = async ({
   assignment_status, offer_status,
   interview_status, assignment_due_date, interview_date,
   offer_details, applicant_feedback, counsellor_notes, assignment_id,
-  learner_id,
+  learner_id, updated_by,
 }) => {
+  let learnerAssignment;
   if ((assignment_id) && (assignment_status === 'started')) {
-    await learnerChallengesFindOrCreate(
+    learnerAssignment = await learnerChallengesFindOrCreate(
       assignment_id,
       learner_id,
       false,
@@ -289,33 +317,54 @@ export const updateJobApplication = async ({
     );
   }
 
-  JobApplication.update({
-    job_posting_id,
-    portfolio_id,
-    review,
-    status,
-    assignment_status,
-    offer_status,
-    interview_status,
-    assignment_due_date,
-    interview_date,
-    offer_details,
-    applicant_feedback,
-    counsellor_notes,
-  }, {
-    where: { id },
-  });
+  if (offer_status === 'accepted') {
+    await updatePortfolioStatus(portfolio_id, 'hired', updated_by);
+  }
+
+  return JobApplication.findOne({
+    where: {
+      id,
+    },
+  })
+    .then(async (learnerJobApplication) => {
+      if (learnerJobApplication.updated_by === null) {
+        learnerJobApplication.updated_by = [];
+      }
+      learnerJobApplication.updated_by.push(...updated_by);
+
+      let jobApplication = await JobApplication.update({
+        job_posting_id,
+        portfolio_id,
+        review,
+        status,
+        assignment_status,
+        offer_status,
+        interview_status,
+        assignment_due_date,
+        interview_date,
+        offer_details,
+        applicant_feedback,
+        counsellor_notes,
+        attached_assignment: assignment_id,
+        updated_by: learnerJobApplication.updated_by,
+      }, {
+        where: { id },
+        returning: true,
+        raw: true,
+      });
+      jobApplication[1][0].learnerAssignment = learnerAssignment;
+      return jobApplication[1][0];
+    });
 };
 
-export const updateJobApplicationBypass = ( application, id ) => 
-  JobApplication.update ({
-    ...application
-  }, {
-    where: {
-      id
-    },
-    returning: true
-  })
+export const updateJobApplicationBypass = (application, id) => JobApplication.update({
+  ...application,
+}, {
+  where: {
+    id,
+  },
+  returning: true,
+});
 
 export const deleteJobApplication = (id) => JobApplication
   .destroy({ where: { id } })

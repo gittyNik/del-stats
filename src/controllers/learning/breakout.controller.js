@@ -10,6 +10,11 @@ import {
   updateSandboxUrl,
   findOneCohortBreakout,
   getLearnersForCohortBreakout,
+
+  createOrUpdateCohortBreakout,
+  markBreakoutFinished,
+  autoMarkAttendance,
+  getDuplicateBreakouts,
 } from '../../models/cohort_breakout';
 import {
   createScheduledMeeting,
@@ -33,6 +38,72 @@ import { logger } from '../../util/logger';
 const {
   between, gte,
 } = Sequelize.Op;
+
+export const createUpdateCohortBreakout = (req, res) => {
+  let {
+    cohort_id, topic_id, time_scheduled, catalyst_id,
+  } = req.body;
+  const { id: user_id, role } = req.jwtData.user;
+  if (user_id === catalyst_id || role === USER_ROLES.SUPERADMIN) {
+    createOrUpdateCohortBreakout(
+      topic_id,
+      cohort_id,
+      time_scheduled,
+      req.jwtData.user.name,
+    )
+      .then((data) => {
+        res.status(201).json({
+          data,
+        });
+      })
+      .catch((err) => res.status(500).send({
+        err,
+      }));
+  } else {
+    res.status(403).send('You do not have access to this data!');
+  }
+};
+
+export const autoMarkBreakoutAttendance = (req, res) => {
+  let {
+    breakout_id, catalyst_id,
+  } = req.params;
+  const { id: user_id, role } = req.jwtData.user;
+  if (user_id === catalyst_id || role === USER_ROLES.SUPERADMIN) {
+    autoMarkAttendance(breakout_id)
+      .then((data) => {
+        res.status(201).json({
+          data,
+          message: 'Learner attendance data',
+        });
+      })
+      .catch((err) => res.status(500).send({
+        err,
+      }));
+  } else {
+    res.status(403).send('You do not have access to mark attendance for this breakout!');
+  }
+};
+
+export const markCompleteBreakout = (req, res) => {
+  let {
+    cohort_breakout_id, catalyst_id,
+  } = req.body;
+  const { id: user_id, role } = req.jwtData.user;
+  if (user_id === catalyst_id || role === USER_ROLES.SUPERADMIN) {
+    markBreakoutFinished(cohort_breakout_id, req.jwtData.user.name)
+      .then((data) => {
+        res.status(201).json({
+          data,
+        });
+      })
+      .catch((err) => res.status(500).send({
+        err,
+      }));
+  } else {
+    res.status(403).send('You do not have access to this data!');
+  }
+};
 
 export const getBreakouts = (req, res) => {
   CohortBreakout.findAll({})
@@ -86,7 +157,7 @@ export const getLiveCohortsBreakouts = (req, res) => {
       let after_dates = new Date();
       after_dates.setDate(after_dates.getDate() - 21);
       let before_dates = new Date();
-      before_dates.setDate(before_dates.getDate() + 30);
+      before_dates.setDate(before_dates.getDate() + 60);
       let where = {
         cohort_id: {
           [Sequelize.Op.in]: cohortIds,
@@ -723,6 +794,22 @@ export const createCohortMilestoneLearnerBreakouts = async (req, res) => {
     id: cohort_milestone_id,
   } = req.params;
   await createLearnerBreakoutsForMilestone(cohort_milestone_id)
+    .then((data) => {
+      res.status(201).json({ data });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send({ err });
+    });
+};
+
+
+export const sendDuplicateBreakouts = async (req, res) => {
+  let {
+    days,
+  } = req.params;
+  days = parseInt(days, 10);
+  await getDuplicateBreakouts(days)
     .then((data) => {
       res.status(201).json({ data });
     })

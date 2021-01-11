@@ -5,6 +5,7 @@ import {
   getCohortMilestones,
   getCohortMilestoneById,
   populateLearnerStats,
+  NoMilestoneCommits,
 } from '../../models/cohort_milestone';
 
 export const getUpcomingReviews = (req, res) => {
@@ -86,7 +87,11 @@ export const getCohortMilestoneStats = (req, res) => {
       });
     })
     .catch(e => {
-      console.error(e);
+      if (e instanceof NoMilestoneCommits) {
+        console.warn('No commits in milestone');
+      } else {
+        console.error(e);
+      }
       res.sendStatus(500);
     });
 };

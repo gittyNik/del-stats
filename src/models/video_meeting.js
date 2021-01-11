@@ -14,6 +14,9 @@ import { changeTimezone } from './breakout_template';
 import {
   notifyAttendanceLearnerInChannel,
 } from '../integrations/slack/delta-app/controllers/web.controller';
+import {
+  getLearnerAttendanceForBreakout,
+} from '../controllers/learning/learner_breakout.controller';
 
 const { in: opIn, between } = Sequelize.Op;
 
@@ -182,12 +185,24 @@ export const createScheduledMeeting = async (topic, start_time,
         id, status,
         start_url, join_url, h323_password,
       } = data.body;
+      let updated_start_url;
+      let updated_join_url;
+      if (start_url.length > 200) {
+        updated_start_url = start_url.substring(0, 200);
+      } else {
+        updated_start_url = start_url;
+      }
+      if (join_url.length > 200) {
+        updated_join_url = join_url.substring(0, 200);
+      } else {
+        updated_join_url = join_url;
+      }
       // console.log(`ZOOM MEETING --> id: ${id}, status: ${status}, join_url: ${join_url}`);
       return VideoMeeting.create({
         id: uuid(),
         video_id: id,
-        start_url,
-        join_url,
+        start_url: updated_start_url,
+        join_url: updated_join_url,
         duration,
         start_time: db_update_time,
         zoom_user: catalyst_email,
@@ -379,30 +394,21 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
         participants, catalyst_id,
         cohort_breakout_id, attentiveness_threshold, duration_threshold,
       )
-        .then(attendanceCountArray => {
+        .then(async attendanceCountArray => {
           const attendanceCount = attendanceCountArray.reduce(add);
-          // console.log('Attendance Count.', attendanceCount);
-          return CohortBreakout.update({
+          await CohortBreakout.update({
             attendance_count: attendanceCount,
+            status: 'running',
             update_at: Date.now(),
           }, {
             where: {
               id: cohort_breakout_id,
             },
           });
-        }).catch(err => {
-          console.error('Failed to update Cohort attendance count', err);
-          return {
-            text: `Failed to update Cohort attendance count for ${cohort_breakout_id} .`,
-          };
+
+          return getLearnerAttendanceForBreakout(cohort_breakout_id);
         });
-    })
-    .catch(err =>
-      // console.log(err);
-      ({
-        text: `Failed to get breakout details from Zoom ${cohort_breakout_id}`,
-      }))
-  );
+    }));
 };
 
 export const updateVideoMeeting = async (meetingId, updatedTime) => {

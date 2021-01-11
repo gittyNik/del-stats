@@ -2,6 +2,7 @@ import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import _ from 'lodash';
 import db from '../database';
+import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
 
 const { DEFAULT_USER } = process.env;
 
@@ -38,6 +39,23 @@ const AVAILABLE_USER_STATUS = [
   'graduated',
   'past-learner',
   'other',
+  'staged',
+  'removed',
+  'added-to-cohort',
+];
+
+const NOTIFY_SLACK_STATUSES = [
+  'respawning core phase',
+  'respawning focus phase',
+  'long leave',
+  'admission terminated',
+  'back after absence',
+  'irregular',
+  'medical emergency',
+  'dropout',
+  'staged',
+  'removed',
+  'moved',
 ];
 
 export const User = db.define(
@@ -47,6 +65,7 @@ export const User = db.define(
     email: Sequelize.STRING,
     phone: Sequelize.STRING,
     role: Sequelize.STRING,
+    roles: Sequelize.ARRAY(Sequelize.STRING),
     location: Sequelize.STRING,
     profile: Sequelize.JSON,
     picture: Sequelize.STRING,
@@ -138,6 +157,7 @@ export const getOrCreateUser = phone => User.findOrCreate({
   defaults: {
     id: uuid(),
     role: USER_ROLES.GUEST,
+    roles: [USER_ROLES.GUEST],
   },
 });
 
@@ -161,6 +181,7 @@ export const createSuperAdmin = () => User.findOrCreate({
   where: {
     email: DEFAULT_USER,
     role: USER_ROLES.SUPERADMIN,
+    roles: [USER_ROLES.SUPERADMIN],
   },
   raw: true,
   defaults: {
@@ -214,10 +235,10 @@ export const removeUserStatus = (
   }
 });
 
-export const addUserStatus = (
+export const addUserStatus = ({
   id, status, status_reason, updated_by_id, updated_by_name, milestone_id, milestone_name,
   cohort_id, cohort_name,
-) => {
+}) => {
   if (AVAILABLE_USER_STATUS.indexOf(status) > -1) {
     return User.findOne({
       where: {
@@ -227,6 +248,16 @@ export const addUserStatus = (
       .then((userStatus) => {
         if (_.isEmpty(userStatus)) {
           throw Error('User does not exist');
+        }
+
+        try {
+          if (NOTIFY_SLACK_STATUSES.indexOf(status) > -1) {
+            const message = `*${userStatus.name}* ${userStatus.email} has been marked: *${status}* by ${updated_by_name}`;
+            const context = 'Learner status update';
+            sendMessageToSlackChannel(message, context, process.env.SLACK_LEARNER_AFFAIRS);
+          }
+        } catch (err) {
+          console.warn('Failed to send slack message');
         }
 
         let statusDetails = {
@@ -260,8 +291,9 @@ export const addUserStatus = (
   throw Error('Status not valid');
 };
 
-export const changeUserRole = (learner_id, role) => User.update({
+export const changeUserRole = (learner_id, role, roles) => User.update({
   role,
+  roles,
 }, {
   where: {
     id: learner_id,

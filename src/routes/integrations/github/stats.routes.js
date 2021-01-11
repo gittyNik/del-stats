@@ -5,7 +5,6 @@ import {
   getTotalUserCommitsPastWeek,
   numberOfAttemptedChallenges,
   getTotalCohortCommits,
-  allStats,
   getAllStats,
   getRecentCommit,
   fillGithubStats,
@@ -13,7 +12,18 @@ import {
   // userAndTeamCommitsDayWise
 } from '../../../integrations/github/controllers';
 
+import {
+  allowMultipleRoles,
+} from '../../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../../models/user';
+
+const {
+  ADMIN, LEARNER, OPERATIONS,
+} = USER_ROLES;
+
 const router = Express.Router();
+
+router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS]));
 
 // router.get('/team/commits', getTotalTeamCommits);
 
@@ -34,11 +44,6 @@ router.get(
   '/commits/team/user/:milestone_repo_name',
   getTotalTeamAndUserCommits,
 );
-
-// router.get(
-// 	"/commits/team/user/dayWise/:repo",
-// 	userAndTeamCommitsDayWise
-// );
 
 router.get('/commits/cohort/:cohort_milestone_id', getTotalCohortCommits);
 

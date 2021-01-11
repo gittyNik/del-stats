@@ -5,7 +5,9 @@ import {
   createAlearnerFaq,
   updateAlearnerFaq,
   toggleHelpful,
-  toggleUnhelpful, deleteAlearnerFaq
+  toggleUnhelpful,
+  deleteAlearnerFaq,
+  getAllFaqsByPlatformEndpoint
 } from '../../controllers/learning/learner_faq.controller';
 import {
   allowMultipleRoles,
@@ -13,7 +15,7 @@ import {
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, SUPERADMIN,
+  ADMIN, SUPERADMIN, EDUCATOR
 } = USER_ROLES;
 
 const router = Express.Router();
@@ -25,6 +27,14 @@ const router = Express.Router();
  * @apiGroup Faq
  */
 router.get('/', getAllFaqs);
+
+/**
+ * @api {get} /faq Get all learner Faqs
+ * @apiHeader {String} authorization JWT Token
+ * @apiName getAllFaqs
+ * @apiGroup Faq
+ */
+router.get('/platform', getAllFaqsByPlatformEndpoint);
 
 /**
  * @api {get} /faq/:id Get A learner Faqs
@@ -50,7 +60,7 @@ router.get('/helpful/:id', toggleHelpful);
  */
 router.get('/unhelpful/:id', toggleUnhelpful);
 
-router.use(allowMultipleRoles([ADMIN, SUPERADMIN]));
+router.use(allowMultipleRoles([ADMIN, EDUCATOR, SUPERADMIN]));
 
 /**
  * @api {post} / Create a learner Faq

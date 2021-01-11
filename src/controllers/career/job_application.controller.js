@@ -89,9 +89,15 @@ export const createJobApplicationAPI = (req, res) => {
     job_posting_id,
     portfolio_id,
     assignment_due_date,
+    status,
+    attached_assignment,
   } = req.body;
   return createJobApplication({
-    job_posting_id, portfolio_id, assignment_due_date,
+    job_posting_id,
+    portfolio_id,
+    assignment_due_date,
+    status,
+    attached_assignment,
   })
     .then(data => res.status(200).json({
       text: 'Created a Job Application',
@@ -136,6 +142,13 @@ export const updateJobApplicationAPI = (req, res) => {
     offer_details, applicant_feedback, counsellor_notes,
     assignment_id, learner_id,
   } = req.body;
+  const user_name = req.jwtData.user.name;
+  const user_id = req.jwtData.user.id;
+  let updated_by = [{
+    user_name,
+    updated_at: new Date(),
+    user_id,
+  }];
   return updateJobApplication({
     id,
     job_posting_id,
@@ -152,6 +165,7 @@ export const updateJobApplicationAPI = (req, res) => {
     counsellor_notes,
     assignment_id,
     learner_id,
+    updated_by,
   })
     .then(data => res.status(200).json({
       text: 'Updated a Job Application',

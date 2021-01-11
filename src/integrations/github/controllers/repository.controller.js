@@ -59,11 +59,12 @@ const getAllRepositoryCollaborators = async (repo) => getNumberOfPages(
 // 		username
 // 	});
 
-export const createGithubRepository = (repo) => octokit.repos.createInOrg({
+export const createGithubRepository = (repo, is_template) => octokit.repos.createInOrg({
   org,
   name: repo,
   license_template: 'mit',
   private: true,
+  is_template,
 });
 
 export const deleteGithubRepository = (repo) => octokit.repos.delete({
@@ -170,4 +171,30 @@ export const provideAccessToRepoIfNot = async (collaborater, repo_name) => {
     return addCollaboratorToRepository(collaborater, repo_name);
   }
   return {};
+};
+
+export const createRepositoryifnotPresent = async (
+  repo,
+  isTemplate = true,
+) => {
+  // Create repository for Challenge
+  console.log(isTemplate);
+  let isPresent = await isExistingRepository(repo);
+
+  if (!isPresent) {
+    return createGithubRepository(repo, isTemplate);
+  }
+  return repo;
+};
+
+export const addFileToRepo = async (repo, message,
+  content, path) => {
+  let base64content = Buffer.from(content).toString('base64');
+  return octokit.repos.createOrUpdateFile({
+    owner: org,
+    repo,
+    path,
+    message,
+    content: base64content,
+  });
 };
