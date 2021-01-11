@@ -4,7 +4,6 @@ import db from '../database';
 import { Test } from './test';
 import { User } from './user';
 import { Cohort, getUpcomingCohort } from './cohort';
-import { updateApplication } from '../controllers/firewall/application.controller';
 
 const { in: opIn } = Sequelize.Op;
 
