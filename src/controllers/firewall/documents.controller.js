@@ -3,6 +3,7 @@ import _ from 'lodash';
 import AWS from 'aws-sdk';
 import axios from 'axios';
 import crypto from 'crypto';
+import { HttpBadRequest } from '../../util/errors';
 
 import {
   getDocumentsByStatus, getDocumentsByUser,
@@ -219,7 +220,7 @@ export const createMandateRequest = (
     .catch(err => {
       let message = err.response.body;
       console.error(message);
-      throw Error(message.message);
+      throw new HttpBadRequest(message.message);
     })
   );
 };
@@ -282,7 +283,7 @@ export const saveMandateDetails = async ({
 }) => {
   // Create random alphanumeric string which can be shared with users for tracking
   const customer_ref_number = (+new Date()).toString(36).slice(-8);
-  console.log(customer_ref_number);
+  // console.log(customer_ref_number);
 
   // Send api request for mandate creation
   const mandateResponse = await createMandateRequest({
@@ -343,9 +344,17 @@ export const createMandate = (req, res) => {
     customer_ref_number,
   })
     .then((data) => res.json({
-      text: data,
+      message: 'Created Mandate request',
+      data,
+      type: 'success',
     }))
     .catch((err) => {
+      if (err.name === 'HttpBadRequest') {
+        return res.status(err.statusCode).json({
+          message: err.message,
+          type: 'failure',
+        });
+      }
       console.error(err);
       return res.status(500);
     });
@@ -366,7 +375,9 @@ export const createDebitRequestNach = (req, res) => {
     }))
     .catch((err) => {
       console.error(err);
-      return res.status(500);
+      return res.status(400).json({
+
+      });
     });
 };
 
