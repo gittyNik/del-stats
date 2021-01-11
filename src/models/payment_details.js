@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import db from '../database';
+import { PaymentIntervals } from './payment_intervals'
 
 const TYPE = ['upfront', 'loan']
 
@@ -52,6 +53,12 @@ const PaymentDetails = db.define('payment_details', {
     }
   });
 
+
+const getAllDetails = () => PaymentDetails.findAll({
+  include: [{ model: PaymentIntervals, attributes: ['interval_1', 'interval_2', 'interval_3', 'interval_4', 'interval_5']}]
+})
+
 export {
-  PaymentDetails
+  PaymentDetails,
+  getAllDetails
 };
