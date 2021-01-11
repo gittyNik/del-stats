@@ -45,6 +45,8 @@ import { LearnerRecruiters } from './learner_recruiter';
 import { JobPosting } from './job_postings';
 import { CompanyProfile } from './company_profile';
 import { ShortlistedPortfolios } from './shortlisted_portfolios';
+import { PaymentDetails } from './payment_details';
+import { PaymentIntervals } from './payment_intervals';
 
 // TODO: describe all associations here
 
@@ -165,6 +167,12 @@ Portfolio.belongsToMany(CompanyProfile, {
   as: 'ShortlistedPortfoliosForCompanies',
 });
 
+PaymentDetails.hasOne(PaymentIntervals, {
+  foreignKey: 'payment_details_id'
+})
+
+// PaymentIntervals.belongsTo(PaymentDetails)
+
 // User.belongsTo(Cohort);
 // Cohort.hasMany(User, { foreignKey: 'learners' });
 // User.belongsTo(Cohort);
@@ -209,4 +217,6 @@ export default {
   User,
   connection,
   LearnerInterviews,
+  PaymentDetails,
+  PaymentIntervals
 };
