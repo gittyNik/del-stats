@@ -11,9 +11,12 @@ import {
   getAllDocuments, insertIndividualDocument,
   verifySingleUserDocument,
   updateMandateDetailsForLearner, updateDebitDetailsForLearner,
+  getDocumentsByEsignId,
+  updateEsignDetailsForLearner,
 } from '../../models/documents';
 import { User } from '../../models/user';
 import { uploadFile } from '../emailer/emailer.controller';
+import { sendMessageToSlackChannel } from '../../integrations/slack/team-app/controllers/milestone.controller';
 
 const {
   AWS_DOCUMENT_BUCKET,
@@ -431,16 +434,47 @@ export const Esign = (template_values, signers,
     .set('content-type', 'application/json')
     .then(data => data)
     .catch(err => {
-      console.error(err);
-      let data = { message: `Failed to send Esign request: ${err}`, status: 'Failure' };
-      return data;
+      let message = err.response.body;
+      console.error(message);
+      throw Error(message.message);
     })
   );
 };
 
+export const downloadEsignAgreement = async ({ user_id, document_id }) => {
+  let userDocument;
+  if (user_id) {
+    userDocument = await getDocumentsByUser(user_id);
+  } else {
+    userDocument = await getDocumentsByEsignId(document_id);
+  }
+
+  let esignDocumentDetails = userDocument.document_details.id;
+  const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
+
+  return axios.get(`${DIGIO_BASE_URL}v2/client/document/download?document_id=${esignDocumentDetails}`, {
+    headers: {
+      Authorization: `Basic ${BASE_64_TOKEN}`,
+    },
+    responseType: 'arraybuffer',
+  })
+    .then(async (res) => {
+      let pdfFile = res.data;
+      let { bucketName, basePath } = type_upload.agreement;
+      let documentPath = `${basePath}/${userDocument.document_details.file_name}.pdf`;
+      await uploadFile(bucketName, documentPath,
+        pdfFile, 'application/pdf');
+      userDocument.document_details.path = documentPath;
+      return 'Document uploaded successfully!';
+    })
+    .catch((error) => {
+      console.error(error);
+      throw Error('Document download failed!');
+    });
+};
+
 const processWebHookData = async (entities, payload, id, event) => {
-  let find_items = entities.filter(element => element.includes('mandate'));
-  if (find_items.length > 0) {
+  if (entities.indexOf('api_mandate') > -1) {
     // Mandate details
     let mandate_status = payload.api_mandate;
     console.log(`Mandate ID for Enach: ${mandate_status.id}`);
@@ -448,10 +482,38 @@ const processWebHookData = async (entities, payload, id, event) => {
       mandate_id: mandate_status.id, mandate_status,
     });
   }
-  // eNach debit details
-  let debit_details = payload.nach_debit;
-  console.log(`Debit ID for Enach: ${debit_details.id}`);
-  return updateDebitDetailsForLearner({ nach_debit_id: debit_details.id, nach_debit_details: debit_details });
+  if (entities.indexOf('nach_debit') > -1) {
+    // eNach debit details
+    let debit_details = payload.nach_debit;
+    console.log(`Debit ID for Enach: ${debit_details.id}`);
+    return updateDebitDetailsForLearner({
+      nach_debit_id: debit_details.id,
+      nach_debit_details: debit_details,
+    });
+  }
+  if (entities.indexOf('document') > -1) {
+    // eNach debit details
+    let document_details = payload.document;
+    let esign_document_id = document_details.id;
+    console.log(`Document ID for Esign: ${esign_document_id}`);
+    if (document_details.agreement_status === 'completed') {
+      await downloadEsignAgreement({ document_id: esign_document_id });
+      try {
+        let { name, identifier } = document_details.signing_parties[0];
+        let warning_context = 'Agreement Esigned';
+        let warning_message = `Applicant: ${name} ${identifier}`;
+        sendMessageToSlackChannel(warning_message,
+          warning_context, process.env.SLACK_MSG91_CHANNEL);
+      } catch (err) {
+        console.warn('Unable to send document signing status');
+      }
+    }
+    return updateEsignDetailsForLearner({
+      esign_document_id,
+      document_details: document_details.document,
+    });
+  }
+  return event;
 };
 
 export const digioEnachWebHook = (req, res) => {
@@ -497,37 +559,10 @@ export const digioEnachWebHook = (req, res) => {
   return res.status(401).json({ message, type: 'failure' });
 };
 
-export const downloadEsignAgreement = async (user_id) => {
-  let userDocument = await getDocumentsByUser(user_id);
-
-  let esignDocumentDetails = userDocument.document_details.id;
-  const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
-
-  return axios.get(`${DIGIO_BASE_URL}v2/client/document/download?document_id=${esignDocumentDetails}`, {
-    headers: {
-      Authorization: `Basic ${BASE_64_TOKEN}`,
-    },
-    responseType: 'arraybuffer',
-  })
-    .then(async (res) => {
-      let pdfFile = res.data;
-      let { bucketName, basePath } = type_upload.agreement;
-      let documentPath = `${basePath}/${userDocument.document_details.file_name}.pdf`;
-      await uploadFile(bucketName, documentPath,
-        pdfFile, 'application/pdf');
-      userDocument.document_details.path = documentPath;
-      return 'Document uploaded successfully!';
-    })
-    .catch((error) => {
-      console.error(error);
-      throw Error('Document download failed!');
-    });
-};
-
 export const downloadEsignDocument = (req, res) => {
   const { id } = req.params;
 
-  downloadEsignAgreement(id)
+  downloadEsignAgreement({ user_id: id })
     .then((data) => res.json({
       text: data,
     }))
@@ -541,26 +576,27 @@ export const downloadEsignDocument = (req, res) => {
 // Will send Esign request from Digio to User
 // Requires template id, user details to pre-fill in the agreement
 // send date, signer email/mobile and sign co-ordinates
-export const EsignRequest = (req, res) => {
-  const { id } = req.params;
+export const EsignRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-  const {
-    template_values,
-    template_id,
-    sign_coordinates,
-    expire_in_days,
-    notify_signers,
-    send_sign_link,
-    file_name,
-    signers,
-  } = req.body;
+    const {
+      template_values,
+      template_id,
+      sign_coordinates,
+      expire_in_days,
+      notify_signers,
+      send_sign_link,
+      file_name,
+      signers,
+    } = req.body;
 
-  return User.findOne(
-    {
-      where: { id },
-      attributes: ['name', 'email', 'profile'],
-    },
-  ).then(userDetails => {
+    let userDetails = await User.findOne(
+      {
+        where: { id },
+        attributes: ['name', 'email', 'profile'],
+      },
+    );
     if ((_.isEmpty(userDetails)) && (_.isEmpty(userDetails.profile))
       && ('personal_details' in userDetails.profile)) {
       template_values.learner_email = userDetails.email;
@@ -577,24 +613,39 @@ export const EsignRequest = (req, res) => {
       delete personalDetails.document_send_date;
       let personDetails = { personal_details: personalDetails };
       let mergedUserDetails = { ...personDetails, ...userDetails.profile };
-      let updatedProfile = User.update({
+      await User.update({
         profile: mergedUserDetails,
       }, { where: { id }, returning: true });
       // console.log(updatedProfile);
     }
 
-    return Esign(template_values,
+    let esignStatus = await Esign(template_values,
       signers,
       template_id,
       sign_coordinates,
       expire_in_days,
       notify_signers,
       send_sign_link,
-      file_name).then(esignStatus => {
-      createUserEntry({ user_id: id, document_details: JSON.parse(esignStatus.text), status: 'requested' });
-      return res.json(esignStatus);
+      file_name);
+    let body = JSON.parse(esignStatus.text);
+    await createUserEntry({
+      user_id: id,
+      esign_document_id: body.id,
+      document_details: body,
+      status: 'requested',
     });
-  });
+    return res.status(200).json({
+      data: body.id,
+      message: 'Create Esign Document',
+      type: 'success',
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      message: 'Unable to generate Esign Document',
+      type: 'failure',
+    });
+  }
 };
 
 export const signedUploadUrl = async (
