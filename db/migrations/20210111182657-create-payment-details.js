@@ -1,6 +1,5 @@
 'use strict';
 
-const TYPE = ['upfront', 'loan']
 
 module.exports = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('payment_details', {
@@ -9,38 +8,15 @@ module.exports = {
       defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
     },
-    type: Sequelize.ENUM(...TYPE),
+    type: Sequelize.STRING,
     alias: Sequelize.STRING,
-    total_fees: Sequelize.INTEGER,
-    security_deposit: Sequelize.INTEGER,
+    total_fees: Sequelize.REAL,
+    security_deposit: Sequelize.REAL,
     no_of_installments: Sequelize.INTEGER,
-    discount: Sequelize.INTEGER,
-    discount_amount: Sequelize.INTEGER,
-    due_amount: Sequelize.INTEGER,
-    installment_1: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
-    installment_2: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
-    installment_3: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
-    installment_4: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
-    installment_5: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
-    installment_6: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
+    discount: Sequelize.REAL,
+    discount_amount: Sequelize.REAL,
+    due_amount: Sequelize.REAL,
+    installments: Sequelize.JSON,
     created_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.literal('NOW()'),

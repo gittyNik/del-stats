@@ -4,8 +4,6 @@ import db from '../database';
 import { PaymentIntervals } from './payment_intervals'
 import { Application } from './application';
 
-const TYPE = ['upfront', 'loan']
-
 const { Op } = Sequelize;
 
 const PaymentDetails = db.define('payment_details', {
@@ -14,38 +12,15 @@ const PaymentDetails = db.define('payment_details', {
       defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
     },
-    type: Sequelize.ENUM(...TYPE),
+    type: Sequelize.STRING,
     alias: Sequelize.STRING,
-    total_fees: Sequelize.INTEGER,
-    security_deposit: Sequelize.INTEGER,
+    total_fees: Sequelize.REAL,
+    security_deposit: Sequelize.REAL,
     no_of_installments: Sequelize.INTEGER,
-    discount: Sequelize.INTEGER,
-    discount_amount: Sequelize.INTEGER,
-    due_amount: Sequelize.INTEGER,
-    installment_1: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
-    installment_2: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
-    installment_3: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
-    installment_4: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
-    installment_5: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
-    installment_6: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
+    discount: Sequelize.REAL,
+    discount_amount: Sequelize.REAL,
+    due_amount: Sequelize.REAL,
+    installments: Sequelize.JSON,
     created_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.literal('NOW()'),
@@ -58,7 +33,12 @@ const PaymentDetails = db.define('payment_details', {
 
 
 const getAllDetails = () => PaymentDetails.findAll({
-  include: [{ model: PaymentIntervals, attributes: ['interval_1', 'interval_2', 'interval_3', 'interval_4', 'interval_5']}]
+  include: [{ model: PaymentIntervals, attributes: ['intervals']}]
+})
+
+const addPaymentDetails = (details, id=null) => PaymentDetails.create({
+  id: id || uuid(),
+  ...details
 })
 
 const getApplicantPlans = (applicant_id) => {
@@ -74,7 +54,7 @@ const getApplicantPlans = (applicant_id) => {
         where: {
           type: "upfront"
         },
-        include: [{ model: PaymentIntervals, attributes: ['interval_1', 'interval_2', 'interval_3', 'interval_4', 'interval_5']}]
+        include: [{ model: PaymentIntervals, attributes: ['intervals']}]
       })
     } else {
       return PaymentDetails.findAll({
@@ -88,7 +68,7 @@ const getApplicantPlans = (applicant_id) => {
             }  
           ]
         },
-        include: [{ model: PaymentIntervals, attributes: ['interval_1', 'interval_2', 'interval_3', 'interval_4', 'interval_5']}]
+        include: [{ model: PaymentIntervals, attributes: ['intervals']}]
       })
     }
   })
@@ -97,5 +77,6 @@ const getApplicantPlans = (applicant_id) => {
 export {
   PaymentDetails,
   getAllDetails,
-  getApplicantPlans
+  getApplicantPlans,
+  addPaymentDetails
 };

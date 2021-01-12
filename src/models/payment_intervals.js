@@ -12,26 +12,7 @@ const PaymentIntervals = db.define('payment_intervals', {
       type: Sequelize.UUID,
       allowNull: false
     },
-    interval_1: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
-    interval_2: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
-    interval_3: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
-    interval_4: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
-    interval_5: {
-      type: Sequelize.INTEGER,
-      defaultValue: 0
-    },
+    intervals: Sequelize.JSON,
     created_at: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.literal('NOW()'),
@@ -42,6 +23,13 @@ const PaymentIntervals = db.define('payment_intervals', {
     }
   });
 
+
+const addPaymentIntervals = (intervals, id=null) => PaymentIntervals.create({
+  id: id || uuid(),
+  ...intervals
+})
+
 export {
-  PaymentIntervals
+  PaymentIntervals,
+  addPaymentIntervals
 };
