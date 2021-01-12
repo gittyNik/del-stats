@@ -147,34 +147,58 @@ export const getEnachDetails = (mandate_id) => {
     .then(data => data)
     .catch(err => {
       console.error(err);
-      let data = { message: `Failed to send Enach request: ${err}`, status: 'Failure' };
-      return data;
+      let message = err.response.body;
+      throw new HttpBadRequest(message.message);
     })
   );
 };
 
-export const saveEnachDetails = async (mandate_id, user_id) => {
+export const saveEnachDetails = async ({ mandate_id, user_id, validate }) => {
   let enachDetails = await getEnachDetails(mandate_id);
 
-  let updatedDocument = await updateUserEntry({
+  await updateUserEntry({
     user_id,
     mandate_id,
     mandate_details: enachDetails.body,
   });
 
-  return updatedDocument;
+  let statusCode = 400;
+  let message;
+  let type = 'failure';
+  let { body } = enachDetails;
+
+  if (validate) {
+    const { state, mandate_details } = body;
+    // TODO: Added logic for checking amount here
+    console.log(mandate_details.collection_amount);
+    if (['auth_success', 'dest_accept'].indexOf(state) > -1) {
+      console.log(`Mandate created successfully for user: ${user_id}`);
+      statusCode = 200;
+      type = 'success';
+      message = 'Mandate has been authorised by user';
+    } else {
+      // body = enachDetails.body;
+      message = 'Mandate not authorised by user';
+    }
+  }
+
+  let response = { statusCode, message, type };
+
+  return response;
 };
 
 export const saveEnachMandate = (req, res) => {
-  const { mandate_id, user_id } = req.body;
+  const { mandate_id, user_id, validate } = req.body;
+  // Need to add validation for amount
 
-  saveEnachDetails(mandate_id, user_id)
-    .then((data) => res.json({
-      text: data,
+  saveEnachDetails({ mandate_id, user_id, validate })
+    .then((data) => res.status(data.statusCode).json({
+      message: data.message,
+      type: data.type,
     }))
     .catch((err) => {
       console.error(err);
-      res.status(500);
+      res.sendStatus(500);
     });
 };
 
@@ -418,14 +442,16 @@ const processWebHookData = async (entities, payload, id, event) => {
   let find_items = entities.filter(element => element.includes('mandate'));
   if (find_items.length > 0) {
     // Mandate details
-    let mandate_details = payload.api_mandate;
-    console.log(`Mandate ID for Enach: ${mandate_details.id}`);
-    return updateMandateDetailsForLearner(mandate_details.id, mandate_details);
+    let mandate_status = payload.api_mandate;
+    console.log(`Mandate ID for Enach: ${mandate_status.id}`);
+    return updateMandateDetailsForLearner({
+      mandate_id: mandate_status.id, mandate_status,
+    });
   }
   // eNach debit details
   let debit_details = payload.nach_debit;
   console.log(`Debit ID for Enach: ${debit_details.id}`);
-  return updateDebitDetailsForLearner(debit_details.id, debit_details);
+  return updateDebitDetailsForLearner({ nach_debit_id: debit_details.id, nach_debit_details: debit_details });
 };
 
 export const digioEnachWebHook = (req, res) => {

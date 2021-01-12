@@ -141,6 +141,10 @@ export const Documents = db.define('documents', {
     type: Sequelize.JSON,
     allowNull: true,
   },
+  mandate_status: {
+    type: Sequelize.JSON,
+    allowNull: true,
+  },
   mandate_id: {
     type: Sequelize.STRING,
   },
@@ -183,8 +187,8 @@ export const getDocumentsByUser = user_id => Documents.findOne(
   },
 );
 
-export const updateMandateDetailsForLearner = (mandate_id, mandate_details) => Documents.update({
-  mandate_details,
+export const updateMandateDetailsForLearner = ({ mandate_id, mandate_status }) => Documents.update({
+  mandate_status,
 }, {
   where: {
     mandate_id,
@@ -192,8 +196,10 @@ export const updateMandateDetailsForLearner = (mandate_id, mandate_details) => D
   returning: true,
 });
 
-export const updateDebitDetailsForLearner = (nach_debit_id,
-  nach_debit_details) => Documents.findOne({
+export const updateDebitDetailsForLearner = ({
+  nach_debit_id,
+  nach_debit_details,
+}) => Documents.findOne({
   where: {
     nach_debit_id,
   },
@@ -312,9 +318,10 @@ export const updateUserEntry = ({
   user_id, document_details, status, payment_status,
   is_isa = false, is_verified = false,
   mandate_id,
-  mandate_details,
+  mandate_status,
   nach_debit_id,
   nach_debit_details,
+  mandate_details,
 }) => Documents.findOne({
   where: {
     user_id,
@@ -341,8 +348,9 @@ export const updateUserEntry = ({
       is_isa,
       is_verified,
       mandate_id,
-      mandate_details,
+      mandate_status,
       nach_debit_id,
+      mandate_details,
       nach_debit_details: learnerDocument.nach_debit_details,
     }, {
       where: {
