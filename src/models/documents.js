@@ -137,7 +137,15 @@ export const Documents = db.define('documents', {
     type: Sequelize.JSON,
     allowNull: true,
   },
+  esign_document_id: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
   mandate_details: {
+    type: Sequelize.JSON,
+    allowNull: true,
+  },
+  mandate_status: {
     type: Sequelize.JSON,
     allowNull: true,
   },
@@ -183,8 +191,27 @@ export const getDocumentsByUser = user_id => Documents.findOne(
   },
 );
 
-export const updateMandateDetailsForLearner = (mandate_id, mandate_details) => Documents.update({
-  mandate_details,
+export const getDocumentsByEsignId = esign_document_id => Documents.findOne(
+  {
+    where: { esign_document_id },
+    raw: true,
+  },
+);
+
+export const updateEsignDetailsForLearner = ({
+  esign_document_id,
+  document_details,
+}) => Documents.update({
+  document_details,
+}, {
+  where: {
+    esign_document_id,
+  },
+  returning: true,
+});
+
+export const updateMandateDetailsForLearner = ({ mandate_id, mandate_status }) => Documents.update({
+  mandate_status,
 }, {
   where: {
     mandate_id,
@@ -192,8 +219,10 @@ export const updateMandateDetailsForLearner = (mandate_id, mandate_details) => D
   returning: true,
 });
 
-export const updateDebitDetailsForLearner = (nach_debit_id,
-  nach_debit_details) => Documents.findOne({
+export const updateDebitDetailsForLearner = ({
+  nach_debit_id,
+  nach_debit_details,
+}) => Documents.findOne({
   where: {
     nach_debit_id,
   },
@@ -221,6 +250,7 @@ export const updateDebitDetailsForLearner = (nach_debit_id,
 export const createUserEntry = ({
   user_id, document_details, status, payment_status,
   is_isa = false, is_verified = false, user_document,
+  esign_document_id,
 }) => Documents.findOne({
   where: {
     user_id,
@@ -229,6 +259,7 @@ export const createUserEntry = ({
   .then((userDocuments) => {
     if (_.isEmpty(userDocuments)) {
       return Documents.create({
+        esign_document_id,
         user_id,
         document_details,
         status,
@@ -240,6 +271,7 @@ export const createUserEntry = ({
     }
 
     return userDocuments.update({
+      esign_document_id,
       document_details,
       status,
       payment_status,
@@ -312,9 +344,11 @@ export const updateUserEntry = ({
   user_id, document_details, status, payment_status,
   is_isa = false, is_verified = false,
   mandate_id,
-  mandate_details,
+  mandate_status,
   nach_debit_id,
   nach_debit_details,
+  mandate_details,
+  esign_document_id,
 }) => Documents.findOne({
   where: {
     user_id,
@@ -335,14 +369,16 @@ export const updateUserEntry = ({
     }
 
     return learnerDocument.update({
+      esign_document_id,
       document_details,
       status,
       payment_status,
       is_isa,
       is_verified,
       mandate_id,
-      mandate_details,
+      mandate_status,
       nach_debit_id,
+      mandate_details,
       nach_debit_details: learnerDocument.nach_debit_details,
     }, {
       where: {

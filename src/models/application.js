@@ -72,6 +72,10 @@ export const Application = db.define('applications', {
   payment_type: {
     type: Sequelize.STRING,
   },
+  upfront_plan_5_enabled: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: false,
+  },
   program_id: {
     type: Sequelize.STRING,
     references: { model: 'programs', key: 'id' },
