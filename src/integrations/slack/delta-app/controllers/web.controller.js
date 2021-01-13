@@ -10,7 +10,7 @@ import { getLearnerBreakoutsForACohortBreakout } from '../../../../models/learne
 import { logger } from '../../../../util/logger';
 
 const REVIEW_TEMPLATE = (team_number) => `Team: ${team_number}, Reviewer is reminding you to join the review. Please join from DELTA`;
-const LEARNER_REVIEW_TEMPLATE = 'Reviewer is reminding you to join the review. Please join from DELTA';
+const LEARNER_REVIEW_TEMPLATE = (learner) => `<@${learner}> Reviewer is reminding you to join the review. Please join from DELTA`;
 const ASSESSMENT_TEMPLATE = (learner) => `Psst! Looks like it's time for your Assessment, <@${learner}>. Please join from DELTA right away; your reviewer is waiting.`;
 const BREAKOUT_TEMPLATE = 'It\'s time to get your thinking hats on! Please join the BreakOut from DELTA now';
 const LEARNER_BREAKOUT_TEMPLATE = (learner) => `Catalyst is reminding <@${learner}> to join the breakout. Please join from Delta`;
@@ -70,9 +70,6 @@ export const notifyLearnersInChannel = async (req, res) => {
   if (learner_id) {
     let learner = await getProfile(learner_id);
     email = learner.email;
-    if (type === 'reviews') {
-      text = LEARNER_REVIEW_TEMPLATE;
-    }
   }
   let slackUserResponse;
   let slackUserId;
@@ -89,6 +86,10 @@ export const notifyLearnersInChannel = async (req, res) => {
     if (!text) {
       switch (type) {
         case 'reviews':
+          if ((learner_id) && (slackUserId)) {
+            text = LEARNER_REVIEW_TEMPLATE(slackUserId);
+            break;
+          }
           text = REVIEW_TEMPLATE(team_number);
           break;
         case 'assessment':
@@ -267,7 +268,6 @@ export const postTodaysBreakouts = async (todaysBreakouts) => {
       }
     }
     try {
-
       // eslint-disable-next-line no-await-in-loop
       const res = await postOnChannel(channelId, breakout_text);
       data.push(res);
