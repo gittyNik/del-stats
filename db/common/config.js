@@ -36,7 +36,7 @@ const settings = {
   test: {
     username: process.env.TEST_DB_USERNAME || 'postgres',
     password: process.env.TEST_DB_PASSWORD || '',
-    database: process.env.TEST_DB_NAME || 'delta_test',
+    database: process.env.TEST_DB_NAME || 'delta_development',
     host: process.env.TEST_DB_HOST || '127.0.0.1',
     port: process.env.TEST_DB_PORT || 5432,
     logging: false,
