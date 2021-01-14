@@ -1,8 +1,8 @@
 import Express from 'express';
 import {
- getApplicantPlansEndpoint,
- addPaymentDetailsEndpoint,
- addPaymentIntervalsEndpoint
+  getApplicantPlansEndpoint,
+  addPaymentDetailsEndpoint,
+  addPaymentIntervalsEndpoint,
 } from '../../controllers/operations/payment.controller';
 import { USER_ROLES } from '../../models/user';
 import {
@@ -10,12 +10,12 @@ import {
 } from '../../controllers/auth/roles.controller';
 
 const {
-  ADMIN, SUPERADMIN, OPERATIONS, EDUCATOR,
+  ADMIN, OPERATIONS, GUEST,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, SUPERADMIN, OPERATIONS, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, OPERATIONS, GUEST]));
 
 /**
  * @api {get} /payment/applicant/:id Gets payment details for applicant
@@ -27,7 +27,7 @@ router.use(allowMultipleRoles([ADMIN, SUPERADMIN, OPERATIONS, EDUCATOR]));
 router.get('/applicant/:id', getApplicantPlansEndpoint);
 
 /**
- * @api {post} /payment/details Add payment details 
+ * @api {post} /payment/details Add payment details
  * @apiDescription Add payment details
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddPaymentDetails
@@ -36,14 +36,12 @@ router.get('/applicant/:id', getApplicantPlansEndpoint);
 router.post('/details', addPaymentDetailsEndpoint);
 
 /**
- * @api {post} /payment/intervals Add payment intervals 
+ * @api {post} /payment/intervals Add payment intervals
  * @apiDescription Add payment intervals
  * @apiHeader {String} authorization JWT Token.
  * @apiName AddPaymentIntervals
  * @apiGroup Payment
  */
 router.post('/intervals', addPaymentIntervalsEndpoint);
-
-
 
 export default router;
