@@ -80,7 +80,15 @@ export const Application = db.define('applications', {
     type: Sequelize.STRING,
     references: { model: 'programs', key: 'id' },
   },
+  process_statuses: {
+    type: Sequelize.ARRAY(Sequelize.JSON),
+  },
 });
+
+// process_statuses = [{
+//   type: 'failure, success',
+//   time: new Date(),
+// }];
 
 Application.prototype.populateTestResponses = () => Test.findAll({
   where: { application_id: this.id },
@@ -165,7 +173,7 @@ export const getApplicationStage = (user_id) => Application.findOne({
   where: {
     user_id,
   },
-  attributes: ['stage', 'is_isa', 'is_job_guarantee', 'offered_isa',
+  attributes: ['stage', 'is_isa', 'is_job_guarantee', 'offered_isa', 'process_statuses',
     'cohort_applied', 'cohort_joining', 'status', 'payment_type'],
   raw: true,
 }).then(async data => {
@@ -223,3 +231,38 @@ export const offerISA = (
   returning: true,
   raw: true,
 });
+
+export const getProcessStatuses = (user_id) => Application.findOne({
+  where: {
+    user_id,
+  },
+  attributes: ['stage', 'is_isa', 'is_job_guarantee', 'offered_isa',
+    'cohort_applied', 'cohort_joining', 'status', 'payment_type', 'process_statuses'],
+  raw: true,
+}).then(async data => {
+  let cohortDetails = await Cohort.findOne({
+    where: {
+      id: data.cohort_applied,
+    },
+    raw: true,
+  });
+  data.cohort_details = cohortDetails;
+  return data;
+});
+
+export const logProcessStatus = (user_id, event) => {
+  const data = getProcessStatuses(user_id);
+  if (data.process_statuses === null) {
+    data.process_statuses = [];
+  }
+  const process_statuses = (data.process_statuses).push({ type: event, time: new Date() });
+  Application.update({
+    process_statuses,
+  }, {
+    where: {
+      user_id,
+    },
+    returning: true,
+    raw: true,
+  });
+};
