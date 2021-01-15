@@ -7,6 +7,7 @@ import {
   getApplicationStage,
   setApplicationStage,
   offerISA,
+  logProcessStatus,
 } from '../../models/application';
 import { Program } from '../../models/program';
 import { Cohort } from '../../models/cohort';
@@ -379,6 +380,18 @@ export const setOfferedISA = (req, res) => {
   offerISA(user_id, offered_status)
     .then(data => res.status(201).json({
       message: 'offered ISA',
+      data,
+      type: 'success',
+    }))
+    .catch(() => res.sendStatus(500));
+};
+
+export const logProcessFailure = (req, res) => {
+  const { user_id } = req.params; // user_id
+  const { event } = req.body;
+  logProcessStatus(user_id, event)
+    .then(data => res.status(201).json({
+      message: 'Logged Status',
       data,
       type: 'success',
     }))
