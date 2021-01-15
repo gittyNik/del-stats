@@ -1001,7 +1001,7 @@ export const getMilestoneDetailsForReview = (cohort_breakout_id) => CohortBreako
     return false;
   });
 
-export const overlappingCatalystBreakout = async (
+export const overlappingCatalystBreakout = (
   {
     catalyst_id, time_start, time_end, types,
   },
