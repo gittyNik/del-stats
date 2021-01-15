@@ -251,7 +251,7 @@ export const getProcessStatuses = (user_id) => Application.findOne({
 });
 
 export const logProcessStatus = (user_id, event) => {
-  const data = getProcessStatuses(user_id);
+  let data = getProcessStatuses(user_id);
   if (data.process_statuses === null) {
     data.process_statuses = [];
   }
