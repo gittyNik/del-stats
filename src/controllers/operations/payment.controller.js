@@ -1,9 +1,9 @@
 import { getApplicantPlans, addPaymentDetails } from '../../models/payment_details';
 import { addPaymentIntervals } from '../../models/payment_intervals';
 
-const getApplicantPlansEndpoint = (req, res) => {
-  const { id: applicant_id } = req.params;
-  getApplicantPlans(applicant_id).then(data => res.send({
+export const getApplicantPlansEndpoint = (req, res) => {
+  const { id: applicant_id, type } = req.params;
+  getApplicantPlans(applicant_id, type).then(data => res.send({
     type: 'success',
     data,
     message: 'Fetched applicant plans',
@@ -15,13 +15,12 @@ const getApplicantPlansEndpoint = (req, res) => {
   }));
 };
 
-const addPaymentDetailsEndpoint = (req, res) => {
-  const { details } = req.body;
+export const addPaymentDetailsEndpoint = (req, res) => {
   let id = null;
   if (req.body.id) {
     id = req.body.id;
   }
-  addPaymentDetails(details, id)
+  addPaymentDetails(req.body, id)
     .then(data => res.send({
       type: 'success',
       data,
@@ -37,7 +36,7 @@ const addPaymentDetailsEndpoint = (req, res) => {
     });
 };
 
-const addPaymentIntervalsEndpoint = (req, res) => {
+export const addPaymentIntervalsEndpoint = (req, res) => {
   const { intervals } = req.body;
   let id = null;
   if (req.body.id) {
@@ -54,10 +53,4 @@ const addPaymentIntervalsEndpoint = (req, res) => {
         Error: err,
       },
     }));
-};
-
-export {
-  getApplicantPlansEndpoint,
-  addPaymentDetailsEndpoint,
-  addPaymentIntervalsEndpoint,
 };

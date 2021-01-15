@@ -19,11 +19,13 @@ export const getApplicationDetails = async (id) => {
   let cohortDetails = await getCohortFromId(cohort_applied);
 
   return getAgreementTemplate(
-    cohortDetails.program_id,
-    cohortDetails.duration,
-    applicationDetails.is_isa,
-    applicationDetails.is_job_guarantee,
-    applicationDetails.payment_type,
+    {
+      program: cohortDetails.program_id,
+      cohort_duration: cohortDetails.duration,
+      is_isa: applicationDetails.is_isa,
+      is_job_guarantee: applicationDetails.is_job_guarantee,
+      payment_type: applicationDetails.payment_type,
+    },
   );
 };
 
@@ -63,14 +65,16 @@ export const createAgreementTemplatesAPI = (req, res) => {
   const updated_by = req.jwtData.user.id;
 
   createAgreementTemplates(
-    program,
-    cohort_duration,
-    is_isa,
-    is_job_guarantee,
-    payment_type,
-    payment_details,
-    updated_by,
-    document_identifier,
+    {
+      program,
+      cohort_duration,
+      is_isa,
+      is_job_guarantee,
+      payment_type,
+      payment_details,
+      updated_user: updated_by,
+      document_identifier,
+    },
   ).then((data) => { res.json(data); })
     .catch(err => {
       console.log(err);

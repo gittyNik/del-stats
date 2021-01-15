@@ -4,6 +4,7 @@ import db from '../database';
 import { Test } from './test';
 import { User } from './user';
 import { Cohort, getUpcomingCohort } from './cohort';
+import { PaymentDetails } from './payment_details';
 
 const { in: opIn } = Sequelize.Op;
 
@@ -71,6 +72,10 @@ export const Application = db.define('applications', {
   },
   payment_type: {
     type: Sequelize.STRING,
+  },
+  payment_option_selected: {
+    type: Sequelize.UUID,
+    references: { model: 'payment_details', key: 'id' },
   },
   upfront_plan_5_enabled: {
     type: Sequelize.BOOLEAN,
@@ -169,12 +174,21 @@ export const updateCohortJoining = (user_id, cohort_joining) => Application.upda
   },
 );
 
+export const getApplicationPaymentSelected = (user_id) => Application.findOne({
+  where: {
+    user_id,
+  },
+  include: [PaymentDetails],
+  attributes: ['payment_option_selected', 'payment_type'],
+  raw: true,
+});
+
 export const getApplicationStage = (user_id) => Application.findOne({
   where: {
     user_id,
   },
   attributes: ['stage', 'is_isa', 'is_job_guarantee', 'offered_isa', 'process_statuses',
-    'cohort_applied', 'cohort_joining', 'status', 'payment_type'],
+    'cohort_applied', 'cohort_joining', 'status', 'payment_type', 'payment_option_selected'],
   raw: true,
 }).then(async data => {
   let cohortDetails = await Cohort.findOne({
@@ -188,8 +202,11 @@ export const getApplicationStage = (user_id) => Application.findOne({
 });
 
 export const setApplicationStage = (
-  user_id, stage, cohort_applied,
-  is_isa, is_job_guarantee, payment_type, offered_isa,
+  {
+    user_id, stage, cohort_applied,
+    is_isa, is_job_guarantee, payment_type, offered_isa,
+    payment_option_selected,
+  },
 ) => Application.update({
   stage,
   cohort_applied,
@@ -197,6 +214,7 @@ export const setApplicationStage = (
   is_job_guarantee,
   payment_type,
   offered_isa,
+  payment_option_selected,
 }, {
   where: {
     user_id,
@@ -237,7 +255,9 @@ export const getProcessStatuses = (user_id) => Application.findOne({
     user_id,
   },
   attributes: ['stage', 'is_isa', 'is_job_guarantee', 'offered_isa',
-    'cohort_applied', 'cohort_joining', 'status', 'payment_type', 'process_statuses'],
+    'cohort_applied', 'cohort_joining', 'status', 'payment_type', 'process_statuses',
+    'payment_option_selected',
+  ],
   raw: true,
 }).then(async data => {
   let cohortDetails = await Cohort.findOne({

@@ -4,6 +4,7 @@ import AWS from 'aws-sdk';
 import axios from 'axios';
 import crypto from 'crypto';
 import { HttpBadRequest } from '../../util/errors';
+import { getApplicationPaymentSelected } from '../../models/application';
 
 import {
   getDocumentsByStatus, getDocumentsByUser,
@@ -336,11 +337,10 @@ export const saveMandateDetails = async ({
   });
 };
 
-export const createMandate = (req, res) => {
+export const createMandate = async (req, res) => {
   const {
-    customer_email, mandate_amount,
-    activation_date, is_recurring,
-    frequency, user_id,
+    customer_email,
+    activation_date, user_id,
     customer_name, customer_account_number,
     customer_bank_ifsc, customer_account_type,
     customer_ref_number,
@@ -357,9 +357,11 @@ export const createMandate = (req, res) => {
   // Semiannually
   // Yearly
 
+  const paymentSelected = await getApplicationPaymentSelected(user_id);
+
   saveMandateDetails({
     customer_email,
-    mandate_amount,
+    mandate_amount: paymentSelected.due_amount,
     activation_date,
     is_recurring,
     frequency,

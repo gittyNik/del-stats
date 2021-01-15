@@ -354,11 +354,22 @@ export const setApplicationStageAPI = (req, res) => {
   const {
     stage, cohort_applied,
     is_isa, is_job_guarantee,
-    payment_type,
+    payment_type, payment_option_selected,
+    offered_isa,
   } = req.body;
 
-  setApplicationStage(user_id, stage, cohort_applied,
-    is_isa, is_job_guarantee, payment_type).then(data => res.status(200).json(data))
+  setApplicationStage(
+    {
+      user_id,
+      stage,
+      cohort_applied,
+      is_isa,
+      is_job_guarantee,
+      payment_type,
+      payment_option_selected,
+      offered_isa,
+    },
+  ).then(data => res.status(200).json(data))
     .catch(() => res.sendStatus(500));
 };
 

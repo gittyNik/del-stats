@@ -1,4 +1,4 @@
-import Sequelize from 'sequelize';
+import Sequelize, { NOW } from 'sequelize';
 import uuid from 'uuid/v4';
 import db from '../database';
 import { PaymentIntervals } from './payment_intervals';
@@ -6,7 +6,19 @@ import { Application } from './application';
 
 const { Op } = Sequelize;
 
-const PaymentDetails = db.define('payment_details', {
+const PAYMENT_FREQUENCIES = [
+  'Adhoc',
+  'IntraDay',
+  'Daily',
+  'Weekly',
+  'Monthly',
+  'BiMonthly',
+  'Quarterly',
+  'Semiannually',
+  'Yearly',
+];
+
+export const PaymentDetails = db.define('payment_details', {
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
@@ -21,9 +33,17 @@ const PaymentDetails = db.define('payment_details', {
   discount_amount: Sequelize.REAL,
   due_amount: Sequelize.REAL,
   installments: Sequelize.JSON,
+  is_recurring: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: false,
+  },
+  frequency: {
+    type: Sequelize.ENUM(...PAYMENT_FREQUENCIES),
+    defaultValue: 'Adhoc',
+  },
   created_at: {
     type: Sequelize.DATE,
-    defaultValue: Sequelize.literal('NOW()'),
+    // defaultValue: Sequelize.literal('NOW()'),
   },
   updated_at: {
     type: Sequelize.DATE,
@@ -31,16 +51,17 @@ const PaymentDetails = db.define('payment_details', {
   },
 });
 
-const getAllDetails = () => PaymentDetails.findAll({
+export const getAllDetails = () => PaymentDetails.findAll({
   include: [{ model: PaymentIntervals, attributes: ['intervals'] }],
 });
 
-const addPaymentDetails = (details, id = null) => PaymentDetails.create({
+export const addPaymentDetails = (details, id = null) => PaymentDetails.create({
   id: id || uuid(),
+  created_at: NOW(),
   ...details,
 });
 
-const getApplicantPlans = (applicant_id, type) => Application.findOne({
+export const getApplicantPlans = (applicant_id, type) => Application.findOne({
   where: {
     id: applicant_id,
   },
@@ -70,10 +91,3 @@ const getApplicantPlans = (applicant_id, type) => Application.findOne({
       include: [{ model: PaymentIntervals, attributes: ['intervals'] }],
     });
   });
-
-export {
-  PaymentDetails,
-  getAllDetails,
-  getApplicantPlans,
-  addPaymentDetails,
-};

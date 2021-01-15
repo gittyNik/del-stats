@@ -45,11 +45,13 @@ export const AgreementTemplates = db.define('agreement_templates', {
 });
 
 export const getAgreementTemplate = (
-  program,
-  cohort_duration,
-  is_isa,
-  is_job_guarantee,
-  payment_type,
+  {
+    program,
+    cohort_duration,
+    is_isa,
+    is_job_guarantee,
+    payment_type,
+  },
 ) => {
   cohort_duration = String(cohort_duration);
   if (is_job_guarantee === null || payment_type === null) {
@@ -80,7 +82,7 @@ export const getAgreementTemplate = (
   );
 };
 
-export const createAgreementTemplates = (
+export const createAgreementTemplates = ({
   program,
   cohort_duration,
   is_isa,
@@ -89,7 +91,7 @@ export const createAgreementTemplates = (
   payment_details,
   updated_user,
   document_identifier,
-) => {
+}) => {
   let modified_by = [{ user: updated_user, time: NOW() }];
   return AgreementTemplates.create(
     {
