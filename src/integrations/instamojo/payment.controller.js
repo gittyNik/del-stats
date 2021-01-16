@@ -17,6 +17,8 @@ const getPaymentDetails = ({ payment_id }) => {
 const checkPaymentStatus = ({ payment_id }) =>
 	getPaymentDetails({ payment_id })
 	.then(data => data.payment.status === "Credit" ? "Payment Successful": "Payment Failed")
-	.catch(err => err)
+	// .catch(err => err)
 
-export default checkPaymentStatus;
+export {
+	checkPaymentStatus
+};
