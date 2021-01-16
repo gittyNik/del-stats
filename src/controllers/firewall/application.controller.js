@@ -321,19 +321,26 @@ export const payment = async (req, res) => {
 
 export const verifyPayment = async (req, res) => {
   try {
-    const { payment_id } = req.params;
-    let status = await checkPaymentStatus({ payment_id })
+    let payment_id = null; 
+    let payment_request_id = null;
+    payment_request_id = req.params.payment_request_id;
+    if (req.body.payment_id) {
+      payment_id = req.body.payment_id;
+    }
+
+    let status = await checkPaymentStatus({ payment_id, payment_request_id });
     res.status(200).send({
       message: status,
-      type: "success"
-    })
+      type: 'success',
+    });
   } catch (err) {
+    console.log('%%%%%%%%%%', err);
     res.status(500).send({
       message: err,
-      type: "failure"
-    })
+      type: 'failure',
+    });
   }
-}
+};
 
 export const getApplicationStats = (req, res) => {
   const { id } = req.params;

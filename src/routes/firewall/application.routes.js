@@ -3,7 +3,7 @@ import {
   getAllApplications, getApplicationsByUserId, getApplicationById,
   getLiveApplications, addApplication, updateApplication, deleteApplication,
   payment, getLatestApplication, getApplicationStats, getApplicationStageAPI,
-  setApplicationStageAPI, getPaymentAmount, verifyPayment
+  setApplicationStageAPI, getPaymentAmount, verifyPayment,
 } from '../../controllers/firewall/application.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 
@@ -161,6 +161,6 @@ router.get('/payment-amount', getPaymentAmount);
  *
  * @apiParam {String} payment_id Payment ID
  */
-router.get('/payment/:payment_id/verify', verifyPayment);
+router.post('/payment/:payment_request_id/verify', verifyPayment);
 
 export default router;
