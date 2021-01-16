@@ -10,12 +10,12 @@ import {
 } from '../../controllers/auth/roles.controller';
 
 const {
-  ADMIN, OPERATIONS, GUEST,
+  ADMIN, OPERATIONS, GUEST, LEARNER
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, OPERATIONS, GUEST]));
+router.use(allowMultipleRoles([ADMIN, OPERATIONS, GUEST, LEARNER]));
 
 /**
  * @api {get} /payment/applicant/:id Gets payment details for applicant

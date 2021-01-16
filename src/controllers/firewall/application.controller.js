@@ -22,6 +22,7 @@ import { sendFirewallResult } from '../../integrations/slack/team-app/controller
 import { scheduleFirewallRetry } from '../queue.controller';
 import { updateDealApplicationStatus } from '../../integrations/hubspot/controllers/deals.controller';
 import { PAYMENT_TYPES } from '../../integrations/instamojo/instamojo.controller';
+import { checkPaymentStatus } from '../../integrations/instamojo/payment.controller';
 import { logger } from '../../util/logger';
 
 export const getAllApplications = (req, res) => {
@@ -316,6 +317,29 @@ export const payment = async (req, res) => {
         });
       }
     });
+};
+
+export const verifyPayment = async (req, res) => {
+  try {
+    let payment_id = null; 
+    let payment_request_id = null;
+    payment_request_id = req.params.payment_request_id;
+    if (req.body.payment_id) {
+      payment_id = req.body.payment_id;
+    }
+
+    let status = await checkPaymentStatus({ payment_id, payment_request_id });
+    res.status(200).send({
+      message: status,
+      type: 'success',
+    });
+  } catch (err) {
+    console.log('%%%%%%%%%%', err);
+    res.status(500).send({
+      message: err,
+      type: 'failure',
+    });
+  }
 };
 
 export const getApplicationStats = (req, res) => {

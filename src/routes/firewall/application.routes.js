@@ -3,7 +3,7 @@ import {
   getAllApplications, getApplicationsByUserId, getApplicationById,
   getLiveApplications, addApplication, updateApplication, deleteApplication,
   payment, getLatestApplication, getApplicationStats, getApplicationStageAPI,
-  setApplicationStageAPI, getPaymentAmount,
+  setApplicationStageAPI, getPaymentAmount, verifyPayment,
 } from '../../controllers/firewall/application.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 
@@ -151,5 +151,16 @@ router.patch('/:id/payment', payment);
  * @apiParam {String} purpose Purpose of Payment
  */
 router.get('/payment-amount', getPaymentAmount);
+
+/**
+ * @api {get} /firewall/applications/payment/:payment_id/verify Verify Payment
+ * @apiDescription Verify payment status based on payment_id
+ * @apiHeader {String} authorization JWT Token
+ * @apiName ApplicationPayment
+ * @apiGroup Application
+ *
+ * @apiParam {String} payment_id Payment ID
+ */
+router.post('/payment/:payment_request_id/verify', verifyPayment);
 
 export default router;

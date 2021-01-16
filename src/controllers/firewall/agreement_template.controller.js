@@ -13,7 +13,7 @@ import {
 
 export const getApplicationDetails = async (id) => {
   let applicationDetails = await getApplicationStage(id);
-
+  
   let { cohort_applied } = applicationDetails;
 
   let cohortDetails = await getCohortFromId(cohort_applied);
