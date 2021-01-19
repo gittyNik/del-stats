@@ -184,14 +184,15 @@ export const updateUserStatus = (req, res) => {
     user_id, status, reason, milestone_id, milestone_name,
     cohort_id, cohort_name,
   } = req.body;
-  let { id, name } = req.jwtData.user;
+  let updated_by_name = req.jwtData.user.name;
+  let updated_by_id = req.jwtData.user.id;
 
   addUserStatus({
-    user_id,
+    id: user_id,
     status,
     status_reason: reason,
-    updated_by_name: name,
-    updated_by_id: id,
+    updated_by_name,
+    updated_by_id,
     milestone_id,
     milestone_name,
     cohort_id,
