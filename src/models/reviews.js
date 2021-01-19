@@ -299,6 +299,7 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
     milestonecohort.id,
   );
   let count = 0;
+  let overlapsResolvingAttempts = 0;
   let duration = milestonecohort['cohort.duration'];
   let cohort_duration;
   if (duration >= 26) {
@@ -309,7 +310,7 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
   let name = milestonecohort['cohort.name'];
   let location = milestonecohort['cohort.location'];
 
-  learnerTeams.forEach(async (eachTeam, teamIndex) => {
+  await Promise.all(learnerTeams.map(async (eachTeam, teamIndex) => {
     let {
       cohort_id,
       'cohort.name': cohortName,
@@ -417,13 +418,14 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
         });
 
         loopCount += 1;
-        if (loopCount === 2) {
+        if (loopCount === 3) {
           break;
         }
       }
+      overlapsResolvingAttempts += loopCount;
     }
     count += 1;
-    createReviewEntry(
+    return createReviewEntry(
       id,
       cohort_id,
       timeSlot,
@@ -444,9 +446,9 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
       }));
       return createReviewBreakout;
     });
-  });
+  }));
   let context = `Reviews created for ${name} ${cohort_duration} ${location}`;
-  let message = `Created reviews for ${count} teams`;
+  let message = `Created reviews for ${count} teams\n Overlap resolving attempts: ${overlapsResolvingAttempts}`;
   try {
     sendMessageToSlackChannel(message, context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
   } catch (err2) {

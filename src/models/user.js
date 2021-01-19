@@ -56,6 +56,7 @@ const NOTIFY_SLACK_STATUSES = [
   'staged',
   'removed',
   'moved',
+  'added-to-cohort',
 ];
 
 export const User = db.define(
