@@ -4,6 +4,7 @@ import {
   getLiveApplications, addApplication, updateApplication, deleteApplication,
   payment, getLatestApplication, getApplicationStats, getApplicationStageAPI,
   setApplicationStageAPI, getPaymentAmount, verifyPayment,
+  logProcessFailure, setOfferedISA,
 } from '../../controllers/firewall/application.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 
@@ -162,5 +163,24 @@ router.get('/payment-amount', getPaymentAmount);
  * @apiParam {String} payment_id Payment ID
  */
 router.post('/payment/:payment_request_id/verify', verifyPayment);
+
+/**
+ * @api {post} /firewall/applications/offerISA change offered_ISA status
+ * @apiDescription Change offered ISA status for ISA/non-ISA
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ApplicationOfferISA
+ * @apiGroup Application
+ */
+router.post('/offerISA', setOfferedISA);
+
+// admin guest operations and educator
+/**
+ * @api {post} /career/applications/logProcessFailure Log Process
+ * @apiDescription Log failure/success events to process_status
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ApplicationLogFailure
+ * @apiGroup Application
+ */
+router.post('/logProcessFailure', logProcessFailure);
 
 export default router;

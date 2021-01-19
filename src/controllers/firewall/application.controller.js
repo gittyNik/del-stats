@@ -403,7 +403,7 @@ export const setOfferedISA = (req, res) => {
   const { offered_status } = req.body;
   offerISA(user_id, offered_status)
     .then(data => res.status(201).json({
-      message: 'offered ISA',
+      message: `ISA status: ${offered_status}`,
       data,
       type: 'success',
     }))
