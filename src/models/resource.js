@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import request from 'superagent';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import sw from 'stopword';
 import db from '../database';
 import 'dotenv/config';
@@ -148,22 +148,22 @@ export const autoTagUrls = (url) => request
 export const createResource = (url, level, owner, tagged, title,
   description, source = 'slack', type = 'article', details = {},
   thumbnail, program = 'tep', topic_id) => Resource.create(
-  {
-    id: uuid(),
-    url,
-    type,
-    level,
-    owner,
-    title,
-    description,
-    source,
-    details,
-    tagged,
-    program,
-    thumbnail,
-    topic_id,
-  },
-);
+    {
+      id: uuid(),
+      url,
+      type,
+      level,
+      owner,
+      title,
+      description,
+      source,
+      details,
+      tagged,
+      program,
+      thumbnail,
+      topic_id,
+    },
+  );
 
 export const createFromSlackAttachment = async (attachment, owner) => {
   const url = attachment.original_url;

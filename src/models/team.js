@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import _ from 'lodash';
 import faker from 'faker';
 import db from '../database';

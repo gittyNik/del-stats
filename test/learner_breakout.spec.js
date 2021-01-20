@@ -1,5 +1,5 @@
 import db from '../src/database';
-import uuid from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import { getCalendarDetailsOfCohortBreakout } from '../src/models/cohort_breakout'
 import { getGoogleOauthOfUser, googleConfig, convertToEventBody, rfc3339 } from '../src/util/calendar-util';
 import {

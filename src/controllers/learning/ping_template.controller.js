@@ -1,4 +1,4 @@
-import { uuid } from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import { PingTemplate } from '../../models/ping_template';
 
 export const getAllPingTemplates = (req, res) => {

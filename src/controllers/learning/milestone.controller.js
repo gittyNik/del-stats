@@ -1,4 +1,4 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import { Topic } from '../../models/topic';
 import { deleteMilestoneTeams, createMilestoneTeams, Team } from '../../models/team';
 import { Resource } from '../../models/resource';

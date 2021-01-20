@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import db from '../database';
 import { createPad } from '../integrations/codeinterview/controllers';
 
@@ -73,13 +73,13 @@ const getInterviewById = id => LearnerInterviews.findOne({ where: { id }, return
 
 const getInterview = (learner_id, job_application_id,
   interview_round) => LearnerInterviews.findOne({
-  where: {
-    learner_id, job_application_id, interview_round,
-  },
-  // include: [{ model: User, as: 'Recruiters' },
-  // { model: User, as: 'LearnerDetails' }, { model: JobApplication, as: 'JobApplicationDetails' }],
-  returning: true,
-});
+    where: {
+      learner_id, job_application_id, interview_round,
+    },
+    // include: [{ model: User, as: 'Recruiters' },
+    // { model: User, as: 'LearnerDetails' }, { model: JobApplication, as: 'JobApplicationDetails' }],
+    returning: true,
+  });
 
 const getAllInterviewsForLearner = learner_id => LearnerInterviews.findAll({
   where: {
@@ -117,14 +117,14 @@ const updateInterviewById = (id, interview) => LearnerInterviews.update({
 
 const updateInterview = (learner_id, job_application_id,
   interview_round, interview) => LearnerInterviews.update({
-  ...interview,
-}, {
-  where: {
-    learner_id,
-    job_application_id,
-    interview_round,
-  },
-});
+    ...interview,
+  }, {
+    where: {
+      learner_id,
+      job_application_id,
+      interview_round,
+    },
+  });
 
 export {
   LearnerInterviews,

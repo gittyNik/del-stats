@@ -1,5 +1,5 @@
 import Express from 'express';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import web from '../client';
 import { User } from '../../../../models/user';
 import { SocialConnection } from '../../../../models/social_connection';

@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import request from 'superagent';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import { exceptions } from 'winston';

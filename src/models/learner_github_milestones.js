@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import _ from 'lodash';
 import db from '../database';
 import { User } from './user';
@@ -96,17 +96,17 @@ export const getAllCohortGithubMilestoneData = user_id => LearnerGithubMilestone
 
 export const getLastUpdatedMilestoneCommit = (user_id,
   cohort_milestone_id) => LearnerGithubMilestones.findOne({
-  where: {
-    user_id,
-    cohort_milestone_id,
-    commits: { [gt]: 0 },
-  },
-  attributes: ['last_committed_at'],
-  order: [
-    ['last_committed_at', 'DESC'],
-  ],
-  raw: true,
-});
+    where: {
+      user_id,
+      cohort_milestone_id,
+      commits: { [gt]: 0 },
+    },
+    attributes: ['last_committed_at'],
+    order: [
+      ['last_committed_at', 'DESC'],
+    ],
+    raw: true,
+  });
 
 export const getLastUpdatedMilestoneCommitInCohort = (
   cohort_milestone_id,
@@ -257,42 +257,42 @@ export const createOrUpdteLearnerGithubDataForMilestone = (user_id,
   new_commits, cohort_milestone_id,
   commits_count,
   last_committed_at) => LearnerGithubMilestones.findOne({
-  where: {
-    user_id,
-    cohort_milestone_id,
-  },
-})
-  .then((learnerGithub) => {
-    if (_.isEmpty(learnerGithub)) {
-      return LearnerGithubMilestones.create({
-        id: uuid(),
-        user_id,
-        team_id,
+    where: {
+      user_id,
+      cohort_milestone_id,
+    },
+  })
+    .then((learnerGithub) => {
+      if (_.isEmpty(learnerGithub)) {
+        return LearnerGithubMilestones.create({
+          id: uuid(),
+          user_id,
+          team_id,
+          number_of_lines: new_commit_count,
+          repository_commits: new_commits,
+          cohort_milestone_id,
+          commits: commits_count,
+          created_at: Date.now(),
+          last_committed_at,
+        });
+      }
+
+      if (commits_count !== learnerGithub.commits) {
+        learnerGithub.repository_commits.push(...new_commits);
+      }
+
+      return learnerGithub.update({
         number_of_lines: new_commit_count,
-        repository_commits: new_commits,
-        cohort_milestone_id,
+        repository_commits: learnerGithub.repository_commits,
         commits: commits_count,
-        created_at: Date.now(),
         last_committed_at,
+      }, {
+        where: {
+          user_id,
+          team_id,
+        },
       });
-    }
-
-    if (commits_count !== learnerGithub.commits) {
-      learnerGithub.repository_commits.push(...new_commits);
-    }
-
-    return learnerGithub.update({
-      number_of_lines: new_commit_count,
-      repository_commits: learnerGithub.repository_commits,
-      commits: commits_count,
-      last_committed_at,
-    }, {
-      where: {
-        user_id,
-        team_id,
-      },
     });
-  });
 
 export const deleteLearnerGithubDataForMilestone = (user_id) => LearnerGithubMilestones.destroy(
   {

@@ -3,7 +3,7 @@ import db from '../database';
 import { Test } from './test';
 import { User } from './user';
 import { Cohort, getUpcomingCohort } from './cohort';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
 const { in: opIn } = Sequelize.Op;
 

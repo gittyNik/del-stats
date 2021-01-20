@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import { Portfolio, updatePortfolioStatus } from './portfolio';
 import db from '../database';
 import { JobPosting } from './job_postings';

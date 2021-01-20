@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import db from '../database';
 import { Topic } from './topic';
 import { User } from './user';

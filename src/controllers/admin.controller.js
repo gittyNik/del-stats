@@ -1,5 +1,5 @@
 import faker from 'faker';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import { User } from '../models/user';
 import { getSoalToken } from '../util/token';
 import { ConfigParam } from '../models/config_param';

@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import db from '../database';
 
 const LearnerRecruiters = db.define('learner_recruiters', {
@@ -27,10 +27,10 @@ const LearnerRecruiters = db.define('learner_recruiters', {
 
 const createInterviewRecuiterRelation = (learner_interview_id,
   recruiter_id) => LearnerRecruiters.create({
-  id: uuid(),
-  learner_interview_id,
-  recruiter_id,
-});
+    id: uuid(),
+    learner_interview_id,
+    recruiter_id,
+  });
 
 export {
   LearnerRecruiters,

@@ -1,4 +1,4 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import { Pong } from '../../models/pong';
 
 export const getPongs = (req, res) => {

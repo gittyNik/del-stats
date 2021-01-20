@@ -1,5 +1,5 @@
 import request from 'superagent';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import dotenv from 'dotenv';
 import { getSoalToken } from '../../util/token';
 import {
