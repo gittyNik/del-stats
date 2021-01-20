@@ -2,7 +2,7 @@ import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import db from '../database';
 
-const PaymentIntervals = db.define('payment_intervals', {
+export const PaymentIntervals = db.define('payment_intervals', {
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
@@ -23,12 +23,7 @@ const PaymentIntervals = db.define('payment_intervals', {
   },
 });
 
-const addPaymentIntervals = (intervals, id = null) => PaymentIntervals.create({
+export const addPaymentIntervals = (intervals, id = null) => PaymentIntervals.create({
   id: id || uuid(),
   ...intervals,
 });
-
-export {
-  PaymentIntervals,
-  addPaymentIntervals,
-};

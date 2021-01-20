@@ -1,8 +1,11 @@
 import { getApplicantPlans, addPaymentDetails } from '../../models/payment_details';
-import { addPaymentIntervals } from '../../models/payment_intervals';
+import {
+  addPaymentIntervals
+} from '../../models/payment_intervals';
 
 export const getApplicantPlansEndpoint = (req, res) => {
-  const { id: applicant_id, type } = req.params;
+  const { id: applicant_id } = req.params;
+  const { type } = req.query;
   getApplicantPlans(applicant_id, type).then(data => res.send({
     type: 'success',
     data,
