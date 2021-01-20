@@ -4,13 +4,11 @@ import {
   getDocumentsStatus, updateUser, createUser,
   getDocumentsAll, EsignRequest, getSignUrl,
   downloadEsignDocument,
-<<<<<<< HEAD
-  digioEnachWebHook,
+  // digioEnachWebHook,
+  insertUserDocument,
   saveEnachMandate,
   createDebitRequestNach, createMandate,
-=======
-  digioEnachWebHook, getLearnerDocumentsJsonAPI,
->>>>>>> Get user_documents in json
+  getLearnerDocumentsJsonAPI,
 } from '../../controllers/firewall/documents.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';

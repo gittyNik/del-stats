@@ -347,6 +347,8 @@ export const createMandate = async (req, res) => {
     customer_name, customer_account_number,
     customer_bank_ifsc, customer_account_type,
     customer_ref_number,
+    is_recurring,
+    frequency,
   } = req.body;
 
   // Frequency Options:
@@ -757,6 +759,7 @@ export const getLearnerDocumentsJsonAPI = async (req, res) => {
     non_isa_type,
   } = req.query;
   try {
+    console.log(is_isa, program, non_isa_type);
     const user_documents = await getLearnerDocumentsJSON({ program, is_isa, non_isa_type });
     return res.status(200).json({
       message: 'Get user documents',
@@ -767,6 +770,47 @@ export const getLearnerDocumentsJsonAPI = async (req, res) => {
     console.error(err);
     return res.status(500).json({
       message: 'Unable to get user documents',
+      type: 'failure',
+    });
+  }
+};
+
+export const insertUserDocument = async (req, res) => {
+  const { document } = req.body;
+  const user_id = req.jwtData.user.id;
+  try {
+    let response = await insertIndividualDocument(user_id, document);
+    return res.json({
+      message: 'Document added successfully!',
+      data: response,
+      type: 'success',
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      message: 'Unable to save document',
+      type: 'failure',
+    });
+  }
+};
+
+export const verifySingleUserDocumentAPI = async (req, res) => {
+  const {
+    document_name, is_verified, comment, learner_id,
+  } = req.body;
+  const user_id = req.jwtData.user.id;
+  try {
+    const response = await verifySingleUserDocument(learner_id,
+      document_name, is_verified, comment, user_id);
+    return res.status(201).json({
+      message: 'Updated a single User document successfully!',
+      data: response,
+      type: 'success',
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: 'Unable to update user document',
       type: 'failure',
     });
   }
