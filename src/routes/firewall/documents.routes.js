@@ -79,6 +79,31 @@ router.post('/create-debit', createDebitRequestNach);
  */
 router.post('/create-mandate', createMandate);
 
+/**
+ * @api {get} /firewall/documents/:id Get document for User
+ * @apiDescription get a document for User
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetDocuments
+ * @apiGroup Documents
+ */
+router.get('/:user_id', getDocumentsByUserId);
+
+/**
+ * @api {post} /firewall/documents/ Add Users Documents
+ * @apiDescription Add a Users Documents
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName AddUserDocument
+ * @apiGroup Documents
+
+ * @apiParam {String} user_id
+ * @apiParam {String} document_details Description of the topic
+ * @apiParam {String} status ID of the Milestone
+ * @apiParam {String} payment_status Description of the topic
+ * @apiParam {String} is_isa Description of the topic
+ * @apiParam {String} is_verified Description of the topic
+ */
+router.post('/', createUser);
+
 router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]));
 
 /**
@@ -98,15 +123,6 @@ router.post('/save/:user_id', insertUserDocument);
  * @apiGroup Documents
  */
 router.get('/', getDocumentsAll);
-
-/**
- * @api {get} /firewall/documents/:id Get document for User
- * @apiDescription get a document for User
- * @apiHeader {String} authorization JWT Token.
- * @apiName GetDocuments
- * @apiGroup Documents
- */
-router.get('/:user_id', getDocumentsByUserId);
 
 /**
  * @api {get} /firewall/documents/esign/:id/download Download document for user
@@ -137,22 +153,6 @@ router.get('/status/:status', getDocumentsStatus);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowMultipleRoles([ADMIN, OPERATIONS, EDUCATOR]));
-
-/**
- * @api {post} /firewall/documents/ Add Users Documents
- * @apiDescription Add a Users Documents
- * @apiHeader {String} authorization JWT Token.
- * @apiName AddUserDocument
- * @apiGroup Documents
-
- * @apiParam {String} user_id
- * @apiParam {String} document_details Description of the topic
- * @apiParam {String} status ID of the Milestone
- * @apiParam {String} payment_status Description of the topic
- * @apiParam {String} is_isa Description of the topic
- * @apiParam {String} is_verified Description of the topic
- */
-router.post('/', createUser);
 
 /**
  * @api {patch} /firewall/documents/:id  Update User Documents
