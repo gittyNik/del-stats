@@ -169,8 +169,11 @@ Portfolio.belongsToMany(CompanyProfile, {
 
 PaymentDetails.hasOne(PaymentIntervals, {
   foreignKey: 'payment_details_id'
-})
+});
 
+
+PaymentDetails.hasOne(Application, { as: 'PaymentApplicant', foreignKey: 'payment_option_selected' });
+Application.belongsTo(PaymentDetails, { as: 'ApplicationPayment', foreignKey: 'payment_option_selected' });
 // PaymentIntervals.belongsTo(PaymentDetails)
 
 // User.belongsTo(Cohort);

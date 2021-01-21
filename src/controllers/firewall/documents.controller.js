@@ -330,11 +330,13 @@ export const saveMandateDetails = async ({
 
   let mandateDetails = JSON.parse(mandateResponse.text);
 
-  return updateUserEntry({
+  await updateUserEntry({
     user_id,
     mandate_id: mandateDetails.mandate_id,
     mandate_details: mandateDetails,
   });
+
+  return { mandate_id: mandateDetails.mandate_id };
 };
 
 export const createMandate = async (req, res) => {
@@ -356,15 +358,14 @@ export const createMandate = async (req, res) => {
   // Quarterly
   // Semiannually
   // Yearly
-
   const paymentSelected = await getApplicationPaymentSelected(user_id);
 
   saveMandateDetails({
     customer_email,
-    mandate_amount: paymentSelected.due_amount,
+    mandate_amount: paymentSelected['ApplicationPayment.due_amount'],
     activation_date,
-    is_recurring,
-    frequency,
+    is_recurring: paymentSelected['ApplicationPayment.is_recurring'],
+    frequency: paymentSelected['ApplicationPayment.frequency'],
     user_id,
     customer_name,
     customer_account_number,
@@ -438,7 +439,7 @@ export const Esign = (template_values, signers,
     .catch(err => {
       let message = err.response.body;
       console.error(message);
-      throw Error(message.message);
+      throw new HttpBadRequest(message.message);
     })
   );
 };
@@ -642,6 +643,12 @@ export const EsignRequest = async (req, res) => {
       type: 'success',
     });
   } catch (err) {
+    if (err.name === 'HttpBadRequest') {
+      return res.status(err.statusCode).json({
+        message: err.message,
+        type: 'failure',
+      });
+    }
     console.log(err);
     return res.status(500).json({
       message: 'Unable to generate Esign Document',

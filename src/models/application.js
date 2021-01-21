@@ -178,7 +178,11 @@ export const getApplicationPaymentSelected = (user_id) => Application.findOne({
   where: {
     user_id,
   },
-  include: [PaymentDetails],
+  include: [{
+    model: PaymentDetails,
+    as: 'ApplicationPayment',
+    foreignKey: 'payment_option_selected',
+  }],
   attributes: ['payment_option_selected', 'payment_type'],
   raw: true,
 });
