@@ -638,7 +638,7 @@ export const EsignRequest = async (req, res) => {
       status: 'requested',
     });
     return res.status(200).json({
-      data: body.id,
+      data: { document_id: body.id },
       message: 'Create Esign Document',
       type: 'success',
     });

@@ -26,6 +26,8 @@ router.use(allowMultipleRoles([ADMIN, OPERATIONS, GUEST, LEARNER]));
  */
 router.get('/applicant/:id', getApplicantPlansEndpoint);
 
+router.use(allowMultipleRoles([ADMIN, OPERATIONS]));
+
 /**
  * @api {post} /payment/details Add payment details
  * @apiDescription Add payment details
