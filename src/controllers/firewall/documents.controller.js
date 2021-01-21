@@ -176,7 +176,7 @@ export const saveEnachDetails = async ({ mandate_id, user_id, validate }) => {
     // TODO: Added logic for checking amount here
     console.log(mandate_details.collection_amount);
     if (['auth_success', 'dest_accept'].indexOf(state) > -1) {
-      console.log(`Mandate created successfully for user: ${user_id}`);
+      console.log(`Mandate accepted by user/bank: ${user_id}`);
       statusCode = 200;
       type = 'success';
       message = 'Mandate has been authorised by user';
