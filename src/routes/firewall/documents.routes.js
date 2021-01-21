@@ -104,8 +104,6 @@ router.get('/:user_id', getDocumentsByUserId);
  */
 router.post('/', createUser);
 
-router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]));
-
 /**
  * @api {get} /firewall/documents/save/ save document
  * @apiDescription upload Document
@@ -114,6 +112,8 @@ router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]))
  * @apiGroup Documents
  */
 router.post('/save/:user_id', insertUserDocument);
+
+router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]));
 
 /**
  * @api {get} /firewall/documents Get all Documents
