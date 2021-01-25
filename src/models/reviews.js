@@ -10,7 +10,8 @@ import { changeTimezone } from './breakout_template';
 import { getUserByEmail, User } from './user';
 import { Cohort, getCohortFromLearnerId } from './cohort';
 import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
-import { Topic } from './topic';
+import Topic from './topic';
+import logger from '../util/logger';
 
 const GITHUB_BASE = process.env.GITHUB_TEAM_BASE;
 
@@ -462,7 +463,7 @@ export const createReviewSchedule = (program, cohort_duration) => getReviewSlots
     let slotsForReview = reviewSlots;
     return getLiveMilestones(program, cohort_duration)
       .then((deadlineMilestones) => {
-        console.log(`Scheduling Reviews for ${deadlineMilestones.length} Cohorts`);
+        logger.info(`Scheduling Reviews for ${deadlineMilestones.length} Cohorts`);
         deadlineMilestones.forEach(
           cohortMilestone => createTeamReviewBreakout(
             slotsForReview, cohortMilestone,
@@ -481,7 +482,7 @@ export const createCohortReviewSchedule = (
     let slotsForReview = reviewSlots;
     return getCohortLiveMilestones(program, cohort_duration, cohort_id)
       .then((deadlineMilestones) => {
-        console.log(`Scheduling Reviews for ${deadlineMilestones.length} Cohorts`);
+        logger.info(`Scheduling Reviews for ${deadlineMilestones.length} Cohorts`);
         deadlineMilestones.forEach(
           cohortMilestone => createTeamReviewBreakout(
             slotsForReview, cohortMilestone,

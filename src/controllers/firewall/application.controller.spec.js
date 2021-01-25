@@ -3,6 +3,7 @@ import 'dotenv/config';
 import { getPendingApplicationCohorts } from '../../models/application';
 import database from '../../database';
 import { notifyApplicationReview } from './application.controller';
+import logger from '../../util/logger';
 
 let application, phone;
 
@@ -23,7 +24,7 @@ it('should send sms on application offered', () => {
   return notifyApplicationReview(phone, 'offered')(application).then(application => {
     expect(application).toBeDefined();
   });
-  console.log('skipped the test');
+  logger.info('skipped the test');
 });
 
 it('should send sms on application rejected', () => {
@@ -31,5 +32,5 @@ it('should send sms on application rejected', () => {
   return notifyApplicationReview(phone, 'rejected')(application).then(application => {
     expect(application).toBeDefined();
   });
-  console.log('skipped the test');
+  logger.info('skipped the test');
 });

@@ -1,5 +1,6 @@
 import { createScheduledMeeting } from '../../../models/video_meeting';
 import { updateZoomMeetingForBreakout } from '../../../models/cohort_breakout';
+import logger from '../../../util/logger';
 
 const request = require('superagent');
 const jwt = require('jsonwebtoken');
@@ -32,7 +33,7 @@ export const listMeetings = (req, res) => {
       });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -53,7 +54,7 @@ export const meetingDetails = (req, res) => {
       });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -90,7 +91,7 @@ export const attachZoomToBreakout = (req, res) => {
     }),
   ).catch(
     err => {
-      console.log(err);
+      logger.error(err);
       res.json(err);
     },
   );

@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize';
 import _ from 'lodash';
 import db from '../database';
+import logger from '../util/logger';
 
 export const application_status = ['requested', 'signed', 'payment-pending', 'payment-partial', 'payment-complete'];
 
@@ -47,7 +48,7 @@ export const getAllDocuments = (req, res) => {
   Documents.findAll({})
     .then(data => res.json(data))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };

@@ -10,6 +10,7 @@ import {
 import {
   getCohortFromId,
 } from '../../models/cohort';
+import logger from '../../util/logger';
 
 export const getApplicationDetails = async (id) => {
   let applicationDetails = await getApplicationStage(id);
@@ -73,7 +74,7 @@ export const createAgreementTemplatesAPI = (req, res) => {
     document_identifier,
   ).then((data) => { res.json(data); })
     .catch(err => {
-      console.log(err);
+      logger.error(err);
       res.status(500).send(err);
     });
 };

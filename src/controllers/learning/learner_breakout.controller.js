@@ -5,6 +5,7 @@ import {
   createLearnerBreakoutsForLearners,
 } from '../../models/learner_breakout';
 import { CohortBreakout } from '../../models/cohort_breakout';
+import logger from '../../util/logger';
 
 import { User } from '../../models/user';
 
@@ -14,7 +15,7 @@ export const getLearnerBreakouts = (req, res) => {
   })
     .then((data) => res.json(data))
     .catch((err) => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -25,7 +26,7 @@ export const learnerBreakoutsCreate = (req, res) => {
   createLearnerBreakouts(learner_id, cohort_id)
     .then((data) => res.json(data))
     .catch((err) => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -38,7 +39,7 @@ export const getUpcomingBreakouts = (req, res) => {
   })
     .then((data) => res.json(data))
     .catch((err) => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -59,7 +60,7 @@ export const createLearnerBreakout = (req, res) => {
   })
     .then(() => res.send('Created Learner Breakout'))
     .catch((err) => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -82,7 +83,7 @@ export const getLearnerBreakoutsByBreakoutId = (req, res) => {
       data,
     }))
     .catch((err) => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -115,7 +116,7 @@ export const markAttendance = (req, res) => {
       });
     })
     .catch((err) => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -150,7 +151,7 @@ export const getLearnerBreakoutsByUserId = (req, res) => {
       data,
     }))
     .catch((err) => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };

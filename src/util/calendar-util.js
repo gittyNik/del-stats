@@ -1,6 +1,7 @@
 import { google } from 'googleapis';
 import dotenv from 'dotenv';
 import { getGoogleTokens } from '../models/social_connection';
+import logger from './logger';
 
 dotenv.config();
 const timeZone = 'Asia/Kolkata';
@@ -83,21 +84,21 @@ export const getTokensFromCode = async (code) => {
   const data0 = {};
   const { tokens } = await oauth2Client.getToken(code);
   oauth2Client.setCredentials(tokens);
-  // console.log('LINE 81');
-  // console.log(tokens);
+  // logger.info('LINE 81');
+  // logger.info(tokens);
   data0.tokens = tokens;
   const profile = getOAuth2(oauth2Client);
   const googleProfile = await profile.userinfo.v2.me.get();
 
-  // console.log(googleProfile.data);
+  // logger.info(googleProfile.data);
   data0.profile = googleProfile.data;
   // oauth2Client.on('tokens', (tokens) => {
   //   if (tokens.refresh_token) {
   //     // store the refresh_token in the database!
   //     data.refreshToken = tokens.refresh_token;
-  //     console.log(tokens.refresh_token);
+  //     logger.info(tokens.refresh_token);
   //   }
-  //   console.log(tokens.access_token);
+  //   logger.info(tokens.access_token);
   //   data.accessToken = tokens.access_token
   // });
   return data0;

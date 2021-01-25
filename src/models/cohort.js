@@ -13,6 +13,7 @@ import { removeLearnerBreakouts, createLearnerBreakouts, createLearnerBreakoutsF
 import { moveLearnerToNewGithubTeam, deleteGithubRepository, addLearnerToGithubTeam } from '../integrations/github/controllers';
 import { removeLearnerFromSlackChannel, moveLearnerToNewSlackChannel, addLearnersToCohortChannel } from './slack_channels';
 import { removeLearnerFromGithubTeam } from '../integrations/github/controllers/teams.controller';
+import logger from '../util/logger';
 
 export const COHORT_STATUS = [
   'upcoming',
@@ -237,14 +238,14 @@ export const beginCohortWithId = (cohort_id) => Promise.all([
       cohort.duration,
       cohort.program_id,
     ).then((allBreakouts) => {
-      // console.log(`All breakouts scheduled for the cohort ${cohort_id} `);
+      // logger.info(`All breakouts scheduled for the cohort ${cohort_id} `);
     });
-    // console.log(milestones);
+    // logger.info(milestones);
     cohort.milestones = milestones;
     return cohort;
   })
   .catch((err) => {
-    console.error(err);
+    logger.error(err);
     return null;
   });
 
@@ -260,14 +261,14 @@ export const beginParallelCohorts = (cohort_ids) => Promise.all(
         cohort.duration,
         cohort.program_id,
       ).then((allBreakouts) => {
-      // console.log(`All breakouts scheduled for the cohort ${cohort_id} `);
+      // logger.info(`All breakouts scheduled for the cohort ${cohort_id} `);
       });
-      // console.log(milestones);
+      // logger.info(milestones);
       cohort.milestones = milestones;
       return cohort;
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       return null;
     })),
 );
@@ -455,20 +456,7 @@ export const addLearner = async ({
   let data = { learners, cohort_id };
 
   try {
-    await learners.map(learner_id => Promise.all([
-      changeUserRole(learner_id, USER_ROLES.LEARNER),
-      addLearnerToCohort(learner_id, cohort_id),
-      updateCohortJoining(learner_id, cohort_id),
       addLearnerToGithubTeam(learner_id, cohort_id),
-      createLearnerBreakoutsForCurrentMS(learner_id, cohort_breakouts),
-      addLearnerStatus({
-        user_id: learner_id,
-        updated_by_id,
-        updated_by_name,
-        cohort_id,
-        status: 'added-to-cohort',
-      }),
-    ]));
     await addLearnersToCohortChannel(cohort_id, learners);
     return data;
   } catch (err) {

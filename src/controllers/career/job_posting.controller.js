@@ -4,6 +4,7 @@ import {
   createJobPosting, updateJobPostingById,
   removeJobPosting,
 } from '../../models/job_postings';
+import logger from '../../util/logger';
 
 export const getAllJobPostingsAPI = (req, res) => {
   let {
@@ -22,7 +23,7 @@ export const getAllJobPostingsAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -40,7 +41,7 @@ export const getJobPostingsByStatusAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -56,7 +57,7 @@ export const getJobPostingById = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -79,7 +80,7 @@ export const getJobPostingsByCompanyAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -137,7 +138,7 @@ export const createJobPostingAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -196,7 +197,7 @@ export const updateJobPostingAPI = (req, res) => {
     type: 'success',
   }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -225,7 +226,7 @@ export const removeJobPostingAPI = (req, res) => {
     type: 'success',
   }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.sendStatus(500);
     });
 };

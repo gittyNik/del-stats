@@ -45,6 +45,7 @@ import { LearnerRecruiters } from './learner_recruiter';
 import { JobPosting } from './job_postings';
 import { CompanyProfile } from './company_profile';
 import { ShortlistedPortfolios } from './shortlisted_portfolios';
+import logger from '../util/logger';
 
 // TODO: describe all associations here
 

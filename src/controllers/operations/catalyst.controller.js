@@ -1,6 +1,6 @@
-import { USER_ROLES } from '../../models/user';
-import { User } from '../../models/user';
-import { v4 as uuid } from 'uuid';
+import uuid from 'uuid/v4';
+import { USER_ROLES, User } from '../../models/user';
+import logger from '../../util/logger';
 
 export const addCatalyst = (req, res) => {
   const { name, email, phone } = req.body;
@@ -9,15 +9,14 @@ export const addCatalyst = (req, res) => {
     name,
     email,
     phone,
-    role: USER_ROLES.CATALYST
+    role: USER_ROLES.CATALYST,
   })
     .then(data => res.json({
       text: 'Catalyst added',
       data,
     }))
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
-
-}
+};

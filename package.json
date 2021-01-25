@@ -73,27 +73,23 @@
     "nodemailer": "^6.4.17",
     "pg": "^8.5.1",
     "pg-native": "^3.0.0",
-    "query-string": "^6.13.8",
     "regenerator-runtime": "^0.13.7",
+    "query-string": "^6.13.1",
+    "pino": "^6.7.0",
+    "pino-pretty": "^4.3.0",
+    "regenerator-runtime": "^0.13.5",
     "sendotp": "github:msg91/sendotp-node#096de78",
     "sequelize": "^6.4.0",
     "sequelize-cli": "^6.2.0",
     "stopword": "^1.0.6",
     "superagent": "^6.1.0",
     "twitter": "^1.7.1",
-    "uuid": "^8.3.2",
+    "watson-developer-cloud": "^3.5.3"
     "watson-developer-cloud": "^3.5.3",
-    "winston": "^3.3.3",
-    "winston-papertrail": "^1.0.5",
-    "winston-transport": "git+https://git@github.com/winstonjs/winston-transport.git"
+    "uuid": "^8.3.2",
   },
   "devDependencies": {
-    "@babel/node": "^7.12.10",
-    "apidoc": "^0.26.0",
-    "eslint": "^7.18.0",
-    "eslint-plugin-import": "^2.22.1",
-    "nodemon": "^2.0.7",
-    "supertest": "^6.0.1"
+    "@types/pino": "^6.3.4",
   },
   "eslintIgnore": [
     "**/*.spec.js"

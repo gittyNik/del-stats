@@ -1,4 +1,5 @@
 import Resource, { USER_ROLES } from '../../models/user';
+import logger from '../../util/logger';
 
 export const getAll = (req, res) => {
   Resource.find({ $or: [{ role: USER_ROLES.EDUCATOR }, { role: USER_ROLES.SUPERADMIN }] }).exec()
@@ -21,7 +22,7 @@ export const create = (req, res) => {
   }).save()
     .then(data => res.status(201).json({ data }))
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.status(500).send(err);
     });
 };

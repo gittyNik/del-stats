@@ -4,6 +4,7 @@ import web from '../client';
 import { User } from '../../../../models/user';
 import { SocialConnection } from '../../../../models/social_connection';
 import { fetchResources } from '../controllers/resource.controller';
+import logger from '../../../../util/logger';
 
 const router = Express.Router();
 
@@ -26,7 +27,7 @@ const authenticate = (req, res, next) => {
       return next();
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.send('You are not authorized. Try `/delta register` command');
     });
 };
@@ -41,10 +42,10 @@ const registerSlack = (slack_user_id) => web.users.info({ user: slack_user_id })
     return User.findOne({ where: { email, phone } })
       .then(user => {
         if (user === null) {
-          console.error('User not found', email, phone);
+          logger.error('User not found', email, phone);
           return Promise.reject(new Error('User not found'));
         }
-        // console.log('User matched!');
+        // logger.info('User matched!');
         return { user, profile };
       });
   })
@@ -66,11 +67,11 @@ router.use((req, res, next) => {
   if (command === '/delta' && text === 'register') {
     registerSlack(user_id)
       .then(social_connection => {
-        // console.log(social_connection);
+        // logger.info(social_connection);
         res.send(`Registration successful for @${user_name} !`);
       })
       .catch(err => {
-        console.error(err);
+        logger.error(err);
         res.send(`Registration failed for @${user_name} ! `
           + 'Please update your phone number. '
           + 'Check with the administrator if the details are matching');

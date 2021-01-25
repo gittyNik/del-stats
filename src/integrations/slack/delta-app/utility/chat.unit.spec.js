@@ -1,5 +1,6 @@
 import db from '../../../../database'
 import { postMessage } from './chat';
+import logger from '../../util/logger';
 
 describe('Unit tests for slack posting messages', () => {
   beforeAll(() => {
@@ -7,7 +8,7 @@ describe('Unit tests for slack posting messages', () => {
       .authenticate()
       .then(async () => {
         const res = await db.query('SELECT current_database()');
-        console.log(`DB connected: ${res[0][0].current_database}`);
+        logger.info(`DB connected: ${res[0][0].current_database}`);
       });
   });
 
@@ -21,7 +22,7 @@ describe('Unit tests for slack posting messages', () => {
     const text = 'Hey <!channel>, Hello';
     test('chat.postMessage', async () => {
       const res = await postMessage({ channel: channel_id, text })
-      console.log(res);
+      logger.info(res);
       expect(res).toBeDefined();
 
     })

@@ -1,4 +1,5 @@
 import { footerBlock, dividerBlock, emptyNoteBlock } from './common';
+import logger from '../../../../util/logger';
 
 export const buildLiveCohorts = (cohorts) => {
   const blocks = [
@@ -32,7 +33,7 @@ export const buildLiveCohorts = (cohorts) => {
 };
 
 export const composeHome = (cohorts) => {
-  // console.log(cohorts);
+  // logger.info(cohorts);
   const result = {
     type: 'home',
     blocks: [

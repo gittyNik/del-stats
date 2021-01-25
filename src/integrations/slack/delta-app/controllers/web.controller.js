@@ -7,7 +7,7 @@ import { postMessage } from '../utility/chat';
 import { getChannelIdForCohort, getSlackIdsForUsersInSPE } from '../../../../models/slack_channels';
 
 import { getLearnerBreakoutsForACohortBreakout } from '../../../../models/learner_breakout';
-import { logger } from '../../../../util/logger';
+import logger from '../../../../util/logger';
 
 const REVIEW_TEMPLATE = (team_number) => `Team: ${team_number}, Reviewer is reminding you to join the review. Please join from DELTA`;
 const LEARNER_REVIEW_TEMPLATE = (learner) => `<@${learner}> Reviewer is reminding you to join the review. Please join from DELTA`;
@@ -34,7 +34,7 @@ export const sendMessage = (req, res) => {
       });
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -57,7 +57,7 @@ export const notifyAttendanceLearnerInChannel = async (
     await postMessage({ channel: channel_id, text: updatedText });
     return true;
   } catch (err) {
-    console.error(`Error while sending attendance status to slack: ${err}`);
+    logger.error(`Error while sending attendance status to slack: ${err}`);
     return false;
   }
 };
@@ -82,7 +82,7 @@ export const notifyLearnersInChannel = async (req, res) => {
       cohort_id = await getCohortIdFromLearnerId(learner_id);
     }
     const channel_id = await getChannelIdForCohort(cohort_id);
-    // console.log(channel_id);
+    // logger.info(channel_id);
     if (!text) {
       switch (type) {
         case 'reviews':
@@ -115,7 +115,7 @@ export const notifyLearnersInChannel = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     return res.status(500).json({
       text: 'Failed to notify on the slack channel',
     });
@@ -235,7 +235,7 @@ export const postTodaysBreakouts = async (todaysBreakouts) => {
       return slackResponse;
     } catch (err) {
       logger.error(err);
-      console.error(`Failed to post on slack channel ${channelId} and breakout text: ${textBody}`);
+      logger.error(`Failed to post on slack channel ${channelId} and breakout text: ${textBody}`);
       return false;
     }
   };

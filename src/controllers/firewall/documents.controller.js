@@ -7,6 +7,7 @@ import {
   getAllDocuments, insertIndividualDocument,
 } from '../../models/documents';
 import { User } from '../../models/user';
+import logger from '../../util/logger';
 
 const {
   AWS_DOCUMENT_BUCKET,
@@ -145,7 +146,7 @@ export const Esign = (template_values, signers,
   };
   const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
 
-  // console.log(DIGIO_CLIENT, DIGIO_SECRET);
+  // logger.info(DIGIO_CLIENT, DIGIO_SECRET);
   return (request
     .post(`${DIGIO_BASE_URL}v2/client/template/${template_id}/create_sign_request`)
     .send(requestObject)
@@ -153,7 +154,7 @@ export const Esign = (template_values, signers,
     .set('content-type', 'application/json')
     .then(data => data)
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       let data = { message: `Failed to send Esign request: ${err}`, status: 'Failure' };
       return data;
     })
@@ -203,7 +204,7 @@ export const EsignRequest = (req, res) => {
       let updatedProfile = User.update({
         profile: mergedUserDetails,
       }, { where: { id }, returning: true });
-      // console.log(updatedProfile);
+      // logger.info(updatedProfile);
     }
 
     return Esign(template_values,
@@ -280,7 +281,7 @@ export const getViewUrlS3 = async (fileName, fileType, type) => {
     let response = await signedViewUrl(fileName, fileType, bucketName, basePath, false);
     return response;
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     return null;
   }
 };
@@ -297,7 +298,7 @@ export const getSignUrl = async (req, res) => {
       type: 'success',
     });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     return res.status(500).json({
       message: 'Unable to generate sign request',
       type: 'failure',
@@ -316,7 +317,7 @@ export const insertUserDocument = async (req, res) => {
       type: 'success',
     });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     return res.status(500).json({
       message: 'Unable to save document',
       type: 'failure',

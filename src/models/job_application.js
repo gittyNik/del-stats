@@ -10,6 +10,7 @@ import {
 import { LearnerInterviews } from './learner_interviews';
 import { CompanyProfile } from './company_profile';
 import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
+import logger from '../util/logger';
 
 const APPLICATION_STATUS = [
   'active',
@@ -370,7 +371,7 @@ export const deleteJobApplication = (id) => JobApplication
   .destroy({ where: { id } })
   .then(() => { 'Job application deleted.'; })
   .catch(err => {
-    console.error(err);
+    logger.error(err);
     return { text: 'Failed to delete Job application' };
   });
 

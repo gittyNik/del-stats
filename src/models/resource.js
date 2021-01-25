@@ -4,6 +4,7 @@ import { v4 as uuid } from 'uuid';
 import sw from 'stopword';
 import db from '../database';
 import 'dotenv/config';
+import logger from '../util/logger';
 
 import { getTagIdbyName } from './tags';
 
@@ -88,7 +89,7 @@ export const getResourcesByTag = tag => getTagIdbyName(tag)
     });
   })
   .catch(err => {
-    console.error(err);
+    logger.error(err);
     return { message: 'Could not find resource' };
   });
 
@@ -105,7 +106,7 @@ export const getResourcesByTags = tags => getTagIdbyNames(tags)
     });
   })
   .catch(err => {
-    console.error(err);
+    logger.error(err);
     return { message: 'Could not find resource' };
   });
 
@@ -141,7 +142,7 @@ export const autoTagUrls = (url) => request
   .post(autotag_url, { url })
   .then((response_data) => response_data)
   .catch(err => {
-    console.error('Auto Tag failed', err);
+    logger.error('Auto Tag failed', err);
     return { message: 'Error. Invalid response from autotag url' };
   });
 
@@ -169,19 +170,19 @@ export const createFromSlackAttachment = async (attachment, owner) => {
   const url = attachment.original_url;
   try {
     const data = await autoTagUrls(url);
-    // console.log(data);
+    // logger.info(data);
     const { predicted_tag_ids } = data.body.data;
     return createResource(attachment.original_url || attachment.app_unfurl_url,
       'beginner', owner, predicted_tag_ids, attachment.title, attachment.text,
       'slack', 'article', { slack: attachment }, attachment.thumb_url, 'tep');
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     return { message: 'Failed to add url' };
   }
 };
 
 export const searchResources = text => {
-  // console.log(`searching for: ${text}`);
+  // logger.info(`searching for: ${text}`);
   // TODO: important: remove special chars from text
   let initialSearchText = text.split(' ');
   let textWithWords = sw.removeStopwords(initialSearchText);

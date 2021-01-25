@@ -3,6 +3,7 @@ import {
   getTopics, getTopicById,
 } from '../../models/topic';
 import { Resource } from '../../models/resource';
+import logger from '../../util/logger';
 
 export const create = (req, res) => {
   const {
@@ -15,7 +16,7 @@ export const create = (req, res) => {
         data: tepTopic,
       });
     })
-    .catch(err => console.error(err));
+    .catch(err => logger.error(err));
 };
 
 export const getAllResourcesByTopic = (req, res) => {

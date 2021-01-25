@@ -1,5 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import { SocialConnection, getGithubConnecionByUserId } from '../../models/social_connection';
+import logger from '../../util/logger';
 
 export const getAll = (req, res) => {
   SocialConnection.findAll()
@@ -14,7 +15,7 @@ export const getOne = (req, res) => {
 };
 
 export const create = (req, res) => {
-  // console.log('In create Prompt');
+  // logger.info('In create Prompt');
   const {
     provider, username, email,
     profile,
@@ -34,7 +35,7 @@ export const create = (req, res) => {
   })
     .then(data => res.status(201).json({ data }))
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.status(500).send(err);
     });
 };
@@ -123,7 +124,7 @@ export const createOrUpdateLinkedinConnection = async (req, res) => {
       }));
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500).json({
         text: 'Failed to create or update linkedin',
         type: 'failure',

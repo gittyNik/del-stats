@@ -1,4 +1,5 @@
 import db from '../../src/database';
+import logger from '../../util/logger';
 
 describe('Should test unit block or integration code', () => {
   beforeAll(() => {
@@ -6,7 +7,7 @@ describe('Should test unit block or integration code', () => {
       .authenticate()
       .then(async () => {
         const res = await db.query('SELECT current_database()');
-        console.log(`DB connected: ${res[0][0].current_database}`);
+        logger.log(`DB connected: ${res[0][0].current_database}`);
       });
   });
 

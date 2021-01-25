@@ -5,6 +5,7 @@ import { setSubmitTimeNow, getUnsubmittedTestsOfApplication } from '../../models
 import { populateQuestionDetails } from './test_question.controller';
 import { submitApplicationAndNotify } from './application.controller';
 import scoreTest from './test_score.controller';
+import logger from '../../util/logger';
 
 const {
   Application, Cohort, Program, Test, TestQuestion,
@@ -15,7 +16,7 @@ export const getAllTests = (req, res) => {
     .then(populateQuestionDetails)
     .then(data => res.status(200).json(data))
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -34,7 +35,7 @@ export const getTestByApplicationId = (req, res) => {
       res.status(200).json(testSeries);
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -69,7 +70,7 @@ export const getTestById = (req, res) => {
       } else res.sendStatus(404);
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -105,7 +106,7 @@ export const submitTest = (req, res) => {
       return test;
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -119,7 +120,7 @@ export const startTest = (req, res) => {
     .then(test => populateQuestionDetails([test]))
     .then(testSeries => res.send(testSeries[0]))
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -140,7 +141,7 @@ export const updateTestScores = (req, res) => {
       res.send({ data });
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -154,7 +155,7 @@ export const updateTestResponses = (req, res) => {
       // applicant can't answer after submission
       if (test.sub_time) {
         const text = 'Error: Test already submitted';
-        console.error(text);
+        logger.error(text);
         return res.status(409).send({ data: test, text });
       }
 
@@ -163,7 +164,7 @@ export const updateTestResponses = (req, res) => {
         return setSubmitTimeNow(id)
           .then(data => {
             const text = 'Error: Test expired, submitted now';
-            console.error(text);
+            logger.error(text);
             res.status(410).send({ data, text });
           });
       }
@@ -184,7 +185,7 @@ export const updateTestResponses = (req, res) => {
         });
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -194,14 +195,14 @@ export const updateTest = updateTestResponses;
 export const updateBrowsedUrl = (req, res) => {
   const { browsedUrls } = req.body;
   const history = JSON.parse(browsedUrls);
-  // console.log(history);
+  // logger.info(history);
   const { id } = req.params;
   Test.update({
     browser_history: history.urls,
   }, { where: { id } })
     .then(data => res.status(201).send(data))
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };

@@ -4,6 +4,7 @@ import {
 import { getGoogleTokens } from '../../../models/social_connection';
 import { googleConfig, getGoogleOauthOfUser } from '../../../util/calendar-util';
 import { createCalendarEventsForLearner } from '../../../models/learner_breakout';
+import logger from '../../../util/logger';
 
 const { google } = require('googleapis');
 
@@ -17,7 +18,7 @@ export const getAllCalendarEvents = async (req, res) => {
   );
   const tokens = await getGoogleTokens(userId);
   if (tokens === null) {
-    console.error(`unble to get tokens for userID: ${userId}`);
+    logger.error(`unble to get tokens for userID: ${userId}`);
     res.sendStatus(500);
   }
   oauth2Client.setCredentials({
@@ -27,7 +28,7 @@ export const getAllCalendarEvents = async (req, res) => {
   if (oauth2Client) {
     listEvents(oauth2Client)
       .then(events => {
-        // console.log(events);
+        // logger.info(events);
 
         const data = {
           name: req.jwtData.user.name,
@@ -38,12 +39,12 @@ export const getAllCalendarEvents = async (req, res) => {
         res.json(data);
       })
       .catch(err => {
-        console.error(err);
+        logger.error(err);
         res.send(500);
       });
   } else {
     const err_msg = `Failed to get Oauth2 credentail for ${userId}`;
-    console.error(err_msg);
+    logger.error(err_msg);
     res.sendStatus(500);
   }
 };
@@ -51,7 +52,7 @@ export const getAllCalendarEvents = async (req, res) => {
 export const createCalendarEvent = async (req, res) => {
   const { userId } = req.jwtData;
   const event_details = req.body.event;
-  // console.log(req.jwtData);
+  // logger.info(req.jwtData);
   // get oauth2 client
   const oauth2Client = new google.auth.OAuth2(
     googleConfig.clientId,
@@ -59,9 +60,9 @@ export const createCalendarEvent = async (req, res) => {
     googleConfig.redirect,
   );
   const tokens = await getGoogleTokens(userId);
-  // console.log(tokens);
+  // logger.info(tokens);
   if (tokens === null) {
-    console.error(`unble to get tokens for userID: ${userId}`);
+    logger.error(`unble to get tokens for userID: ${userId}`);
     res.sendStatus(500);
   }
   oauth2Client.setCredentials({
@@ -79,7 +80,7 @@ export const createCalendarEvent = async (req, res) => {
       res.send(data);
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -95,7 +96,7 @@ export const updateCalendarEvent = async (req, res) => {
       res.send(event_data);
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -107,11 +108,11 @@ export const deleteOneEvent = async (req, res) => {
   const oauth2Client = await getGoogleOauthOfUser(userId);
   deleteEvent(oauth2Client, eventId)
     .then(event_data => {
-      // console.log(event_data);
+      // logger.info(event_data);
       res.send(event_data);
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.send(500);
     });
 };
@@ -119,7 +120,7 @@ export const deleteOneEvent = async (req, res) => {
 export const createEventForLearner = async (req, res) => {
   const { learner_id } = req.body;
   const data = await createCalendarEventsForLearner(learner_id);
-  console.log(data);
+  logger.info(data);
   res.json({
     text: 'Create Calendar events for a leaner and updating LearnerBreakout',
     data: 'success',

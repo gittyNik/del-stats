@@ -9,6 +9,7 @@ import {
   getTeamSlackIDs, createSlackChannelRow, getChannelIdForCohort,
   beginChannel
 } from '../src/models/slack_channels';
+import logger from '../../util/logger';
 
 
 const { Cohort, User, SlackChannel, SocialConnection } = models;
@@ -23,15 +24,15 @@ describe('Testing slack channel creation', () => {
     return db
       .authenticate()
       .then(() => {
-        console.log('Connection has established.');
+        logger.info('Connection has established.');
         // return app.listen(PORT, err => {
         //   if (!err) {
-        //     console.log(`Server is running on port: ${PORT}`);
+        //     logger.info(`Server is running on port: ${PORT}`);
         //   }
         // });
       })
       .catch(err => {
-        console.log('Unable to establish connection', err);
+        logger.info('Unable to establish connection', err);
       });
   });
 
@@ -95,15 +96,15 @@ describe('Testing slack channel creation', () => {
       },
       raw: true,
     })
-    console.log(users[0]);
+    logger.info(users[0]);
     let email_list = users.map(user => user.email);
-    console.log(email_list);
+    logger.info(email_list);
     expect(email_list.length).toBeGreaterThan(1);
   });
 
   test('get Slack IDs from educator channel', async () => {
     let res = await getEducatorsSlackID();
-    console.log(res);
+    logger.info(res);
     expect(res.length).toBeGreaterThan(1);
   })
 
@@ -111,14 +112,14 @@ describe('Testing slack channel creation', () => {
     const userIds = []; // list of all SlackUserId's.
     let cohort_id = '' // need to enter cohort_id
     let res = await createChannel(cohort_id, list2);
-    console.log(res);
+    logger.info(res);
 
     const exp_channel_list = await superagent
       .get('https://slack.com/api/conversations.members')
       .set('Content-Type', 'application/json')
       .set('Authorization', `Bearer ${SLACK_DELTA_BOT_TOKEN}`)
       .query(`channel=${res.id}`);
-    console.log(exp_channel_list.body);
+    logger.info(exp_channel_list.body);
     let members = exp_channel_list.body.members;
     expect(members).arrayContaining(list2);
   });
@@ -127,14 +128,14 @@ describe('Testing slack channel creation', () => {
     expect.assertions(1);
     const cohort_id = 'bb504186-a435-4548-a171-ec89daaebb00'; //Delphinus;
     const learnerIds = await getLearnerSlackIds(cohort_id);
-    console.log(learnerIds);
+    logger.info(learnerIds);
     expect(learnerIds).toBeDefined();
   });
 
   test('getTeamSlackIds', async () => {
     expect.assertions(1);
     const res = await getTeamSlackIDs();
-    console.log(res);
+    logger.info(res);
     expect(res.length).toBe(15);
   });
 
@@ -165,7 +166,7 @@ describe('Testing slack channel creation', () => {
       }
       return { invalid_user: user, type: typeof user }
     }));
-    console.log(usersInfo);
+    logger.info(usersInfo);
     expect(usersInfo).toBeDefined();
   });
 
@@ -173,7 +174,7 @@ describe('Testing slack channel creation', () => {
   test('Create slack channel for Delpinus cohort', async () => {
     const cohort_id = 'bb504186-a435-4548-a171-ec89daaebb00'; // Delphinus Hyd.
     const res = await createChannel(cohort_id);
-    console.log(res);
+    logger.info(res);
     expect(res).toBeDefined();
     expect(res.channel).toBeDefined();
   });
@@ -183,14 +184,14 @@ describe('Testing slack channel creation', () => {
     const channelId = 'GSDSTQG3H';
 
     const row = await createSlackChannelRow(cohort_id, channelId);
-    console.log(row);
+    logger.info(row);
     expect(row).toBeDefined();
   });
 
   test('Get cohort slack channel from cohort_id', async () => {
     const cohort_id = 'bb504186-a435-4548-a171-ec89daaebb00';
     const id = await getChannelIdForCohort(cohort_id);
-    console.log(id);
+    logger.info(id);
     expect(id).toBe('1234');
   });
 
@@ -203,10 +204,10 @@ describe('Testing slack channel creation', () => {
 
 
       const res = await beginChannel(cohort_id, emailList);
-      console.log(res);
+      logger.info(res);
       expect(res).toBeDefined();
     } catch (err) {
-      console.log(err);
+      logger.error(err);
     }
   }, 15000);
 

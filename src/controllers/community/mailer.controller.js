@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { User } from '../../models/user';
+import logger from '../../util/logger';
 
 // transport service using which it can send emails in this case gmail
 const transporter = nodemailer.createTransport({
@@ -26,7 +27,7 @@ const submit = (req, res) => {
   User.find({ email: req.body.email.toString() }, (err, existingUser) => {
     if (!err && (existingUser.length !== 0)) {
       transporter.sendMail(mailOptions, (e, info) => {
-        if (e) { console.log(e); } else { console.log(info); }
+        if (e) { logger.info(e); } else { logger.info(info); }
       });
 
       res.redirect('/');

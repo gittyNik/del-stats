@@ -1,6 +1,7 @@
 import db from '../../src/database';
 import { getTeamSlackIDs } from '../../src/models/slack_channels';
 import web from '../../src/integrations/slack/delta-app/client';
+import logger from '../../util/logger';
 
 describe('Should test unit block or integration code', () => {
   beforeAll(() => {
@@ -8,7 +9,7 @@ describe('Should test unit block or integration code', () => {
       .authenticate()
       .then(async () => {
         const res = await db.query('SELECT current_database()');
-        console.log(`DB connected: ${res[0][0].current_database}`);
+        logger.info(`DB connected: ${res[0][0].current_database}`);
       });
   });
 
@@ -28,18 +29,18 @@ describe('Should test unit block or integration code', () => {
       })
         .then(d => d.members.filter(m => m !== delta_id));
     } catch (err) {
-      console.log(err);
+      logger.error(err);
     }
-    console.log(members);
+    logger.info(members);
     const users = await Promise.all(members.map(m => web.users.info({ user: m }).then(d => d.user)));
-    console.log(users);
+    logger.info(users);
     expect(members).toBeDefined();
     expect(users).toBeDefined();
   })
 
   test.only('get Team slackIds', async () => {
     const list = await getTeamSlackIDs();
-    console.log(list);
+    logger.info(list);
     expect(list).toBeDefined();
   })
 });

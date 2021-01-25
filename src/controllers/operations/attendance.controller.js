@@ -4,6 +4,7 @@ import { Cohort } from '../../models/cohort';
 import { LearnerBreakout } from '../../models/learner_breakout';
 import { User } from '../../models/user';
 import { CohortBreakout } from '../../models/cohort_breakout';
+import logger from '../../util/logger';
 
 const { lte } = Sequelize.Op;
 
@@ -173,7 +174,7 @@ export const getAttendanceForCohorts = (req, res) => {
       data,
     }))
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };

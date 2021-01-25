@@ -7,6 +7,7 @@ import { CohortMilestone } from './cohort_milestone';
 import { createCohortBreakouts } from './cohort_breakout';
 import { createLearnerBreakoutsForCohortMilestones } from './learner_breakout';
 import { Milestone } from './milestone';
+import logger from '../util/logger';
 
 export const BREAKOUT_LEVEL = ['beginner', 'intermediate', 'advanced'];
 
@@ -122,13 +123,13 @@ export const getReleaseTimeFromTopic = (topic_id, cohort_id) => Topic.findByPk(t
       release_time: cohortMilestone.release_time,
     }))
     .catch(err => {
-      console.error(`Failed to find Cohort Milestone for the topic: ${topic}`);
-      console.error(err);
+      logger.error(`Failed to find Cohort Milestone for the topic: ${topic}`);
+      logger.error(err);
       return null;
     }))
   .catch(err => {
-    console.error(`Failed to find topic for ${topic_id}`);
-    console.error(err);
+    logger.error(`Failed to find topic for ${topic_id}`);
+    logger.error(err);
     return null;
   });
 
@@ -138,7 +139,7 @@ export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => Promise
       let extra = await getReleaseTimeFromTopic(breakoutTemplate.topic_id[0], cohort_id);
       return { ...breakoutTemplate, ...extra };
     } catch (err) {
-      console.error('error in update Breakout Template', err);
+      logger.error('error in update Breakout Template', err);
       return null;
     }
   }),
@@ -166,9 +167,9 @@ export const calculateBreakoutTime = (eachBreakoutTemp) => {
   let time_split = time_scheduled.split(':');
 
   breakoutScheduledTime.setDate(RELEASE_TIME.getDate() + after_days);
-  // console.log('After adding days: ', breakoutScheduledTime);
+  // logger.info('After adding days: ', breakoutScheduledTime);
   breakoutScheduledTime.setHours(time_split[0], time_split[1], time_split[2]);
-  // console.log('Breakout time: ', breakoutScheduledTime);
+  // logger.info('Breakout time: ', breakoutScheduledTime);
 
   let breakoutScheduledUTC = changeTimezone(breakoutScheduledTime, 'Asia/Kolkata');
   let breakoutSchedule = { breakout_schedule: breakoutScheduledUTC };
@@ -181,7 +182,7 @@ export const scheduling = (updatedBreakout) => Promise.all(
       let updateBreakout = await calculateBreakoutTime(eachBreakout);
       return updateBreakout;
     } catch (err) {
-      console.error('error in calculating Breakout Time', err);
+      logger.error('error in calculating Breakout Time', err);
       return null;
     }
   }),
@@ -195,7 +196,7 @@ const createLearnerBreakouts = async (cohortBreakouts, cohort_id) => {
     learnerBreakouts.push(breakout);
   }
   let allLearnerBreakouts = Promise.all(learnerBreakouts);
-  console.debug(`Total Learner Breakouts created for cohort_id: ${cohort_id} is ${allLearnerBreakouts.length}`);
+  logger.debug(`Total Learner Breakouts created for cohort_id: ${cohort_id} is ${allLearnerBreakouts.length}`);
   return allLearnerBreakouts;
 };
 
