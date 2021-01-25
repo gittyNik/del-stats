@@ -3,7 +3,7 @@ import models from './index';
 import { splitTeams, createMilestoneTeams, deleteMilestoneTeams } from './team';
 import { getCurrentCohortMilestones } from './cohort_milestone';
 import database from '../database';
-import logger from '../../util/logger';
+import logger from '../util/logger';
 
 // logger.info(models);
 const { Team } = models;

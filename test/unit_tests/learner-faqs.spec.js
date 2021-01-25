@@ -9,7 +9,7 @@ import {
 
 } from '../../src/models/learner_faq';
 
-import logger from '../../util/logger';
+import logger from '../../src/util/logger';
 
 faker.locale = 'en';
 

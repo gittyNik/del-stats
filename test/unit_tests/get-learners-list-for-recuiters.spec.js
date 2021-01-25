@@ -3,7 +3,7 @@ import '../../src/models';
 import { getLearnerList } from '../../src/models/portfolio';
 import { getReviewRubricForALearner } from '../../src/models/learner_breakout';
 import { getMilestoneDetailsForReview } from '../../src/models/cohort_breakout';
-import logger from '../../util/logger';
+import logger from '../../src/util/logger';
 
 describe('should return a list of learners registered for placement drive', () => {
   beforeAll(() => {

@@ -1,7 +1,7 @@
 import db from '../../src/database';
 import { getTeamSlackIDs } from '../../src/models/slack_channels';
 import web from '../../src/integrations/slack/delta-app/client';
-import logger from '../../util/logger';
+import logger from '../../src/util/logger';
 
 describe('Should test unit block or integration code', () => {
   beforeAll(() => {

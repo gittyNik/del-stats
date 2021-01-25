@@ -20,7 +20,9 @@
     "bg-dev": "nodemon --watch src --exec babel-node src/background.js",
     "bg-prod": "node api-build/background.js",
     "worker": "if [ $NODE_ENV = 'production' ]; then npm run bg-prod; else npm run bg-dev; fi;",
-    "test": "jest src/**/*.spec.js"
+    "test": "jest --coverage --colors && cd test && npx jest-coverage-badges",
+    "test-dev": "jest --colors --watch",
+    "pretest": "npm run db:seed"
   },
   "engines": {
     "node": "14.15.0",
@@ -51,6 +53,7 @@
     "async": "^3.2.0",
     "aws-sdk": "^2.829.0",
     "bullmq": "^1.14.0",
+    "babel-jest": "^26.6.3",
     "compression": "^1.7.4",
     "core-js": "^3.8.3",
     "dotenv": "^8.2.0",
@@ -78,6 +81,7 @@
     "pino": "^6.7.0",
     "pino-pretty": "^4.3.0",
     "regenerator-runtime": "^0.13.5",
+    "rollbar": "^2.19.4",
     "sendotp": "github:msg91/sendotp-node#096de78",
     "sequelize": "^6.4.0",
     "sequelize-cli": "^6.2.0",
@@ -93,8 +97,5 @@
   },
   "eslintIgnore": [
     "**/*.spec.js"
-  ],
-  "jest": {
-    "testEnvironment": "node"
-  }
+  ]
 }

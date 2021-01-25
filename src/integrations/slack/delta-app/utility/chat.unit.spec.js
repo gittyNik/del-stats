@@ -1,6 +1,6 @@
 import db from '../../../../database'
 import { postMessage } from './chat';
-import logger from '../../util/logger';
+import logger from '../../../../util/logger';
 
 describe('Unit tests for slack posting messages', () => {
   beforeAll(() => {
