@@ -421,3 +421,32 @@ export const logProcessFailure = (req, res) => {
     }))
     .catch(() => res.sendStatus(500));
 };
+
+export const getApplicationByStatus = (req, res) => {
+  let {
+    limit, page,
+  } = req.query;
+  const { status } = req.params;
+  let offset;
+  if ((limit) && (page)) {
+    offset = limit * (page - 1);
+  }
+  Application.findAndCountAll(
+    {
+      where: {
+        status,
+      },
+      offset,
+      limit,
+    },
+  )
+    .then(data => res.status(201).json({
+      message: 'Applications fetched',
+      data,
+      type: 'success',
+    }))
+    .catch(err => {
+      console.error(err.stack);
+      res.sendStatus(500);
+    });
+};
