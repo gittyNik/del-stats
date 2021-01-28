@@ -418,6 +418,9 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
         });
 
         loopCount += 1;
+        if (overlaps.length === 0) {
+          break;
+        }
         if (loopCount === 3) {
           break;
         }

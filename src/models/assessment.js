@@ -330,6 +330,9 @@ export const createLearnerAssessmentBreakout = async (
           });
 
           loopCount += 1;
+          if (overlaps.length === 0) {
+            break;
+          }
           if (loopCount === 2) {
             break;
           }
