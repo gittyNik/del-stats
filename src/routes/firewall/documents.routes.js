@@ -113,14 +113,6 @@ router.post('/', createUser);
  * @apiGroup Documents
  */
 router.post('/save/:user_id', insertUserDocument);
-// /**
-//  * @api {get} /firewall/documents/save/ save document
-//  * @apiDescription upload Document
-//  * @apiHeader {String} authorization JWT Token.
-//  * @apiName GetUserDocumentResources
-//  * @apiGroup Documents
-//  */
-// router.post('/save/:user_id', insertUserDocument);
 
 router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]));
 
