@@ -43,6 +43,8 @@ router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER, G
  */
 router.post('/save-mandate', saveEnachMandate);
 
+router.get('/user-documents-json', getLearnerDocumentsJsonAPI);
+
 /**
  * @api {patch} /firewall/documents/:id/esign Send Esign Request to User
  * @apiDescription Send Esign Request to a User
@@ -124,8 +126,6 @@ router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]))
  * @apiGroup Documents
  */
 router.get('/', getDocumentsAll);
-
-router.get('/user-documents-json', getLearnerDocumentsJsonAPI);
 
 /**
  * @api {get} /firewall/documents/esign/:id/download Download document for user

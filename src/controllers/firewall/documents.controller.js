@@ -777,7 +777,6 @@ export const getLearnerDocumentsJsonAPI = async (req, res) => {
     non_isa_type,
   } = req.query;
   try {
-    console.log(is_isa, program, non_isa_type);
     const user_documents = await getLearnerDocumentsJSON({ program, is_isa, non_isa_type });
     return res.status(200).json({
       message: 'Get user documents',
