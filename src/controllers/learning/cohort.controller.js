@@ -198,6 +198,7 @@ export const addLearnerEndpoint = (req, res) => {
     data,
     type: 'success',
   })).catch(err => {
+    console.log("ERROR ADDING LEARNER:", err);
     res.status(500).send(err);
   });
 };
