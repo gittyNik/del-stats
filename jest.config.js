@@ -49,10 +49,10 @@ module.exports = {
   // An object that configures minimum threshold enforcement for coverage results
   coverageThreshold: {
     global: {
-      branches: 100,
-      functions: 100,
-      lines: 100,
-      statements: 100,
+      branches: 0,
+      functions: 0,
+      lines: 0,
+      statements: 0,
     },
   },
 
@@ -196,7 +196,7 @@ module.exports = {
   // An array of regexp pattern strings that are matched against all source file paths,
   // matched files will skip transformation
   transformIgnorePatterns: [
-    "/node_modules/(?!sequelize).+\\.js$"
+    '/node_modules/(?!sequelize).+\\.js$',
   ],
 
   // An array of regexp pattern strings that are matched against all modules

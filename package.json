@@ -40,7 +40,8 @@
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [
       "eslint --ext .js,.ts --fix",
-      "git add"
+      "git add",
+      "jest --bail --coverage --findRelatedTests --colors"
     ]
   },
   "dependencies": {
