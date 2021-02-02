@@ -196,6 +196,10 @@ export const getAPortfolio = ({ id, learner_id, role }) => {
           }, { where: whereObj });
         }
       }
+      // if an array is empty return null
+      if (Array.isArray(completePortfolio) && completePortfolio.length) {
+        completePortfolio = null;
+      }
       return completePortfolio;
     })
     .then(async portfolio => {
