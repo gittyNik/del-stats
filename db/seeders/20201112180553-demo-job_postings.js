@@ -107,14 +107,14 @@ const jobPostings = () => {
     posted_by: cleanArray([{
       name: faker.name.firstName(),
       email: faker.internet.email(),
-      phone: faker.phone.phoneNumber('+91##########'),
+      phone: faker.phone.phoneNumber('91##########'),
     }]),
     vacancies: randomNum(10),
     industry: `${faker.lorem.word()} 'tech'`,
     contact_person_details: cleanJSON({
       name: faker.name.firstName(),
       email: faker.internet.email(),
-      phone: faker.phone.phoneNumber('+91##########'),
+      phone: faker.phone.phoneNumber('91##########'),
     }),
     exclusivity: _.sample(JOB_POSTING_EXCLUSIVITY),
     attached_assignment: ATTACHED_ASSIGNMENT.id,

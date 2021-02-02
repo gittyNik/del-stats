@@ -103,7 +103,7 @@ const createRecruiters = (id) => ({
   id,
   name: faker.name.findName(),
   email: faker.internet.email(),
-  phone: faker.phone.phoneNumber('+919#########'),
+  phone: faker.phone.phoneNumber('919#########'),
   role: 'recruiter',
 });
 

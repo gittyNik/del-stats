@@ -6,7 +6,7 @@ const USER = {
   id: uuid(),
   name: faker.name.firstName(),
   email: faker.internet.email(),
-  phone: faker.phone.phoneNumber('+91##########'),
+  phone: faker.phone.phoneNumber('91##########'),
   role: 'learner',
   location: faker.address.city(),
   // picture: faker.internet.avatar(), not migrated on table

@@ -32,7 +32,7 @@ const TOPIC = () => ({
   domain: _.sample(['generic', 'tech', 'mindset', 'dsa']),
   created_at: new Date(),
   updated_at: new Date(),
-  // path: _.sample(BREAKOUT_PATH),
+ path: _.sample(BREAKOUT_PATH),
 });
 
 module.exports = {

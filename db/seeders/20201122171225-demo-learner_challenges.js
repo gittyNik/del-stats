@@ -34,7 +34,7 @@ const TOPIC = {
   domain: _.sample(['generic', 'tech', 'mindset', 'dsa']),
   created_at: new Date(),
   updated_at: new Date(),
-  // path: _.sample(BREAKOUT_PATH),
+ path: _.sample(BREAKOUT_PATH),
 };
 
 const CHALLENGE_DIFFICULTY = ['easy', 'medium', 'difficult'];
@@ -79,7 +79,7 @@ const USER = {
   id: uuid(),
   name: faker.name.firstName(),
   email: faker.internet.email(),
-  phone: faker.phone.phoneNumber('+91##########'),
+  phone: faker.phone.phoneNumber('91##########'),
   role: 'learner',
   location: faker.address.city(),
   // picture: faker.internet.avatar(), not migrated on table
@@ -89,7 +89,7 @@ const REVIEWER = {
   id: uuid(),
   name: faker.name.firstName(),
   email: faker.internet.email(),
-  phone: faker.phone.phoneNumber('+91##########'),
+  phone: faker.phone.phoneNumber('91##########'),
   role: 'educator',
   location: faker.address.city(),
   // picture: faker.internet.avatar(), not migrated on table
@@ -125,7 +125,7 @@ const JOB_POSTING = {
   // posted_by: cleanArray([{
   //   name: faker.name.firstName(),
   //   email: faker.internet.email(),
-  //   phone: faker.phone.phoneNumber('+91##########'),
+  //   phone: faker.phone.phoneNumber('91##########'),
   // }]),
   vacancies: randomNum(10),
   attached_assignment: CHALLENGE.id,

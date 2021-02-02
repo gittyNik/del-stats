@@ -34,7 +34,7 @@ const TOPIC = {
   domain: _.sample(['generic', 'tech', 'mindset', 'dsa']),
   created_at: new Date(),
   updated_at: new Date(),
-  // path: _.sample(BREAKOUT_PATH),
+ path: _.sample(BREAKOUT_PATH),
 };
 
 // Refrences are not migrated in tags
@@ -85,7 +85,7 @@ const USER = {
   id: uuid(),
   name: faker.name.firstName(),
   email: faker.internet.email(),
-  phone: faker.phone.phoneNumber('+91##########'),
+  phone: faker.phone.phoneNumber('91##########'),
   role: _.sample(USER_ROLES),
   location: faker.address.city(),
 };
