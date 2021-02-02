@@ -135,6 +135,7 @@ export const Documents = db.define('documents', {
     defaultValue: false,
   },
   document_details: {
+    // Used for storing Esign details
     type: Sequelize.JSON,
     allowNull: true,
   },
@@ -143,10 +144,12 @@ export const Documents = db.define('documents', {
     allowNull: true,
   },
   mandate_details: {
+    // Used to store mandate creation details
     type: Sequelize.JSON,
     allowNull: true,
   },
   mandate_status: {
+    // Update status and stage for mandate
     type: Sequelize.JSON,
     allowNull: true,
   },
@@ -168,6 +171,7 @@ export const Documents = db.define('documents', {
     type: Sequelize.ARRAY(Sequelize.JSON),
   },
   user_documents: {
+    // Used to store user document information
     type: Sequelize.ARRAY(Sequelize.JSON),
   },
 });

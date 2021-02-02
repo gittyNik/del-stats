@@ -159,30 +159,45 @@ export const getEnachDetails = (mandate_id) => {
 };
 
 export const saveEnachDetails = async ({ mandate_id, user_id, validate }) => {
-  let enachDetails = await getEnachDetails(mandate_id);
+  let SUCCESS_STATUS = ['auth_success', 'dest_accept', 'apimndt.authsuccess', 'apimndt.destaccept'];
+  let userDocuments = await getDocumentsByUser(user_id);
+  let { mandate_status } = userDocuments;
+  let mandateState;
+  if (mandate_status) {
+    mandateState = mandate_status.state;
+  }
+  let mandateInformation;
+  if ((mandateState === undefined) || (SUCCESS_STATUS.indexOf(mandateState) === -1)) {
+    let enachDetails = await getEnachDetails(mandate_id);
 
-  await updateUserEntry({
-    user_id,
-    mandate_id,
-    mandate_details: enachDetails.body,
-  });
+    await updateUserEntry({
+      user_id,
+      mandate_id,
+      mandate_status: enachDetails.body,
+    });
 
-  let statusCode = 400;
+    mandateInformation = enachDetails.body;
+  } else {
+    mandateInformation = {
+      state: mandateState, mandate_details: mandate_status,
+    };
+  }
+
+  let statusCode = 200;
   let message;
-  let type = 'failure';
-  let { body } = enachDetails;
+  let type = 'success';
 
   if (validate) {
-    const { state, mandate_details } = body;
-    // TODO: Added logic for checking amount here
-    console.log(mandate_details.collection_amount);
-    if (['auth_success', 'dest_accept'].indexOf(state) > -1) {
+    const { state, mandate_details } = mandateInformation;
+    if (SUCCESS_STATUS.indexOf(state) > -1) {
+      // TODO: Added logic for checking amount here
+      console.log(mandate_details.collection_amount);
       console.log(`Mandate accepted by user/bank: ${user_id}`);
-      statusCode = 200;
-      type = 'success';
       message = 'Mandate has been authorised by user';
     } else {
       // body = enachDetails.body;
+      statusCode = 400;
+      type = 'failure';
       message = 'Mandate not authorised by user';
     }
   }
@@ -483,6 +498,7 @@ const processWebHookData = async (entities, payload, id, event) => {
   if (entities.indexOf('api_mandate') > -1) {
     // Mandate details
     let mandate_status = payload.api_mandate;
+    mandate_status.state = event;
     console.log(`Mandate ID for Enach: ${mandate_status.id}`);
     return updateMandateDetailsForLearner({
       mandate_id: mandate_status.id, mandate_status,
@@ -491,6 +507,7 @@ const processWebHookData = async (entities, payload, id, event) => {
   if (entities.indexOf('nach_debit') > -1) {
     // eNach debit details
     let debit_details = payload.nach_debit;
+    debit_details.state = event;
     console.log(`Debit ID for Enach: ${debit_details.id}`);
     return updateDebitDetailsForLearner({
       nach_debit_id: debit_details.id,
@@ -501,6 +518,7 @@ const processWebHookData = async (entities, payload, id, event) => {
     // eNach debit details
     let document_details = payload.document;
     let esign_document_id = document_details.id;
+    document_details.state = event;
     console.log(`Document ID for Esign: ${esign_document_id}`);
     if (document_details.agreement_status === 'completed') {
       await downloadEsignAgreement({ document_id: esign_document_id });
