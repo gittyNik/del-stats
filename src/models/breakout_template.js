@@ -259,6 +259,22 @@ export const getAllBreakoutTemplates = async () => {
         raw: true,
       }),
     ));
+    if (eachTemplate.secondary_catalysts !== null) {
+      let secondaryCatalyst = await Promise.all(eachTemplate.secondary_catalysts.map(
+        catalyst_id => User.findOne(
+          {
+            where: {
+              id: catalyst_id,
+            },
+            attributes: ['name'],
+            raw: true,
+          },
+        ),
+      ));
+      eachTemplate.secondaryCatalyst = secondaryCatalyst.map(eachCatalyst => eachCatalyst.name);
+    } else {
+      eachTemplate.secondaryCatalyst = [];
+    }
     eachTemplate.topics = topicsData;
     let cohortDuration;
     if (eachTemplate.cohort_duration === 16) {
