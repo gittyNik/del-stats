@@ -14,7 +14,7 @@ import {
   createOrUpdateCohortBreakout,
   markBreakoutFinished,
   autoMarkAttendance,
-  getDuplicateBreakouts,
+  getDuplicateCohortBreakouts,
 } from '../../models/cohort_breakout';
 import {
   createScheduledMeeting,
@@ -808,7 +808,7 @@ export const sendDuplicateBreakouts = async (req, res) => {
     days,
   } = req.params;
   days = parseInt(days, 10);
-  await getDuplicateBreakouts(days)
+  await getDuplicateCohortBreakouts(days)
     .then((data) => {
       res.status(201).json({ data });
     })

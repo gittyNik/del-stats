@@ -902,10 +902,10 @@ export const getTodaysCohortBreakouts = async () => {
   return breakouts;
 };
 
-export const getNDaysCohortBreakouts = async (n_days) => {
+export const getNDaysDuplicateCatalystBreakouts = async (n_days) => {
   let n_days_plus = n_days + 1;
   // todo: Need a better way to get start of the day in Asia/Kolkata timezone.
-  const todaysBreakouts = await db.query("select c1.* from cohort_breakouts c1 where exists(select 1 from cohort_breakouts c2 where tstzrange(c2.time_scheduled, c2.time_scheduled + make_interval(secs => c2.duration / 1000), '[]') && tstzrange(c1.time_scheduled, c1.time_scheduled + make_interval(secs => c1.duration / 1000), '[]') and c2.catalyst_id = c1.catalyst_id and c2.topic_id <> c1.topic_id and c2.id <> c1.id and time_scheduled between now() + ':n_days days'::INTERVAL and now() + ':n_days_plus days'::INTERVAL) order by c1.time_scheduled;", {
+  const todaysBreakouts = await db.query("select c1.* from cohort_breakouts c1 where exists(select 1 from cohort_breakouts c2 where tstzrange(c2.time_scheduled, c2.time_scheduled + make_interval(secs => c2.duration / 1000), '[]') && tstzrange(c1.time_scheduled, c1.time_scheduled + make_interval(secs => c1.duration / 1000), '[]') and c2.catalyst_id = c1.catalyst_id and ((c2.type='lecture' and c2.topic_id <> c1.topic_id) or (c2.type in ('assessment','reviews'))) and c2.id <> c1.id and time_scheduled between now() + ':n_days days'::INTERVAL and now() + ':n_days_plus days'::INTERVAL) order by c1.time_scheduled;", {
     model: CohortBreakout,
     replacements: {
       n_days,
@@ -945,9 +945,67 @@ export const getNDaysCohortBreakouts = async (n_days) => {
   return null;
 };
 
+export const getNDaysCohortBreakouts = async (n_days) => {
+  let n_days_plus = n_days + 1;
+  // todo: Need a better way to get start of the day in Asia/Kolkata timezone.
+  const todaysBreakouts = await db.query("select c1.* from cohort_breakouts c1 where exists(select 1 from cohort_breakouts c2 where tstzrange(c2.time_scheduled, c2.time_scheduled + make_interval(secs => c2.duration / 1000), '[]') && tstzrange(c1.time_scheduled, c1.time_scheduled + make_interval(secs => c1.duration / 1000), '[]') and c2.cohort_id = c1.cohort_id and c2.id <> c1.id and time_scheduled between now() + ':n_days days'::INTERVAL and now() + ':n_days_plus days'::INTERVAL) order by c1.time_scheduled;", {
+    model: CohortBreakout,
+    replacements: {
+      n_days,
+      n_days_plus,
+    },
+    raw: true,
+  });
+
+  if (todaysBreakouts) {
+    let duplicateBreakouts = await Promise.all(todaysBreakouts.map(async breakout => {
+      let cohortDetails = await getCohortFromId(breakout.cohort_id);
+      let userDetails = await getUserName(breakout.catalyst_id);
+      const time = new Date(breakout.time_scheduled).toLocaleTimeString([], {
+        timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit',
+      });
+      try {
+        breakout.topics = breakout.details.topics.replace(/\n(?!$)/g, ', ');
+        breakout.topics = breakout.topics.replace(/\n/, '');
+        if (breakout.type === 'assessment') {
+          const learnerSlackId = await getSlackIdForLearner(breakout.details.learner_id);
+          breakout.topics = `Assessment for <@${learnerSlackId}>`;
+        }
+      } catch (err) {
+        breakout.topics = await getTopicNameById(breakout.topic_id);
+      }
+      let duration = (cohortDetails.duration === 16) ? 'Full-Time' : 'Part-time';
+      breakout.catalyst = userDetails.name;
+      breakout.cohortName = cohortDetails.name;
+      breakout.breakout_time = time;
+      breakout.topics = `Cohort: *${cohortDetails.name}* ${duration} ${cohortDetails.location} \n ${breakout.topics} at *${time}* \n`;
+      return breakout;
+    }));
+
+    const groupedDuplicates = _.groupBy(duplicateBreakouts, 'cohortName');
+    let duplicateCohortBreakouts = {};
+    Object.entries(groupedDuplicates).forEach(([key, value]) => {
+      const unique = [...new Set(value.map(item => item.type))];
+      if (((unique.length <= 1) && (unique.indexOf('lecture') === -1)) || (unique.indexOf('lecture') === -1)) {
+        console.log('Discarding this sessions');
+      } else {
+        duplicateCohortBreakouts[key] = value;
+      }
+    });
+    return duplicateCohortBreakouts;
+  }
+  return null;
+};
+
 export const getDuplicateBreakouts = async (n_days) => {
+  const payload = await getNDaysDuplicateCatalystBreakouts(n_days);
+  const res = await postOverlappingBreakouts(n_days, payload, 'Catalyst');
+  return res;
+};
+
+export const getDuplicateCohortBreakouts = async (n_days) => {
   const payload = await getNDaysCohortBreakouts(n_days);
-  const res = await postOverlappingBreakouts(n_days, payload);
+  const res = await postOverlappingBreakouts(n_days, payload, 'Cohort');
   return res;
 };
 
