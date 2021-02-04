@@ -292,6 +292,7 @@ export const getAllBreakoutTemplates = async () => {
     } else {
       eachTemplate.secondaryCatalyst = [];
     }
+    eachTemplate.topicNames = topicsData.map(eachTopic => eachTopic.title);
     eachTemplate.topics = topicsData;
     let cohortDuration;
     if (eachTemplate.cohort_duration === 16) {
