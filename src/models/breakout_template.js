@@ -248,17 +248,51 @@ export const getAllBreakoutTemplates = async () => {
     ],
     raw: true,
   });
+  let catalystMenonization = {};
+  let topicMenonization = {};
   let allBreakoutTemplates = await Promise.all(breakoutTemplates.map(async eachTemplate => {
     let topicsData = await Promise.all(eachTemplate.topic_id.map(
-      eachTopic => Topic.findByPk(eachTopic, {
-        attributes: ['title', 'path', 'optional'],
-        include: [{
-          model: Milestone,
-          attributes: ['name', 'alias'],
-        }],
-        raw: true,
-      }),
+      eachTopic => {
+        // Avoiding duplicate api calls
+        if (eachTopic in topicMenonization) {
+          return Promise.resolve(topicMenonization[eachTopic]);
+        }
+        return Topic.findByPk(eachTopic, {
+          attributes: ['title', 'path', 'optional'],
+          include: [{
+            model: Milestone,
+            attributes: ['name', 'alias'],
+          }],
+          raw: true,
+        });
+      },
     ));
+    if (eachTemplate.secondary_catalysts !== null) {
+      let secondaryCatalyst = await Promise.all(eachTemplate.secondary_catalysts.map(
+        catalyst_id => {
+          // Avoiding duplicate api calls
+          if (catalyst_id in catalystMenonization) {
+            return Promise.resolve(catalystMenonization[catalyst_id]);
+          }
+          return User.findOne(
+            {
+              where: {
+                id: catalyst_id,
+              },
+              attributes: ['name'],
+              raw: true,
+            },
+          );
+        },
+      ));
+      eachTemplate.secondaryCatalyst = secondaryCatalyst.map(eachCatalyst => {
+        catalystMenonization[eachCatalyst.id] = eachCatalyst;
+        return eachCatalyst.name;
+      });
+    } else {
+      eachTemplate.secondaryCatalyst = [];
+    }
+    eachTemplate.topicNames = topicsData.map(eachTopic => eachTopic.title);
     eachTemplate.topics = topicsData;
     let cohortDuration;
     if (eachTemplate.cohort_duration === 16) {
