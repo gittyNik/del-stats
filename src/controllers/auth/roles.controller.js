@@ -20,7 +20,7 @@ export const allowLearnerWithId = learnerId => (req, res, next) => {
 
 const allowRole = (role, errorMessage = ERRMSG) => (req, res, next) => {
   if ((req.jwtData.user && req.jwtData.user.role === role)
-    || (req.jwtData.user && req.jwtData.user.roles.includes(role))
+    // || (req.jwtData.user && req.jwtData.user.roles.includes(role))
     || (req.jwtData.user.role === USER_ROLES.SUPERADMIN)) {
     next();
   } else {
@@ -30,7 +30,7 @@ const allowRole = (role, errorMessage = ERRMSG) => (req, res, next) => {
 
 export const allowMultipleRoles = (roles, errorMessage = ERRMSG) => (req, res, next) => {
   if ((req.jwtData.user && roles.includes(req.jwtData.user.role))
-    || (req.jwtData.user && roles.filter(value => req.jwtData.user.roles.includes(value)))
+    // || (req.jwtData.user && roles.filter(value => req.jwtData.user.roles.includes(value)))
     || (req.jwtData.user.role === USER_ROLES.SUPERADMIN)) {
     next();
   } else {
