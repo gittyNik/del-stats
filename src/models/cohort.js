@@ -131,8 +131,10 @@ export const addLearnerPaths = (learners) => learners.map(learner => {
   if (learner.status) {
     if (learner.status.indexOf('frontend') > -1) {
       learner.path = 'Frontend';
-    } else {
+    } else if (learner.status.indexOf('backend') > -1) {
       learner.path = 'Backend';
+    } else {
+      learner.path = 'N/A';
     }
   }
   return learner;
