@@ -1034,7 +1034,7 @@ export const updateSanboxUrl = async (id, sandbox_id, sandbox_url) => {
 
   let breakoutDetails = breakout.details;
   breakoutDetails.sandbox = { sandbox_id, sandbox_url };
-  return updateOneCohortBreakouts(breakoutDetails, id);
+  return updateOneCohortBreakouts(breakoutDetails, breakout);
 };
 
 export const getMilestoneDetailsForReview = (cohort_breakout_id) => CohortBreakout
