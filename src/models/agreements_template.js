@@ -33,6 +33,13 @@ export const AgreementTemplates = db.define('agreement_templates', {
     type: Sequelize.BOOLEAN,
     default: false,
   },
+  subdocuments: {
+    type: Sequelize.ARRAY(Sequelize.JSON),
+  },
+  document_name: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
   payment_type: {
     type: Sequelize.STRING,
   },
