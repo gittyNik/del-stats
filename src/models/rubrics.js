@@ -69,29 +69,31 @@ export const getRubricsByProgram = (program, type) => Rubrics.findAll(
 );
 
 export const getRubricsByMilestone = (
-  milestone_id, program, type, rubric_for,
+  milestone_id, program, type, rubric_for, path = 'common',
 ) => {
   if (milestone_id) {
     if (rubric_for) {
-      return db.query('select * from rubrics where program=:program and type=:type and rubric_for=:rubric_for and (milestone_id is null or milestone_id=:milestone_id);', {
+      return db.query('select * from rubrics where program=:program and type=:type and path=:path and rubric_for=:rubric_for and (milestone_id is null or milestone_id=:milestone_id);', {
         model: Rubrics,
         replacements: {
           program: `${program}`,
           type: `${type}`,
           rubric_for: `${rubric_for}`,
           milestone_id: `${milestone_id}`,
+          path: `${path}`,
         },
       }).then(data => data).catch(err => {
         console.error(err);
         throw Error(err);
       });
     }
-    return db.query('select * from rubrics where program=:program and type=:type and (milestone_id is null or milestone_id=:milestone_id);', {
+    return db.query('select * from rubrics where program=:program and path=:path and type=:type and (milestone_id is null or milestone_id=:milestone_id);', {
       model: Rubrics,
       replacements: {
         program: `${program}`,
         type: `${type}`,
         milestone_id: `${milestone_id}`,
+        path: `${path}`,
       },
     }).then(data => data).catch(err => {
       console.error(err);
@@ -99,23 +101,25 @@ export const getRubricsByMilestone = (
     });
   }
   if (rubric_for) {
-    return db.query('select * from rubrics where program=:program and type=:type and rubric_for=:rubric_for;', {
+    return db.query('select * from rubrics where program=:program and path=:path and type=:type and rubric_for=:rubric_for;', {
       model: Rubrics,
       replacements: {
         program: `${program}`,
         type: `${type}`,
         rubric_for: `${rubric_for}`,
+        path: `${path}`,
       },
     }).then(data => data).catch(err => {
       console.error(err);
       throw Error(err);
     });
   }
-  return db.query('select * from rubrics where program=:program and type=:type;', {
+  return db.query('select * from rubrics where program=:program and path=:path and type=:type;', {
     model: Rubrics,
     replacements: {
       program: `${program}`,
       type: `${type}`,
+      path: `${path}`,
     },
   }).then(data => data).catch(err => {
     console.error(err);
