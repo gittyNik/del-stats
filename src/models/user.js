@@ -85,7 +85,7 @@ export const User = db.define(
 );
 
 export const getLimitedDetailsOfUser = id => User.findByPk(id, {
-  attributes: ['id', 'name', 'email', 'phone', 'status', 'role', 'roles'],
+  attributes: ['id', 'name', 'email', 'phone', 'status', 'role', 'roles', 'profile'],
   raw: true,
 });
 
