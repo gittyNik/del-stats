@@ -210,7 +210,7 @@ export const getAPortfolio = ({
       return completePortfolio;
     })
     .then(async portfolio => {
-      if ((portfolio.learner_id) && (getRubrics)) {
+      if (portfolio && portfolio.learner_id && getRubrics) {
         const {
           milestone_rubrics,
           top10Rubrics,
