@@ -149,8 +149,9 @@ export const getPortfoliosByStatus = (
 );
 
 export const getAPortfolio = ({
-  id, learner_id, role, getRubrics = true,
+  id, learner_id, role, getRubrics,
 }) => {
+  getRubrics = getRubrics || false;
   let whereObj = {};
   if (id) {
     whereObj.id = id;
