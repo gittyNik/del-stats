@@ -872,8 +872,90 @@ export const getLatestCommitCohort = async (cohort_id) => {
   if ((lastMilestone === null) && (lastChallenge === null)) {
     return {};
   }
-  latestCommit = lastChallenge.last_committed_at > lastMilestone.last_committed_at ? lastChallenge : lastMilestone;
+  latestCommit = lastChallenge.last_committed_at
+    > lastMilestone.last_committed_at ? lastChallenge : lastMilestone;
   return latestCommit;
+};
+
+export const getChallengesForLearner = async ({
+  cohort_id, start_date, end_date,
+  user_id, cohort_milestone_id,
+}) => {
+  let challengesCommits = await getGithubChallengesStatsPerUser(cohort_id,
+    start_date,
+    end_date, user_id);
+
+  await Promise.all(challengesCommits.map(teamMilestoneCommit => {
+    let {
+      challengeId: learner_challenge_id,
+      contributorsRepo,
+      learnerCommits,
+    } = teamMilestoneCommit;
+
+    let commitsData = createStatForSingleLearner(
+      learnerCommits, null, cohort_milestone_id, contributorsRepo, learner_challenge_id,
+    );
+    return commitsData;
+  }));
+};
+
+export const getMilestoneCommitsLearner = async ({ cohort_milestone_id, user_id }) => {
+  let teamMilestoneCommit = await getGithubStatsForUser(cohort_milestone_id, user_id);
+  if (teamMilestoneCommit !== null) {
+    let {
+      contributorsRepo,
+      learnerCommits,
+      team_id,
+    } = teamMilestoneCommit;
+
+    await Promise.all(learnerCommits.map(
+      async (eachLearnerCommit) => createStatForSingleLearner(
+        eachLearnerCommit,
+        team_id,
+        cohort_milestone_id,
+        contributorsRepo,
+      ),
+    ));
+  }
+};
+
+export const updateLearnerChallengeCommits = async (req, res) => {
+  try {
+    const {
+      cohort_id, start_date, end_date,
+      user_id, cohort_milestone_id,
+    } = req.body;
+    const latestCommit = await getChallengesForLearner({
+      cohort_id,
+      start_date,
+      end_date,
+      user_id,
+      cohort_milestone_id,
+    });
+    res.status(200).json({
+      message: 'Updated Challenges commits',
+      data: latestCommit,
+      type: 'success',
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500);
+  }
+};
+
+export const updateLearnerMilestoneCommits = async (req, res) => {
+  try {
+    const { cohort_milestone_id, user_id } = req.body;
+    const latestCommit = await getMilestoneCommitsLearner({ cohort_milestone_id, user_id });
+    res.status(200).json({
+      message: 'Updated Milestone commits',
+      data: latestCommit,
+      type: 'success',
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500);
+  }
 };
 
 export const getAllStats = async (req, res) => {
@@ -913,44 +995,19 @@ export const getAllStats = async (req, res) => {
       const ONE_HOUR = 1 * 60 * 60 * 1000;
       const NOW = new Date();
       if ((NOW - lastMilestoneUpdatedAt.last_committed_at) > ONE_HOUR) {
-        let teamMilestoneCommit = await getGithubStatsForUser(cohort_milestone_id, user_id);
-        if (teamMilestoneCommit !== null) {
-          let {
-            contributorsRepo,
-            learnerCommits,
-            team_id,
-          } = teamMilestoneCommit;
-
-          await Promise.all(learnerCommits.map(
-            async (eachLearnerCommit) => createStatForSingleLearner(
-              eachLearnerCommit,
-              team_id,
-              cohort_milestone_id,
-              contributorsRepo,
-            ),
-          ));
-        }
+        await getMilestoneCommitsLearner({ cohort_milestone_id, user_id });
       }
 
       if (updateChallenges) {
         // Update any new changes to Challenges
         let currentDate = new Date();
-        let challengesCommits = await getGithubChallengesStatsPerUser(cohort_id,
+        await getChallengesForLearner({
+          cohort_id,
           lastChallengeUpdated,
-          currentDate, user_id);
-
-        await Promise.all(challengesCommits.map(teamMilestoneCommit => {
-          let {
-            challengeId: learner_challenge_id,
-            contributorsRepo,
-            learnerCommits,
-          } = teamMilestoneCommit;
-
-          let commitsData = createStatForSingleLearner(
-            learnerCommits, null, cohort_milestone_id, contributorsRepo, learner_challenge_id,
-          );
-          return commitsData;
-        }));
+          currentDate,
+          user_id,
+          cohort_milestone_id,
+        });
       }
 
       let cohortDetails = await getCohortFromId(cohort_id);
@@ -1067,7 +1124,7 @@ export const getRecentCommitInCohort = async (req, res) => {
     res.send({ data: latestCommit });
   } catch (err) {
     console.error(err);
-    res.status(500).send(err);
+    res.status(500);
   }
 };
 
