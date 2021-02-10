@@ -583,8 +583,7 @@ export const getLearnersForCohortBreakout = async (breakout_topic,
   cohort_id,
   cohort_breakout_id,
   breakout_status = 'scheduled',
-  type = 'lecture',
-) => {
+  type = 'lecture',) => {
   if ((breakout_status !== 'completed') && (type === 'lecture')) {
     await LearnerBreakout.destroy({
       where: {
@@ -1071,6 +1070,7 @@ export const overlappingCatalystBreakout = (
       [Sequelize.Op.in]: types,
     },
   },
+  logging: console.log,
   raw: true,
 });
 
