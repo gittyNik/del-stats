@@ -15,12 +15,17 @@ const redis = new Redis(process.env.REDIS_URL);
 // Every day at 10:AM - 0 10 * * *
 cron.schedule('0 10 * * *', async () => {
   if (process.env.NODE_ENV === 'production') {
-    const payload = await getTodaysCohortBreakouts();
-    const res = await postTodaysBreakouts(payload);
-    logger.info({
-      text: 'Todays breakouts posted on SPE',
-      data: res,
-    });
+    const alreadyStarted = await redis.get('BREAKOUTS');
+    if (alreadyStarted === null) {
+      // overlapStartDay is only a number used to handle multiple messages on channel
+      redis.setex('BREAKOUTS', 3600, 'STARTED');
+      const payload = await getTodaysCohortBreakouts();
+      const res = await postTodaysBreakouts(payload);
+      logger.info({
+        text: 'Todays breakouts posted on SPE',
+        data: res,
+      });
+    }
   } else {
     console.log('TIME FOR DAILY SLACK REMINDERS');
   }
