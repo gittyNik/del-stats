@@ -4,7 +4,7 @@ import {
   getAllPortfolios, createPortfolio, updatePortfolioById,
   updatePortfolioForLearner, addPortfolioResume, getLearnerList,
 } from '../../models/portfolio';
-  addShortlistedLearners,
+import addShortlistedLearners from '../../models/shortlisted_portfolios';
 import logger from '../../util/logger';
 
 export const getAllPortfoliosAPI = (req, res) => {
