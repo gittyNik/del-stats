@@ -155,6 +155,7 @@ export const createScheduledMeeting = async (topic, start_time,
         zoom_user: { [opIn]: zoom_user_array },
         start_time: { [between]: [starting_time, end_time] },
       },
+      logging: console.log,
     });
     let zoom_user_index = 0;
 
