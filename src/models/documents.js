@@ -367,11 +367,11 @@ export const getLearnerDocumentsJSON = async ({ program, is_isa, non_isa_type })
   }
 
   const rawLD = await AgreementTemplates.findAll({
-    attributes: [['document_identifier', 'document_name'], 'document_category', 'is_required', 'document_count'],
+    attributes: ['document_identifier', 'document_name', 'document_category', 'is_required', 'document_count', 'subdocuments'],
     where: whereObject,
     raw: true,
   });
-
+  // return rawLD;
   const data = [];
   rawLD.map(r => {
     // this document is added to a list of  'select any one or n documents category`
@@ -381,7 +381,18 @@ export const getLearnerDocumentsJSON = async ({ program, is_isa, non_isa_type })
       if (typeof category === 'object' || typeof category !== 'undefined') {
         delete r.is_required;
         delete r.document_category;
-        category.list.push(r);
+        category.list.push({
+          document_name: r.document_identifier,
+          display_name: r.document_name,
+          document_count: r.document_count,
+          documents: r.subdocuments.map(sd => ({
+            document_name: sd.document_identifier,
+            display_name: sd.document_name,
+            document_path: '',
+            is_required: sd.is_required,
+            is_verified: false,
+          })),
+        });
       } else { // creating a category and updating the list with current document.
         data.push({
           document_name: r.document_category,
@@ -395,24 +406,42 @@ export const getLearnerDocumentsJSON = async ({ program, is_isa, non_isa_type })
             updated_by: '',
             updated_at: '',
           },
-          list: [{
-            document_name: r.document_name,
-            document_count: r.document_count,
-            document_path: [],
-          }],
+          list: [
+            {
+              document_name: r.document_identifier,
+              display_name: r.document_name,
+              document_count: r.document_count,
+              documents: r.subdocuments.map(sd => ({
+                document_name: sd.document_identifier,
+                display_name: sd.document_name,
+                document_path: '',
+                is_required: sd.is_required,
+                is_verified: false,
+              })),
+            }],
           selected: '',
         });
       }
     } else {
-      delete r.document_category;
-      r.document_path = [];
-      r.is_verified = false;
-      r.details = {
-        comments: '',
-        updated_by: '',
-        updated_at: '',
-      };
-      data.push(r);
+      data.push({
+        document_name: r.document_identifier,
+        display_name: r.document_name,
+        document_count: r.document_count,
+        is_required: true,
+        is_verified: false,
+        details: {
+          comments: '',
+          updated_by: '',
+          updated_at: '',
+        },
+        documents: r.subdocuments.map(sd => ({
+          document_name: sd.document_identifier,
+          display_name: sd.document_name,
+          document_path: '',
+          is_required: sd.is_required,
+          is_verified: false,
+        })),
+      });
     }
   });
   return data;

@@ -5,6 +5,7 @@ import {
   payment, getLatestApplication, getApplicationStats, getApplicationStageAPI,
   setApplicationStageAPI, getPaymentAmount, verifyPayment,
   logProcessFailure, setOfferedISA,
+  getApplicationByStatus,
 } from '../../controllers/firewall/application.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 
@@ -56,6 +57,18 @@ router.get('/latest', getLatestApplication);
  * @apiGroup Application
  */
 router.get('/user/:id', getApplicationsByUserId);
+
+
+/**
+ * @api {get} /firewall/applications/status/:status Get Application by status
+ * @apiDescription Get application by status
+ * @apiHeader {String} authorization JWT Token
+ * @apiName ApplicationStatus
+ * @apiGroup Application
+ *
+ * @apiParam {String} status Status to filter applications
+ */
+router.get('/status/:status', getApplicationByStatus);
 
 /**
  * @api {get} /firewall/applications/:id Get an Application

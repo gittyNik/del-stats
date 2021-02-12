@@ -9,6 +9,7 @@ import {
   saveEnachMandate,
   createDebitRequestNach, createMandate,
   getLearnerDocumentsJsonAPI,
+  addApplicationTemplateSeed,
 } from '../../controllers/firewall/documents.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -33,6 +34,15 @@ router.use(allowMultipleRoles([ADMIN, LEARNER,
  */
 router.post('/sign-request', getSignUrl);
 
+/**
+ * @api {post} /firewall/documents/templates/seed Add seeds to application template table
+ * @apiDescription Add application templates data
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName addApplicationTemplateSeed
+ * @apiGroup Documents
+ */
+router.post('/templates/seed', addApplicationTemplateSeed);
+
 router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER, GUEST]));
 /**
  * @api {get} /firewall/documents/save-mandate/ Save mandate details
@@ -42,6 +52,8 @@ router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER, G
  * @apiGroup Documents
  */
 router.post('/save-mandate', saveEnachMandate);
+
+router.get('/user-documents-json', getLearnerDocumentsJsonAPI);
 
 /**
  * @api {patch} /firewall/documents/:id/esign Send Esign Request to User
@@ -124,8 +136,6 @@ router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER]))
  * @apiGroup Documents
  */
 router.get('/', getDocumentsAll);
-
-router.get('/user-documents-json', getLearnerDocumentsJsonAPI);
 
 /**
  * @api {get} /firewall/documents/esign/:id/download Download document for user

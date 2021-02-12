@@ -19,6 +19,7 @@ import {
 import { User } from '../../models/user';
 import { uploadFile } from '../emailer/emailer.controller';
 import { sendMessageToSlackChannel } from '../../integrations/slack/team-app/controllers/milestone.controller';
+import { AgreementTemplatesSeed } from '../../models/agreements_template';
 
 const {
   AWS_DOCUMENT_BUCKET,
@@ -777,7 +778,6 @@ export const getLearnerDocumentsJsonAPI = async (req, res) => {
     non_isa_type,
   } = req.query;
   try {
-    console.log(is_isa, program, non_isa_type);
     const user_documents = await getLearnerDocumentsJSON({ program, is_isa, non_isa_type });
     return res.status(200).json({
       message: 'Get user documents',
@@ -833,3 +833,15 @@ export const verifySingleUserDocumentAPI = async (req, res) => {
     });
   }
 };
+
+export const addApplicationTemplateSeed = (req, res) => AgreementTemplatesSeed()
+  .then(data => res.send({
+    message: 'Added seeds to agreement templates table',
+    data,
+    type: 'success',
+  }))
+  .catch(err => res.status(500).json({
+    message: 'Unable to update user document',
+    error: err,
+    type: 'failure',
+  }));

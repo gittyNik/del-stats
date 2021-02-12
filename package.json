@@ -77,7 +77,7 @@
     "query-string": "^6.13.1",
     "regenerator-runtime": "^0.13.5",
     "sendotp": "github:msg91/sendotp-node#096de78",
-    "sequelize": "^5.21.13",
+    "sequelize": "^6.5.0",
     "sequelize-cli": "^5.5.1",
     "stopword": "^0.3.5",
     "superagent": "^3.8.2",
