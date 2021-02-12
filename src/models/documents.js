@@ -389,7 +389,7 @@ export const getLearnerDocumentsJSON = async ({ program, is_isa, non_isa_type })
             document_name: sd.document_identifier,
             display_name: sd.document_name,
             document_path: '',
-            is_required: true,
+            is_required: sd.is_required,
             is_verified: false,
           })),
         });
@@ -415,7 +415,7 @@ export const getLearnerDocumentsJSON = async ({ program, is_isa, non_isa_type })
                 document_name: sd.document_identifier,
                 display_name: sd.document_name,
                 document_path: '',
-                is_required: true,
+                is_required: sd.is_required,
                 is_verified: false,
               })),
             }],
@@ -438,7 +438,7 @@ export const getLearnerDocumentsJSON = async ({ program, is_isa, non_isa_type })
           document_name: sd.document_identifier,
           display_name: sd.document_name,
           document_path: '',
-          is_required: true,
+          is_required: sd.is_required,
           is_verified: false,
         })),
       });

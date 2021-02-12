@@ -221,100 +221,127 @@ const isa_documents = [
   documentFactory('learner-aadhar', 'Aadhar Card', true, 2, [{
     document_identifier: 'learner-aadhar-front',
     document_name: 'Aadhar Front',
+    is_required: true,
   }, {
     document_identifier: 'learner-aadhar-back',
     document_name: 'Aadhar Back',
+    is_required: false,
   }]),
   documentFactory('learner-graduation-certificate', 'Graduation Certificate', true, 1, [{
     document_identifier: 'learner-graduation-certificate',
     document_name: 'Upload',
+    is_required: true,
   }]),
   documentFactory('learner-bank-statement', 'Bank Statement', true, 1, [{
     document_identifier: 'learner-bank-statement',
     document_name: 'Upload',
+    is_required: true,
   }]),
   documentFactory('learner-pan-card', 'Pan Card', true, 2, [{
     document_identifier: 'learner-PAN-card-front',
     document_name: 'Pan Front',
+    is_required: true,
   }, {
     document_identifier: 'learner-PAN-card-back',
     document_name: 'Pan Back',
+    is_required: false,
   }], 'learner-option-1'),
   documentFactory('learner-driving-license', 'Driving License', true, 2, [{
     document_identifier: 'learner-driving-license-front',
     document_name: 'Driving License Front',
+    is_required: true,
   }, {
     document_identifier: 'learner-driving-license-back',
     document_name: 'Driving License Back',
+    is_required: false,
   }], 'learner-option-1'),
   documentFactory('learner-ration-card', 'Ration Card', true, 2, [{
     document_identifier: 'learner-ration-card-front',
     document_name: 'Ration Card Front',
+    is_required: true,
   }, {
     document_identifier: 'learner-ration-card-back',
     document_name: 'Ration Card Back',
+    is_required: false,
   }], 'learner-option-1'),
   documentFactory('learner-voter-id', 'Voter Card', true, 2, [{
     document_identifier: 'learner-voter-ID-front',
     document_name: 'Voter ID Front',
+    is_required: true,
   }, {
     document_identifier: 'learner-voter-ID-back',
     document_name: 'Voter ID Back',
+    is_required: false,
   }], 'learner-option-1'),
   documentFactory('learner-passport', 'Passport', true, 1, [{
     document_identifier: 'learner-passport',
     document_name: 'Passport',
+    is_required: true,
   }], 'learner-option-1'),
   documentFactory('learner-post-dated-cheque', 'Post Dated Cheque', true, 1, [{
     document_identifier: 'learner-post-dated-cheque',
     document_name: 'Post Dated Cheque',
+    is_required: true,
   }]),
   documentFactory('guardian-aadhar', 'Aadhar Card', true, 2, [{
     document_identifier: 'guardian-aadhar-front',
     document_name: 'Aadhar Front',
+    is_required: true,
   }, {
     document_identifier: 'guardian-aadhar-back',
     document_name: 'Aadhar Back',
+    is_required: false,
   }]),
   documentFactory('guardian-bank-statement', 'Bank Statement', false, 1, [{
     document_identifier: 'guardian-bank-statement',
     document_name: 'Bank Statement',
+    is_required: true,
   }]),
   documentFactory('guardian-pan-card', 'Pan Card', true, 2, [{
     document_identifier: 'guardian-PAN-card-front',
     document_name: 'Pan Front',
+    is_required: true,
   }, {
     document_identifier: 'guardian-PAN-card-back',
     document_name: 'Pan Back',
+    is_required: false,
   }], 'guardian-option-1'),
   documentFactory('guardian-driving-license', 'Driving License', true, 2, [{
     document_identifier: 'guardian-driving-license-front',
     document_name: 'Driving License Front',
+    is_required: true,
   }, {
     document_identifier: 'guardian-driving-license-back',
     document_name: 'Driving License Back',
+    is_required: false,
   }], 'guardian-option-1'),
   documentFactory('guardian-ration-card', 'Ration Card', true, 2, [{
     document_identifier: 'guardian-ration-card-front',
     document_name: 'Ration Card Front',
+    is_required: true,
   }, {
     document_identifier: 'guardian-ration-card-back',
     document_name: 'Ration Card Back',
+    is_required: false,
   }], 'guardian-option-1'),
   documentFactory('guardian-voter-id', 'Voter Card', true, 2, [{
     document_identifier: 'guardian-voter-ID-front',
     document_name: 'Voter ID Front',
+    is_required: true,
   }, {
     document_identifier: 'guardian-voter-ID-back',
     document_name: 'Voter ID Back',
+    is_required: false,
   }], 'guardian-option-1'),
   documentFactory('guardian-passport', 'Passport', true, 1, [{
     document_identifier: 'guardian-passport',
     document_name: 'Passport',
+    is_required: true,
   }], 'guardian-option-1'),
   documentFactory('guardian-income-proof', 'Income Proof', false, 1, [{
     document_identifier: 'guardian-income-proof',
     document_name: 'Income Proof',
+    is_required: true,
   }]),
 ];
 
@@ -322,97 +349,123 @@ const non_isa_loan_documents = [
   documentFactory('learner-aadhar', 'Aadhar Card', true, 2, [{
     document_identifier: 'learner-aadhar-front',
     document_name: 'Aadhar Front',
+    is_required: true,
   }, {
     document_identifier: 'learner-aadhar-back',
     document_name: 'Aadhar Back',
+    is_required: false,
   }]),
   documentFactory('learner-graduation-certificate', 'Graduation Certificate', true, 1, [{
     document_identifier: 'learner-graduation-certificate',
     document_name: 'Upload',
+    is_required: true,
   }]),
   documentFactory('learner-bank-statement', 'Bank Statement', true, 1, [{
     document_identifier: 'learner-bank-statement',
     document_name: 'Upload',
+    is_required: true,
   }]),
   documentFactory('learner-pan-card', 'Pan Card', true, 2, [{
     document_identifier: 'learner-PAN-card-front',
     document_name: 'Pan Front',
+    is_required: true,
   }, {
     document_identifier: 'learner-PAN-card-back',
     document_name: 'Pan Back',
+    is_required: false,
   }], 'learner-option-1'),
   documentFactory('learner-driving-license', 'Driving License', true, 2, [{
     document_identifier: 'learner-driving-license-front',
     document_name: 'Driving License Front',
+    is_required: true,
   }, {
     document_identifier: 'learner-driving-license-back',
     document_name: 'Driving License Back',
+    is_required: false,
   }], 'learner-option-1'),
   documentFactory('learner-ration-card', 'Ration Card', true, 2, [{
     document_identifier: 'learner-ration-card-front',
     document_name: 'Ration Card Front',
+    is_required: true,
   }, {
     document_identifier: 'learner-ration-card-back',
     document_name: 'Ration Card Back',
+    is_required: false,
   }], 'learner-option-1'),
   documentFactory('learner-voter-id', 'Voter Card', true, 2, [{
     document_identifier: 'learner-voter-ID-front',
     document_name: 'Voter ID Front',
+    is_required: true,
   }, {
     document_identifier: 'learner-voter-ID-back',
     document_name: 'Voter ID Back',
+    is_required: false,
   }], 'learner-option-1'),
   documentFactory('learner-passport', 'Passport', true, 1, [{
     document_identifier: 'learner-passport',
     document_name: 'Passport',
+    is_required: true,
   }], 'learner-option-1'),
 
   documentFactory('guardian-aadhar', 'Aadhar Card', true, 2, [{
     document_identifier: 'guardian-aadhar-front',
     document_name: 'Aadhar Front',
+    is_required: true,
   }, {
     document_identifier: 'guardian-aadhar-back',
     document_name: 'Aadhar Back',
+    is_required: false,
   }]),
   documentFactory('guardian-bank-statement', 'Bank Statement', false, 1, [{
     document_identifier: 'guardian-bank-statement',
     document_name: 'Bank Statement',
+    is_required: true,
   }]),
   documentFactory('guardian-pan-card', 'Pan Card', true, 2, [{
     document_identifier: 'guardian-PAN-card-front',
     document_name: 'Pan Front',
+    is_required: true,
   }, {
     document_identifier: 'guardian-PAN-card-back',
     document_name: 'Pan Back',
+    is_required: false,
   }], 'guardian-option-1'),
   documentFactory('guardian-driving-license', 'Driving License', true, 2, [{
     document_identifier: 'guardian-driving-license-front',
     document_name: 'Driving License Front',
+    is_required: true,
   }, {
     document_identifier: 'guardian-driving-license-back',
     document_name: 'Driving License Back',
+    is_required: false,
   }], 'guardian-option-1'),
   documentFactory('guardian-ration-card', 'Ration Card', true, 2, [{
     document_identifier: 'guardian-ration-card-front',
     document_name: 'Ration Card Front',
+    is_required: true,
   }, {
     document_identifier: 'guardian-ration-card-back',
     document_name: 'Ration Card Back',
+    is_required: false,
   }], 'guardian-option-1'),
   documentFactory('guardian-voter-id', 'Voter Card', true, 2, [{
     document_identifier: 'guardian-voter-ID-front',
     document_name: 'Voter ID Front',
+    is_required: true,
   }, {
     document_identifier: 'guardian-voter-ID-back',
     document_name: 'Voter ID Back',
+    is_required: false,
   }], 'guardian-option-1'),
   documentFactory('guardian-passport', 'Passport', true, 1, [{
     document_identifier: 'guardian-passport',
     document_name: 'Passport',
+    is_required: true,
   }], 'guardian-option-1'),
   documentFactory('guardian-income-proof', 'Income Proof', false, 1, [{
     document_identifier: 'guardian-income-proof',
     document_name: 'Income Proof',
+    is_required: true,
   }]),
 ];
 
@@ -420,84 +473,107 @@ const non_isa_upfront_documents = [
   documentFactory('learner-aadhar', 'Aadhar Card', true, 2, [{
     document_identifier: 'learner-aadhar-front',
     document_name: 'Aadhar Front',
+    is_required: true,
   }, {
     document_identifier: 'learner-aadhar-back',
     document_name: 'Aadhar Back',
+    is_required: false,
   }]),
   documentFactory('learner-graduation-certificate', 'Graduation Certificate', true, 1, [{
     document_identifier: 'learner-graduation-certificate',
     document_name: 'Upload',
+    is_required: true,
   }]),
   documentFactory('learner-pan-card', 'Pan Card', true, 2, [{
     document_identifier: 'learner-PAN-card-front',
     document_name: 'Pan Front',
+    is_required: true,
   }, {
     document_identifier: 'learner-PAN-card-back',
     document_name: 'Pan Back',
+    is_required: false,
   }], 'learner-option-1'),
   documentFactory('learner-driving-license', 'Driving License', true, 2, [{
     document_identifier: 'learner-driving-license-front',
     document_name: 'Driving License Front',
+    is_required: true,
   }, {
     document_identifier: 'learner-driving-license-back',
     document_name: 'Driving License Back',
+    is_required: false,
   }], 'learner-option-1'),
   documentFactory('learner-ration-card', 'Ration Card', true, 2, [{
     document_identifier: 'learner-ration-card-front',
     document_name: 'Ration Card Front',
+    is_required: true,
   }, {
     document_identifier: 'learner-ration-card-back',
     document_name: 'Ration Card Back',
+    is_required: false,
   }], 'learner-option-1'),
   documentFactory('learner-voter-id', 'Voter Card', true, 2, [{
     document_identifier: 'learner-voter-ID-front',
     document_name: 'Voter ID Front',
+    is_required: true,
   }, {
     document_identifier: 'learner-voter-ID-back',
     document_name: 'Voter ID Back',
+    is_required: false,
   }], 'learner-option-1'),
   documentFactory('learner-passport', 'Passport', true, 1, [{
     document_identifier: 'learner-passport',
     document_name: 'Passport',
+    is_required: true,
   }], 'learner-option-1'),
   documentFactory('guardian-aadhar', 'Aadhar Card', true, 2, [{
     document_identifier: 'guardian-aadhar-front',
     document_name: 'Aadhar Front',
+    is_required: true,
   }, {
     document_identifier: 'guardian-aadhar-back',
     document_name: 'Aadhar Back',
+    is_required: false,
   }]),
   documentFactory('guardian-pan-card', 'Pan Card', true, 2, [{
     document_identifier: 'guardian-PAN-card-front',
     document_name: 'Pan Front',
+    is_required: true,
   }, {
     document_identifier: 'guardian-PAN-card-back',
     document_name: 'Pan Back',
+    is_required: false,
   }], 'guardian-option-1'),
   documentFactory('guardian-driving-license', 'Driving License', true, 2, [{
     document_identifier: 'guardian-driving-license-front',
     document_name: 'Driving License Front',
+    is_required: true,
   }, {
     document_identifier: 'guardian-driving-license-back',
     document_name: 'Driving License Back',
+    is_required: false,
   }], 'guardian-option-1'),
   documentFactory('guardian-ration-card', 'Ration Card', true, 2, [{
     document_identifier: 'guardian-ration-card-front',
     document_name: 'Ration Card Front',
+    is_required: true,
   }, {
     document_identifier: 'guardian-ration-card-back',
     document_name: 'Ration Card Back',
+    is_required: false,
   }], 'guardian-option-1'),
   documentFactory('guardian-voter-id', 'Voter Card', true, 2, [{
     document_identifier: 'guardian-voter-ID-front',
     document_name: 'Voter ID Front',
+    is_required: true,
   }, {
     document_identifier: 'guardian-voter-ID-back',
     document_name: 'Voter ID Back',
+    is_required: false,
   }], 'guardian-option-1'),
   documentFactory('guardian-passport', 'Passport', true, 1, [{
     document_identifier: 'guardian-passport',
     document_name: 'Passport',
+    is_required: true,
   }], 'guardian-option-1'),
 ];
 
