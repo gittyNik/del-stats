@@ -372,7 +372,7 @@ export const addLearnerStatus = async (
 
   currentCohort = await getLiveCohortMilestone(cohort_id);
   if (_.isEmpty(currentCohort)) {
-    currentCohort = await getCohortFromId(future_cohort_id);
+    currentCohort = await getCohortFromId(cohort_id);
   }
 
   let status_reason;
@@ -380,28 +380,44 @@ export const addLearnerStatus = async (
   let milestone_id;
   let cohort_milestone_id;
   let cohort_name;
+  let cohort_year;
+  let program;
+  let duration;
+  let cohortDuration;
 
   if (('milestone.name' in currentCohort) && (currentCohort['milestone.name'])) {
     milestone_name = currentCohort['milestone.name'];
     milestone_id = currentCohort.milestone_id;
     cohort_milestone_id = currentCohort.id;
+    cohort_name = currentCohort['cohort.name'];
+    cohort_year = currentCohort['cohort.start_date'].getFullYear();
+    program = currentCohort['cohort.program_id'];
+    duration = currentCohort['cohort.duration'];
   }
 
-  if ('name' in currentCohort) {
+  if ((cohort_name === undefined) && ('name' in currentCohort)) {
     cohort_name = currentCohort.name;
+    cohort_year = currentCohort.start_date.getFullYear();
+    program = currentCohort.program_id;
+    duration = currentCohort.duration;
+  }
+
+  // NEED TO CHANGE THIS WHILE ADDING DESIGN PROGRAM
+  if (duration) {
+    cohortDuration = duration === 16 ? 'FT' : 'PT';
   }
 
   if (status === 'moved') {
-    status_reason = `Moved from current cohort: ${cohort_name} to future cohort: ${futureCohortName}`;
+    status_reason = `Moved from current cohort: ${cohort_name} ${cohortDuration} ${cohort_year} ${program} to future cohort: ${futureCohortName}`;
   } else if (status === 'staged') {
-    status_reason = `Learner staged from ${cohort_name}. Milestone: ${milestone_name}`;
+    status_reason = `Learner staged from ${cohort_name} ${cohortDuration} ${cohort_year} ${program}. Milestone: ${milestone_name}`;
   } else if (status === 'removed') {
     if ((cohort_name !== null) || (cohort_name !== undefined)) {
-      status_reason = `Learner removed from cohort: ${cohort_name}. Milestone: ${milestone_name}`;
+      status_reason = `Learner removed from cohort: ${cohort_name} ${cohortDuration} ${cohort_year} ${program}. Milestone: ${milestone_name}`;
     }
     status_reason = 'Learner removed. Learner was staged previously';
   } else if (status === 'added-to-cohort') {
-    status_reason = `Learner added to cohort: ${cohort_name}`;
+    status_reason = `Learner added to cohort: ${cohort_name} ${cohortDuration} ${cohort_year} ${program}`;
   }
 
   return addUserStatus({

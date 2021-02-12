@@ -205,7 +205,9 @@ export const addLearnerEndpoint = (req, res) => {
 };
 
 export const addLearnerStatusAPI = (req, res) => {
-  const { learner_id, current_cohort_id, status } = req.body;
+  const {
+    learner_id, current_cohort_id, status, future_cohort_id,
+  } = req.body;
   const updated_by_id = req.jwtData.user.id;
   const updated_by_name = req.jwtData.user.name;
   addLearnerStatus({
@@ -214,6 +216,7 @@ export const addLearnerStatusAPI = (req, res) => {
     updated_by_name,
     cohort_id: current_cohort_id,
     status,
+    future_cohort_id,
   }).then(data => res.status(200).send({
     message: `Learners added to new cohort: ${current_cohort_id}`,
     data,
