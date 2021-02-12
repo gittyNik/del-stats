@@ -244,7 +244,7 @@ export const removeUserStatus = (
 
 export const addUserStatus = ({
   id, status, status_reason, updated_by_id, updated_by_name, milestone_id, milestone_name,
-  cohort_id, cohort_name,
+  cohort_id, cohort_name, cohort_milestone_id,
 }) => {
   if (AVAILABLE_USER_STATUS.indexOf(status) > -1) {
     return User.findOne({
@@ -279,6 +279,9 @@ export const addUserStatus = ({
         }
         if ((cohort_id) && (cohort_name)) {
           statusDetails.cohort = { id: cohort_id, name: cohort_name };
+        }
+        if (cohort_milestone_id) {
+          statusDetails.cohort_milestone_id = cohort_milestone_id;
         }
 
         userStatus.status_reason.push(statusDetails);
