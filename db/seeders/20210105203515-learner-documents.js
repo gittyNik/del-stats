@@ -55,97 +55,97 @@ const isa_documents = [
     document_identifier: 'learner-aadhar-back',
     document_name: 'Aadhar Back',
   }]),
-  // documentFactory('learner-graduation-certificate', 'Graduation Certificate', true, 1, [{
-  //   document_identifier: 'learner-graduation-certificate',
-  //   document_name: 'Upload',
-  // }]),
-  // documentFactory('learner-bank-statement', 'Bank Statement', true, 1, [{
-  //   document_identifier: 'learner-bank-statement',
-  //   document_name: 'Upload',
-  // }]),
-  // documentFactory('learner-pan-card', 'Pan Card', true, 2, [{
-  //   document_identifier: 'learner-PAN-card-front',
-  //   document_name: 'Pan Front',
-  // }, {
-  //   document_identifier: 'learner-PAN-card-back',
-  //   document_name: 'Pan Back',
-  // }], 'learner-option-1'),
-  // documentFactory('learner-driving-license', 'Driving License', true, 2, [{
-  //   document_identifier: 'learner-driving-license-front',
-  //   document_name: 'Driving License Front',
-  // }, {
-  //   document_identifier: 'learner-driving-license-back',
-  //   document_name: 'Driving License Back',
-  // }], 'learner-option-1'),
-  // documentFactory('learner-ration-card', 'Ration Card', true, 2, [{
-  //   document_identifier: 'learner-ration-card-front',
-  //   document_name: 'Ration Card Front',
-  // }, {
-  //   document_identifier: 'learner-ration-card-back',
-  //   document_name: 'Ration Card Back',
-  // }], 'learner-option-1'),
-  // documentFactory('learner-voter-id', 'Voter Card', true, 2, [{
-  //   document_identifier: 'learner-voter-ID-front',
-  //   document_name: 'Voter ID Front',
-  // }, {
-  //   document_identifier: 'learner-voter-ID-back',
-  //   document_name: 'Voter ID Back',
-  // }], 'learner-option-1'),
-  // documentFactory('learner-passport', 'Passport', true, 1, [{
-  //   document_identifier: 'learner-passport',
-  //   document_name: 'Passport',
-  // }], 'learner-option-1'),
-  // documentFactory('learner-post-dated-cheque', 'Post Dated Cheque', true, 1, [{
-  //   document_identifier: 'learner-post-dated-cheque',
-  //   document_name: 'Post Dated Cheque',
-  // }]),
-  // documentFactory('guardian-aadhar', 'Aadhar Card', true, 2, [{
-  //   document_identifier: 'guardian-aadhar-front',
-  //   document_name: 'Aadhar Front',
-  // }, {
-  //   document_identifier: 'guardian-aadhar-back',
-  //   document_name: 'Aadhar Back',
-  // }]),
-  // documentFactory('guardian-bank-statement', 'Bank Statement', false, 1, [{
-  //   document_identifier: 'guardian-bank-statement',
-  //   document_name: 'Bank Statement',
-  // }]),
-  // documentFactory('guardian-pan-card', 'Pan Card', true, 2, [{
-  //   document_identifier: 'guardian-PAN-card-front',
-  //   document_name: 'Pan Front',
-  // }, {
-  //   document_identifier: 'guardian-PAN-card-back',
-  //   document_name: 'Pan Back',
-  // }], 'guardian-option-1'),
-  // documentFactory('guardian-driving-license', 'Driving License', true, 2, [{
-  //   document_identifier: 'guardian-driving-license-front',
-  //   document_name: 'Driving License Front',
-  // }, {
-  //   document_identifier: 'guardian-driving-license-back',
-  //   document_name: 'Driving License Back',
-  // }], 'guardian-option-1'),
-  // documentFactory('guardian-ration-card', 'Ration Card', true, 2, [{
-  //   document_identifier: 'guardian-ration-card-front',
-  //   document_name: 'Ration Card Front',
-  // }, {
-  //   document_identifier: 'guardian-ration-card-back',
-  //   document_name: 'Ration Card Back',
-  // }], 'guardian-option-1'),
-  // documentFactory('guardian-voter-id', 'Voter Card', true, 2, [{
-  //   document_identifier: 'guardian-voter-ID-front',
-  //   document_name: 'Voter ID Front',
-  // }, {
-  //   document_identifier: 'guardian-voter-ID-back',
-  //   document_name: 'Voter ID Back',
-  // }], 'guardian-option-1'),
-  // documentFactory('guardian-passport', 'Passport', true, 1, [{
-  //   document_identifier: 'guardian-passport',
-  //   document_name: 'Passport',
-  // }], 'guardian-option-1'),
-  // documentFactory('guardian-income-proof', 'Income Proof', false, 1, [{
-  //   document_identifier: 'guardian-income-proof',
-  //   document_name: 'Income Proof',
-  // }]),
+  documentFactory('learner-graduation-certificate', 'Graduation Certificate', true, 1, [{
+    document_identifier: 'learner-graduation-certificate',
+    document_name: 'Upload',
+  }]),
+  documentFactory('learner-bank-statement', 'Bank Statement', true, 1, [{
+    document_identifier: 'learner-bank-statement',
+    document_name: 'Upload',
+  }]),
+  documentFactory('learner-pan-card', 'Pan Card', true, 2, [{
+    document_identifier: 'learner-PAN-card-front',
+    document_name: 'Pan Front',
+  }, {
+    document_identifier: 'learner-PAN-card-back',
+    document_name: 'Pan Back',
+  }], 'learner-option-1'),
+  documentFactory('learner-driving-license', 'Driving License', true, 2, [{
+    document_identifier: 'learner-driving-license-front',
+    document_name: 'Driving License Front',
+  }, {
+    document_identifier: 'learner-driving-license-back',
+    document_name: 'Driving License Back',
+  }], 'learner-option-1'),
+  documentFactory('learner-ration-card', 'Ration Card', true, 2, [{
+    document_identifier: 'learner-ration-card-front',
+    document_name: 'Ration Card Front',
+  }, {
+    document_identifier: 'learner-ration-card-back',
+    document_name: 'Ration Card Back',
+  }], 'learner-option-1'),
+  documentFactory('learner-voter-id', 'Voter Card', true, 2, [{
+    document_identifier: 'learner-voter-ID-front',
+    document_name: 'Voter ID Front',
+  }, {
+    document_identifier: 'learner-voter-ID-back',
+    document_name: 'Voter ID Back',
+  }], 'learner-option-1'),
+  documentFactory('learner-passport', 'Passport', true, 1, [{
+    document_identifier: 'learner-passport',
+    document_name: 'Passport',
+  }], 'learner-option-1'),
+  documentFactory('learner-post-dated-cheque', 'Post Dated Cheque', true, 1, [{
+    document_identifier: 'learner-post-dated-cheque',
+    document_name: 'Post Dated Cheque',
+  }]),
+  documentFactory('guardian-aadhar', 'Aadhar Card', true, 2, [{
+    document_identifier: 'guardian-aadhar-front',
+    document_name: 'Aadhar Front',
+  }, {
+    document_identifier: 'guardian-aadhar-back',
+    document_name: 'Aadhar Back',
+  }]),
+  documentFactory('guardian-bank-statement', 'Bank Statement', false, 1, [{
+    document_identifier: 'guardian-bank-statement',
+    document_name: 'Bank Statement',
+  }]),
+  documentFactory('guardian-pan-card', 'Pan Card', true, 2, [{
+    document_identifier: 'guardian-PAN-card-front',
+    document_name: 'Pan Front',
+  }, {
+    document_identifier: 'guardian-PAN-card-back',
+    document_name: 'Pan Back',
+  }], 'guardian-option-1'),
+  documentFactory('guardian-driving-license', 'Driving License', true, 2, [{
+    document_identifier: 'guardian-driving-license-front',
+    document_name: 'Driving License Front',
+  }, {
+    document_identifier: 'guardian-driving-license-back',
+    document_name: 'Driving License Back',
+  }], 'guardian-option-1'),
+  documentFactory('guardian-ration-card', 'Ration Card', true, 2, [{
+    document_identifier: 'guardian-ration-card-front',
+    document_name: 'Ration Card Front',
+  }, {
+    document_identifier: 'guardian-ration-card-back',
+    document_name: 'Ration Card Back',
+  }], 'guardian-option-1'),
+  documentFactory('guardian-voter-id', 'Voter Card', true, 2, [{
+    document_identifier: 'guardian-voter-ID-front',
+    document_name: 'Voter ID Front',
+  }, {
+    document_identifier: 'guardian-voter-ID-back',
+    document_name: 'Voter ID Back',
+  }], 'guardian-option-1'),
+  documentFactory('guardian-passport', 'Passport', true, 1, [{
+    document_identifier: 'guardian-passport',
+    document_name: 'Passport',
+  }], 'guardian-option-1'),
+  documentFactory('guardian-income-proof', 'Income Proof', false, 1, [{
+    document_identifier: 'guardian-income-proof',
+    document_name: 'Income Proof',
+  }]),
 ];
 
 const non_isa_loan_documents = [
@@ -339,24 +339,24 @@ const createLearnerDocumentTemplates = () => {
     document.is_isa = true;
     return document;
   });
-  // const non_isa_loan = non_isa_loan_documents.map(document => {
-  //   document.id = uuid();
-  //   document.program = 'tep';
-  //   document.is_learner_document = true;
-  //   document.is_isa = false;
-  //   document.non_isa_type = 'loan';
-  //   return document;
-  // });
-  // const non_isa_upfront = non_isa_upfront_documents.map(document => {
-  //   document.id = uuid();
-  //   document.program = 'tep';
-  //   document.is_learner_document = true;
-  //   document.is_isa = false;
-  //   document.non_isa_type = 'upfront';
-  //   return document;
-  // });
-  // return [...isa, ...non_isa_loan, ...non_isa_upfront];
-  return [...isa];
+  const non_isa_loan = non_isa_loan_documents.map(document => {
+    document.id = uuid();
+    document.program = 'tep';
+    document.is_learner_document = true;
+    document.is_isa = false;
+    document.non_isa_type = 'loan';
+    return document;
+  });
+  const non_isa_upfront = non_isa_upfront_documents.map(document => {
+    document.id = uuid();
+    document.program = 'tep';
+    document.is_learner_document = true;
+    document.is_isa = false;
+    document.non_isa_type = 'upfront';
+    return document;
+  });
+  return [...isa, ...non_isa_loan, ...non_isa_upfront];
+  // return [...isa];
 };
 
 // console.log(createLearnerDocumentTemplates());
@@ -368,7 +368,7 @@ const seeder = {
       'agreement_templates',
       createLearnerDocumentTemplates(),
       { transaction },
-      { subdocuments: { type: new Sequelize.JSON() } },
+      // { subdocuments: { type: new Sequelize.JSON() } },
     );
 
     return Promise.all([addLearnerDocuments])

@@ -9,6 +9,7 @@ import {
   saveEnachMandate,
   createDebitRequestNach, createMandate,
   getLearnerDocumentsJsonAPI,
+  addApplicationTemplateSeed,
 } from '../../controllers/firewall/documents.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -32,6 +33,15 @@ router.use(allowMultipleRoles([ADMIN, LEARNER,
  * @apiGroup Documents
  */
 router.post('/sign-request', getSignUrl);
+
+/**
+ * @api {post} /firewall/documents/templates/seed Add seeds to application template table
+ * @apiDescription Add application templates data
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName addApplicationTemplateSeed
+ * @apiGroup Documents
+ */
+router.post('/templates/seed', addApplicationTemplateSeed);
 
 router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER, GUEST]));
 /**
