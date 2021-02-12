@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 // import { Program } from './program';
+import _ from 'lodash';
 import { Application, updateCohortJoining } from './application';
 import {
   User, USER_ROLES, changeUserRole, addUserStatus,
@@ -359,20 +360,48 @@ export const addLearnerStatus = async (
   },
 ) => {
   let futureCohort;
+  let currentCohort;
+  let futureCohortName;
+
   if (future_cohort_id) {
     futureCohort = await getCohortFromId(future_cohort_id);
+    if ('name' in futureCohort) {
+      futureCohortName = futureCohort.name;
+    }
   }
-  let currentCohort = await getCohortFromId(cohort_id);
+
+  currentCohort = await getLiveCohortMilestone(cohort_id);
+  if (_.isEmpty(currentCohort)) {
+    currentCohort = await getCohortFromId(future_cohort_id);
+  }
+
   let status_reason;
+  let milestone_name;
+  let milestone_id;
+  let cohort_milestone_id;
+  let cohort_name;
+
+  if (('milestone.name' in currentCohort) && (currentCohort['milestone.name'])) {
+    milestone_name = currentCohort['milestone.name'];
+    milestone_id = currentCohort.milestone_id;
+    cohort_milestone_id = currentCohort.id;
+  }
+
+  if ('name' in currentCohort) {
+    cohort_name = currentCohort.name;
+  }
 
   if (status === 'moved') {
-    status_reason = `Moved from current cohort: ${currentCohort.name} to future cohort: ${futureCohort.name}`;
+    status_reason = `Moved from current cohort: ${cohort_name} to future cohort: ${futureCohortName}`;
   } else if (status === 'staged') {
-    status_reason = `Learner staged from ${currentCohort.name}`;
+    status_reason = `Learner staged from ${cohort_name}. Milestone: ${milestone_name}`;
   } else if (status === 'removed') {
-    status_reason = `Learner removed from cohort: ${currentCohort.name}`;
+    if ((cohort_name !== null) || (cohort_name !== undefined)) {
+      status_reason = `Learner removed from cohort: ${cohort_name}. Milestone: ${milestone_name}`;
+    }
+    status_reason = 'Learner removed. Learner was staged previously';
   } else if (status === 'added-to-cohort') {
-    status_reason = `Learner added to cohort: ${currentCohort.name}`;
+    status_reason = `Learner added to cohort: ${cohort_name}`;
   }
 
   return addUserStatus({
@@ -382,7 +411,10 @@ export const addLearnerStatus = async (
     updated_by_id,
     updated_by_name,
     cohort_id,
-    cohort_name: currentCohort.name,
+    cohort_name,
+    milestone_id,
+    milestone_name,
+    cohort_milestone_id,
   });
 };
 

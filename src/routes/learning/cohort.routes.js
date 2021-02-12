@@ -18,6 +18,7 @@ import {
   beginParallelCohort,
   liveCohorts,
   autoMarkBreakoutAttendance,
+  addLearnerStatusAPI,
 } from '../../controllers/learning/cohort.controller';
 import {
   createBreakouts,
@@ -107,6 +108,14 @@ router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER]));
  * @apiGroup Cohort
  */
 router.post('/addLearner', addLearnerEndpoint);
+
+/**
+ * @api {post} /cohorts/addStatus Add learner Status
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName addLearnerStatus
+ * @apiGroup Cohort
+ */
+router.post('/addStatus', addLearnerStatusAPI);
 
 /**
  * @api {patch} /cohorts/movelearner move learner to a new cohort

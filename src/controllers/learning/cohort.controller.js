@@ -10,6 +10,7 @@ import {
   addLearner,
   beginParallelCohorts,
   getLiveCohorts,
+  addLearnerStatus,
 } from '../../models/cohort';
 
 import { USER_ROLES } from '../../models/user';
@@ -198,8 +199,28 @@ export const addLearnerEndpoint = (req, res) => {
     data,
     type: 'success',
   })).catch(err => {
-    console.log("ERROR ADDING LEARNER:", err);
-    res.status(500).send(err);
+    console.log('ERROR ADDING LEARNER:', err);
+    res.status(500);
+  });
+};
+
+export const addLearnerStatusAPI = (req, res) => {
+  const { learner_id, current_cohort_id, status } = req.body;
+  const updated_by_id = req.jwtData.user.id;
+  const updated_by_name = req.jwtData.user.name;
+  addLearnerStatus({
+    user_id: learner_id,
+    updated_by_id,
+    updated_by_name,
+    cohort_id: current_cohort_id,
+    status,
+  }).then(data => res.status(200).send({
+    message: `Learners added to new cohort: ${current_cohort_id}`,
+    data,
+    type: 'success',
+  })).catch(err => {
+    console.log('ERROR ADDING LEARNER Status:', err);
+    res.status(500);
   });
 };
 
