@@ -222,7 +222,8 @@ export const signinWithGithub = (req, res) => {
       })
       .then(user => {
         if (user === null || user.role === USER_ROLES.GUEST
-          || user.roles.includes(USER_ROLES.GUEST)) {
+        // || user.roles.includes(USER_ROLES.GUEST)
+        ) {
           return Promise.reject('NO_EMAIL');
         }
         return {
