@@ -5,6 +5,12 @@ import {
   updateOneCohortBreakouts,
   findOneCohortBreakout,
 } from './cohort_breakout';
+import {
+  BreakoutRecordingsDetails,
+} from './breakout_recording_details';
+import {
+  User,
+} from './user';
 
 const privateKey = process.env.CLOUDFRONT_KEY.replace(/\\n/g, '\n');
 const publicKey = process.env.PUBLIC_KEY;
@@ -51,6 +57,45 @@ export const BreakoutRecordings = db.define('breakout_recordings', {
 });
 
 const cloudFront = new AWS.CloudFront.Signer(publicKey, privateKey);
+
+export const getAllBreakoutRecordings = async ({
+  limit, offset, sort_by,
+}) => {
+  limit = limit || 10;
+  sort_by = 'video_views';
+
+  const allBreakouts = await BreakoutRecordings.findAndCountAll({
+    include: [{
+      model: User,
+      attributes: ['name'],
+    },
+    ],
+    order: [
+      [sort_by, 'DESC'],
+    ],
+    raw: true,
+    limit,
+    offset,
+  });
+  Promise.all(allBreakouts.map(async eachBreakout => {
+    let whereObj = {
+      video_id: eachBreakout.id,
+    };
+    const breakoutDetails = await BreakoutRecordingsDetails.findAll({
+      attributes: [
+        'video_id',
+        [Sequelize.fn('count', Sequelize.col('liked_by_user')), 'likes'],
+        [Sequelize.fn('avg', Sequelize.col('breakout_rating')), 'rating'],
+      ],
+      group: [
+        'breakout_recordings_details.video_id',
+      ],
+      where: whereObj,
+      raw: true,
+    });
+    console.log(breakoutDetails);
+  }));
+};
 
 export const getAWSSignedUrl = (unSignedUrl) => {
   let signedUrl = '';

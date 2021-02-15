@@ -1,11 +1,10 @@
 import Express from 'express';
 import {
-  getRecordingsByCatalystAPI,
+  getAllRecordingsAPI,
   createRecording, updateRecordingsAPI, getVideoUrl,
 } from '../../controllers/learning/breakout_recording.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
-import LearnerBreakout from '../../models/learner_breakout';
 
 const {
   ADMIN, CATALYST, EDUCATOR, LEARNER, REVIEWER,
@@ -14,6 +13,15 @@ const {
 const router = Express.Router();
 
 router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER, REVIEWER]));
+
+/**
+ * @api {get} /learning/content/breakouts/recordings/ Get All Video of recording
+ * @apiDescription get Video recordings
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetContentBreakouts
+ * @apiGroup ContentBreakoutsRecordings
+ */
+router.get('/', getAllRecordingsAPI);
 
 /**
  * @api {get} /learning/content/breakouts/recordings/:id/video Get Video of recording
