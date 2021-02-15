@@ -1,5 +1,4 @@
 import Sequelize from 'sequelize';
-import { apiNotReady } from '../api.controller';
 import {
   User,
   USER_ROLES,
@@ -7,7 +6,6 @@ import {
   updateUserData,
   removeUserStatus,
   addProfilePicture,
-  getUserByEmail,
 } from '../../models/user';
 import {
   belowThresholdLearners,
@@ -225,9 +223,9 @@ export const leastAttendanceInCohort = async (req, res) => {
 };
 
 export const addProfilePictureAPI = async (req, res) => {
-  const { user, action } = req.body;
+  const { user_id, picture_url } = req.body;
   try {
-    const data = await addProfilePicture(user, action);
+    const data = await addProfilePicture({ user_id, picture_url });
     res.status(200).json({
       text: 'signedUrl for uploading profile picture',
       data,

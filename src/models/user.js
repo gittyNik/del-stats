@@ -310,13 +310,10 @@ export const changeUserRole = (learner_id, role, roles) => User.update({
   },
 });
 
-export const addProfilePicture = async (user, action) => {
-  const { user_id, picture_url } = user;
-  return User.update({
-    picture: picture_url,
-  }, {
-    where: {
-      id: user_id,
-    },
-  });
-};
+export const addProfilePicture = async ({ user_id, picture_url }) => User.update({
+  picture: picture_url,
+}, {
+  where: {
+    id: user_id,
+  },
+});
