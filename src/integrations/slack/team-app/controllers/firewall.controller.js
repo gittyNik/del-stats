@@ -18,7 +18,7 @@ export const sendFirewallResult = (application, phone) => {
   try {
     webhook.send(view);
   } catch (err) {
-    console.warn('Failed to send message to slack');
+    console.warn(`Failed to send message to slack: ${err}`);
   }
 };
 
