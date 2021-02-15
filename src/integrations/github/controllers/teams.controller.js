@@ -5,6 +5,7 @@ import { octokit, org } from './git.auth.controller';
 import { getNumberOfPages } from './pagination.controller';
 import { getGithubConnecionByUserId } from '../../../models/social_connection';
 import { getCohortFromId } from '../../../models/cohort';
+import { addLearnerToMSTeam, getOneTeamToAddLearner } from '../../../models/team';
 
 export const toSentenceCase = (str) => `${str.charAt(0).toUpperCase()}${str.substring(1).toLowerCase()}`;
 
@@ -147,6 +148,13 @@ export const moveLearnerToNewGithubTeam = async (
   );
 
   await removeMemberFromTeam(current_team_name, sc.username);
+  try {
+    let teamId = await getOneTeamToAddLearner(current_cohort_id);
+    await addLearnerToMSTeam(learner_id, teamId);
+  } catch (err) {
+    console.error(`Unable to add learner to team: ${err}`);
+  }
+
   return addMemberToTeam(future_team_name, sc.username);
 };
 
@@ -183,6 +191,13 @@ export const addLearnerToGithubTeam = async (
   );
 
   let sc = await getGithubConnecionByUserId(learner_id);
+  try {
+    let teamId = await getOneTeamToAddLearner(current_cohort_id);
+    await addLearnerToMSTeam(learner_id, teamId);
+  } catch (err) {
+    console.error(`Unable to add learner to team: ${err}`);
+  }
+
   try {
     const res = addMemberToTeam(current_team_name, sc.username);
     return res;

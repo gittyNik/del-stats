@@ -6,14 +6,30 @@ import {
   User, USER_ROLES, changeUserRole, addUserStatus,
 } from './user';
 import db from '../database';
-import { createCohortMilestones, CohortMilestone, getLiveCohortMilestone } from './cohort_milestone';
+import {
+  createCohortMilestones, CohortMilestone,
+  getLiveCohortMilestone,
+} from './cohort_milestone';
 import { getCohortBreakoutsBetweenDates } from './cohort_breakout';
 // import { BreakoutTemplate, CreateBreakoutsInMilestone } from './breakout_template';
 import { createTypeBreakoutsInMilestone } from './breakout_template';
-import { removeLearnerBreakouts, createLearnerBreakouts, createLearnerBreakoutsForCurrentMS } from './learner_breakout';
-import { moveLearnerToNewGithubTeam, deleteGithubRepository, addLearnerToGithubTeam } from '../integrations/github/controllers';
-import { removeLearnerFromSlackChannel, moveLearnerToNewSlackChannel, addLearnersToCohortChannel } from './slack_channels';
+import {
+  removeLearnerFromTeam,
+} from '../controllers/operations/learners.controller';
+import {
+  removeLearnerBreakouts,
+  createLearnerBreakouts, createLearnerBreakoutsForCurrentMS,
+} from './learner_breakout';
+import {
+  moveLearnerToNewGithubTeam,
+  addLearnerToGithubTeam,
+} from '../integrations/github/controllers';
+import {
+  removeLearnerFromSlackChannel,
+  moveLearnerToNewSlackChannel, addLearnersToCohortChannel,
+} from './slack_channels';
 import { removeLearnerFromGithubTeam } from '../integrations/github/controllers/teams.controller';
+import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
 
 export const COHORT_STATUS = [
   'upcoming',
@@ -59,6 +75,41 @@ export const Cohort = db.define('cohorts', {
   duration: Sequelize.INTEGER,
 
 });
+
+export const updateCohortById = async ({
+  id,
+  location,
+  program,
+  start_date,
+  status,
+  name,
+  duration,
+  type,
+  updated_by_id,
+  updated_by_name,
+}) => {
+  try {
+    if (status !== null) {
+      const message = `${program} Cohort: *${name}* ${location} has been marked: *${status}* by ${updated_by_name}`;
+      const context = 'Cohort status update';
+      sendMessageToSlackChannel(message, context, process.env.SLACK_LEARNER_AFFAIRS);
+    }
+  } catch (err) {
+    console.warn('Failed to send slack message');
+  }
+  return Cohort.update({
+    location,
+    program,
+    start_date,
+    status,
+    name,
+    duration,
+    type,
+  }, {
+    where: { id },
+    returning: true,
+  });
+};
 
 export const findAllCohorts = (
   where, attributes, include, order,
@@ -446,6 +497,7 @@ export const moveLearnertoDifferentCohort = async (
   removeLearnerFromCohort(learner_id, current_cohort_id),
   addLearnerToCohort(learner_id, future_cohort_id),
   updateCohortJoining(learner_id, future_cohort_id),
+  removeLearnerFromTeam(learner_id, current_cohort_id),
   moveLearnerToNewGithubTeam(
     learner_id,
     current_cohort_id,
@@ -471,6 +523,7 @@ export const removeLearner = async ({
   updated_by_name,
 }) => Promise.all([
   removeLearnerFromCohort(learner_id, current_cohort_id),
+  removeLearnerFromTeam(learner_id, current_cohort_id),
   removeLearnerFromGithubTeam(
     learner_id,
     current_cohort_id,

@@ -492,7 +492,7 @@ export const getCurrentCohortMilestone = async (cohort_id) => {
       },
       cohort_id,
     },
-    raw: true,
+    include: [Team],
   });
 };
 

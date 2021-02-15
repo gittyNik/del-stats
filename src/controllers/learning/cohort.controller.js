@@ -11,6 +11,7 @@ import {
   beginParallelCohorts,
   getLiveCohorts,
   addLearnerStatus,
+  updateCohortById,
 } from '../../models/cohort';
 
 import { USER_ROLES } from '../../models/user';
@@ -60,10 +61,26 @@ export const createCohort = (req, res) => {
 };
 
 export const updateCohort = (req, res) => {
-  const { location, program, start_date } = req.body;
+  const {
+    location, program, start_date,
+    status, name, duration,
+    type,
+  } = req.body;
   const { id } = req.params;
-  Cohort.update({ location, program, start_date }, { where: { id } })
-    .then((data) => res.json({ data }))
+  const updated_by_id = req.jwtData.user.id;
+  const updated_by_name = req.jwtData.user.name;
+  updateCohortById({
+    id,
+    location,
+    program,
+    start_date,
+    status,
+    name,
+    duration,
+    type,
+    updated_by_id,
+    updated_by_name,
+  }).then((data) => res.json({ data }))
     .catch((err) => res.status(500).send(err));
 };
 
