@@ -100,7 +100,10 @@ const addTeamToExponentSoftware = async userProfile => {
   if (isEdu) {
     return { userProfile, teamName: 'Educators' };
   }
-  if (userProfile.user.role === 'catalyst' || userProfile.user.role === 'reviewer') {
+  if (userProfile.user.role === 'catalyst' || userProfile.user.role === 'reviewer'
+    || userProfile.user.roles.includes('reviewer')
+    || userProfile.user.roles.includes('catalyst')
+  ) {
     return { userProfile, teamName: userProfile.user.role, excluded: true };
   }
   return getCohortFromLearnerId(userProfile.user.id)
@@ -218,7 +221,8 @@ export const signinWithGithub = (req, res) => {
         return getUserFromEmails(profileEmails);
       })
       .then(user => {
-        if (user === null || user.role === USER_ROLES.GUEST) {
+        if (user === null || user.role === USER_ROLES.GUEST
+          || user.roles.includes(USER_ROLES.GUEST)) {
           return Promise.reject('NO_EMAIL');
         }
         return {
@@ -354,7 +358,7 @@ export const handleGoogleCallback = async (req, res) => {
           });
           // console.log(dataSC.user);
           // Create calendar events if user is learner
-          if (user.role === USER_ROLES.LEARNER) {
+          if ((user.role === USER_ROLES.LEARNER) || user.roles.includes(USER_ROLES.LEARNER)) {
             try {
               await createCalendarEventsForLearner(user.id);
             } catch (err) {
