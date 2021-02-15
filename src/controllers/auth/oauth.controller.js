@@ -101,8 +101,8 @@ const addTeamToExponentSoftware = async userProfile => {
     return { userProfile, teamName: 'Educators' };
   }
   if (userProfile.user.role === 'catalyst' || userProfile.user.role === 'reviewer'
-    || userProfile.user.roles.includes('reviewer')
-    || userProfile.user.roles.includes('catalyst')
+  // || userProfile.user.roles.includes('reviewer')
+  // || userProfile.user.roles.includes('catalyst')
   ) {
     return { userProfile, teamName: userProfile.user.role, excluded: true };
   }
