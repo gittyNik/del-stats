@@ -133,7 +133,13 @@ const notifyApplicationSubmitted = (phone) => (application) => Promise.all([
   sendSms(phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
     .catch(err => console.error(err)),
   populateTestResponses(application)
-    .then(appli => sendFirewallResult(appli, phone))
+    .then(appli => {
+      try {
+        sendFirewallResult(appli, phone);
+      } catch (err) {
+        console.warn('Unable to send notification to slack');
+      }
+    })
     .catch(err => console.error(err)),
 ])
   .then(() => application);

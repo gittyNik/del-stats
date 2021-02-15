@@ -1,6 +1,7 @@
 import {
   getAllLikesRating, getVideoLikesRating, getVideoLikedByUser,
   getVideoByCatalyst, createRecordingEntry, updateRecordingDetails,
+  getAverageStatsCatalyst,
 } from '../../models/breakout_recording_details';
 
 export const getAllRecordingsAPI = (req, res) => {
@@ -11,7 +12,13 @@ export const getAllRecordingsAPI = (req, res) => {
   if (typeof limit !== 'undefined') {
     limit = parseInt(limit, 10);
   }
-  getAllLikesRating(skip, limit, sort_by).then((data) => { res.json(data); })
+  getAllLikesRating(skip, limit, sort_by).then((data) => {
+    res.status(200).json({
+      message: 'Fetch Breakout details',
+      data,
+      type: 'success',
+    });
+  })
     .catch(err => {
       console.error(err);
       res.status(500).send(err);
@@ -42,14 +49,44 @@ export const getVideoLikedByUserAPI = (req, res) => {
 
 export const getVideoByCatalystAPI = (req, res) => {
   let { skip, limit, sort_by } = req.query;
-  let { catalyst_id } = req.params;
+  let { id } = req.params;
   if (typeof skip !== 'undefined') {
     skip = parseInt(skip, 10);
   }
   if (typeof limit !== 'undefined') {
     limit = parseInt(limit, 10);
   }
-  getVideoByCatalyst(catalyst_id, skip, limit, sort_by).then((data) => { res.json(data); })
+  getVideoByCatalyst({
+    catalyst_id: id, skip, limit, sort_by,
+  }).then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
+
+export const getAverageStatsCatalystAPI = (req, res) => {
+  let { skip, limit, sort_by } = req.query;
+  let { id } = req.params;
+  if (typeof skip !== 'undefined') {
+    skip = parseInt(skip, 10);
+  }
+  if (typeof limit !== 'undefined') {
+    limit = parseInt(limit, 10);
+  }
+  getAverageStatsCatalyst({
+    catalyst_id: id, skip, limit, sort_by,
+  }).then((data) => {
+    if (data.length > 0) {
+      res.status(200).json({
+        message: 'Catalyst stats fetched',
+        data: data[0],
+        type: 'success',
+      });
+    } else {
+      res.status(400).json({
+        message: 'Catalyst stats not found',
+        type: 'success',
+      });
+    }
+  })
     .catch(err => res.status(500).send(err));
 };
 

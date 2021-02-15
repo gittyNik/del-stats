@@ -8,6 +8,17 @@ import { currentTeamOfLearner, removeLearnerFromMSTeam } from '../../models/team
 import { createApplication } from '../../models/application';
 import { createUser, USER_ROLES } from '../../models/user';
 
+export const removeLearnerFromTeam = async (learner_id, cohort_id) => {
+  let current_team_id = await currentTeamOfLearner(learner_id, cohort_id);
+  if (!current_team_id) {
+    return null;
+  }
+  current_team_id = current_team_id.id;
+
+  let team = await removeLearnerFromMSTeam(learner_id, current_team_id);
+  return team;
+};
+
 export const onLeaveController = async (req, res) => {
   try {
     const { learner_id, cohort_id } = req.body;
@@ -18,11 +29,6 @@ export const onLeaveController = async (req, res) => {
       removeLearnerFromCohort(learner_id, cohort_id),
       removeLearnerBreakouts(learner_id, cohort_id),
     ]).then(async ([cohort, breakout]) => {
-      let current_team_id = await currentTeamOfLearner(learner_id, cohort_id);
-      if (!current_team_id) {
-        return [cohort, breakout];
-      }
-      current_team_id = current_team_id.id;
       await addLearnerStatus({
         user_id: learner_id,
         updated_by_id,
@@ -30,7 +36,11 @@ export const onLeaveController = async (req, res) => {
         cohort_id,
         status: 'staged',
       });
-      let team = await removeLearnerFromMSTeam(learner_id, current_team_id);
+
+      const team = removeLearnerFromTeam(learner_id, cohort_id);
+      if (team === null) {
+        return [cohort, breakout];
+      }
       return [cohort, breakout, team];
     });
     res.json({ data: allOp });

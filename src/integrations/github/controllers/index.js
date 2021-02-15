@@ -39,6 +39,7 @@ import {
 } from '../../../models/team';
 import {
   getCohortFromId,
+  getCohortFromLearnerId,
 } from '../../../models/cohort';
 import {
   getGithubConnecionByUserId,
@@ -51,6 +52,7 @@ import {
   latestChallengeInCohort,
   getLearnerChallengesAfterDate,
   getLearnerChallengesBetweenDate,
+  getRepoDetails,
 } from '../../../models/learner_challenge';
 import {
   contributersInRepository,
@@ -518,6 +520,34 @@ export const getGithubChallengesStats = async (cohort_id, start_date, end_date) 
   return allMilestoneCommitsPromises;
 };
 
+export const getChallengeCommits = async (eachChallenge, cohort_id, learner) => {
+  // For each challenge, get stats
+  let github_repo = eachChallenge.repo;
+  let challengeId = eachChallenge.id;
+  let topicDetails;
+
+  // Get Cohort Milestone id
+  if ('challenge.topic_id' in eachChallenge) {
+    topicDetails = await getTopicById(eachChallenge['challenge.topic_id']);
+  } else {
+    topicDetails = await getTopicById(eachChallenge.challenge.topic_id);
+  }
+  let { milestone_id } = topicDetails;
+  let { id: cohort_milestone_id } = await getCohortMilestone(cohort_id, milestone_id);
+
+  // Get Github token for one learner and use it to get all commits
+  let socialConnection = await getGithubConnecionByUserId(learner);
+  let contributorsRepo = await getContributorsInRepo(github_repo, socialConnection);
+
+  // For every learner fetch commits from a challenge repo
+  let learnerCommits = await apiForOneLearnerGithubMilestone(learner,
+    github_repo,
+    socialConnection);
+  return {
+    learnerCommits, challengeId, contributorsRepo, user_id: learner, cohort_milestone_id,
+  };
+};
+
 export const getGithubChallengesStatsPerUser = async (
   cohort_id, start_date, end_date, learner,
 ) => {
@@ -527,27 +557,11 @@ export const getGithubChallengesStatsPerUser = async (
   let allLearnerChallenges = await getChallengesByUserId(learner, start_date, end_date);
   let learnerCommitPromises = [];
   if (!(_.isEmpty(allLearnerChallenges))) {
-    learnerCommitPromises = await Promise.all(allLearnerChallenges.map(async eachChallenge => {
-      // For each challenge, get stats
-      let github_repo = eachChallenge.repo;
-      let challengeId = eachChallenge.id;
-
-      // Get Cohort Milestone id
-      let { milestone_id } = await getTopicById(eachChallenge.challenge.topic_id);
-      let { id: cohort_milestone_id } = await getCohortMilestone(cohort_id, milestone_id);
-
-      // Get Github token for one learner and use it to get all commits
-      let socialConnection = await getGithubConnecionByUserId(learner);
-      let contributorsRepo = await getContributorsInRepo(github_repo, socialConnection);
-
-      // For every learner fetch commits from a challenge repo
-      let learnerCommits = await apiForOneLearnerGithubMilestone(learner,
-        github_repo,
-        socialConnection);
-      return {
-        learnerCommits, challengeId, contributorsRepo, user_id: learner, cohort_milestone_id,
-      };
-    }));
+    learnerCommitPromises = await Promise.all(allLearnerChallenges.map(
+      async eachChallenge => getChallengeCommits(
+        eachChallenge, cohort_id, learner,
+      ),
+    ));
   }
   return learnerCommitPromises;
 };
@@ -1122,6 +1136,36 @@ export const getRecentCommitInCohort = async (req, res) => {
     const { cohort_milestone_id } = req.params;
     const latestCommit = await getLatestCommitInCohort(cohort_milestone_id);
     res.send({ data: latestCommit });
+  } catch (err) {
+    console.error(err);
+    res.status(500);
+  }
+};
+
+export const updateOneChallengeCommits = async (req, res) => {
+  try {
+    const {
+      repo,
+    } = req.params;
+    const eachChallenge = await getRepoDetails(repo);
+    let cohortDetails = await getCohortFromLearnerId(eachChallenge['user.id']);
+
+    const latestCommit = await getChallengeCommits(eachChallenge, cohortDetails.id, eachChallenge['user.id']);
+    let {
+      learnerCommits,
+      challengeId,
+      contributorsRepo,
+      cohort_milestone_id,
+    } = latestCommit;
+    let learner_challenge_id = challengeId;
+    await createStatForSingleLearner(
+      learnerCommits, null, cohort_milestone_id, contributorsRepo, learner_challenge_id,
+    );
+    res.status(200).json({
+      message: 'Updated Challenges commits',
+      data: latestCommit,
+      type: 'success',
+    });
   } catch (err) {
     console.error(err);
     res.status(500);

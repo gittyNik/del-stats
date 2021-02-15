@@ -10,6 +10,8 @@ import {
   addLearner,
   beginParallelCohorts,
   getLiveCohorts,
+  addLearnerStatus,
+  updateCohortById,
 } from '../../models/cohort';
 
 import { USER_ROLES } from '../../models/user';
@@ -59,10 +61,26 @@ export const createCohort = (req, res) => {
 };
 
 export const updateCohort = (req, res) => {
-  const { location, program, start_date } = req.body;
+  const {
+    location, program, start_date,
+    status, name, duration,
+    type,
+  } = req.body;
   const { id } = req.params;
-  Cohort.update({ location, program, start_date }, { where: { id } })
-    .then((data) => res.json({ data }))
+  const updated_by_id = req.jwtData.user.id;
+  const updated_by_name = req.jwtData.user.name;
+  updateCohortById({
+    id,
+    location,
+    program,
+    start_date,
+    status,
+    name,
+    duration,
+    type,
+    updated_by_id,
+    updated_by_name,
+  }).then((data) => res.json({ data }))
     .catch((err) => res.status(500).send(err));
 };
 
@@ -198,8 +216,31 @@ export const addLearnerEndpoint = (req, res) => {
     data,
     type: 'success',
   })).catch(err => {
-    console.log("ERROR ADDING LEARNER:", err);
-    res.status(500).send(err);
+    console.log('ERROR ADDING LEARNER:', err);
+    res.status(500);
+  });
+};
+
+export const addLearnerStatusAPI = (req, res) => {
+  const {
+    learner_id, current_cohort_id, status, future_cohort_id,
+  } = req.body;
+  const updated_by_id = req.jwtData.user.id;
+  const updated_by_name = req.jwtData.user.name;
+  addLearnerStatus({
+    user_id: learner_id,
+    updated_by_id,
+    updated_by_name,
+    cohort_id: current_cohort_id,
+    status,
+    future_cohort_id,
+  }).then(data => res.status(200).send({
+    message: `Learners added to new cohort: ${current_cohort_id}`,
+    data,
+    type: 'success',
+  })).catch(err => {
+    console.log('ERROR ADDING LEARNER Status:', err);
+    res.status(500);
   });
 };
 

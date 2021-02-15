@@ -11,6 +11,7 @@ import {
   fillGithubChallengesStats,
   updateLearnerChallengeCommits,
   updateLearnerMilestoneCommits,
+  updateOneChallengeCommits,
   // userAndTeamCommitsDayWise
 } from '../../../integrations/github/controllers';
 
@@ -47,6 +48,17 @@ router.get(
   getTotalTeamAndUserCommits,
 );
 
+/**
+ * @api {get} /integrations/github/stats/challenges/user/:repo Update User commits for a repo
+ * @apiDescription Update User commits for a repo
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UpdateUserCommits
+ * @apiGroup GithubStats
+ *
+ * @apiParam {String} repo
+ */
+router.get('/challenges/user/:repo', updateOneChallengeCommits);
+
 router.get('/commits/cohort/:cohort_milestone_id', getTotalCohortCommits);
 
 router.get('/challenges/user', numberOfAttemptedChallenges);
@@ -60,7 +72,7 @@ router.get('/all/:cohort_id/:cohort_milestone_id', getAllStats);
  * @apiDescription Update User's challenge commits
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateUserCommits
- * @apiGroup ContentMilestone
+ * @apiGroup GithubStats
  *
  * @apiParam {String} cohort_id
  * @apiParam {String} start_date
@@ -75,7 +87,7 @@ router.post('/challenges/user', updateLearnerChallengeCommits);
  * @apiDescription Update User's milestone commits
  * @apiHeader {String} authorization JWT Token.
  * @apiName UpdateUserCommits
- * @apiGroup ContentMilestone
+ * @apiGroup GithubStats
  *
  * @apiParam {String} user_id
  * @apiParam {String} cohort_milestone_id

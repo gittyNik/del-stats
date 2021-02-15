@@ -50,6 +50,20 @@ export const LearnerChallenge = db.define('learner_challenges', {
 
 const { gt, between } = Sequelize.Op;
 
+export const getRepoDetails = async (repo) => LearnerChallenge.findOne({
+  include: [
+    {
+      model: User,
+      attributes: ['name', 'id'],
+    },
+    Challenge,
+  ],
+  where: {
+    repo,
+  },
+  raw: true,
+});
+
 export const latestChallengeInCohort = async (cohort_id) => {
   let ch = await getCohortFromId(cohort_id);
   return LearnerChallenge.findOne({

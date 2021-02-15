@@ -449,7 +449,7 @@ export const getLiveCohortMilestone = (cohort_id) => {
       review_scheduled: { [gt]: now },
       cohort_id,
     },
-    // include: [Cohort, Milestone],
+    include: [Milestone, Cohort],
     raw: true,
   });
 };
@@ -492,7 +492,7 @@ export const getCurrentCohortMilestone = async (cohort_id) => {
       },
       cohort_id,
     },
-    raw: true,
+    include: [Team],
   });
 };
 
