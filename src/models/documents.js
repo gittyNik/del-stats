@@ -396,6 +396,7 @@ export const getLearnerDocumentsJSON = async ({ program, is_isa, non_isa_type })
       } else { // creating a category and updating the list with current document.
         data.push({
           document_name: r.document_category,
+          display_name: 'Optional Document(s)',
           is_required: true,
           is_verified: false,
           // select any n documents from the list. where n is the number represented in the string
@@ -423,7 +424,7 @@ export const getLearnerDocumentsJSON = async ({ program, is_isa, non_isa_type })
         });
       }
     } else {
-      data.push({
+      data.unshift({
         document_name: r.document_identifier,
         display_name: r.document_name,
         document_count: r.document_count,
