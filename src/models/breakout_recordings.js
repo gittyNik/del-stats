@@ -5,6 +5,15 @@ import {
   updateOneCohortBreakouts,
   findOneCohortBreakout,
 } from './cohort_breakout';
+import {
+  BreakoutRecordingsDetails,
+} from './breakout_recording_details';
+import {
+  User,
+} from './user';
+import {
+  Topic,
+} from './topic';
 
 const privateKey = process.env.CLOUDFRONT_KEY.replace(/\\n/g, '\n');
 const publicKey = process.env.PUBLIC_KEY;
@@ -51,6 +60,71 @@ export const BreakoutRecordings = db.define('breakout_recordings', {
 });
 
 const cloudFront = new AWS.CloudFront.Signer(publicKey, privateKey);
+
+export const getAllBreakoutRecordings = async ({
+  limit, offset, sort_by, topics,
+}) => {
+  limit = limit || 10;
+  sort_by = sort_by || 'video_views';
+  let whereAnotherObj = {};
+
+  if (topics) {
+    topics = topics.split(',');
+    whereAnotherObj = {
+      topics_array: { [Sequelize.Op.contains]: [topics] },
+    };
+  }
+
+  const allBreakouts = await BreakoutRecordings.findAndCountAll({
+    where: whereAnotherObj,
+    include: [{
+      model: User,
+      attributes: ['name'],
+    },
+    ],
+    order: [
+      [sort_by, 'DESC'],
+    ],
+    raw: true,
+    limit,
+    offset,
+  });
+  const breakouts = await Promise.all(allBreakouts.rows.map(async eachBreakout => {
+    let whereObj = {
+      video_id: eachBreakout.id,
+    };
+    const breakoutDetails = await BreakoutRecordingsDetails.findAll({
+      attributes: [
+        'video_id',
+        [Sequelize.fn('count', Sequelize.col('liked_by_user')), 'likes'],
+        [Sequelize.fn('avg', Sequelize.col('breakout_rating')), 'rating'],
+      ],
+      group: [
+        'breakout_recordings_details.video_id',
+      ],
+      where: whereObj,
+      raw: true,
+    });
+    if (breakoutDetails.length > 0) {
+      const { likes, rating } = breakoutDetails[0];
+      eachBreakout.likes = parseInt(likes, 10);
+      eachBreakout.ratings = parseFloat(rating);
+    } else {
+      eachBreakout.likes = 0;
+      eachBreakout.ratings = 0;
+    }
+    const topicsData = await Promise.all(eachBreakout.topics_array.map(
+      eachTopic => Topic.findByPk(eachTopic, {
+        attributes: ['title', 'path', 'optional'],
+        raw: true,
+      }),
+    ));
+    eachBreakout.topics = topicsData;
+    return eachBreakout;
+  }));
+  const recordingDetails = { data: breakouts, count: allBreakouts.count, message: 'Fetched Breakouts' };
+  return recordingDetails;
+};
 
 export const getAWSSignedUrl = (unSignedUrl) => {
   let signedUrl = '';

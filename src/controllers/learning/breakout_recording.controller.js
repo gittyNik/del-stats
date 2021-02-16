@@ -1,18 +1,25 @@
 import {
-  getAllRecordings, getRecordingsById, getRecordingsByCatalyst,
+  getAllBreakoutRecordings, getRecordingsById, getRecordingsByCatalyst,
   createRecordingEntry, updateRecordings, getRecordingVideoUrl,
 } from '../../models/breakout_recordings';
 
 export const getAllRecordingsAPI = (req, res) => {
-  let { skip, limit, sort_by } = req.query;
-  if (typeof skip !== 'undefined') {
-    skip = parseInt(skip, 10);
+  let {
+    page, limit, sort_by, topics,
+  } = req.query;
+  let offset;
+  if ((limit) && (page)) {
+    offset = limit * (page - 1);
   }
-  if (typeof limit !== 'undefined') {
-    limit = parseInt(limit, 10);
-  }
-  getAllRecordings(skip, limit, sort_by).then((data) => { res.json(data); })
-    .catch(err => res.status(500).send(err));
+  getAllBreakoutRecordings({
+    offset, limit, sort_by, topics,
+  }).then((response) => {
+    res.json(response);
+  })
+    .catch(err => {
+      console.error(`Error while fetching all breakouts: ${err}`);
+      res.status(500);
+    });
 };
 
 export const getVideoUrl = (req, res) => {

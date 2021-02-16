@@ -76,6 +76,13 @@ export const Cohort = db.define('cohorts', {
 
 });
 
+export const getLearnerCohort = learner_id => Cohort.findOne({
+  where: {
+    learners: { [Sequelize.Op.contains]: [learner_id] },
+  },
+  raw: true,
+});
+
 export const updateCohortById = async ({
   id,
   location,
