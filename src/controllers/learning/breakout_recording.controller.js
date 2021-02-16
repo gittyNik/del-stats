@@ -4,17 +4,17 @@ import {
 } from '../../models/breakout_recordings';
 
 export const getAllRecordingsAPI = (req, res) => {
-  let { page, limit, sort_by } = req.query;
+  let {
+    page, limit, sort_by, topics,
+  } = req.query;
   let offset;
   if ((limit) && (page)) {
     offset = limit * (page - 1);
   }
-  getAllBreakoutRecordings({ offset, limit, sort_by }).then((response) => {
-    const {
-      rows: data,
-      count,
-    } = response;
-    res.json({ data, count, message: 'Fetched breakouts' });
+  getAllBreakoutRecordings({
+    offset, limit, sort_by, topics,
+  }).then((response) => {
+    res.json(response);
   })
     .catch(err => {
       console.error(`Error while fetching all breakouts: ${err}`);
