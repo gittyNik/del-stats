@@ -622,7 +622,6 @@ export const updateZoomMeeting = (req, res) => {
  * 1. update/create zoom meeting.
  * 2. update/create calendarevent for Catalyst
  * 3. create/update calendar event for all learners in that cohort.
- * 4. todo: update only for learners of a certain path (backend/frontend).
  */
 export const updateCohortBreakout = async (req, res) => {
   const { updated_time, catalyst_id: newCatalystId } = req.body;

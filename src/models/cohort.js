@@ -106,7 +106,7 @@ export const updateCohortById = async ({
   }
   return Cohort.update({
     location,
-    program,
+    program_id: program,
     start_date,
     status,
     name,
