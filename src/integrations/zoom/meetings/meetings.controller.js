@@ -70,7 +70,8 @@ export const scheduleNewMeeting = (req, res) => {
     topic, type, start_time, duration, agenda, catalyst_id,
     time_zone,
   } = req.body;
-  createScheduledMeeting(topic, start_time, duration, agenda,
+  let meeting_time = new Date(start_time);
+  createScheduledMeeting(topic, meeting_time, duration, agenda,
     type, catalyst_id, time_zone).then(
     data => res.json({
       text: 'New Meeting',

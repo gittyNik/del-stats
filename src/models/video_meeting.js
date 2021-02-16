@@ -141,13 +141,16 @@ export const createScheduledMeeting = async (topic, start_time,
     settings: meetingSettings,
   };
 
+  console.log(`Catalyst email for meeting: ${catalyst_email}`);
   // Logic for using Pro Zoom accounts
   if ((catalyst_email === null) || (catalyst_email === undefined)) {
     // console.log('trying to create meeting');
     // Calculate End time for Meeting
     let starting_time = new Date(start_time);
+    start_time = starting_time.toISOString();
     let end_time = new Date(start_time);
     end_time.setMinutes(end_time.getMinutes() + duration);
+    end_time = end_time.toISOString();
 
     // Check if Meeting exist between same start and end time
     let concurrent_meet = await VideoMeeting.findAll({
@@ -157,6 +160,7 @@ export const createScheduledMeeting = async (topic, start_time,
       },
       logging: console.log,
     });
+    console.log(`Concurrent meetings: ${concurrent_meet}`);
     let zoom_user_index = 0;
 
     // Meetings will be created in a particular order of user id
