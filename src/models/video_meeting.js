@@ -2,8 +2,6 @@ import Sequelize from 'sequelize';
 import request from 'superagent';
 import uuid from 'uuid/v4';
 import jwt from 'jsonwebtoken';
-import moment from 'moment';
-import { exceptions } from 'winston';
 import _ from 'lodash';
 import db from '../database';
 import { LearnerBreakout } from './learner_breakout';
