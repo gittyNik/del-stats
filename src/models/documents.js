@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 import _ from 'lodash';
+import uuid from 'uuid/v4';
 import db from '../database';
 import { AgreementTemplates } from './agreements_template';
 
@@ -306,21 +307,35 @@ export const insertIndividualDocument = (
       document should contain these properties
       const {document_name, is_verified, document_path} = document;
       */
-      return createUserEntry({
-        user_id,
-        user_document: document,
-      }).then(d => d.get({ plain: true }));
-    }
-    // const { document_name, is_verified, document_path } = document;
 
-    return learnerDocument.update({
-      user_documents: createOrUpdateUserDocument(document, learnerDocument.user_documents),
+      return Documents.create({
+        id: uuid(),
+        user_id,
+        user_documents: document,
+      });
+      // return createUserEntry({
+      //   user_id,
+      //   user_document: document,
+      // }).then(d => d.get({ plain: true }));
+    }
+    return Documents.update({
+      user_documents: document,
     }, {
       where: {
         user_id,
       },
-    })
-      .then(d => d.get({ plain: true }));
+    });
+
+    // const { document_name, is_verified, document_path } = document;
+
+    // return learnerDocument.update({
+    //   user_documents: createOrUpdateUserDocument(document, learnerDocument.user_documents),
+    // }, {
+    //   where: {
+    //     user_id,
+    //   },
+    // })
+    //   .then(d => d.get({ plain: true }));
   });
 
 export const verifySingleUserDocument = async (
