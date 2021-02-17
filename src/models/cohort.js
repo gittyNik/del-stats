@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { Application, updateCohortJoining } from './application';
 import {
   User, USER_ROLES, changeUserRole, addUserStatus,
+  removeUserStatus,
 } from './user';
 import db from '../database';
 import {
@@ -470,11 +471,31 @@ export const addLearnerStatus = async (
   } else if (status === 'staged') {
     status_reason = `Learner staged from ${cohort_name} ${cohortDuration} ${cohort_year} ${program}. Milestone: ${milestone_name}`;
   } else if (status === 'removed') {
+    try {
+      await removeUserStatus(
+        user_id, 'staged', 'Added to Cohort',
+        updated_by_id, updated_by_name,
+        milestone_id, milestone_name,
+        cohort_id, cohort_name,
+      );
+    } catch (err) {
+      console.warn(`Unable to remove user: ${user_id} status: staged`);
+    }
     if ((cohort_name !== null) || (cohort_name !== undefined)) {
       status_reason = `Learner removed from cohort: ${cohort_name} ${cohortDuration} ${cohort_year} ${program}. Milestone: ${milestone_name}`;
     }
     status_reason = 'Learner removed. Learner was staged previously';
   } else if (status === 'added-to-cohort') {
+    try {
+      await removeUserStatus(
+        user_id, 'staged', 'Added to Cohort',
+        updated_by_id, updated_by_name,
+        milestone_id, milestone_name,
+        cohort_id, cohort_name,
+      );
+    } catch (err) {
+      console.warn(`Unable to remove user: ${user_id} status: staged`);
+    }
     status_reason = `Learner added to cohort: ${cohort_name} ${cohortDuration} ${cohort_year} ${program}`;
   }
 
