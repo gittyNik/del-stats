@@ -130,7 +130,7 @@ export const getAllBreakoutRecordings = async ({
       eachBreakout.userStats.rating = parseFloat(breakout_rating);
     } else {
       eachBreakout.userStats.liked = false;
-      eachBreakout.userStats.ratings = 0;
+      eachBreakout.userStats.rating = 0;
     }
     const topicsData = await Promise.all(eachBreakout.topics_array.map(
       eachTopic => Topic.findByPk(eachTopic, {
