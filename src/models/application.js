@@ -14,10 +14,12 @@ export const APPLICATION_STAGE = [
   'cohort-selection-loan', 'verification-digio-document-creation',
   'verification-digio-esign',
   'verification-document-upload', 'verification-document-verified',
+  'verification-document-change-requested',
+  'verification-document-change-rejected',
   'payment_full',
   'authorisation-github', 'authorisation-zoom',
   'mandate-request', 'mandate-created', 'mandate-failed',
-  'verification_digio_esign-failed',
+  'verification-digio-esign-failed',
   'initial_payment-failed', 'full_payment-failed', 'part_payment-failed',
   'initial_payment-success', 'full_payment-success', 'part_payment-success',
 ];
