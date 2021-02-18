@@ -4,9 +4,7 @@ import _ from 'lodash';
 import db from '../database';
 import { User } from './user';
 import { Team } from './team';
-import { Cohort } from './cohort';
 import { SocialConnection, PROVIDERS } from './social_connection';
-import LearnerGithubChallenge from './learner_github_challenges';
 
 const { gte, gt } = Sequelize.Op;
 
@@ -298,6 +296,15 @@ export const deleteLearnerGithubDataForMilestone = (user_id) => LearnerGithubMil
   {
     where: {
       user_id,
+    },
+  },
+);
+
+export const deleteLearnerTeams = (team_id) => LearnerGithubMilestones.destroy(
+  {
+    where: {
+      team_id,
+      number_of_lines: 0,
     },
   },
 );

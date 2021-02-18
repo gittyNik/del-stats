@@ -7,12 +7,14 @@ export const getAllRecordingsAPI = (req, res) => {
   let {
     page, limit, sort_by, topics,
   } = req.query;
+  const user_id = req.jwtData.user.id;
+
   let offset;
   if ((limit) && (page)) {
     offset = limit * (page - 1);
   }
   getAllBreakoutRecordings({
-    offset, limit, sort_by, topics,
+    offset, limit, sort_by, topics, user_id,
   }).then((response) => {
     res.json(response);
   })
