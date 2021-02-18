@@ -12,7 +12,7 @@ export const addCatalyst = (req, res) => {
     name,
     email,
     phone,
-    role: USER_ROLES.CATALYST,
+    roles: [USER_ROLES.CATALYST],
   })
     .then(data => res.json({
       text: 'Catalyst added',
