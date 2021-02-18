@@ -52,7 +52,7 @@ export const getAllTopics = async (req, res) => {
         message: 'Topics fetched successfully',
         type: 'success',
       };
-      if (cohort && 'cohort.program_id' in cohort) {
+      if (cohort && 'milestone.id' in cohort) {
         response.milestone_id = cohort['milestone.id'];
       }
       res.json(response);
