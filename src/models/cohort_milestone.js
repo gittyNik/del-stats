@@ -455,6 +455,14 @@ export const getLiveCohortMilestone = (cohort_id) => {
   });
 };
 
+export const getLiveCohortMilestoneBylearnerId = learner_id => Application.findOne(
+  {
+    where: {
+      user_id: learner_id,
+    },
+  },
+).then(cohort => getLiveCohortMilestone(cohort.cohort_joining));
+
 export const getCurrentMilestoneOfCohortDelta = (cohort_id) => {
   const now = Sequelize.literal('NOW()');
   return CohortMilestone.findOne({

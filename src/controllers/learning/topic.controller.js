@@ -3,8 +3,8 @@ import {
   getTopics, getTopicById,
 } from '../../models/topic';
 import {
-  getLearnerCohort,
-} from '../../models/cohort';
+  getLiveCohortMilestoneBylearnerId,
+} from '../../models/cohort_milestone';
 import { Resource } from '../../models/resource';
 
 export const create = (req, res) => {
@@ -38,14 +38,25 @@ export const getAllTopics = async (req, res) => {
   const user_id = req.jwtData.user.id;
   const { for_user } = req.query;
   let program;
+  let cohort;
   if (for_user) {
-    const cohort = await getLearnerCohort(user_id);
-    program = cohort.program_id;
+    cohort = await getLiveCohortMilestoneBylearnerId(user_id);
+    program = cohort['cohort.program_id'];
   } else {
     program = null;
   }
   getTopics(program)
-    .then((data) => { res.json(data); })
+    .then((data) => {
+      const response = {
+        topics: data,
+        message: 'Topics fetched successfully',
+        type: 'success',
+      };
+      if (cohort && 'cohort.program_id' in cohort) {
+        response.milestone_id = cohort['milestone.id'];
+      }
+      res.json(response);
+    })
     .catch(err => {
       console.error(`Error while fetching topics: ${err}`);
       res.status(500);
