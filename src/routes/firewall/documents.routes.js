@@ -10,6 +10,7 @@ import {
   createDebitRequestNach, createMandate,
   getLearnerDocumentsJsonAPI,
   addApplicationTemplateSeed,
+  getDocumentsByApplicationIdAPI,
 } from '../../controllers/firewall/documents.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -100,6 +101,15 @@ router.post('/create-mandate', createMandate);
  * @apiGroup Documents
  */
 router.get('/:user_id', getDocumentsByUserId);
+
+/**
+ * @api {get} /firewall/application/:application_id Get document by application id
+ * @apiDescription get documents for application_id
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetDocuments
+ * @apiGroup Documents
+ */
+router.get('/application/:application_id', getDocumentsByApplicationIdAPI);
 
 /**
  * @api {post} /firewall/documents/ Add Users Documents

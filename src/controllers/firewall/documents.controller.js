@@ -4,7 +4,7 @@ import AWS from 'aws-sdk';
 import axios from 'axios';
 import crypto from 'crypto';
 import { HttpBadRequest } from '../../util/errors';
-import { getApplicationPaymentSelected } from '../../models/application';
+import { getApplicationPaymentSelected, Application } from '../../models/application';
 
 import {
   getDocumentsByStatus, getDocumentsByUser,
@@ -97,6 +97,27 @@ export const getDocumentsByUserId = (req, res) => {
 
   getDocumentsByUser(user_id).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
+};
+
+export const getDocumentsByApplicationIdAPI = (req, res) => {
+  const { application_id } = req.params;
+
+  // Get user by application ID
+  Application.findOne({
+    where: {
+      id: application_id,
+    },
+  })
+    .then(application => application.dataValues)
+    .then(application => {
+      getDocumentsByUser(application.user_id)
+        .then((data) => res.json({
+          message: 'Applicant Documents',
+          data,
+          type: 'success',
+        }))
+        .catch(err => res.status(500).send(err));
+    });
 };
 
 export const getDocumentsByID = (req, res) => {
@@ -795,7 +816,7 @@ export const getLearnerDocumentsJsonAPI = async (req, res) => {
 
 export const insertUserDocument = async (req, res) => {
   const { document } = req.body;
-  const user_id = req.jwtData.user.id;
+  const { user_id } = req.params;
   try {
     let response = await insertIndividualDocument(user_id, document);
     return res.json({
