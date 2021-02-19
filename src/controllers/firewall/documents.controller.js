@@ -113,7 +113,7 @@ export const getDocumentsByApplicationIdAPI = (req, res) => {
       getDocumentsByUser(application.user_id)
         .then((data) => res.json({
           message: 'Applicant Documents',
-          data,
+          data: data.user_documents,
           type: 'success',
         }))
         .catch(err => res.status(500).send(err));
