@@ -426,7 +426,8 @@ export const getApplicationByStatus = (req, res) => {
   let {
     limit, page,
   } = req.query;
-  const { status } = req.params;
+  const { status } = req.body;
+  const { Op } = Sequelize;
   let offset;
   if ((limit) && (page)) {
     offset = limit * (page - 1);
@@ -434,7 +435,9 @@ export const getApplicationByStatus = (req, res) => {
   Application.findAndCountAll(
     {
       where: {
-        status,
+        status: {
+          [Op.or]: [...status],
+        },
       },
       offset,
       limit,
