@@ -70,7 +70,7 @@ export const AgreementTemplates = db.define('agreement_templates', {
   },
   agreement_identifier: {
     type: Sequelize.STRING, // Do not remove, used for getting user agreement
-    allowNull: false,
+    // allowNull: false,
   },
 });
 
