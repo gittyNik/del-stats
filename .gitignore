@@ -10,3 +10,6 @@ tmp
 connectToDB.sh
 
 .history/
+
+.eslintcache
+build/

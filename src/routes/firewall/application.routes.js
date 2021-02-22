@@ -38,7 +38,7 @@ router.get('/live', getLiveApplications);
  *
  */
 
-router.get('/stage', getApplicationByStatus);
+router.get('/stage', getApplicationStageAPI);
 
 /**
  * @api {get} /firewall/applications/latest Get latest application by current user
@@ -59,7 +59,7 @@ router.get('/latest', getLatestApplication);
 router.get('/user/:id', getApplicationsByUserId);
 
 /**
- * @api {get} /firewall/applications/status/:status Get Application by status
+ * @api {get} /firewall/applications/status/ Get Application by status
  * @apiDescription Get application by status
  * @apiHeader {String} authorization JWT Token
  * @apiName ApplicationStatus
@@ -67,7 +67,7 @@ router.get('/user/:id', getApplicationsByUserId);
  *
  * @apiParam {String} status Status to filter applications
  */
-// router.get('/status/:status', getApplicationByStatus);
+router.get('/status', getApplicationByStatus);
 
 /**
  * @api {get} /firewall/applications/:id Get an Application
