@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { octokit, org } from './git.auth.controller';
 import { contributersInRepository } from './stats.controller';
 import { getNumberOfPages } from './pagination.controller';
+import { getUserCommitsForRepo } from './index';
 
 const getAllReposPageWise = (per_page = 100, page = 1) => octokit.repos
   .listForOrg({
@@ -119,7 +120,8 @@ export const isRepositoryCollaborator = async (login, repo) => getAllRepositoryC
   .then((collaborater) => (collaborater.length > 0));
 
 export const addCollaboratorToRepository = async (
-  collaborater, repo, permission = 'push') => octokit.repos.addCollaborator({
+  collaborater, repo, permission = 'push',
+) => octokit.repos.addCollaborator({
   owner: org,
   repo,
   username: collaborater,
@@ -156,6 +158,12 @@ export const createRepositoryifnotPresentFromTemplate = async (
   if (!isPresent) {
     return createGithubRepositoryFromTemplate(template_repo_name, repo, '', privateRepo);
   }
+  try {
+    await getUserCommitsForRepo(repo);
+  } catch (err) {
+    console.war(`Error while fetching commits: ${err}`);
+  }
+
   return {};
 };
 
