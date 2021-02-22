@@ -62,7 +62,7 @@ export const BreakoutRecordings = db.define('breakout_recordings', {
 const cloudFront = new AWS.CloudFront.Signer(publicKey, privateKey);
 
 export const getAllBreakoutRecordings = async ({
-  limit, offset, sort_by, topics,
+  limit, offset, sort_by, topics, user_id,
 }) => {
   limit = limit || 10;
   sort_by = sort_by || 'video_views';
@@ -105,6 +105,16 @@ export const getAllBreakoutRecordings = async ({
       where: whereObj,
       raw: true,
     });
+    whereObj.user_id = user_id;
+    const currentUserDetails = await BreakoutRecordingsDetails.findOne({
+      attributes: [
+        'video_id',
+        'liked_by_user',
+        'breakout_rating',
+      ],
+      where: whereObj,
+      raw: true,
+    });
     if (breakoutDetails.length > 0) {
       const { likes, rating } = breakoutDetails[0];
       eachBreakout.likes = parseInt(likes, 10);
@@ -112,6 +122,15 @@ export const getAllBreakoutRecordings = async ({
     } else {
       eachBreakout.likes = 0;
       eachBreakout.ratings = 0;
+    }
+    eachBreakout.userStats = {};
+    if (currentUserDetails && currentUserDetails.length > 0) {
+      const { liked_by_user, breakout_rating } = currentUserDetails[0];
+      eachBreakout.userStats.liked = liked_by_user;
+      eachBreakout.userStats.rating = parseFloat(breakout_rating);
+    } else {
+      eachBreakout.userStats.liked = false;
+      eachBreakout.userStats.rating = 0;
     }
     const topicsData = await Promise.all(eachBreakout.topics_array.map(
       eachTopic => Topic.findByPk(eachTopic, {

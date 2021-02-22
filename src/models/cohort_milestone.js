@@ -28,6 +28,7 @@ import {
 } from '../integrations/github/controllers/index';
 
 import { getResourceByTopic } from './resource';
+import { Application } from './application';
 
 export class NoMilestoneCommits extends Error {
   constructor(message, cause) {
@@ -155,13 +156,13 @@ export const getCohortMilestoneTeamsBeforeDate = (
   }],
 });
 
-export const getCohortMilestoneBylearnerId = learner_id => Cohort.findOne({
-  where: {
-    learners: {
-      [Sequelize.Op.contains]: [learner_id],
+export const getCohortMilestoneBylearnerId = learner_id => Application.findOne(
+  {
+    where: {
+      user_id: learner_id,
     },
   },
-}).then(cohort => getCohortMilestones(cohort.id));
+).then(cohort => getCohortMilestones(cohort.cohort_joining));
 
 export const getOrCreateMilestoneTeams = milestone_id => getMilestoneTeams(milestone_id)
   .then(teams => {
@@ -453,6 +454,14 @@ export const getLiveCohortMilestone = (cohort_id) => {
     raw: true,
   });
 };
+
+export const getLiveCohortMilestoneBylearnerId = learner_id => Application.findOne(
+  {
+    where: {
+      user_id: learner_id,
+    },
+  },
+).then(cohort => getLiveCohortMilestone(cohort.cohort_joining));
 
 export const getCurrentMilestoneOfCohortDelta = (cohort_id) => {
   const now = Sequelize.literal('NOW()');

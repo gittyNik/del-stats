@@ -23,6 +23,9 @@ import { getGithubConnecionByUserId } from './social_connection';
 import {
   lastNBreakoutsForLearner,
 } from '../controllers/operations/attendance.controller';
+import {
+  deleteLearnerTeams,
+} from './learner_github_milestones';
 
 export const Team = db.define('milestone_learner_teams', {
   id: {
@@ -433,7 +436,11 @@ export const removeLearnerFromMSTeam = (user_id, team_id) => Team.findOne({
     let sc = await getGithubConnecionByUserId(user_id);
     await removeCollaboratorFromRepository(sc.username, team.github_repo_link);
     if (team.learners.length === 0) {
-      return deleteTeamById(team.id);
+      // Delete entry in Github stats if Zero commits and delete team later
+      let deletedStats = await deleteLearnerTeams(team.id);
+      if (deletedStats.length) {
+        return deleteTeamById(team.id);
+      }
     }
     return Team.update({
       learners: team.learners,

@@ -1142,25 +1142,31 @@ export const getRecentCommitInCohort = async (req, res) => {
   }
 };
 
+export const getUserCommitsForRepo = async repo => {
+  const eachChallenge = await getRepoDetails(repo);
+  let cohortDetails = await getCohortFromLearnerId(eachChallenge['user.id']);
+
+  const latestCommit = await getChallengeCommits(eachChallenge, cohortDetails.id, eachChallenge['user.id']);
+  let {
+    learnerCommits,
+    challengeId,
+    contributorsRepo,
+    cohort_milestone_id,
+  } = latestCommit;
+  let learner_challenge_id = challengeId;
+  await createStatForSingleLearner(
+    learnerCommits, null, cohort_milestone_id, contributorsRepo, learner_challenge_id,
+  );
+};
+
 export const updateOneChallengeCommits = async (req, res) => {
   try {
     const {
       repo,
     } = req.params;
-    const eachChallenge = await getRepoDetails(repo);
-    let cohortDetails = await getCohortFromLearnerId(eachChallenge['user.id']);
 
-    const latestCommit = await getChallengeCommits(eachChallenge, cohortDetails.id, eachChallenge['user.id']);
-    let {
-      learnerCommits,
-      challengeId,
-      contributorsRepo,
-      cohort_milestone_id,
-    } = latestCommit;
-    let learner_challenge_id = challengeId;
-    await createStatForSingleLearner(
-      learnerCommits, null, cohort_milestone_id, contributorsRepo, learner_challenge_id,
-    );
+    const latestCommit = await getUserCommitsForRepo(repo);
+
     res.status(200).json({
       message: 'Updated Challenges commits',
       data: latestCommit,
