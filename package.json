@@ -40,9 +40,8 @@
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [
       "eslint --ext .js,.ts --fix",
-      "jest --bail --coverage --findRelatedTests --colors"
-    ],
-    "*.js": "eslint --cache --fix"
+      "jest --bail --coverage --colors --passWithNoTests"
+    ]
   },
   "dependencies": {
     "@babel/cli": "^7.12.13",

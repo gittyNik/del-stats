@@ -363,7 +363,7 @@ const createLearnerDocumentTemplates = () => {
 // console.log(createLearnerDocumentTemplates());
 
 const seeder = {
-  up: (qi, Sequelize) => qi.sequelize.transaction(transaction => {
+  up: (qi) => qi.sequelize.transaction(transaction => {
     console.log(createLearnerDocumentTemplates()[0].subdocuments);
     const addLearnerDocuments = qi.bulkInsert(
       'agreement_templates',
@@ -380,7 +380,7 @@ const seeder = {
         console.error(err.message);
       });
   }),
-  down: (qi, Sequelize) => qi.sequelize.transaction(transaction => Promise.all([
+  down: (qi) => qi.sequelize.transaction(transaction => Promise.all([
     qi.bulkDelete('agreement_templates', { is_learner_document: true }, { transaction }),
   ])),
 };
