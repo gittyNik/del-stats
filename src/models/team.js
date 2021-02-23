@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import _ from 'lodash';
 import faker from 'faker';
 import db from '../database';
@@ -25,6 +25,7 @@ import { getGithubConnecionByUserId } from './social_connection';
 import {
   lastNBreakoutsForLearner,
 } from '../controllers/operations/attendance.controller';
+import logger from '../util/logger';
 
 export const Team = db.define('milestone_learner_teams', {
   id: {
@@ -351,7 +352,7 @@ export const createMilestoneTeams = cohort_milestone_id => findTeamsByCohortMile
         })),
       ));
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     return [];
   }
 });

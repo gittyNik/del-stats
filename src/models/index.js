@@ -47,6 +47,7 @@ import { CompanyProfile } from './company_profile';
 import { ShortlistedPortfolios } from './shortlisted_portfolios';
 import { PaymentDetails } from './payment_details';
 import { PaymentIntervals } from './payment_intervals';
+import logger from '../util/logger';
 
 // TODO: describe all associations here
 

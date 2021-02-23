@@ -1,7 +1,8 @@
 import Sequelize from 'sequelize';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import _ from 'lodash';
 import db from '../database';
+import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
 
 const { DEFAULT_USER } = process.env;
 
@@ -38,6 +39,24 @@ const AVAILABLE_USER_STATUS = [
   'graduated',
   'past-learner',
   'other',
+  'staged',
+  'removed',
+  'added-to-cohort',
+];
+
+const NOTIFY_SLACK_STATUSES = [
+  'respawning core phase',
+  'respawning focus phase',
+  'long leave',
+  'admission terminated',
+  'back after absence',
+  'irregular',
+  'medical emergency',
+  'dropout',
+  'staged',
+  'removed',
+  'moved',
+  'added-to-cohort',
 ];
 
 export const User = db.define(
@@ -217,10 +236,10 @@ export const removeUserStatus = (
   }
 });
 
-export const addUserStatus = (
+export const addUserStatus = ({
   id, status, status_reason, updated_by_id, updated_by_name, milestone_id, milestone_name,
   cohort_id, cohort_name,
-) => {
+}) => {
   if (AVAILABLE_USER_STATUS.indexOf(status) > -1) {
     return User.findOne({
       where: {
@@ -230,6 +249,16 @@ export const addUserStatus = (
       .then((userStatus) => {
         if (_.isEmpty(userStatus)) {
           throw Error('User does not exist');
+        }
+
+        try {
+          if (NOTIFY_SLACK_STATUSES.indexOf(status) > -1) {
+            const message = `*${userStatus.name}* ${userStatus.email} has been marked: *${status}* by ${updated_by_name}`;
+            const context = 'Learner status update';
+            sendMessageToSlackChannel(message, context, process.env.SLACK_LEARNER_AFFAIRS);
+          }
+        } catch (err) {
+          console.warn('Failed to send slack message');
         }
 
         let statusDetails = {

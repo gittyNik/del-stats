@@ -7,10 +7,10 @@ import { postMessage } from '../utility/chat';
 import { getChannelIdForCohort, getSlackIdsForUsersInSPE } from '../../../../models/slack_channels';
 
 import { getLearnerBreakoutsForACohortBreakout } from '../../../../models/learner_breakout';
-import { logger } from '../../../../util/logger';
+import logger from '../../../../util/logger';
 
 const REVIEW_TEMPLATE = (team_number) => `Team: ${team_number}, Reviewer is reminding you to join the review. Please join from DELTA`;
-const LEARNER_REVIEW_TEMPLATE = 'Reviewer is reminding you to join the review. Please join from DELTA';
+const LEARNER_REVIEW_TEMPLATE = (learner) => `<@${learner}> Reviewer is reminding you to join the review. Please join from DELTA`;
 const ASSESSMENT_TEMPLATE = (learner) => `Psst! Looks like it's time for your Assessment, <@${learner}>. Please join from DELTA right away; your reviewer is waiting.`;
 const BREAKOUT_TEMPLATE = 'It\'s time to get your thinking hats on! Please join the BreakOut from DELTA now';
 const LEARNER_BREAKOUT_TEMPLATE = (learner) => `Catalyst is reminding <@${learner}> to join the breakout. Please join from Delta`;
@@ -34,7 +34,7 @@ export const sendMessage = (req, res) => {
       });
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -57,7 +57,7 @@ export const notifyAttendanceLearnerInChannel = async (
     await postMessage({ channel: channel_id, text: updatedText });
     return true;
   } catch (err) {
-    console.error(`Error while sending attendance status to slack: ${err}`);
+    logger.error(`Error while sending attendance status to slack: ${err}`);
     return false;
   }
 };
@@ -70,9 +70,6 @@ export const notifyLearnersInChannel = async (req, res) => {
   if (learner_id) {
     let learner = await getProfile(learner_id);
     email = learner.email;
-    if (type === 'reviews') {
-      text = LEARNER_REVIEW_TEMPLATE;
-    }
   }
   let slackUserResponse;
   let slackUserId;
@@ -85,10 +82,14 @@ export const notifyLearnersInChannel = async (req, res) => {
       cohort_id = await getCohortIdFromLearnerId(learner_id);
     }
     const channel_id = await getChannelIdForCohort(cohort_id);
-    // console.log(channel_id);
+    // logger.info(channel_id);
     if (!text) {
       switch (type) {
         case 'reviews':
+          if ((learner_id) && (slackUserId)) {
+            text = LEARNER_REVIEW_TEMPLATE(slackUserId);
+            break;
+          }
           text = REVIEW_TEMPLATE(team_number);
           break;
         case 'assessment':
@@ -114,7 +115,7 @@ export const notifyLearnersInChannel = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     return res.status(500).json({
       text: 'Failed to notify on the slack channel',
     });
@@ -234,7 +235,7 @@ export const postTodaysBreakouts = async (todaysBreakouts) => {
       return slackResponse;
     } catch (err) {
       logger.error(err);
-      console.error(`Failed to post on slack channel ${channelId} and breakout text: ${textBody}`);
+      logger.error(`Failed to post on slack channel ${channelId} and breakout text: ${textBody}`);
       return false;
     }
   };
@@ -267,7 +268,6 @@ export const postTodaysBreakouts = async (todaysBreakouts) => {
       }
     }
     try {
-
       // eslint-disable-next-line no-await-in-loop
       const res = await postOnChannel(channelId, breakout_text);
       data.push(res);

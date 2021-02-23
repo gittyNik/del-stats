@@ -122,7 +122,7 @@ export const moveLearnerToNewGithubTeam = async (
 ) => {
   let sc = await getGithubConnecionByUserId(learner_id);
   if (!sc) {
-    return;
+    return false;
   }
 
   let current_cohort = await getCohortFromId(current_cohort_id);

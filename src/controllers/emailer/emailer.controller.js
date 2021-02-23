@@ -2,6 +2,7 @@ import _ from 'lodash';
 import AWS from 'aws-sdk';
 import nodemailer from 'nodemailer';
 import { getLearnerDetailsForCohorts } from '../../models/cohort';
+import logger from '../../util/logger';
 
 const {
   AWS_BUCKET_NAME, AWS_ACCESS_KEY,
@@ -98,11 +99,11 @@ export const sendEmail = async (from_name, to_users, subject,
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      console.error(error);
+      logger.error(error);
       return 'Error occurred';
     }
-    console.log('Email sent: %s', info.response);
-    // console.log('Message sent: %s', info.messageId);
+    logger.info('Email sent: %s', info.response);
+    // logger.info('Message sent: %s', info.messageId);
     return info.messageId;
   });
 };

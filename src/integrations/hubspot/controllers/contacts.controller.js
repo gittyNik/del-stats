@@ -1,5 +1,6 @@
 import moment from 'moment';
 import hubspot from './auth.controller';
+import logger from '../../../util/logger';
 
 const getPropertyName = name => {
   switch (name) {
@@ -86,7 +87,7 @@ export const getContact = (req, res) => {
       data: contact,
     });
   }).catch(err => {
-    console.error(err);
+    logger.error(err);
     res.sendStatus(500);
   });
 };

@@ -2,6 +2,7 @@ import queryString from 'query-string';
 import { Octokit } from '@octokit/rest';
 import { org } from './git.auth.controller';
 import { getAccessTokenPerUser } from './stats.controller';
+import logger from '../../../util/logger';
 
 const relInLinks = link => {
   let linkRegex = /\<([^>]+)/g;
@@ -134,7 +135,7 @@ export const getNumberOfPages = async (of, team = null, socialConnection,
         }));
     }
   } catch (err) {
-    console.log(err);
+    logger.error(err);
   }
 };
 

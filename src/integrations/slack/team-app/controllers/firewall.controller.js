@@ -3,6 +3,7 @@ import { IncomingWebhook } from '@slack/webhook';
 import { getPendingApplicationCohorts, getStatsForDay } from '../../../../models/application';
 import { getLiveCohorts } from '../../../../models/cohort';
 import { composeHome, buildFirewallResult } from '../views/firewall.view';
+import logger from '../../../../util/logger';
 
 const { SLACK_FIREWALL_WEBHOOK, SLACK_TEAM_BOT_TOKEN } = process.env;
 
@@ -15,7 +16,11 @@ const webhook = new IncomingWebhook(SLACK_FIREWALL_WEBHOOK);
 */
 export const sendFirewallResult = (application, phone) => {
   const view = buildFirewallResult(phone, phone, application.test_series);
-  webhook.send(view);
+  try {
+    webhook.send(view);
+  } catch (err) {
+    console.warn('Failed to send message to slack');
+  }
 };
 
 export const sendFirewallDailyStats = () => getStatsForDay()
@@ -24,8 +29,12 @@ export const sendFirewallDailyStats = () => getStatsForDay()
       text: `Firewall statistics: ${JSON.stringify(stats)}`,
       channel: process.env.SLACK_LEARNER_INTERVIEWS_CHANNEL,
     };
-    console.log(msg);
-    return web.chat.postMessage(msg);
+    try {
+      return web.chat.postMessage(msg);
+    } catch (err) {
+      logger.warn('Failed to send message to slack');
+      return true;
+    }
   });
 
 /*
@@ -36,14 +45,14 @@ export const showUpcomingCohorts = (user_id) => {
     .then(cohorts => getPendingApplicationCohorts()
       .then(applications => {
         const view = composeHome(applications, cohorts);
-        // console.log(JSON.stringify(view));
+        // logger.info(JSON.stringify(view));
         return web.views.publish({
           view,
           user_id,
         });
       }))
     .catch(err => {
-      console.log(err);
+      logger.error(err);
     });
 };
 

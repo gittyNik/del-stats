@@ -1,4 +1,5 @@
 import request from 'superagent';
+import logger from '../../util/logger';
 
 const CODE_ENDPOINT = 'https://codesandbox.io/api/v1/';
 
@@ -28,14 +29,14 @@ export const createSandbox = (req, res) => {
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .then(response => {
-      // console.log(response.body);
+      // logger.info(response.body);
       res.json({
         text: 'Id of newly created codesandbox, used to redirect ex: https://codesanbox.io/embed/<id>',
         data: response.body,
       });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -50,13 +51,13 @@ export const createTemplate = (template, embed_options) => {
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .then(response =>
-      // console.log(response.text);
+      // logger.info(response.text);
       ({
         text: 'Id of newly created codesandbox, used to redirect ex: https://codesanbox.io/embed/<id>',
         data: response.text,
       }))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       return err;
     });
 };

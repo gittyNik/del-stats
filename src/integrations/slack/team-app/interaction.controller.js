@@ -1,6 +1,7 @@
 import { createMessageAdapter } from '@slack/interactive-messages';
 import { beginCohortWithId } from '../../../models/cohort';
 import { showMilestoneDetails, markTopicAsFinished, markMilestoneAsReviewed } from './controllers/milestone.controller';
+import logger from '../../../util/logger';
 
 const slackInteractions = createMessageAdapter(process.env.SLACK_TEAM_SECRET);
 
@@ -73,8 +74,8 @@ slackInteractions.action({ action_id: 'cohort_settings' }, (payload) => {
   const cohort_id = payload.actions[0].selected_option.value;
   beginCohortWithId(cohort_id)
     .then(cohort => {
-      console.log(`${cohort.name} cohort will be marked completed`);
-    }).catch(err => console.log(err));
+      logger.info(`${cohort.name} cohort will be marked completed`);
+    }).catch(err => logger.error(err));
 });
 
 export default slackInteractions.expressMiddleware();

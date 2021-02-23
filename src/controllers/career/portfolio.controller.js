@@ -4,9 +4,8 @@ import {
   getAllPortfolios, createPortfolio, updatePortfolioById,
   updatePortfolioForLearner, addPortfolioResume, getLearnerList,
 } from '../../models/portfolio';
-import {
-  addShortlistedLearners,
-} from '../../models/shortlisted_portfolios';
+import addShortlistedLearners from '../../models/shortlisted_portfolios';
+import logger from '../../util/logger';
 
 export const getAllPortfoliosAPI = (req, res) => {
   let { limit, page } = req.query;
@@ -21,7 +20,7 @@ export const getAllPortfoliosAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -41,7 +40,7 @@ export const getLearnerListAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500).json({
         text: 'Failed to get all learners list',
         type: 'failure',
@@ -62,7 +61,7 @@ export const getPortfoliosByStatusAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -77,7 +76,7 @@ export const getPortfolioByUser = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -92,7 +91,7 @@ export const getPortfolioById = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -140,7 +139,7 @@ export const addResumeForLearner = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -200,7 +199,7 @@ export const createPortfolioAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -259,7 +258,7 @@ export const updatePortfolio = (req, res) => {
     type: 'success',
   }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -315,7 +314,7 @@ export const updatePortfolioLearnerAPI = (req, res) => {
     type: 'success',
   }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };

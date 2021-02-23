@@ -5,7 +5,9 @@ import {
   getCohortMilestones,
   getCohortMilestoneById,
   populateLearnerStats,
+  NoMilestoneCommits,
 } from '../../models/cohort_milestone';
+import logger from '../../util/logger';
 
 export const getUpcomingReviews = (req, res) => {
   getCurrentCohortMilestones()
@@ -14,7 +16,7 @@ export const getUpcomingReviews = (req, res) => {
       res.send({ data: { milestones } });
     })
     .catch(e => {
-      console.error(e);
+      logger.error(e);
       res.sendStatus(500);
     });
 };
@@ -30,7 +32,7 @@ export const getCohortLiveMilestone = (req, res) => {
       });
     })
     .catch(e => {
-      console.error(e);
+      logger.error(e);
       res.sendStatus(500);
     });
 };
@@ -70,7 +72,7 @@ export const getCohortMilestoneWithDetails = (req, res) => {
       });
     })
     .catch(e => {
-      console.error(e);
+      logger.error(e);
       res.sendStatus(500);
     });
 };
@@ -86,7 +88,11 @@ export const getCohortMilestoneStats = (req, res) => {
       });
     })
     .catch(e => {
-      console.error(e);
+      if (e instanceof NoMilestoneCommits) {
+        logger.warn('No commits in milestone');
+      } else {
+        logger.error(e);
+      }
       res.sendStatus(500);
     });
 };

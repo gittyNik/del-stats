@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import { Portfolio, updatePortfolioStatus } from './portfolio';
 import db from '../database';
 import { JobPosting } from './job_postings';
@@ -10,6 +10,7 @@ import {
 import { LearnerInterviews } from './learner_interviews';
 import { CompanyProfile } from './company_profile';
 import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
+import logger from '../util/logger';
 
 const APPLICATION_STATUS = [
   'active',
@@ -326,13 +327,13 @@ export const updateJobApplication = async ({
       id,
     },
   })
-    .then((learnerJobApplication) => {
+    .then(async (learnerJobApplication) => {
       if (learnerJobApplication.updated_by === null) {
         learnerJobApplication.updated_by = [];
       }
       learnerJobApplication.updated_by.push(...updated_by);
 
-      let jobApplication = JobApplication.update({
+      let jobApplication = await JobApplication.update({
         job_posting_id,
         portfolio_id,
         review,
@@ -352,8 +353,8 @@ export const updateJobApplication = async ({
         returning: true,
         raw: true,
       });
-      jobApplication.learnerAssignment = learnerAssignment;
-      return jobApplication;
+      jobApplication[1][0].learnerAssignment = learnerAssignment;
+      return jobApplication[1][0];
     });
 };
 
@@ -370,7 +371,7 @@ export const deleteJobApplication = (id) => JobApplication
   .destroy({ where: { id } })
   .then(() => { 'Job application deleted.'; })
   .catch(err => {
-    console.error(err);
+    logger.error(err);
     return { text: 'Failed to delete Job application' };
   });
 

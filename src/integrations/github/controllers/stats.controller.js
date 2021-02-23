@@ -1,5 +1,6 @@
 import request from 'superagent';
 import { org } from './git.auth.controller';
+import logger from '../../../util/logger';
 
 export const getAccessTokenPerUser = (socialConnection) => {
   if (socialConnection) {
@@ -22,7 +23,7 @@ export const contributersInRepository = async (repo, socialConnection) => {
   let access_token = getAccessTokenPerUser(
     socialConnection,
   );
-  console.log(`Fetching Contributors Org: ${org}, Repo: ${repo}`);
+  logger.info(`Fetching Contributors Org: ${org}, Repo: ${repo}`);
   return request
     .get(`https://api.github.com/repos/${org}/${repo}/stats/contributors`)
     .set('accept', 'application/vnd.github.baptiste-preview+json')
@@ -46,6 +47,6 @@ export const weeklyCommitActivityData = async (repo, socialConnection) => {
     .set('authorization', `token ${access_token}`)
     .then(data => (data.text === '' ? [] : JSON.parse(data.text)))
     .catch(err => {
-      console.error(`Error while fetching commit activity: ${repo}`);
+      logger.error(`Error while fetching commit activity: ${repo}`);
     });
 };

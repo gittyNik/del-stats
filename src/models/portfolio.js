@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import _ from 'lodash';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import db from '../database';
 import { USER_ROLES, User } from './user';
 import { getViewUrlS3 } from '../controllers/firewall/documents.controller';

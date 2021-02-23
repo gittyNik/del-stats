@@ -1,10 +1,11 @@
 import { Sequelize, Op } from 'sequelize';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import _ from 'lodash';
 import db from '../database';
 import {
   Cohort,
   getLearnersForCohort,
+  getCohortFromId,
 } from './cohort';
 import {
   getTopicIdsByMilestone,
@@ -27,17 +28,18 @@ import {
 import { BreakoutTemplate } from './breakout_template';
 import {
   getUsersWithStatus,
+  getUserName,
 } from './user';
 import {
   getDataForMilestoneName,
 } from './cohort_milestone';
 import {
-  showCompletedBreakoutOnSlack,
+  showCompletedBreakoutOnSlack, postOverlappingBreakouts,
 } from '../integrations/slack/team-app/controllers/milestone.controller';
 import { postAttendaceInCohortChannel } from '../integrations/slack/delta-app/controllers/web.controller';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 import { createEvent, deleteEvent, updateEvent } from '../integrations/calendar/calendar.model';
-import { logger } from '../util/logger';
+import logger from '../util/logger';
 import { getSlackIdForLearner } from './slack_channels';
 // import sandbox from 'bullmq/dist/classes/sandbox';
 
@@ -132,7 +134,7 @@ export const findOneCohortBreakout = (
   attributes: attributesObj,
 })
   .then(data => data)
-  .catch(err => console.log(err));
+  .catch(err => logger.error(err));
 
 export const findAllCohortBreakout = (
   where, attributes, include, order,
@@ -340,7 +342,7 @@ export const createNewBreakout = (
   if (typeof topic_id !== 'undefined' && Array.isArray(topic_id) && topic_id.length > 0) {
     [topic_id] = topic_id;
   }
-  // console.log(`${time_scheduled} ${duration} ${location}`);
+  // logger.info(`${time_scheduled} ${duration} ${location}`);
   return CohortBreakout.create({
     id: uuid(),
     breakout_template_id,
@@ -401,7 +403,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
           catalyst_id, details, type, team_feedback, catalyst_notes,
         )
           .then(data =>
-            // console.log('Breakout created with codesandbox and videoMeeting');
+            // logger.info('Breakout created with codesandbox and videoMeeting');
             data.toJSON());
       });
     // eslint-disable-next-line no-else-return
@@ -413,7 +415,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
         time_scheduled, duration, location,
         catalyst_id, details, type, team_feedback, catalyst_notes,
       ).then(data =>
-        // console.log('Breakout created with code sandbox only', data);
+        // logger.info('Breakout created with code sandbox only', data);
         data);
     });
   } else if (isVideoMeeting) {
@@ -426,7 +428,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
           catalyst_id, details, type, team_feedback, catalyst_notes,
         )
           .then(data =>
-            // console.log('Breakout and video meeting created Created');
+            // logger.info('Breakout and video meeting created Created');
             data);
       });
   } else {
@@ -436,7 +438,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
       catalyst_id, details, type, team_feedback, catalyst_notes,
     )
       .then(data =>
-        // console.log('Breakout created without video meeting created Created', data);
+        // logger.info('Breakout created without video meeting created Created', data);
         data);
   }
 };
@@ -485,11 +487,11 @@ export const createCohortBreakouts = (
       let breakout = BreakoutWithOptions(breakoutsWithCohortName[i]);
       breakouts.push(breakout);
     }
-    // console.log('<----- BREAKOUT OBJECT -------->', breakouts.length);
+    // logger.info('<----- BREAKOUT OBJECT -------->', breakouts.length);
     return Promise.all(breakouts);
   })
   .catch(err => {
-    console.error('Failed to location for a cohort', err);
+    logger.error('Failed to location for a cohort', err);
     return null;
   });
 
@@ -501,7 +503,7 @@ export const getAllBreakoutsInCohort = (cohort_id) => CohortBreakout.findAll({
 })
   .then(allBreakouts => allBreakouts)
   .catch(err => {
-    console.error('Unable to find all breakouts in the cohort', err);
+    logger.error('Unable to find all breakouts in the cohort', err);
     return null;
   });
 
@@ -514,7 +516,7 @@ export const getAllBreakoutsInCohortMilestone = (cohort_id,
 })
   .then(async (topics) => {
     let breakouts = await topics.map(async (topic) => {
-      // console.log('TOPIC', topic);
+      // logger.info('TOPIC', topic);
       let breakout = await CohortBreakout.findOne({
         where: {
           topic_id: topic.id,
@@ -528,7 +530,7 @@ export const getAllBreakoutsInCohortMilestone = (cohort_id,
       })
         .then(data => data)
         .catch(err => {
-          console.error(err);
+          logger.error(err);
           return null;
         });
       return breakout;
@@ -548,7 +550,7 @@ export const getAllBreakoutsInCohortMilestone = (cohort_id,
     return Promise.all(breakouts);
   })
   .catch(err => {
-    console.error('Unable to find topics for the milestone', err);
+    logger.error('Unable to find topics for the milestone', err);
     return null;
   });
 
@@ -707,7 +709,7 @@ export const getCalendarDetailsOfCohortBreakout = async (id) => {
   });
   let summary;
   let description;
-  // console.log(cohort_breakout);
+  // logger.info(cohort_breakout);
   const {
     type, domain, breakout_template_id,
     time_scheduled, duration, location, status,
@@ -796,7 +798,7 @@ export const updateCohortBreakouts = ({ whereObject, updateObject }) => CohortBr
   .update(updateObject, { returning: true, where: whereObject })
   .then(([rowUpdated, updatedCB]) => updatedCB.map(_cb => _cb.toJSON()))
   .catch(err => {
-    console.error(err);
+    logger.error(err);
     return 'Error updating cohort breakout';
   });
 
@@ -806,6 +808,7 @@ export const getCohortBreakoutsBetweenDates = (
 ) => CohortBreakout.findAll({
   where: {
     cohort_id,
+    type: 'lecture',
     time_scheduled: {
       [Op.and]: {
         [Op.lte]: end_date,
@@ -899,6 +902,55 @@ export const getTodaysCohortBreakouts = async () => {
   return breakouts;
 };
 
+export const getNDaysCohortBreakouts = async (n_days) => {
+  let n_days_plus = n_days + 1;
+  // todo: Need a better way to get start of the day in Asia/Kolkata timezone.
+  const todaysBreakouts = await db.query("select c1.* from cohort_breakouts c1 where exists(select 1 from cohort_breakouts c2 where tstzrange(c2.time_scheduled, c2.time_scheduled + make_interval(secs => c2.duration / 1000), '[]') && tstzrange(c1.time_scheduled, c1.time_scheduled + make_interval(secs => c1.duration / 1000), '[]') and c2.catalyst_id = c1.catalyst_id and c2.topic_id <> c1.topic_id and c2.id <> c1.id and time_scheduled between now() + ':n_days days'::INTERVAL and now() + ':n_days_plus days'::INTERVAL) order by c1.time_scheduled;", {
+    model: CohortBreakout,
+    replacements: {
+      n_days,
+      n_days_plus,
+    },
+    raw: true,
+  });
+
+  if (todaysBreakouts) {
+    let duplicateBreakouts = await Promise.all(todaysBreakouts.map(async breakout => {
+      let cohortDetails = await getCohortFromId(breakout.cohort_id);
+      let userDetails = await getUserName(breakout.catalyst_id);
+      const time = new Date(breakout.time_scheduled).toLocaleTimeString([], {
+        timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit',
+      });
+      try {
+        breakout.topics = breakout.details.topics.replace(/\n(?!$)/g, ', ');
+        breakout.topics = breakout.topics.replace(/\n/, '');
+        if (breakout.type === 'assessment') {
+          const learnerSlackId = await getSlackIdForLearner(breakout.details.learner_id);
+          breakout.topics = `Assessment for <@${learnerSlackId}>`;
+        }
+      } catch (err) {
+        breakout.topics = await getTopicNameById(breakout.topic_id);
+      }
+      let duration = (cohortDetails.duration === 16) ? 'Full-Time' : 'Part-time';
+      breakout.catalyst = userDetails.name;
+      breakout.breakout_time = time;
+      breakout.topics = `Cohort: *${cohortDetails.name}* ${duration} ${cohortDetails.location} \n ${breakout.topics} at *${time}* \n`;
+      return breakout;
+    }));
+
+    const groupedDuplicates = _.groupBy(duplicateBreakouts, 'catalyst');
+
+    return groupedDuplicates;
+  }
+  return null;
+};
+
+export const getDuplicateBreakouts = async (n_days) => {
+  const payload = await getNDaysCohortBreakouts(n_days);
+  const res = await postOverlappingBreakouts(n_days, payload);
+  return res;
+};
+
 export const updateOneCohortBreakouts = async (details, cohort_breakout) => {
   let whereObject = {};
   if (cohort_breakout.type === 'lecture') {
@@ -944,9 +996,24 @@ export const getMilestoneDetailsForReview = (cohort_breakout_id) => CohortBreako
     return milestone_details;
   })
   .catch(err => {
-    console.error(err);
-    console.error('Unable to get Milestone details for cohort_breakout ', cohort_breakout_id);
+    logger.error(err);
+    logger.error('Unable to get Milestone details for cohort_breakout ', cohort_breakout_id);
     return false;
   });
+
+export const overlappingCatalystBreakout = (
+  {
+    catalyst_id, time_start, time_end, types,
+  },
+) => CohortBreakout.findAll({
+  where: {
+    catalyst_id,
+    time_scheduled: { [Sequelize.Op.between]: [time_start, time_end] },
+    type: {
+      [Sequelize.Op.in]: types,
+    },
+  },
+  raw: true,
+});
 
 export default CohortBreakout;

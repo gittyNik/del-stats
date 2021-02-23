@@ -16,7 +16,9 @@ import {
   createUpdateCohortBreakout,
   autoMarkBreakoutAttendance,
   markCompleteBreakout,
+  sendDuplicateBreakouts,
 } from '../../controllers/learning/breakout.controller';
+
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
@@ -98,6 +100,14 @@ router.patch('/:id/sandbox', updateSanboxDetails);
  * @apiGroup CohortBreakout
  */
 router.get('/:id/attendance', validateAttendanceForBreakout);
+
+/**
+ * @api {get} /learning/ops/breakouts/duplicates/:days Update Sandbox details
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ValidateBreakoutLearners
+ * @apiGroup CohortBreakout
+ */
+router.get('/duplicates/:days', sendDuplicateBreakouts);
 
 /**
  * @api {post} /learning/ops/breakouts Submit a Breakout

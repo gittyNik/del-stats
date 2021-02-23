@@ -1,5 +1,6 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import faker from 'faker';
+import logger from '../../src/util/logger';
 
 const milestone1 = {
   id: uuid(),
@@ -91,8 +92,8 @@ const seeder = {
     );
 
     return Promise.all([addMilestones, addPrograms, addTopics, addResources])
-      .then(() => console.log('Seeded milestone, program , topic and resoures.'))
-      .catch(err => console.error(err));
+      .then(() => logger.info('Seeded milestone, program , topic and resoures.'))
+      .catch(err => logger.error(err));
   }),
 
   down: queryInterface => queryInterface.sequelize.transaction(t => Promise.all([
@@ -101,8 +102,8 @@ const seeder = {
     queryInterface.bulkDelete('topics', null, { transaction: t }),
     queryInterface.bulkDelete('milestones', null, { transaction: t }),
   ])
-    .then(() => console.log('milestones, programs, resources, topics reverted.'))
-    .catch(err => console.error(err))),
+    .then(() => logger.info('milestones, programs, resources, topics reverted.'))
+    .catch(err => logger.error(err))),
 };
 
 export default seeder;

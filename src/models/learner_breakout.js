@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import async from 'async';
 import _ from 'lodash';
 import db from '../database';
@@ -15,7 +15,7 @@ import {
 import { createEvent, deleteEvent } from '../integrations/calendar/calendar.model';
 import { getUserName } from './user';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
-import { logger } from '../util/logger';
+import logger from '../util/logger';
 
 const { Op } = Sequelize;
 
@@ -58,24 +58,24 @@ export const LearnerBreakout = db.define('learner_breakouts', {
 // LearnerBreakout.addHook('afterCreate', 'createCalendarEvent',
 // async (learner_breakout, options) => {
 //   const learner_breakout_raw = learner_breakout.get({ plain: true });
-//   // console.log(learner_breakout);
+//   // logger.info(learner_breakout);
 //   const { cohort_breakout_id, learner_id } = learner_breakout_raw;
 //   try {
 //     const event_body = await getCalendarDetailsOfCohortBreakout(cohort_breakout_id);
-//     // console.log(event_body);
+//     // logger.info(event_body);
 //     const oauth2 = await getGoogleOauthOfUser(learner_id);
 //     const calendarEvent = await createEvent(oauth2, event_body);
 
 //     learner_breakout.review_feedback = { calendarEvent };
 //   } catch (err) {
-//     console.error(err);
+//     logger.error(err);
 //   }
 // });
 
 // LearnerBreakout.addHook('afterUpdate', 'updateCalendarEvent',
 // async (learner_breakout, options) => {
-//   console.log('Learner Breakout updated');
-//   console.log(learner_breakout.get({ plain: true }));
+//   logger.info('Learner Breakout updated');
+//   logger.info(learner_breakout.get({ plain: true }));
 //   // todo: update calendar event.
 // });
 
@@ -91,7 +91,7 @@ export const createLearnerBreakoutsForCohortMilestones = (
 })
   .then((cohort) => {
     let learnerBreakouts = cohort.learners.map((learner) => {
-      // console.log(learner, cohort_breakout_id);
+      // logger.info(learner, cohort_breakout_id);
       let learnerBreakout = LearnerBreakout.create({
         id: uuid(),
         cohort_breakout_id,
@@ -100,19 +100,19 @@ export const createLearnerBreakoutsForCohortMilestones = (
       })
         .then((data) => data.get({ plain: true }))
         .catch((err) => {
-          console.error(err);
+          logger.error(err);
           return null;
         });
       return learnerBreakout;
     });
-    // console.log(
+    // logger.info(
     //   `${learnerBreakouts.length} learner_breakouts created
     // for a cohort_breakout_id: ${ cohort_breakout_id }`,
     // );
     return learnerBreakouts;
   })
   .catch((err) => {
-    console.error(err);
+    logger.error(err);
     return null;
   });
 
@@ -120,7 +120,7 @@ export const createLearnerBreakoutsForLearners = (
   cohort_breakout_id,
   learners,
 ) => learners.map((learner) => {
-  // console.log(learner, cohort_breakout_id);
+  // logger.info(learner, cohort_breakout_id);
   let learnerBreakout = LearnerBreakout.create({
     id: uuid(),
     cohort_breakout_id,
@@ -129,7 +129,7 @@ export const createLearnerBreakoutsForLearners = (
   })
     .then((data) => data.get({ plain: true }))
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       return null;
     });
   return learnerBreakout;
@@ -169,9 +169,9 @@ export const getPayloadForCalendar = async (learnerId) => {
       .catch(err => {
         logger.error(err);
       });
-    // console.log(cohort_id);
+    // logger.info(cohort_id);
     const cohortBreakouts = await getUpcomingBreakoutsByCohortId(cohort_id);
-    // console.log(cohortBreakouts.length);
+    // logger.info(cohortBreakouts.length);
     const payload = await Promise.all(
       cohortBreakouts.map(async (cohortBreakout) => {
         const data = {};
@@ -187,13 +187,13 @@ export const getPayloadForCalendar = async (learnerId) => {
         })
           .then((_lb) => _lb.get({ plain: true }))
           .catch((err) => {
-            console.error(`No learner breakout for ${cohortBreakout.id}`);
+            logger.error(`No learner breakout for ${cohortBreakout.id}`);
             return false;
           });
         return data;
       }),
     );
-    // console.log(payload);
+    // logger.info(payload);
     return payload;
   } catch (err) {
     logger.error(err);
@@ -207,15 +207,15 @@ export const updateReviewFeedback = async (learner_breakout_id, calendarDetails)
     .findOne({ where: { id: learner_breakout_id } })
     .then(_lb => _lb.get({ plain: true }))
     .catch(err => {
-      console.error('Learner breakout doesnt exist');
-      console.error(err);
+      logger.error('Learner breakout doesnt exist');
+      logger.error(err);
     });
   const review_feedback = learner_breakout.review_feeback
     ? learner_breakout.review_feedback
     : {};
   review_feedback.calendarDetails = calendarDetails;
 
-  // console.log(learner_breakout);
+  // logger.info(learner_breakout);
   const updatedLearnerBreakout = await LearnerBreakout.update(
     {
       review_feedback,
@@ -253,16 +253,16 @@ export const createCalendarEventsForLearner = async (learnerId) => {
         .then(event => {
           item.eventDetails = event;
           res_data.push(item);
-          // console.log(item);
+          // logger.info(item);
           return item;
         })
         .then(_item => updateReviewFeedback(_item.learnerBreakout.id, _item.eventDetails)
           .then((data) => {
-            // console.log(data);
+            // logger.info(data);
             callback();
           })
           .catch(err => {
-            // console.error(err);
+            // logger.error(err);
             callback(err);
           }))
         .catch(err => {
@@ -274,7 +274,7 @@ export const createCalendarEventsForLearner = async (learnerId) => {
   })
     .then(() => res_data)
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       return false;
     });
 };
@@ -423,8 +423,8 @@ export const getReviewRubricForALearner = async (learner_id, limit = 10) => {
         .slice(0, limit),
     }))
     .catch(err => {
-      console.error(err);
-      console.log('Error in fetching reviewRubricForALearner', learner_id);
+      logger.error(err);
+      logger.info('Error in fetching reviewRubricForALearner', learner_id);
       return false;
     });
 };

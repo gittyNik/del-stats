@@ -1,9 +1,10 @@
 require('dotenv').config();
 require('@babel/register');
+const logger = require('../../src/util/logger');
 
 let db_logs = false;
 if (process.env.DB_LOGGING === 'true') {
-  db_logs = true;
+  db_logs = logger.info;
 }
 
 const common = {

@@ -1,5 +1,5 @@
 import db from '../src/database';
-import uuid from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import { getCalendarDetailsOfCohortBreakout } from '../src/models/cohort_breakout'
 import { getGoogleOauthOfUser, googleConfig, convertToEventBody, rfc3339 } from '../src/util/calendar-util';
 import {
@@ -12,6 +12,7 @@ import eachSeries from 'async/eachSeries'
 import faker from 'faker';
 import { createEvent } from '../src/integrations/calendar/calendar.model';
 import log from 'async/log';
+import logger from '../src/util/logger';
 
 // const createLearnerBreakout = (cohort_breakout_id, learner_id) => {
 //   return LearnerBreakout
@@ -23,11 +24,11 @@ import log from 'async/log';
 //     })
 //     .then(data => data.get({ plain: true }))
 //     .then(data => {
-//       console.log(data);
+//       logger.info(data);
 //       return data;
 //     })
 //     .catch(err => {
-//       console.error(err);
+//       logger.error(err);
 //       return undefined;
 //     });
 // }
@@ -55,15 +56,15 @@ describe('Learner Breakout related tests', () => {
     return db
       .authenticate()
       .then(() => {
-        console.log('Connection has established.');
+        logger.info('Connection has established.');
         // return app.listen(PORT, err => {
         //   if (!err) {
-        //     console.log(`Server is running on port: ${PORT}`);
+        //     logger.info(`Server is running on port: ${PORT}`);
         //   }
         // });
       })
       .catch(err => {
-        console.log('Unable to establish connection', err);
+        logger.info('Unable to establish connection', err);
       });
   });
 
@@ -78,14 +79,14 @@ describe('Learner Breakout related tests', () => {
     // CB with objects as topic.
     const cohort_breakout_id = 'd063b5f0-dcfd-4e42-a52c-c0b86deee024';
     const res = await getCalendarDetailsOfCohortBreakout(cohort_breakout_id);
-    console.log(res);
+    logger.info(res);
     expect(res).toBeDefined();
   });
 
   test('Get Oauth for a learner with refresh token', async () => {
     const user_id = '1253d564-b0a9-45b0-a54b-0b3f53febeab';
     const googleOauth = await getGoogleOauthOfUser(user_id);
-    console.log(googleOauth);
+    logger.info(googleOauth);
     expect(googleOauth).toBeDefined;
   });
 
@@ -101,11 +102,11 @@ describe('Learner Breakout related tests', () => {
       })
       .then(data => data.get({ plain: true }))
       .then(data => {
-        console.log(data);
+        logger.info(data);
         return data;
       })
       .catch(err => {
-        console.error(err);
+        logger.error(err);
         return undefined;
       });
     expect(learnerBreakout).toBeDefined();
@@ -115,7 +116,7 @@ describe('Learner Breakout related tests', () => {
   test('create learner Breakouts for all the cohort Breakouts', async () => {
     expect(1 + 2).toBe(3);
 
-    console.log(cohort_breakouts.length);
+    logger.info(cohort_breakouts.length);
 
     const lbs = await Promise.all(cohort_breakouts.map(async cb => {
       const lb = LearnerBreakout
@@ -127,18 +128,18 @@ describe('Learner Breakout related tests', () => {
         })
         .then(data => data.get({ plain: true }))
         .catch(err => {
-          console.error(err);
+          logger.error(err);
           return null;
         });
       return lb;
     }))
-    console.log(lbs);
+    logger.info(lbs);
     expect(lbs.length).toBe(cohort_breakouts.length);
   });
 
   test('Create calendar event for a learner Breakout', async () => {
     const res = await createCalendarEventsForLearner(learner_id);
-    console.log(res);
+    logger.info(res);
     expect(res).toBeDefined();
   });
 
@@ -160,7 +161,7 @@ describe('Learner Breakout related tests', () => {
       duration: 30,
     }
     const res = await createEvent(oauth, event_body);
-    console.log(res);
+    logger.info(res);
     expect(res).toBeDefined();
   })
 
@@ -176,23 +177,23 @@ describe('Learner Breakout related tests', () => {
     const p = await eachSeries(event_bodies, async event_body => {
       const e = await createEvent(oauth, event_body);
       if (e) {
-        console.log(e);
+        logger.info(e);
         return e;
       } else {
         throw new Error('F')
       }
     });
-    console.log(typeof p);
+    logger.info(typeof p);
     await expect(p).resolves.toBeDefined();
     // .then(data => {
-    //   console.log(data);
+    //   logger.info(data);
     //   return data;
     // })
     // .catch(err => {
-    //   console.error(err);
+    //   logger.error(err);
     //   return null;
     // });
-    // console.log(final_res);
+    // logger.info(final_res);
 
     // expect(container.length).toBe(cohort_breakouts.length);
   });
@@ -209,32 +210,32 @@ describe('Learner Breakout related tests', () => {
     const res = await eachSeries(event_bodies, async function (event_body, eventCallback) {
       await createEvent(oauth, event_body, function (err, res) {
         if (err) {
-          console.error(err);
+          logger.error(err);
           eventCallback(err);
         } else {
-          console.log(res);
+          logger.info(res);
           eventCallback();
         }
       });
     }, function (err) {
       if (err) {
-        console.log('ERROR----->')
-        console.error(err);
+        logger.info('ERROR----->')
+        logger.error(err);
         expect(err).toMatch('error');
       }
       else {
-        console.log('All events created');
+        logger.info('All events created');
         // expect(eventLists.length).toBeDefined();
       }
     })
-    console.log(res);
+    logger.info(res);
     expect(res).toBeDefined();
   });
 
   test('testing async library', async () => {
 
     const res = await dummyCreateCalendar(cohort_breakouts, learner_id);
-    console.log(res);
+    logger.info(res);
     expect(res).toBeDefined();
   })
 
@@ -248,22 +249,22 @@ describe('Learner Breakout related tests', () => {
     const createdEvents = [];
     await eventBodies.forEach(async event => {
       const res = await createEvent(oauth, event);
-      console.log(res);
+      logger.info(res);
       createdEvents.push(res);
     });
-    console.log(createdEvents);
+    logger.info(createdEvents);
     expect(createdEvents.length).toBe(eventBodies.length);
   });
 
   test('get Paylod for dummy createCalendar', async () => {
     const payload = await getPayloadForCalendar(learner_id);
-    console.log(payload);
+    logger.info(payload);
     expect(payload).toBeDefined();
   });
 
   test.only('Create calendar event for a learner using async lib. X2', async () => {
     const res = await dummyCreateCalendarEvents2(learner_id);
-    console.log(res);
+    logger.info(res);
     expect(res).toBeDefined();
 
   })

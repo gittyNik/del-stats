@@ -4,7 +4,7 @@ import { baseUrl, key } from '../codeInterview.auth';
 const createPad = (name = 'Interview') => request
   .post(`${baseUrl}/1/pads/new?key=${key}`)
   .send({ name })
-  .then((data) => JSON.parse(data.text))
+  .then((data) => data.body)
   .catch((err) => {
     console.warn(`Unable to create Interview: ${name}`);
     return err;

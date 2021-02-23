@@ -1,11 +1,12 @@
-import { uuid } from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import { Ping } from '../../models/ping';
+import logger from '../../util/logger';
 
 export const getAllPings = (req, res) => {
   Ping.findAll({})
     .then(data => res.json(data))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -32,7 +33,7 @@ export const createPing = (req, res) => {
   })
     .then(() => res.send('Ping Created.'))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -61,7 +62,7 @@ export const updatePing = (req, res) => {
   })
     .then(() => res.send('Ping Updated.'))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -73,7 +74,7 @@ export const deletePing = (req, res) => {
   })
     .then(() => res.send('Ping Deleted.'))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };

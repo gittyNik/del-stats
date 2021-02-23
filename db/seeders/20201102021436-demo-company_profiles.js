@@ -1,6 +1,7 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import faker from 'faker';
 import _ from 'lodash';
+import logger from '../../src/util/logger';
 
 // CONSTANTS
 const STATUS = [
@@ -78,7 +79,7 @@ const getSomeElements = (array) => faker.random.arrayElements(array, faker.rando
   min: 1, max: array.length,
 }));
 
-const cleanArray = (arr) => '{"' + arr.map(e => cleanEntry(e)).join('", "') + '"}';
+const cleanArray = (arr) => `{"${arr.map(e => cleanEntry(e)).join('", "')}"}`;
 
 const cleanEntry = (obj) => JSON.stringify(obj).replace(/"/g, '\\"');
 
@@ -120,29 +121,29 @@ const seeder = {
       { transaction },
     );
     return Promise.all([addRecruiters, addCompanyProfile])
-      .then(() => console.log('Recruiter and company profiles are created'))
+      .then(() => logger.info('Recruiter and company profiles are created'))
       .catch(err => {
-        console.error(err);
-        console.log('====================================');
-        console.error(err.message);
+        logger.error(err);
+        logger.info('====================================');
+        logger.error(err.message);
       });
   }),
 
   down: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(transaction => Promise.all([
-      queryInterface.bulkDelete('company_profiles', null, { transaction }),
-      queryInterface.bulkDelete(
-        'users',
-        {
-          role: 'recruiter',
-        }, { transaction },
-      ),
-    ])
-      .then(() => console.log('Recruiter and company_profiles are removed.'))
-      .catch(err => {
-        console.error(err);
-        console.log('====================================');
-        console.error(err.message);
-      })),
+    queryInterface.bulkDelete('company_profiles', null, { transaction }),
+    queryInterface.bulkDelete(
+      'users',
+      {
+        role: 'recruiter',
+      }, { transaction },
+    ),
+  ])
+    .then(() => logger.info('Recruiter and company_profiles are removed.'))
+    .catch(err => {
+      logger.error(err);
+      logger.info('====================================');
+      logger.error(err.message);
+    })),
 };
 
 export default seeder;

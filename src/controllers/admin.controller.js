@@ -1,8 +1,9 @@
 import faker from 'faker';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import { User } from '../models/user';
 import { getSoalToken } from '../util/token';
 import { ConfigParam } from '../models/config_param';
+import logger from '../util/logger';
 
 const switchUserResponse = (userPromise, res) => {
   userPromise.then((user) => {
@@ -14,7 +15,7 @@ const switchUserResponse = (userPromise, res) => {
     }
   })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };

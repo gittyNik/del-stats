@@ -20,6 +20,7 @@ import { User } from '../../models/user';
 import { uploadFile } from '../emailer/emailer.controller';
 import { sendMessageToSlackChannel } from '../../integrations/slack/team-app/controllers/milestone.controller';
 import { AgreementTemplatesSeed } from '../../models/agreements_template';
+import logger from '../../util/logger';
 
 const {
   AWS_DOCUMENT_BUCKET,
@@ -469,7 +470,7 @@ export const Esign = (template_values, signers,
   };
   const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
 
-  // console.log(DIGIO_CLIENT, DIGIO_SECRET);
+  // logger.info(DIGIO_CLIENT, DIGIO_SECRET);
   return (request
     .post(`${DIGIO_BASE_URL}v2/client/template/${template_id}/create_sign_request`)
     .send(requestObject)
@@ -662,7 +663,7 @@ export const EsignRequest = async (req, res) => {
       await User.update({
         profile: mergedUserDetails,
       }, { where: { id }, returning: true });
-      // console.log(updatedProfile);
+      // logger.info(updatedProfile);
     }
 
     let esignStatus = await Esign(template_values,
@@ -760,7 +761,7 @@ export const getViewUrlS3 = async (fileName, fileType, type) => {
     let response = await signedViewUrl(fileName, fileType, bucketName, basePath, false);
     return response;
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     return null;
   }
 };
@@ -777,7 +778,7 @@ export const getSignUrl = async (req, res) => {
       type: 'success',
     });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     return res.status(500).json({
       message: 'Unable to generate sign request',
       type: 'failure',
@@ -825,7 +826,7 @@ export const insertUserDocument = async (req, res) => {
       type: 'success',
     });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     return res.status(500).json({
       message: 'Unable to save document',
       type: 'failure',

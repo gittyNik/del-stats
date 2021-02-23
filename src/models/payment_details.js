@@ -1,5 +1,5 @@
 import Sequelize, { NOW } from 'sequelize';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import db from '../database';
 import { PaymentIntervals } from './payment_intervals';
 import { Application } from './application';

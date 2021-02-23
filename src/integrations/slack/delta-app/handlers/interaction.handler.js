@@ -2,21 +2,22 @@ import { createMessageAdapter } from '@slack/interactive-messages';
 import { authSlack } from '../../../../models/social_connection';
 import { showMilestoneDetails, requestTopicBreakout } from '../controllers/milestone.controller';
 import { saveLink } from '../controllers/resource.controller';
+import logger from '../../../../util/logger';
 
 // Authenticate higher order function
 const authenticate = next => (payload, respond) => {
   const { user, team } = payload;
   authSlack(user.id, team.id)
     .then(authData => {
-      console.log(authData.user_id);
+      logger.info(authData.user_id);
       next(payload, respond, authData);
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       respond({
         text: 'You are not authorized. Try `/delta register` command',
       })
-        .catch(e => console.error(e));
+        .catch(e => logger.error(e));
     });
 };
 

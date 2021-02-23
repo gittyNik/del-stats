@@ -4,11 +4,12 @@ import {
   createBreakoutTemplate, updateBreakoutTemplate,
   deleteBreakoutTemplate,
 } from '../../models/breakout_template';
+import logger from '../../util/logger';
 
 export const getAllBreakoutTemplatesAPI = (req, res) => {
   getAllBreakoutTemplates().then((data) => { res.json(data); })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500).send(err);
     });
 };
@@ -55,7 +56,7 @@ export const createBreakoutTemplateAPI = (req, res) => {
     status,
   ).then((data) => { res.json(data); })
     .catch(err => {
-      console.log(err);
+      logger.error(err);
       res.status(500).send(err);
     });
 };

@@ -8,11 +8,11 @@ import {
   toggleUnhelpfulLearnerFaq,
   getLearnerFaqByPlatform
 } from '../../models/learner_faq';
-import { logger } from '../../util/logger';
+import logger from '../../util/logger';
 
 export const getALearnerFaq = async (req, res) => {
   const { id } = req.params;
-  console.log(id);
+  logger.info(id);
   try {
     const learnerFaq = await getLearnerFaqById(id);
     res.status(200).json({
@@ -22,7 +22,7 @@ export const getALearnerFaq = async (req, res) => {
     });
   } catch (err) {
     logger.error(err);
-    console.error(err);
+    logger.error(err);
     res.status(500).json({
       type: 'failure',
       err,

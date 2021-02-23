@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 import db from '../database';
+import logger from '../util/logger';
 
 const RUBRIC_TYPE = [
   'milestone',
@@ -82,7 +83,7 @@ export const getRubricsByMilestone = (
           milestone_id: `${milestone_id}`,
         },
       }).then(data => data).catch(err => {
-        console.error(err);
+        logger.error(err);
         throw Error(err);
       });
     }
@@ -94,7 +95,7 @@ export const getRubricsByMilestone = (
         milestone_id: `${milestone_id}`,
       },
     }).then(data => data).catch(err => {
-      console.error(err);
+      logger.error(err);
       throw Error(err);
     });
   }
@@ -107,7 +108,7 @@ export const getRubricsByMilestone = (
         rubric_for: `${rubric_for}`,
       },
     }).then(data => data).catch(err => {
-      console.error(err);
+      logger.error(err);
       throw Error(err);
     });
   }
@@ -118,7 +119,7 @@ export const getRubricsByMilestone = (
       type: `${type}`,
     },
   }).then(data => data).catch(err => {
-    console.error(err);
+    logger.error(err);
     throw Error(err);
   });
 };

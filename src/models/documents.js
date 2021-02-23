@@ -3,6 +3,7 @@ import _ from 'lodash';
 import uuid from 'uuid/v4';
 import db from '../database';
 import { AgreementTemplates } from './agreements_template';
+import logger from '../util/logger';
 
 export const document_status = [
   'requested',

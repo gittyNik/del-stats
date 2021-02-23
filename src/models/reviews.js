@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize';
-import uuid from 'uuid/v4';
-import { CohortBreakout, BreakoutWithOptions } from './cohort_breakout';
+import { v4 as uuid } from 'uuid';
+import { over } from 'lodash';
+import { CohortBreakout, BreakoutWithOptions, overlappingCatalystBreakout } from './cohort_breakout';
 import { getLiveMilestones, getCohortLiveMilestones } from './cohort_milestone';
 import { getTeamsbyCohortMilestoneId } from './team';
 import { LearnerBreakout } from './learner_breakout';
@@ -10,6 +11,7 @@ import { getUserByEmail, User } from './user';
 import { Cohort, getCohortFromLearnerId } from './cohort';
 import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
 import Topic from './topic';
+import logger from '../util/logger';
 
 const GITHUB_BASE = process.env.GITHUB_TEAM_BASE;
 
@@ -277,9 +279,13 @@ export const calculateReviewTime = (reviewDate, reviewForTeam) => {
   let time_split = reviewForTeam.time_scheduled.split(':');
   let scheduled_time = new Date(reviewDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
 
-  scheduled_time.setDate(reviewDate.getDate() + (((
-    WEEK_VALUES[reviewForTeam.review_day.toLowerCase()]
-    + 7 - reviewDate.getDay()) % 7) + (7 * reviewForTeam.week)));
+  scheduled_time.setDate(reviewDate.getDate() + (
+    (
+      (
+        WEEK_VALUES[reviewForTeam.review_day.toLowerCase()] + 7 - reviewDate.getDay()
+      ) % 7
+    )
+  ));
 
   scheduled_time.setHours(time_split[0], time_split[1], time_split[2]);
 
@@ -294,6 +300,7 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
     milestonecohort.id,
   );
   let count = 0;
+  let overlapsResolvingAttempts = 0;
   let duration = milestonecohort['cohort.duration'];
   let cohort_duration;
   if (duration >= 26) {
@@ -304,7 +311,7 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
   let name = milestonecohort['cohort.name'];
   let location = milestonecohort['cohort.location'];
 
-  learnerTeams.forEach((eachTeam, teamIndex) => {
+  await Promise.all(learnerTeams.map(async (eachTeam, teamIndex) => {
     let {
       cohort_id,
       'cohort.name': cohortName,
@@ -367,8 +374,59 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
 
     let timeSlot = calculateReviewTime(milestonecohort.review_scheduled, reviewForTeam);
     let { review_duration, reviewer } = reviewForTeam;
+
+    // Logic to check for Overlapping session for Catalyst
+    let endTime = new Date(timeSlot.getTime());
+    endTime.setTime(endTime.getTime() + parseInt(review_duration, 10));
+
+    // check for overlaps
+    let overlaps = await overlappingCatalystBreakout({
+      catalyst_id: reviewer,
+      time_start: timeSlot,
+      time_end: endTime,
+      types: ['reviews', 'assessment'],
+    });
+    if (overlaps.length > 1) {
+      let loopCount = 0;
+      console.warn('Reviewer has breakout at this time, rescheduling');
+      while (overlaps.length > 1) {
+        reviewForTeam = reviewSlots[indexForReview];
+        // Remove assessment that gets assigned
+        reviewSlots.splice(indexForReview, 1);
+        if (reviewForTeam === undefined) {
+          reviewForTeam = { ...defaultSlot };
+          let warning_context = `EXTRA Reviews created for ${name} ${cohort_duration} ${location} on first slot`;
+          let warning_message = 'WARNING! WARNING! Extra Reviews created than available slots. Please reschedule.';
+          sendMessageToSlackChannel(warning_message,
+            warning_context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
+        }
+
+        timeSlot = calculateReviewTime(milestonecohort.review_scheduled, reviewForTeam);
+        review_duration = reviewForTeam.review_duration;
+        reviewer = reviewForTeam.reviewer;
+
+        // Logic to check for Overlapping session for Catalyst
+        endTime = new Date(timeSlot.getTime());
+        endTime.setTime(endTime.getTime() + parseInt(review_duration, 10));
+
+        // check for overlaps
+        // eslint-disable-next-line no-await-in-loop
+        overlaps = await overlappingCatalystBreakout({
+          catalyst_id: reviewer,
+          time_start: timeSlot,
+          time_end: endTime,
+          types: ['reviews', 'assessment'],
+        });
+
+        loopCount += 1;
+        if (loopCount === 3) {
+          break;
+        }
+      }
+      overlapsResolvingAttempts += loopCount;
+    }
     count += 1;
-    createReviewEntry(
+    return createReviewEntry(
       id,
       cohort_id,
       timeSlot,
@@ -389,9 +447,9 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
       }));
       return createReviewBreakout;
     });
-  });
+  }));
   let context = `Reviews created for ${name} ${cohort_duration} ${location}`;
-  let message = `Created reviews for ${count} teams`;
+  let message = `Created reviews for ${count} teams\n Overlap resolving attempts: ${overlapsResolvingAttempts}`;
   try {
     sendMessageToSlackChannel(message, context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
   } catch (err2) {
@@ -405,7 +463,7 @@ export const createReviewSchedule = (program, cohort_duration) => getReviewSlots
     let slotsForReview = reviewSlots;
     return getLiveMilestones(program, cohort_duration)
       .then((deadlineMilestones) => {
-        console.log(`Scheduling Reviews for ${deadlineMilestones.length} Cohorts`);
+        logger.info(`Scheduling Reviews for ${deadlineMilestones.length} Cohorts`);
         deadlineMilestones.forEach(
           cohortMilestone => createTeamReviewBreakout(
             slotsForReview, cohortMilestone,
@@ -424,7 +482,7 @@ export const createCohortReviewSchedule = (
     let slotsForReview = reviewSlots;
     return getCohortLiveMilestones(program, cohort_duration, cohort_id)
       .then((deadlineMilestones) => {
-        console.log(`Scheduling Reviews for ${deadlineMilestones.length} Cohorts`);
+        logger.info(`Scheduling Reviews for ${deadlineMilestones.length} Cohorts`);
         deadlineMilestones.forEach(
           cohortMilestone => createTeamReviewBreakout(
             slotsForReview, cohortMilestone,
