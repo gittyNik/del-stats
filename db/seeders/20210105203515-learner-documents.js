@@ -1,6 +1,7 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
-const documentFactory = (document_identifier, document_name, is_required, document_count, subdocuments, document_category = null) => ({
+const documentFactory = (document_identifier,
+  document_name, is_required, document_count, subdocuments, document_category = null) => ({
   document_identifier,
   document_name,
   is_required,

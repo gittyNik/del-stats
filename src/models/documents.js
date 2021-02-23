@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import _ from 'lodash';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import db from '../database';
 import { AgreementTemplates } from './agreements_template';
 import logger from '../util/logger';
@@ -344,7 +344,8 @@ export const verifySingleUserDocument = async (
   document_name,
   is_verified,
   comment,
-  updated_by) => {
+  updated_by
+) => {
   const documentRow = await getDocumentsByUser(user_id);
   // const
   const updated_user_documents = createOrUpdateUserDocument(
