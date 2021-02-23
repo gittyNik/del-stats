@@ -3,7 +3,6 @@ import _ from 'lodash';
 import { v4 as uuid } from 'uuid';
 import db from '../database';
 import { AgreementTemplates } from './agreements_template';
-import logger from '../util/logger';
 
 export const document_status = [
   'requested',
@@ -344,7 +343,7 @@ export const verifySingleUserDocument = async (
   document_name,
   is_verified,
   comment,
-  updated_by
+  updated_by,
 ) => {
   const documentRow = await getDocumentsByUser(user_id);
   // const
@@ -461,6 +460,7 @@ export const getLearnerDocumentsJSON = async ({ program, is_isa, non_isa_type })
         })),
       });
     }
+    return r;
   });
   return data;
 };
