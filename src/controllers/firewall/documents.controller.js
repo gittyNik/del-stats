@@ -577,11 +577,11 @@ export const digioEnachWebHook = (req, res) => {
 
   const checkSum = secretHash.digest('hex');
 
-  // console.debug('checkSum');
-  // console.debug(checkSum);
+  console.debug('checkSum');
+  console.debug(checkSum);
 
   const requestCheckSum = req.headers['x-digio-checksum'];
-  // console.debug(requestCheckSum);
+  console.debug(requestCheckSum);
 
   if (requestCheckSum === checkSum) {
     return processWebHookData(entities, payload, id, event)

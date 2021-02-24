@@ -60,6 +60,9 @@ export const sendOTP = (req, res) => {
       if (data) {
         return res.sendStatus(409);
       }
+    } else if (action === 'send_otp') {
+      // Only when send OTP is required
+      return requestOTP(phone, res);
     }
   });
 };
