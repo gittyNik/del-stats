@@ -128,7 +128,7 @@ const recruiterRegister = (data, res) => {
 };
 
 export const verifyOTP = (req, res) => {
-  const { user, otp, action } = req.query;
+  const { user, otp, action } = req.body;
   const { phone, email, fullName } = user;
 
   sendOtp.verify(phone, otp, (error, data) => {

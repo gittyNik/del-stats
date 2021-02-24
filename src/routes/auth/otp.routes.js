@@ -23,14 +23,14 @@ router.post('/send', sendOTP);
 router.post('/retry', retryOTP);
 
 /**
- * @api {get} /auth/otp/verify Verify the OTP
+ * @api {post} /auth/otp/verify Verify the OTP
  * @apiName VerifyOTP
  * @apiDescription Verifies that the sent OTP is correct and authenticates a user
  * @apiGroup Authentication
  * @apiParam {String} phone Enter Phone Number With Prefix
  * @apiParam {Number{0000-9999}} otp Enter OTP
  */
-router.get('/verify', verifyOTP);
+router.post('/verify', verifyOTP);
 
 // TEMP route to register recruiters bypassing OTP.
 router.post('/register-recruiter', registerRecruiterAPI);
