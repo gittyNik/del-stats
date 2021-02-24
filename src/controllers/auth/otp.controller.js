@@ -16,8 +16,12 @@ export const requestOTP = (phone, res) => {
   sendOtp.send(phone, 'SOALIO', (error, data) => {
     logger.info(data);
     if (error === null && data.type === 'success') {
-      res.send(data);
-    } else { res.sendStatus(400); }
+      return res.send(data);
+    }
+    return res.send({
+      message: 'Unable to send OTP',
+      type: 'failure',
+    });
   });
 };
 
@@ -33,7 +37,7 @@ export const sendOTP = (req, res) => {
       }
       if (data === null) {
         // create hubspot contact
-        createOrUpdateContact({
+        return createOrUpdateContact({
           phone,
           email,
           firstName,
@@ -42,18 +46,16 @@ export const sendOTP = (req, res) => {
           utm_source,
           utm_medium,
           utm_campaign,
-        }).then(() => {
-          requestOTP(phone, res);
-        }).catch(err => {
-          logger.error(err);
-          res.sendStatus(500);
+        }).then(() => requestOTP(phone, res)).catch(err => {
+          console.error(err);
+          return res.sendStatus(500);
         });
       }
     } else if (action === 'signin') {
       if (data === null) {
         return res.sendStatus(404);
       }
-      requestOTP(phone, res);
+      return requestOTP(phone, res);
     } else if (action === 'recruiter_register') {
       if (data === null) {
         return requestOTP(phone, res);
@@ -61,6 +63,9 @@ export const sendOTP = (req, res) => {
       if (data) {
         return res.sendStatus(409);
       }
+    } else if (action === 'send_otp') {
+      // Only when send OTP is required
+      return requestOTP(phone, res);
     }
   });
 };
@@ -70,9 +75,19 @@ export const retryOTP = (req, res) => {
 
   // retryVoice Boolean value to enable Voice Call or disable Voice Call and use SMS
   sendOtp.retry(phone, retryVoice, (error, data) => {
-    // logger.info(data);
-    if (error) logger.error(error);
-    res.send(data);
+    // console.log(data);
+    if (error) {
+      console.error(error);
+      return res.send({
+        message: 'Resending OTP failed!',
+        type: 'failure',
+      });
+    }
+    return res.send({
+      message: 'OTP resent successfully!',
+      type: 'success',
+      data,
+    });
   });
 };
 
@@ -131,7 +146,7 @@ const recruiterRegister = (data, res) => {
 };
 
 export const verifyOTP = (req, res) => {
-  const { user, otp, action } = req.query;
+  const { user, otp, action } = req.body;
   const { phone, email, fullName } = user;
 
   sendOtp.verify(phone, otp, (error, data) => {
@@ -149,6 +164,12 @@ export const verifyOTP = (req, res) => {
         }, res);
       } else if (action === 'signin') {
         signInUser(phone, res);
+      } else if (action === 'send_otp') {
+        // Only when send OTP is required
+        return res.send({
+          message: 'OTP verified successfully!',
+          type: 'success',
+        });
       }
     } else {
       // if (data.type == 'error') // OTP verification failed
@@ -163,7 +184,11 @@ export const verifyOTP = (req, res) => {
       } catch (err2) {
         console.warn('Unable to send message to slack');
       }
-      return res.sendStatus(401);
+      return res.send({
+        message: 'OTP verification failed',
+        type: 'failure',
+      });
+      // return res.sendStatus(401);
     }
   });
 };
