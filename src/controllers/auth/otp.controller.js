@@ -149,6 +149,12 @@ export const verifyOTP = (req, res) => {
         }, res);
       } else if (action === 'signin') {
         signInUser(phone, res);
+      } else if (action === 'send_otp') {
+        // Only when send OTP is required
+        return res.send({
+          message: 'OTP verified successfuly!',
+          type: 'success',
+        });
       }
     } else {
       // if (data.type == 'error') // OTP verification failed
