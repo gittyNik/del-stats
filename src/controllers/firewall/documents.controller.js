@@ -569,6 +569,7 @@ export const digioEnachWebHook = (req, res) => {
 
   console.debug('Request Body');
   console.debug(req.body);
+  console.debug(req.body.payload.api_mandate.others);
   // console.debug('Request Headers');
   // console.debug(req.headers);
 
