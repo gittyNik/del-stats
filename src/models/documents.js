@@ -481,7 +481,20 @@ export const updateUserEntry = ({
 })
   .then((learnerDocument) => {
     if (_.isEmpty(learnerDocument)) {
-      return null;
+      return Documents.create({
+        esign_document_id,
+        user_id,
+        document_details,
+        status,
+        payment_status,
+        is_isa,
+        is_verified,
+        mandate_id,
+        mandate_status,
+        mandate_details,
+        nach_debit_id,
+        nach_debit_details,
+      });
     }
 
     if (nach_debit_details) {
