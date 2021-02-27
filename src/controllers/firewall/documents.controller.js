@@ -704,7 +704,7 @@ export const EsignRequest = async (req, res) => {
 
 export const signedUploadUrl = async (
   fileName, fileType, bucket = AWS_DOCUMENT_BUCKET,
-  base_path = AWS_DOCUMENT_BASE_PATH,
+  base_path = AWS_DOCUMENT_BASresumeE_PATH,
 ) => {
   let filePath = `${base_path}/${fileName}`;
   // Set up the payload of what we are sending to the S3 api
@@ -868,3 +868,22 @@ export const addApplicationTemplateSeed = (req, res) => AgreementTemplatesSeed()
     error: err,
     type: 'failure',
   }));
+
+export const getLearnerDocumentsUrlAPI = async (req, res) => {
+  const { document_path } = req.body;
+
+  // Set up the payload of what we are sending to the S3 api
+  // Make a request to the S3 API to get a signed URL which we can use to upload our file
+  try {
+    let resp = await getViewUrlS3(document_path, '', 'document');
+    res.send({
+      message: 'Document signed url created successfully',
+      data: resp,
+    });
+  } catch (err) {
+    res.send({
+      message: 'Document signed url creation failed',
+      data: err,
+    });
+  }
+};

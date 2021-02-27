@@ -11,6 +11,7 @@ import {
   getLearnerDocumentsJsonAPI,
   addApplicationTemplateSeed,
   getDocumentsByApplicationIdAPI,
+  getLearnerDocumentsUrlAPI,
 } from '../../controllers/firewall/documents.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -54,7 +55,23 @@ router.use(allowMultipleRoles([ADMIN, LEARNER, OPERATIONS, EDUCATOR, REVIEWER, G
  */
 router.post('/save-mandate', saveEnachMandate);
 
+/**
+ * @api {get} /firewall/documents/user-documents-json Get user documents in json format
+ * @apiDescription user documents
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UserDocs
+ * @apiGroup Documents
+ */
 router.get('/user-documents-json', getLearnerDocumentsJsonAPI);
+
+/**
+ * @api {get} /firewall/documents/url Get document url
+ * @apiDescription Get document url
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName DocumentUrl
+ * @apiGroup Documents
+ */
+router.post('/url', getLearnerDocumentsUrlAPI);
 
 /**
  * @api {patch} /firewall/documents/:id/esign Send Esign Request to User
