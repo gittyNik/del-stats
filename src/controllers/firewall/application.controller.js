@@ -436,7 +436,7 @@ export const getApplicationByStatus = (req, res) => {
   Application.findAndCountAll(
     {
       where: {
-        status: {
+        stage: {
           [Op.or]: [...status],
         },
       },

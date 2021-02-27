@@ -67,7 +67,7 @@ router.get('/user/:id', getApplicationsByUserId);
  *
  * @apiParam {String} status Status to filter applications
  */
-router.get('/status', getApplicationByStatus);
+router.post('/status', getApplicationByStatus);
 
 /**
  * @api {get} /firewall/applications/:id Get an Application
