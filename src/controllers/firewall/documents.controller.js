@@ -740,7 +740,7 @@ export const signedViewUrl = async (
   const s3Params = {
     Bucket: bucket,
     Key: filePath,
-    Expires: 500,
+    Expires: 7200, // 7200s
   };
   // Make a request to the S3 API to get a signed URL which we can use to upload our file
   try {
