@@ -18,12 +18,24 @@ import {
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, CATALYST, EDUCATOR, REVIEWER, SUPERADMIN,
+  ADMIN, CATALYST, EDUCATOR, REVIEWER, LEARNER,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER, SUPERADMIN]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER, LEARNER]));
+
+/**
+ * @api {get} /learning/ops/reviews Get Reviews for a learner
+ * @apiDescription get Reviews for a learner
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetReviews
+ * @apiGroup Reviews
+ */
+
+router.get('/completed/:email', getCompletedReviewsForLearnerAPI);
+
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER]));
 
 /**
  * @api {get} /learning/ops/reviews Get all Reviews
@@ -100,8 +112,6 @@ router.get('/status/:id', getReviewsByStatusAPI);
  * @apiParam {String} learner_feedback Notes by Reviewer for Learner
  */
 router.patch('/learner/:id', updateReviewForLearnerAPI);
-
-router.get('/completed/:email', getCompletedReviewsForLearnerAPI);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowAdminsOnly);
