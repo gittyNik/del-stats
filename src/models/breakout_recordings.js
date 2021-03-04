@@ -1,13 +1,10 @@
-import AWS from 'aws-sdk';
 import Sequelize from 'sequelize';
 import db from '../database';
 import {
   updateOneCohortBreakouts,
   findOneCohortBreakout,
 } from './cohort_breakout';
-
-const privateKey = process.env.CLOUDFRONT_KEY.replace(/\\n/g, '\n');
-const publicKey = process.env.PUBLIC_KEY;
+import { getResourceUrl } from '../util/file-fetcher';
 
 export const BreakoutRecordings = db.define('breakout_recordings', {
   id: {
@@ -50,27 +47,6 @@ export const BreakoutRecordings = db.define('breakout_recordings', {
   },
 });
 
-const cloudFront = new AWS.CloudFront.Signer(publicKey, privateKey);
-
-export const getAWSSignedUrl = (unSignedUrl) => {
-  let signedUrl = '';
-  cloudFront.getSignedUrl({
-    url: unSignedUrl,
-    expires: Math.floor((new Date()).getTime() / 1000) + (60 * 60 * 1),
-    // Current Time in UTC + time in seconds, (60 * 60 * 1 = 1 hour)
-  }, (err, url) => {
-    if (err) throw err;
-    signedUrl = url;
-  });
-  return signedUrl;
-};
-
-export const getResourceUrl = (cdn, base_path) => {
-  let cdn_url = cdn + base_path;
-  let url = getAWSSignedUrl(cdn_url);
-  return url;
-};
-
 export const updateRecordings = (
   id, video_views, recording_details,
   breakout_template_id,
@@ -86,8 +62,7 @@ export const updateRecordings = (
 export const getRecordingVideoUrl = (id) => BreakoutRecordings.findOne(
   { where: { id } },
 ).then(record => {
-  let cdn_url = process.env.VIDEO_CDN + record.recording_url;
-  let url = getAWSSignedUrl(cdn_url);
+  let url = getResourceUrl(process.env.VIDEO_CDN, record.recording_url);
   record.dataValues.url = url;
   let videoViews = record.video_views + 1;
   updateRecordings(id, videoViews);

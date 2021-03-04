@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { v4 as uuid } from 'uuid';
 import db from '../database';
 import { USER_ROLES, User } from './user';
-import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
+import { getViewUrlS3 } from '../util/file-fetcher';
 import { SocialConnection } from './social_connection';
 import { JobApplication } from './job_application';
 import { CompanyProfile } from './company_profile';
@@ -82,13 +82,13 @@ export const getPortfoliosFromId = (id, role) => Portfolio.findOne({
     let completePortfolio = [];
     if (learnerPortfolio) {
       if (learnerPortfolio.resume) {
-        let resume = await getViewUrlS3(learnerPortfolio.resume.path, '', 'resume');
-        learnerPortfolio.resume.url = resume.signedRequest;
+        let resume = await getViewUrlS3(learnerPortfolio.resume.path, 'resume');
+        learnerPortfolio.resume.url = resume;
       }
       let picture = null;
       if (learnerPortfolio['user.picture']) {
-        picture = await getViewUrlS3(learnerPortfolio['user.picture'], '', 'profile_picture');
-        learnerPortfolio.profile_picture = picture.signedRequest;
+        picture = await getViewUrlS3(learnerPortfolio['user.picture'], 'profile_picture');
+        learnerPortfolio.profile_picture = picture;
       }
       if (learnerPortfolio['user.status'].indexOf('frontend') > -1) {
         learnerPortfolio.path = 'Frontend';
@@ -163,13 +163,13 @@ export const getAPortfolio = ({ id, learner_id, role }) => {
       let completePortfolio = [];
       if (learnerPortfolio) {
         if (learnerPortfolio.resume) {
-          let resume = await getViewUrlS3(learnerPortfolio.resume.path, '', 'resume');
-          learnerPortfolio.resume.url = resume.signedRequest;
+          let resume = await getViewUrlS3(learnerPortfolio.resume.path, 'resume');
+          learnerPortfolio.resume.url = resume;
         }
         let picture = null;
         if (learnerPortfolio['user.picture']) {
-          picture = await getViewUrlS3(learnerPortfolio['user.picture'], '', 'profile_picture');
-          learnerPortfolio.profile_picture = picture.signedRequest;
+          picture = await getViewUrlS3(learnerPortfolio['user.picture'], 'profile_picture');
+          learnerPortfolio.profile_picture = picture;
         }
         if (learnerPortfolio['user.status'].indexOf('frontend') > -1) {
           learnerPortfolio.path = 'Frontend';
@@ -475,8 +475,8 @@ export const getLearnerList = async (limit = 10, offset = 0,
     const { learner_id } = portfolio;
     let picture = null;
     if (portfolio['user.picture']) {
-      picture = await getViewUrlS3(portfolio['user.picture'], '', 'profile_picture');
-      portfolio.profile_picture = picture.signedRequest;
+      picture = await getViewUrlS3(portfolio['user.picture'], 'profile_picture');
+      portfolio.profile_picture = picture;
     }
     if (portfolio['user.status']) {
       if (portfolio['user.status'].indexOf('frontend') > -1) {

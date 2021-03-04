@@ -9,7 +9,7 @@ import {
 } from './learner_challenge';
 import { LearnerInterviews } from './learner_interviews';
 import { CompanyProfile } from './company_profile';
-import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
+import { getViewUrlS3 } from '../util/file-fetcher';
 import logger from '../util/logger';
 
 const APPLICATION_STATUS = [
@@ -209,8 +209,8 @@ export const getJobApplicationsForLearnerId = async ({
   });
   const learnerJobs = await Promise.all(jobApplications.map(async jobApplication => {
     if (jobApplication['job_posting.company_profile.logo']) {
-      let logo = await getViewUrlS3(jobApplication['job_posting.company_profile.logo'], '', 'company_logo');
-      jobApplication['job_posting.company_profile.logo'] = logo.signedRequest;
+      let logo = await getViewUrlS3(jobApplication['job_posting.company_profile.logo'], 'company_logo');
+      jobApplication['job_posting.company_profile.logo'] = logo;
     }
     return jobApplication;
   }));
