@@ -62,6 +62,7 @@ export const BREAKOUT_TYPE = [
   'reviews',
   'assessment',
   '1on1',
+  'mockinterview',
 ];
 
 export const CohortBreakout = db.define('cohort_breakouts', {
