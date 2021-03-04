@@ -440,6 +440,7 @@ export const getApplicationByStatus = (req, res) => {
           [Op.or]: [...status],
         },
       },
+      include: [Cohort, User],
       offset,
       limit,
     },
