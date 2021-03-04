@@ -228,6 +228,27 @@ export const setApplicationStage = (
   },
 });
 
+export const setApplicationStageByApplicationId = (
+  {
+    application_id, user_id, stage, cohort_applied,
+    is_isa, is_job_guarantee, payment_type, offered_isa,
+    payment_option_selected,
+  },
+) => Application.update({
+  stage,
+  cohort_applied,
+  is_isa,
+  is_job_guarantee,
+  payment_type,
+  offered_isa,
+  payment_option_selected,
+  user_id,
+}, {
+  where: {
+    id: application_id,
+  },
+});
+
 export const createApplication = (
   user_id, cohort_applied, cohort_joining,
   status, is_isa, is_job_guarantee, offered_isa,

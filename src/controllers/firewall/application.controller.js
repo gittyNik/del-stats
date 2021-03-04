@@ -6,6 +6,7 @@ import {
   submitApplication,
   getApplicationStage,
   setApplicationStage,
+  setApplicationStageByApplicationId,
   offerISA,
   logProcessStatus,
 } from '../../models/application';
@@ -322,7 +323,7 @@ export const payment = async (req, res) => {
 
 export const verifyPayment = async (req, res) => {
   try {
-    let payment_id = null; 
+    let payment_id = null;
     let payment_request_id = null;
     payment_request_id = req.params.payment_request_id;
     if (req.body.payment_id) {
@@ -378,14 +379,15 @@ export const getApplicationStageAPI = (req, res) => {
 export const setApplicationStageAPI = (req, res) => {
   const user_id = req.jwtData.user.id;
   const {
-    stage, cohort_applied,
+    application_id, stage, cohort_applied,
     is_isa, is_job_guarantee,
     payment_type, payment_option_selected,
     offered_isa,
   } = req.body;
 
-  setApplicationStage(
-    {
+  if (application_id) {
+    setApplicationStageByApplicationId({
+      application_id,
       user_id,
       stage,
       cohort_applied,
@@ -394,9 +396,24 @@ export const setApplicationStageAPI = (req, res) => {
       payment_type,
       payment_option_selected,
       offered_isa,
-    },
-  ).then(data => res.status(200).json(data))
-    .catch(() => res.sendStatus(500));
+    })
+      .then(data => res.status(200).json(data))
+      .catch(() => res.sendStatus(500));
+  } else {
+    setApplicationStage(
+      {
+        user_id,
+        stage,
+        cohort_applied,
+        is_isa,
+        is_job_guarantee,
+        payment_type,
+        payment_option_selected,
+        offered_isa,
+      },
+    ).then(data => res.status(200).json(data))
+      .catch(() => res.sendStatus(500));
+  }
 };
 
 export const setOfferedISA = (req, res) => {
