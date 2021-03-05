@@ -213,6 +213,7 @@ export const setApplicationStage = (
     user_id, stage, cohort_applied,
     is_isa, is_job_guarantee, payment_type, offered_isa,
     payment_option_selected,
+    cohort_joining,
   },
 ) => Application.update({
   stage,
@@ -222,6 +223,7 @@ export const setApplicationStage = (
   payment_type,
   offered_isa,
   payment_option_selected,
+  cohort_joining,
 }, {
   where: {
     user_id,

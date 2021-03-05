@@ -383,6 +383,7 @@ export const setApplicationStageAPI = (req, res) => {
     is_isa, is_job_guarantee,
     payment_type, payment_option_selected,
     offered_isa,
+    cohort_joining,
   } = req.body;
 
   if (application_id) {
@@ -396,6 +397,7 @@ export const setApplicationStageAPI = (req, res) => {
       payment_type,
       payment_option_selected,
       offered_isa,
+      cohort_joining,
     })
       .then(data => res.status(200).json(data))
       .catch(() => res.sendStatus(500));
@@ -410,6 +412,7 @@ export const setApplicationStageAPI = (req, res) => {
         payment_type,
         payment_option_selected,
         offered_isa,
+        cohort_joining,
       },
     ).then(data => res.status(200).json(data))
       .catch(() => res.sendStatus(500));

@@ -200,7 +200,9 @@ export const getAPortfolio = ({ id, learner_id, role }) => {
     })
     .then(async portfolio => {
       if (portfolio.learner_id) {
-        const { milestone_rubrics, top10Rubrics } = await getReviewRubricForALearner(portfolio.learner_id);
+        const { milestone_rubrics, top10Rubrics } = await getReviewRubricForALearner(
+          portfolio.learner_id,
+        );
         portfolio.milestone_rubrics = milestone_rubrics;
         portfolio.top10Rubrics = top10Rubrics;
       }

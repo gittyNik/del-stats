@@ -198,6 +198,7 @@ export const createMandateRequest = (
     customer_ref_number,
   },
 ) => {
+  logger.info(`Creating Mandate for User Id: ${user_id}`);
   const BASE_64_TOKEN = Buffer.from(`${DIGIO_CLIENT}:${DIGIO_SECRET}`).toString('base64');
 
   const requestObject = {
@@ -328,8 +329,8 @@ export const createMandate = async (req, res) => {
     customer_name, customer_account_number,
     customer_bank_ifsc, customer_account_type,
     customer_ref_number,
-    is_recurring,
-    frequency,
+    // is_recurring,
+    // frequency,
   } = req.body;
 
   // Frequency Options:

@@ -275,7 +275,8 @@ export const createJobApplication = ({
 
 export const createJobApplicationForPortofolio = async (
   {
-    job_posting_id, portfolio_id, learner_id,
+    job_posting_id, portfolio_id,
+    // learner_id,
     assignment_id, assignment_due_date,
   },
 ) => {
