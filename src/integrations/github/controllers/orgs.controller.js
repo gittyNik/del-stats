@@ -28,6 +28,18 @@ export const isMember = async login => {
   return _.filter(members, member => member.login === login).length > 0;
 };
 
+export const isMemberOrg = async username => {
+  try {
+    const member = await octokit.orgs.getMembership({
+      org,
+      username,
+    });
+    return member;
+  } catch (err) {
+    return null;
+  }
+};
+
 const sendGithubInvites = (
   githubEmailId,
   team_ids = [],
@@ -44,16 +56,23 @@ export const sendInvitesToNewMembers = async (
   githubUsername,
   teamName,
 ) => {
-  let is = await isMember(githubUsername);
-  if (is) {
-    // check if user is team member
-    let isTmember = await isTeamMember(teamName, githubUsername);
-    if (!isTmember) {
-      // Is org member, add as team member
+  let isMemberOfOrg = await isMemberOrg(githubUsername);
+  if (isMemberOfOrg) {
+    let membershipDetails = isMemberOfOrg.data;
+    if (('role' in membershipDetails) && (membershipDetails.role === 'member')) {
+      // check if user is team member
+      let isTmember = await isTeamMember(teamName, githubUsername);
+      if (isTmember) {
+        if (('role' in isTmember.data) && (isTmember.data.role === 'member') && (isTmember.data.state === 'active')) {
+          // Is org member, add as team member
+          return {};
+        }
+      }
+      console.log('Added to Team');
       return addMemberToTeam(teamName, githubUsername);
     }
-    return {};
   }
+  console.log('Added to Organization');
   // send org invite
   const teamId = await getTeamIdByName(teamName);
   let team_ids = [];
