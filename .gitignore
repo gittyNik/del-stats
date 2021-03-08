@@ -10,3 +10,6 @@ tmp
 connectToDB.sh
 
 .history/
+
+build/
+test/coverage/

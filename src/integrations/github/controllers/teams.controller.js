@@ -52,9 +52,17 @@ const getAllTeamMembers = async (team) => getNumberOfPages('teamMembers', team).
 });
 
 // Checks if a github user is part of team or not
-export const isTeamMember = async (team, login) => getAllTeamMembers(team)
-  .then((members) => _.filter(members, (member) => member.login === login))
-  .then((member) => member.length > 0);
+export const isTeamMember = async (team, login) => {
+  try {
+    return octokit.teams.getMembershipInOrg({
+      org,
+      team_slug: team,
+      username: login,
+    });
+  } catch (err) {
+    return null;
+  }
+};
 
 // Gets team id by name
 export const getTeamIdByName = (name) => octokit.teams

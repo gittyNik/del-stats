@@ -583,7 +583,7 @@ export const getLearnersForCohortBreakout = async (breakout_topic,
   cohort_id,
   cohort_breakout_id,
   breakout_status = 'scheduled',
-  type = 'lecture',) => {
+  type = 'lecture') => {
   if ((breakout_status !== 'completed') && (type === 'lecture')) {
     await LearnerBreakout.destroy({
       where: {
@@ -764,14 +764,16 @@ export const updateBreakoutCalendarEventForCatalyst = async ({
   }
   let calendarDetails = await getCalendarDetailsOfCohortBreakout(id);
   // todo check dates using epoch time.
-  const checkTime = () => (updated_time !== null) && (new Date(updated_time).getTime() !== new Date(time_scheduled).getTime());
+  const checkTime = () => (updated_time !== null) && (
+    new Date(updated_time).getTime() !== new Date(time_scheduled).getTime());
   // check if catalyst needs to be changed
   let googleOAuthCatalyst;
   if ((catalyst_id !== null) && (catalyst_id !== prevCatalystId)) {
     // create event for that catalyst and update it in cohort_breakout details with new property
     // check if calendarEvent already created then delete old catalyst event
     // and create event for new catalyst.
-    if (typeof details.catalystCalendarEvent !== 'undefined') {
+    if ((typeof details.catalystCalendarEvent !== 'undefined')
+      && (details.catalystCalendarEvent !== null)) {
       let googleOAuthPrevCatalyst = await getGoogleOauthOfUser(prevCatalystId);
       await deleteEvent(googleOAuthPrevCatalyst, oldEventId);
       // googleOAuthCatalyst = await getGoogleOauthOfUser(catalyst_id);
