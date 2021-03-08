@@ -4,7 +4,6 @@ import { Op } from 'sequelize';
 import { USER_ROLES, User } from '../../models/user';
 import { CohortBreakout } from '../../models/cohort_breakout';
 
-// eslint-disable-next-line import/prefer-default-export
 export const addCatalyst = (req, res) => {
   const { name, email, phone } = req.body;
   User.create({
@@ -15,7 +14,7 @@ export const addCatalyst = (req, res) => {
     role: USER_ROLES.CATALYST,
     roles: [USER_ROLES.CATALYST],
   })
-    .then(data => res.json({
+    .then((data) => res.json({
       text: 'Catalyst added',
       data,
     }))
@@ -24,12 +23,7 @@ export const addCatalyst = (req, res) => {
       res.status(500);
     });
 };
-
-export const completedBreakoutsByCatalyst = (
-  {
-    catalyst_id,
-  },
-) => CohortBreakout.findAll({
+export const completedBreakoutsByCatalyst = ({ catalyst_id }) => CohortBreakout.findAll({
   where: {
     catalyst_id,
     status: 'completed',
@@ -39,18 +33,66 @@ export const completedBreakoutsByCatalyst = (
 
 export const cumulativeTimeTaken = async (req, res) => {
   const catalyst_id = req.params.id ? req.params.id : req.jwtData.user.id;
-
+  console.log({ catalyst_id });
   try {
-    const today = await CohortBreakout.sum('time_taken_by_catalyst', { where: { catalyst_id, time_started: { [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0)) } } });
-    const thisWeek = await CohortBreakout.sum('time_taken_by_catalyst', { where: { catalyst_id, time_started: { [Op.gte]: moment().startOf('week').toDate() } } });
-    const thisMonth = await CohortBreakout.sum('time_taken_by_catalyst', { where: { catalyst_id, time_started: { [Op.gte]: moment().startOf('month').toDate() } } });
-    const overall = await CohortBreakout.sum('time_taken_by_catalyst', { where: { catalyst_id } });
+    const today = await CohortBreakout.sum('time_taken_by_catalyst', {
+      where: {
+        catalyst_id,
+        time_started: { [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0)) },
+      },
+    });
+    const thisWeek = await CohortBreakout.sum('time_taken_by_catalyst', {
+      where: {
+        catalyst_id,
+        time_started: { [Op.gte]: moment().startOf('week').toDate() },
+      },
+    });
+    const thisMonth = await CohortBreakout.sum('time_taken_by_catalyst', {
+      where: {
+        catalyst_id,
+        time_started: { [Op.gte]: moment().startOf('month').toDate() },
+      },
+    });
+    const overall = await CohortBreakout.sum('time_taken_by_catalyst', {
+      where: { catalyst_id },
+    });
 
+    const todayBOCount = await CohortBreakout.count({
+      where: {
+        catalyst_id,
+        time_started: { [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0)) },
+      },
+    });
+    const thisWeekBOCount = await CohortBreakout.count({
+      where: {
+        catalyst_id,
+        time_started: { [Op.gte]: moment().startOf('week').toDate() },
+      },
+    });
+    const thisMonthBOCount = await CohortBreakout.count({
+      where: {
+        catalyst_id,
+        time_started: { [Op.gte]: moment().startOf('month').toDate() },
+      },
+    });
+    const overallBOCount = await CohortBreakout.count({
+      where: { catalyst_id },
+    });
+    console.log(
+      'count',
+      todayBOCount,
+      thisWeekBOCount,
+      thisMonthBOCount,
+      overallBOCount,
+    );
     res.json({
-      message: 'Catalyst added',
+      message: 'Date',
       type: 'Success',
       data: {
-        today, thisWeek, thisMonth, overall,
+        today,
+        thisWeek,
+        thisMonth,
+        overall,
       },
     });
   } catch (err) {
@@ -64,8 +106,10 @@ export const cumulativeTimeTaken = async (req, res) => {
 
 export const sessionsStartedOnTime = async (req, res) => {
   const catalyst_id = req.params.id ? req.params.id : req.jwtData.user.id;
-  CohortBreakout.count({ where: { catalyst_id, time_started: { [Op.lte]: 'time_scheduled' } } })
-    .then(data => res.json({
+  CohortBreakout.count({
+    where: { catalyst_id, time_started: { [Op.lte]: 'time_scheduled' } },
+  })
+    .then((data) => res.json({
       message: `Count of Sessions started on time is ${data}`,
       type: 'Success',
       data,
