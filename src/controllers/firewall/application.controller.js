@@ -460,7 +460,7 @@ export const getApplicationByStatus = (req, res) => {
           [Op.or]: [...status],
         },
       },
-      include: [Cohort, User],
+      include: [{ model: Cohort, as: 'applicationCohortJoining' }, User],
       offset,
       limit,
     },
