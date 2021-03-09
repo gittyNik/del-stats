@@ -111,7 +111,7 @@ export const getPendingApplications = () => Application.findAll({
 export const getPendingApplicationCohorts = () => Application.findAll({
   order: Sequelize.col('created_at'),
   where: { status: { [opIn]: ['joined', 'review_pending', 'offered'] } },
-  include: [Cohort, User],
+  include: [{ model: Cohort, as: 'applicationCohortApplied' }, User],
   raw: true,
 });
 

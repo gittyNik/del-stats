@@ -38,7 +38,7 @@ export const getApplicationById = (req, res) => {
   const { id } = req.params;
   Application.findAll({
     where: { id },
-    include: [Cohort, User],
+    include: [{ model: Cohort, as: 'applicationCohortJoining' }, User],
   })
     .then(data => res.status(200).json(data))
     .catch(() => res.sendStatus(500));
@@ -78,7 +78,7 @@ export const getLiveApplications = (req, res) => {
     where: {
       status: ['applied', 'review_pending', 'offered', 'rejected'],
     },
-    include: [Cohort, User],
+    include: [{ model: Cohort, as: 'applicationCohortApplied' }, User],
     order: [[Sequelize.col('created_at'), Sequelize.literal('DESC')]],
   })
     .then(data => res.status(200).json(data))
