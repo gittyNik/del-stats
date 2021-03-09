@@ -59,8 +59,8 @@ Cohort.belongsTo(Program, { foreignKey: 'program_id' });
 // CohortMilestone.belongsTo(Cohort, { foreignKey: 'cohort_id' });
 Cohort.hasMany(CohortBreakout, { foreignKey: 'cohort_id' });
 CohortBreakout.belongsTo(Cohort);
-Application.belongsTo(Cohort, { foreignKey: 'cohort_applied' });
-Application.belongsTo(Cohort, { foreignKey: 'cohort_joining' });
+Application.belongsTo(Cohort, { as: 'applicationCohortApplied', foreignKey: 'cohort_applied' });
+Application.belongsTo(Cohort, { as: 'applicationCohortJoining', foreignKey: 'cohort_joining' });
 Application.belongsTo(Program, { foreignKey: 'program_id' });
 
 // User.hasMany(SocialConnection, {foreignKey: 'user_id'});
