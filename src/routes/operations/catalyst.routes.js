@@ -32,7 +32,7 @@ router.post('/', addCatalyst);
  * @apiGroup Catalyst
  */
 // returns cumulative time taken by catalyst for day, week, month and overall
-router.post('/cumulativeTimeTaken', cumulativeTimeTaken);
+router.post('/cumulativeTimeTaken/:id', cumulativeTimeTaken);
 
 /**
  * @api {post} /operations/catalyst/sessionsStartedOnTime returns count of sessions started on time
@@ -42,6 +42,6 @@ router.post('/cumulativeTimeTaken', cumulativeTimeTaken);
  * @apiGroup Catalyst
  */
 // returns cumulative time taken by catalyst for day, week, month and overall
-router.post('/sessionsStartedOnTime', sessionsStartedOnTime);
+router.post('/sessionsStartedOnTime/:id', sessionsStartedOnTime);
 
 export default router;
