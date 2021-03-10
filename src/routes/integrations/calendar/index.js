@@ -1,4 +1,5 @@
-import express from 'express';
+import Express from 'express';
+import authenticate from '../../../controllers/auth/auth.controller';
 import calendarRouters from './calendar.routes';
 import adminRouters from './admin_dashboard.routes';
 import { allowMultipleRoles } from '../../../controllers/auth/roles.controller';
@@ -8,7 +9,9 @@ const {
   ADMIN, SUPERADMIN, EDUCATOR,
 } = USER_ROLES;
 
-const router = express.Router();
+const router = Express.Router();
+
+router.use(authenticate);
 
 router.use('/learner', calendarRouters);
 

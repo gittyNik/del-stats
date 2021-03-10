@@ -14,7 +14,7 @@ import authRouter from './auth';
 import adminRouter from './admin.routes';
 import profileRouter from './community/profile.routes';
 
-import calendarRouter from '../integrations/calendar/routes';
+import calendarRouter from './integrations/calendar/index';
 import codeInterviewRouter from '../integrations/codeinterview/routes';
 
 import authenticate from '../controllers/auth/auth.controller';
@@ -53,7 +53,7 @@ router.use('/email', emailer);
 router.use('/operations', operations);
 
 // Calendar
-router.use('/calendar', calendarRouter);
+// router.use('/calendar', calendarRouter);
 
 // Code Interview
 router.use('/codeinterview', codeInterviewRouter);

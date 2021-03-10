@@ -3,7 +3,7 @@ import {
   getAllCalendarEvents, createCalendarEvent,
   updateCalendarEvent, createEventForEducator,
   deleteOneEvent, createEventForLearner,
-} from '../controllers/calendar.controller';
+} from '../../../integrations/calendar/controllers/calendar.controller';
 
 const router = Express.Router();
 

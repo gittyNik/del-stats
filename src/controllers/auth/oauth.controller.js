@@ -253,6 +253,7 @@ export const signinWithGithub = (req, res) => {
         res.status(404).send('No user found with email');
       } else {
         console.error(`Sign in failed: ${err}`);
+        console.error(`Error details: ${err.stack}`);
         res.status(500).send('Authentication Failed');
       }
     });
