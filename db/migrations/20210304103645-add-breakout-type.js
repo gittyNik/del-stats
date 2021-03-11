@@ -20,7 +20,7 @@ const BREAKOUT_TYPE = [
   'reviews',
   'assessment',
   '1on1',
-  'mockinterview',
+  'mockinterview-aftercapstone',
 ];
 
 module.exports = {
