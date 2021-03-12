@@ -225,12 +225,14 @@ export const getAllBreakoutRecordingsForCatalystApi = async (req, res) => {
     limit, offset, sort_by, topics, user_id,
   } = req.body;
 
+  const catalyst_id = user_id ? user_id : req.params.id;
+
   limit = limit || 10;
   sort_by = sort_by || 'video_views';
 
   try {
     const data = await getAllBreakoutRecordingsForCatalyst({
-      limit, offset, sort_by, topics, user_id,
+      limit, offset, sort_by, topics, user_id: catalyst_id,
     });
 
     return res.json({
