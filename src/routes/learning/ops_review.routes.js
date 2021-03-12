@@ -10,6 +10,7 @@ import {
   updateTeamReviewAPI,
   createCohortReviewScheduleAPI,
   getCompletedReviewsForLearnerAPI,
+  createPastCohortMilestoneReviewScheduleAPI,
 } from '../../controllers/learning/reviews.controller';
 import {
   allowMultipleRoles,
@@ -137,6 +138,17 @@ router.post('/schedule', createReviewScheduleAPI);
  * @apiParam {String} Program name
  */
 router.post('/cohort-schedule', createCohortReviewScheduleAPI);
+
+/**
+ * @api {post} /learning/ops/reviews/past-milestone Schedule Reviews for Past Milestone
+ * @apiDescription schedule create Reviews for Past MS
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ScheduleReviews
+ * @apiGroup Reviews
+ *
+ * @apiParam {String} Program name
+ */
+router.post('/past-milestone', createPastCohortMilestoneReviewScheduleAPI);
 
 /**
  * @api {post} /learning/ops/reviews/ Add Team Reviews

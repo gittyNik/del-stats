@@ -1,4 +1,3 @@
-import { getCohortFromLearnerId } from '../../models/cohort';
 import {
   getAllReviews, getReviewsById,
   getReviewsByStatus, getReviewsByUserId,
@@ -10,8 +9,8 @@ import {
   updateTeamReview,
   createCohortReviewSchedule,
   getCompletedReviewsForLearner,
+  createPastCohortMilestoneReviews,
 } from '../../models/reviews';
-
 
 export const getAllReviewsAPI = (req, res) => {
   const { review_date } = req.query;
@@ -98,6 +97,19 @@ export const createCohortReviewScheduleAPI = (req, res) => {
   const { program, cohort_duration, cohort_id } = req.body;
   createCohortReviewSchedule(program,
     cohort_duration, cohort_id).then((data) => { res.json(data); })
+    .catch(err => {
+      console.error(err);
+      res.status(500).send(err);
+    });
+};
+
+export const createPastCohortMilestoneReviewScheduleAPI = (req, res) => {
+  const { program, cohort_duration, cohort_milestone_ids } = req.body;
+  createPastCohortMilestoneReviews({
+    program,
+    cohort_duration,
+    cohort_milestone_ids,
+  }).then((data) => { res.json(data); })
     .catch(err => {
       console.error(err);
       res.status(500).send(err);

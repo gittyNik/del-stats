@@ -2,7 +2,9 @@ import Sequelize from 'sequelize';
 import uuid from 'uuid/v4';
 import { over } from 'lodash';
 import { CohortBreakout, BreakoutWithOptions, overlappingCatalystBreakout } from './cohort_breakout';
-import { getLiveMilestones, getCohortLiveMilestones } from './cohort_milestone';
+import {
+  getLiveMilestones, getCohortLiveMilestones, getPreviousCohortMilestone,
+} from './cohort_milestone';
 import { getTeamsbyCohortMilestoneId } from './team';
 import { LearnerBreakout } from './learner_breakout';
 import { getReviewSlotsByProgram } from './review_slots';
@@ -483,6 +485,27 @@ export const createCohortReviewSchedule = (
   .then(reviewSlots => {
     let slotsForReview = reviewSlots;
     return getCohortLiveMilestones(program, cohort_duration, cohort_id)
+      .then((deadlineMilestones) => {
+        console.log(`Scheduling Reviews for ${deadlineMilestones.length} Cohorts`);
+        deadlineMilestones.forEach(
+          cohortMilestone => createTeamReviewBreakout(
+            slotsForReview, cohortMilestone,
+          ),
+        );
+      });
+  });
+
+export const createPastCohortMilestoneReviews = (
+  {
+    program,
+    cohort_duration,
+    cohort_milestone_ids,
+  },
+) => getReviewSlotsByProgram(program,
+  cohort_duration)
+  .then(reviewSlots => {
+    let slotsForReview = reviewSlots;
+    return getPreviousCohortMilestone(cohort_milestone_ids)
       .then((deadlineMilestones) => {
         console.log(`Scheduling Reviews for ${deadlineMilestones.length} Cohorts`);
         deadlineMilestones.forEach(
