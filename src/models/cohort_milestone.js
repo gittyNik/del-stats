@@ -370,6 +370,21 @@ export const getLiveMilestones = (program, cohort_duration) => {
   });
 };
 
+export const getPreviousCohortMilestone = (cohort_milestone_ids) => CohortMilestone.findAll({
+  order: [
+    [Cohort, 'duration', 'ASC'],
+  ],
+  where: {
+    id: { [Sequelize.Op.in]: cohort_milestone_ids },
+    '$cohort.status$': 'live',
+    '$milestone.starter_repo$': {
+      [Sequelize.Op.ne]: null,
+    },
+  },
+  include: [Cohort, Milestone],
+  raw: true,
+});
+
 export const getCohortLiveMilestones = (program, cohort_duration, cohort_id) => {
   const now = Sequelize.literal('NOW()');
   let nextSevenDays = new Date();

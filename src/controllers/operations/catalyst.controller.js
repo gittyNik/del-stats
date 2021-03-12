@@ -1,8 +1,16 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import moment from 'moment';
-import { Op } from 'sequelize';
+import Sequelize, { Op } from 'sequelize';
 import { USER_ROLES, User } from '../../models/user';
 import { CohortBreakout } from '../../models/cohort_breakout';
+import { BreakoutRecordings } from '../../models/breakout_recordings';
+import {
+  BreakoutRecordingsDetails,
+} from '../../models/breakout_recording_details';
+import {
+  Topic,
+} from '../../models/topic';
+import { logger } from '../../util/logger';
 
 export const addCatalyst = (req, res) => {
   const { name, email, phone } = req.body;
@@ -33,66 +41,74 @@ export const completedBreakoutsByCatalyst = ({ catalyst_id }) => CohortBreakout.
 
 export const cumulativeTimeTaken = async (req, res) => {
   const catalyst_id = req.params.id ? req.params.id : req.jwtData.user.id;
-  console.log({ catalyst_id });
+
+  const convertMilisIntoHours = (milis) => milis;
+
   try {
-    const today = await CohortBreakout.sum('time_taken_by_catalyst', {
+    let today = await CohortBreakout.sum('time_taken_by_catalyst', {
       where: {
         catalyst_id,
         time_started: { [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0)) },
       },
     });
-    const thisWeek = await CohortBreakout.sum('time_taken_by_catalyst', {
+    let thisWeek = await CohortBreakout.sum('time_taken_by_catalyst', {
       where: {
         catalyst_id,
         time_started: { [Op.gte]: moment().startOf('week').toDate() },
       },
     });
-    const thisMonth = await CohortBreakout.sum('time_taken_by_catalyst', {
+    let thisMonth = await CohortBreakout.sum('time_taken_by_catalyst', {
       where: {
         catalyst_id,
         time_started: { [Op.gte]: moment().startOf('month').toDate() },
       },
     });
-    const overall = await CohortBreakout.sum('time_taken_by_catalyst', {
+    let overall = await CohortBreakout.sum('time_taken_by_catalyst', {
       where: { catalyst_id },
     });
 
-    const todayBOCount = await CohortBreakout.count({
+    let todayBOCount = await CohortBreakout.count({
       where: {
         catalyst_id,
         time_started: { [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0)) },
       },
     });
-    const thisWeekBOCount = await CohortBreakout.count({
+    let thisWeekBOCount = await CohortBreakout.count({
       where: {
         catalyst_id,
         time_started: { [Op.gte]: moment().startOf('week').toDate() },
       },
     });
-    const thisMonthBOCount = await CohortBreakout.count({
+    let thisMonthBOCount = await CohortBreakout.count({
       where: {
         catalyst_id,
         time_started: { [Op.gte]: moment().startOf('month').toDate() },
       },
     });
-    const overallBOCount = await CohortBreakout.count({
+    let overallBOCount = await CohortBreakout.count({
       where: { catalyst_id },
     });
-    console.log(
-      'count',
-      todayBOCount,
-      thisWeekBOCount,
-      thisMonthBOCount,
-      overallBOCount,
-    );
+
     res.json({
-      message: 'Date',
+      message: 'cumulativeTimeTaken Success!',
       type: 'Success',
       data: {
-        today,
-        thisWeek,
-        thisMonth,
-        overall,
+        daily: {
+          hours: convertMilisIntoHours(parseInt(today, 10) || 0),
+          sessions: convertMilisIntoHours(parseInt(todayBOCount, 10) || 0),
+        },
+        weekly: {
+          hours: convertMilisIntoHours(parseInt(thisWeek, 10) || 0),
+          sessions: convertMilisIntoHours(parseInt(thisWeekBOCount, 10) || 0),
+        },
+        monthly: {
+          hours: convertMilisIntoHours(parseInt(thisMonth, 10) || 0),
+          sessions: (parseInt(thisMonthBOCount, 10) || 0),
+        },
+        overall: {
+          hours: convertMilisIntoHours(parseInt(overall, 10) || 0),
+          sessions: convertMilisIntoHours(parseInt(overallBOCount, 10) || 0),
+        },
       },
     });
   } catch (err) {
@@ -110,7 +126,7 @@ export const sessionsStartedOnTime = async (req, res) => {
     where: { catalyst_id, time_started: { [Op.lte]: 'time_scheduled' } },
   })
     .then((data) => res.json({
-      message: `Count of Sessions started on time is ${data}`,
+      message: `Count of Sessions started on time is  ${parseInt(data, 10) || 0}`,
       type: 'Success',
       data,
     }))
@@ -118,4 +134,118 @@ export const sessionsStartedOnTime = async (req, res) => {
       console.error(err);
       res.status(500);
     });
+};
+
+export const getAllBreakoutRecordingsForCatalyst = async ({
+  limit, offset, sort_by, topics, user_id,
+}) => {
+  limit = limit || 10;
+  sort_by = sort_by || 'video_views';
+  let whereAnotherObj = {};
+
+  if (topics) {
+    topics = topics.split(',');
+    whereAnotherObj = {
+      topics_array: { [Sequelize.Op.contains]: [topics] },
+    };
+  }
+
+  const allBreakouts = await BreakoutRecordings.findAndCountAll({
+    where: whereAnotherObj,
+    include: [{
+      model: User,
+      attributes: ['name'],
+    },
+    ],
+    order: [
+      [sort_by, 'DESC'],
+    ],
+    raw: true,
+    limit,
+    offset,
+  });
+  const breakouts = await Promise.all(allBreakouts.rows.map(async eachBreakout => {
+    let whereObj = {
+      video_id: eachBreakout.id,
+    };
+    const breakoutDetails = await BreakoutRecordingsDetails.findAll({
+      attributes: [
+        'catalyst_id',
+        [Sequelize.fn('count', Sequelize.col('liked_by_user')), 'likes'],
+        [Sequelize.fn('avg', Sequelize.col('breakout_rating')), 'rating'],
+      ],
+      group: [
+        'breakout_recordings_details.video_id',
+      ],
+      where: whereObj,
+      raw: true,
+    });
+    whereObj.user_id = user_id;
+    const currentUserDetails = await BreakoutRecordingsDetails.findOne({
+      attributes: [
+        'video_id',
+        'liked_by_user',
+        'breakout_rating',
+      ],
+      where: whereObj,
+      raw: true,
+    });
+    if (breakoutDetails.length > 0) {
+      const { likes, rating } = breakoutDetails[0];
+      eachBreakout.likes = parseInt(likes, 10);
+      eachBreakout.ratings = parseFloat(rating);
+    } else {
+      eachBreakout.likes = 0;
+      eachBreakout.ratings = 0;
+    }
+    eachBreakout.userStats = {};
+    if (currentUserDetails && currentUserDetails.length > 0) {
+      const { liked_by_user, breakout_rating } = currentUserDetails[0];
+      eachBreakout.userStats.liked = liked_by_user;
+      eachBreakout.userStats.rating = parseFloat(breakout_rating);
+    } else {
+      eachBreakout.userStats.liked = false;
+      eachBreakout.userStats.rating = 0;
+    }
+    const topicsData = await Promise.all(eachBreakout.topics_array.map(
+      eachTopic => Topic.findByPk(eachTopic, {
+        attributes: ['title', 'path', 'optional'],
+        raw: true,
+      }),
+    ));
+    eachBreakout.topics = topicsData;
+    return eachBreakout;
+  }));
+  const recordingDetails = { data: breakouts, count: allBreakouts.count, message: 'Fetched Breakouts' };
+  return recordingDetails;
+};
+
+export const getAllBreakoutRecordingsForCatalystApi = async (req, res) => {
+  let {
+    limit, offset, sort_by, topics, user_id,
+  } = req.body;
+
+  const catalyst_id = user_id ? user_id : req.params.id;
+
+  limit = limit || 10;
+  sort_by = sort_by || 'video_views';
+
+  try {
+    const data = await getAllBreakoutRecordingsForCatalyst({
+      limit, offset, sort_by, topics, user_id: catalyst_id,
+    });
+
+    return res.json({
+      message: 'getAllBreakoutRecordingsForCatalyst Success',
+      type: 'Success',
+      data,
+    });
+  } catch (err) {
+    logger.error(err);
+
+    return res.json({
+      message: err.message,
+      type: 'failure',
+    });
+  }
 };
