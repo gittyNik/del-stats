@@ -389,7 +389,6 @@ export const setApplicationStageAPI = (req, res) => {
   if (application_id) {
     setApplicationStageByApplicationId({
       application_id,
-      user_id,
       stage,
       cohort_applied,
       is_isa,
