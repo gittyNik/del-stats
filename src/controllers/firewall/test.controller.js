@@ -41,10 +41,7 @@ export const getTestByApplicationId = (req, res) => {
 };
 
 export const populateRubric = test => Application.findByPk(test.application_id, {
-  include: [{
-    model: Cohort,
-    foreignKey: 'cohort_applied',
-  }, Program],
+  include: [{ model: Cohort, as: 'applicationCohortJoining' }, Program],
   raw: true,
 }).then(application => {
   const [template] = application['program.test_series'].tests
