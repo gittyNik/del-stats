@@ -13,6 +13,7 @@ import {
 import {
   getCohortFromId,
 } from '../../models/cohort';
+import { getViewUrlS3 } from '../firewall/documents.controller';
 import { createOrUpdateContact } from '../../integrations/hubspot/controllers/contacts.controller';
 import { createDeal, associateDealWithContact } from '../../integrations/hubspot/controllers/deals.controller';
 import logger from '../../util/logger';
@@ -21,7 +22,9 @@ const {
   CATALYST, EDUCATOR, ADMIN, SUPERADMIN, REVIEWER,
 } = USER_ROLES;
 
-export const getProfile = (req, res) => {
+export const getProfile = async (req, res) => {
+  let picture = await getViewUrlS3(req.jwtData.user.picture, '', 'profile_picture');
+  req.jwtData.user.picture = picture.signedRequest;
   res.json({ user: req.jwtData.user });
 };
 
