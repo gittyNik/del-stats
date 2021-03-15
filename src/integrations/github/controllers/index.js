@@ -1076,7 +1076,7 @@ export const getAllStats = async (req, res) => {
         challenge_user = LatestChallengeInCohortId['user.name'];
       } catch (err) {
         // Reads No one has created challenge recently on frontend
-        console.warn(err);
+        // console.warn(err);
         challenge_user_id = user_id;
         challenge_user = 'No one';
       }
