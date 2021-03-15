@@ -1006,7 +1006,7 @@ export const getAllStats = async (req, res) => {
 
     if (socialConnection !== null) {
       // Update any new changes to Milestone Repo
-      const HOURS = 4 * 60 * 60 * 1000;
+      const HOURS = 2 * 60 * 60 * 1000;
       const NOW = new Date();
       if ((NOW - lastMilestoneUpdatedAt.last_committed_at) > HOURS) {
         await getMilestoneCommitsLearner({ cohort_milestone_id, user_id });
