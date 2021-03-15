@@ -49,6 +49,7 @@ const fetchProfileFromGithub = ({ githubToken, expiry }) =>
       const emailResponse = await request
         .get(`https://api.github.com/user/emails?${githubToken}`);
       profile.emails = emailResponse.body.map(o => o.email);
+      console.debug(`User emails for Github Signin: ${profile.emails}`);
       return { profile, githubToken, expiry };
     });
 
@@ -226,6 +227,7 @@ export const signinWithGithub = (req, res) => {
         ) {
           return Promise.reject('NO_EMAIL');
         }
+        if ('email' in user) { console.log(`User email: ${user.email}`); }
         return {
           profile,
           githubToken,

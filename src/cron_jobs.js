@@ -1,7 +1,12 @@
 import cron from 'node-cron';
 import Redis from 'ioredis';
+import {
+  checkBalance,
+} from './controllers/auth/otp.controller';
 import { postTodaysBreakouts } from './integrations/slack/delta-app/controllers/web.controller';
-import { postOverlappingBreakouts } from './integrations/slack/team-app/controllers/milestone.controller';
+import {
+  postOverlappingBreakouts, sendMessageToSlackChannel,
+} from './integrations/slack/team-app/controllers/milestone.controller';
 import {
   getTodaysCohortBreakouts,
   getNDaysDuplicateCatalystBreakouts,
@@ -51,6 +56,22 @@ cron.schedule('0 9 * * *', async () => {
         text: 'Conflicting breakouts sent on SOALEDU',
         // data: res,
       });
+      try {
+        const OTPBalance = await checkBalance();
+        let rechargeMessage;
+        let context;
+        if (OTPBalance < 50) {
+          rechargeMessage = '*<@owners>* Please recharge MSG91. Balance exhausted!';
+          context = 'OTP Balance exhausted';
+          sendMessageToSlackChannel(rechargeMessage, context, process.env.SLACK_MSG91_CHANNEL);
+        } else {
+          rechargeMessage = `OTP Balance: ${OTPBalance}`;
+          context = 'OTP Balance';
+          sendMessageToSlackChannel(rechargeMessage, context, process.env.SLACK_MSG91_CHANNEL);
+        }
+      } catch (err1) {
+        console.warn('Could not check OTP balance');
+      }
     }
   } else {
     console.log('TIME FOR DAILY SLACK REMINDERS');

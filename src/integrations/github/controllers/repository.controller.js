@@ -160,8 +160,9 @@ export const createRepositoryifnotPresentFromTemplate = async (
   }
   try {
     await getUserCommitsForRepo(repo);
+    console.log(`Fetched commits for Repo: ${repo}`);
   } catch (err) {
-    console.war(`Error while fetching commits: ${err}`);
+    console.warn(`Error while fetching commits: ${err}`);
   }
 
   return {};

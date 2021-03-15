@@ -41,7 +41,11 @@ export const getAllTopics = async (req, res) => {
   let cohort;
   if (for_user) {
     cohort = await getLiveCohortMilestoneBylearnerId(user_id);
-    program = cohort['cohort.program_id'];
+    if ('cohort.program_id' in cohort) {
+      program = cohort['cohort.program_id'];
+    } else {
+      program = 'tep';
+    }
   } else {
     program = null;
   }
