@@ -691,6 +691,7 @@ export const createStatForSingleLearner = async (
       );
     });
   } else {
+    console.log(contributorsRepo);
     console.warn(`Contributors in repo: ${contributorsRepo}`);
   }
   return createdStat;
