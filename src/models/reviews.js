@@ -294,7 +294,7 @@ export const calculateReviewTime = (reviewDate, reviewForTeam) => {
   return reviewScheduledUTC;
 };
 
-export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => {
+export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone, start_date = null) => {
   let milestonecohort = cohortMilestone;
   let defaultSlot = reviewSlots[0];
   let learnerTeams = await getTeamsbyCohortMilestoneId(
@@ -373,7 +373,15 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
         warning_context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
     }
 
-    let timeSlot = calculateReviewTime(milestonecohort.review_scheduled, reviewForTeam);
+    let scheduled_date;
+    // If start date provided, use that to schedule reviews
+    if (start_date) {
+      scheduled_date = new Date(Date.parse(start_date));
+    } else {
+      scheduled_date = milestonecohort.review_scheduled;
+    }
+
+    let timeSlot = calculateReviewTime(scheduled_date, reviewForTeam);
     let { review_duration, reviewer } = reviewForTeam;
 
     // Logic to check for Overlapping session for Catalyst
@@ -402,7 +410,7 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
             warning_context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
         }
 
-        timeSlot = calculateReviewTime(milestonecohort.review_scheduled, reviewForTeam);
+        timeSlot = calculateReviewTime(scheduled_date, reviewForTeam);
         review_duration = reviewForTeam.review_duration;
         reviewer = reviewForTeam.reviewer;
 
@@ -500,6 +508,7 @@ export const createPastCohortMilestoneReviews = (
     program,
     cohort_duration,
     cohort_milestone_ids,
+    start_date,
   },
 ) => getReviewSlotsByProgram(program,
   cohort_duration)
@@ -510,7 +519,7 @@ export const createPastCohortMilestoneReviews = (
         console.log(`Scheduling Reviews for ${deadlineMilestones.length} Cohorts`);
         deadlineMilestones.forEach(
           cohortMilestone => createTeamReviewBreakout(
-            slotsForReview, cohortMilestone,
+            slotsForReview, cohortMilestone, start_date,
           ),
         );
       });

@@ -60,7 +60,7 @@ cron.schedule('0 9 * * *', async () => {
         const OTPBalance = await checkBalance();
         let rechargeMessage;
         let context;
-        if (OTPBalance < 0) {
+        if (OTPBalance < 50) {
           rechargeMessage = '*<@owners>* Please recharge MSG91. Balance exhausted!';
           context = 'OTP Balance exhausted';
           sendMessageToSlackChannel(rechargeMessage, context, process.env.SLACK_MSG91_CHANNEL);

@@ -104,11 +104,15 @@ export const createCohortReviewScheduleAPI = (req, res) => {
 };
 
 export const createPastCohortMilestoneReviewScheduleAPI = (req, res) => {
-  const { program, cohort_duration, cohort_milestone_ids } = req.body;
+  const {
+    program, cohort_duration, cohort_milestone_ids,
+    start_date,
+  } = req.body;
   createPastCohortMilestoneReviews({
     program,
     cohort_duration,
     cohort_milestone_ids,
+    start_date,
   }).then((data) => { res.json(data); })
     .catch(err => {
       console.error(err);
