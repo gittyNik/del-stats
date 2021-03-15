@@ -1006,22 +1006,23 @@ export const getAllStats = async (req, res) => {
 
     if (socialConnection !== null) {
       // Update any new changes to Milestone Repo
-      const ONE_HOUR = 1 * 60 * 60 * 1000;
+      const HOURS = 4 * 60 * 60 * 1000;
       const NOW = new Date();
-      if ((NOW - lastMilestoneUpdatedAt.last_committed_at) > ONE_HOUR) {
+      if ((NOW - lastMilestoneUpdatedAt.last_committed_at) > HOURS) {
         await getMilestoneCommitsLearner({ cohort_milestone_id, user_id });
       }
 
       if (updateChallenges) {
         // Update any new changes to Challenges
-        let currentDate = new Date();
-        await getChallengesForLearner({
-          cohort_id,
-          lastChallengeUpdated,
-          currentDate,
-          user_id,
-          cohort_milestone_id,
-        });
+        if ((NOW - lastChallengeUpdated) > HOURS) {
+          await getChallengesForLearner({
+            cohort_id,
+            lastChallengeUpdated,
+            NOW,
+            user_id,
+            cohort_milestone_id,
+          });
+        }
       }
 
       let cohortDetails = await getCohortFromId(cohort_id);
