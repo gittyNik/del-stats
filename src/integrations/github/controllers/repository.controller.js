@@ -3,7 +3,6 @@ import _ from 'lodash';
 import { octokit, org } from './git.auth.controller';
 import { contributersInRepository } from './stats.controller';
 import { getNumberOfPages } from './pagination.controller';
-import { getUserCommitsForRepo } from './index';
 
 const getAllReposPageWise = (per_page = 100, page = 1) => octokit.repos
   .listForOrg({
@@ -157,12 +156,6 @@ export const createRepositoryifnotPresentFromTemplate = async (
 
   if (!isPresent) {
     return createGithubRepositoryFromTemplate(template_repo_name, repo, '', privateRepo);
-  }
-  try {
-    await getUserCommitsForRepo(repo);
-    console.log(`Fetched commits for Repo: ${repo}`);
-  } catch (err) {
-    console.warn(`Error while fetching commits: ${err}`);
   }
 
   return {};
