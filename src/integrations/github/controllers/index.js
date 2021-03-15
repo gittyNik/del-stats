@@ -989,7 +989,7 @@ export const getAllStats = async (req, res) => {
     }
     if (lastChallengeUpdated === null) {
       lastChallengeUpdated = new Date();
-      lastChallengeUpdated.setDate(lastChallengeUpdated.getDate() - 10);
+      lastChallengeUpdated.setDate(lastChallengeUpdated.getDate() - 1);
     }
     let updateChallenges = await getLearnerChallengesAfterDate(
       lastChallengeUpdated,
