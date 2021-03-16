@@ -70,8 +70,11 @@ export const deleteMeetingFromZoom = (video_id) => {
     .delete(`${ZOOM_BASE_URL}meetings/${video_id}`)
     .set('Authorization', `Bearer ${zoom_token}`)
     .set('User-Agent', 'Zoom-api-Jwt-Request')
-    .then(data => {
+    .then(async data => {
       if (data.status === 204) {
+        await VideoMeeting.destroy(
+          { where: { video_id } },
+        );
         // console.log('Meeting successfully deleted');
         return true;
       }
@@ -167,10 +170,10 @@ export const createScheduledMeeting = async (topic, start_time,
     if (concurrent_meet) {
       zoom_user_index = concurrent_meet.length;
     }
-    try {
-      catalyst_email = zoom_user_array[zoom_user_index];
-      host_key = host_key_arrays[zoom_user_index];
-    } catch (err) {
+
+    catalyst_email = zoom_user_array[zoom_user_index];
+    host_key = host_key_arrays[zoom_user_index];
+    if (catalyst_email === undefined) {
       [catalyst_email] = zoom_user_array;
       [host_key] = host_key_arrays;
     }
