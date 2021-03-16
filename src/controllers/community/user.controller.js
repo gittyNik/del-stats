@@ -122,11 +122,15 @@ export const updateProfile = (req, res) => {
 
 export const getEducators = (req, res) => {
   User.findAll({
+    attributes: ['name', 'id', 'picture'],
     where: {
       role: {
         [Sequelize.Op.in]: [CATALYST, EDUCATOR, ADMIN, SUPERADMIN, REVIEWER],
       },
     },
+    order: [
+      ['name', 'ASC'],
+    ],
   }).then(data => {
     res.json({
       text: 'Teaching users',
