@@ -1030,7 +1030,7 @@ export const updateOneCohortBreakouts = async (details, cohort_breakout) => {
   });
 };
 
-export const updateSanboxUrl = async (id, sandbox_id, sandbox_url) => {
+export const updateSandboxUrl = async (id, sandbox_id, sandbox_url) => {
   let breakout = await findOneCohortBreakout({ id });
 
   let breakoutDetails = breakout.details;

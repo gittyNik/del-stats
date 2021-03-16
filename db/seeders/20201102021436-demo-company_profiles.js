@@ -85,7 +85,7 @@ const cleanEntry = (obj) => JSON.stringify(obj).replace(/"/g, '\\"');
 // Individual Rows
 const createCompanyProfile = (id, recruiter_id) => ({
   id,
-  name: faker.company.companyName(),
+
   description: faker.company.catchPhrase(),
   logo: 'http://placeimg.com/640/480/business',
   website: faker.internet.url(),
@@ -103,7 +103,7 @@ const createRecruiters = (id) => ({
   id,
   name: faker.name.findName(),
   email: faker.internet.email(),
-  phone: faker.phone.phoneNumber('+919#########'),
+  phone: faker.phone.phoneNumber('919#########'),
   role: 'recruiter',
 });
 
