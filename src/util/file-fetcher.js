@@ -149,6 +149,9 @@ export const getViewUrlS3 = async (fileName, type) => {
     let { cdn, basePath } = type_upload[type];
     let filePath;
     if ((fileName.indexOf(basePath) === 0) || (fileName.indexOf(basePath) === 1)) {
+      if (fileName.indexOf(basePath) === 1) {
+        fileName = fileName.replace('/', '');
+      }
       filePath = fileName;
     } else {
       filePath = `${basePath}/${fileName}`;
