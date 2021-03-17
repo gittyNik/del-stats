@@ -10,6 +10,7 @@ import {
 import {
   getCohortFromId,
 } from '../../models/cohort';
+import logger from '../../util/logger';
 
 export const getApplicationDetails = async (id) => {
   let applicationDetails = await getApplicationStage(id);
@@ -19,11 +20,13 @@ export const getApplicationDetails = async (id) => {
   let cohortDetails = await getCohortFromId(cohort_applied);
 
   return getAgreementTemplate(
-    cohortDetails.program_id,
-    cohortDetails.duration,
-    applicationDetails.is_isa,
-    applicationDetails.is_job_guarantee,
-    applicationDetails.payment_type,
+    {
+      program: cohortDetails.program_id,
+      cohort_duration: cohortDetails.duration,
+      is_isa: applicationDetails.is_isa,
+      is_job_guarantee: applicationDetails.is_job_guarantee,
+      payment_type: applicationDetails.payment_type,
+    },
   );
 };
 
@@ -59,21 +62,25 @@ export const createAgreementTemplatesAPI = (req, res) => {
     payment_type,
     payment_details,
     document_identifier,
+    agreement_identifier,
   } = req.body;
   const updated_by = req.jwtData.user.id;
 
   createAgreementTemplates(
-    program,
-    cohort_duration,
-    is_isa,
-    is_job_guarantee,
-    payment_type,
-    payment_details,
-    updated_by,
-    document_identifier,
+    {
+      program,
+      cohort_duration,
+      is_isa,
+      is_job_guarantee,
+      payment_type,
+      payment_details,
+      updated_user: updated_by,
+      document_identifier,
+      agreement_identifier,
+    },
   ).then((data) => { res.json(data); })
     .catch(err => {
-      console.log(err);
+      logger.error(err);
       res.status(500).send(err);
     });
 };
@@ -87,19 +94,24 @@ export const updateAgreementTemplatesAPI = (req, res) => {
     payment_type,
     payment_details,
     document_identifier,
+    agreement_identifier,
   } = req.body;
   const { id } = req.params;
   const updated_by = req.jwtData.user.id;
 
   updateAgreementTemplates(
-    id, program,
-    cohort_duration,
-    is_isa,
-    is_job_guarantee,
-    payment_type,
-    payment_details,
-    updated_by,
-    document_identifier,
+    {
+      id,
+      program,
+      cohort_duration,
+      is_isa,
+      is_job_guarantee,
+      payment_type,
+      payment_details,
+      updated_by,
+      document_identifier,
+      agreement_identifier,
+    },
   ).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };

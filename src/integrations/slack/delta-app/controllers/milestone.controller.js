@@ -3,6 +3,7 @@ import { Cohort } from '../../../../models/cohort';
 import { Topic } from '../../../../models/topic';
 import { getCurrentMilestoneOfCohortDelta } from '../../../../models/cohort_milestone';
 import { composeMilestoneModal, composeBreakoutMessage } from '../views/milestone.view';
+import logger from '../../../../util/logger';
 
 export const showMilestoneDetails = (payload, respond) => {
   const { trigger_id } = payload;
@@ -11,12 +12,12 @@ export const showMilestoneDetails = (payload, respond) => {
   getCurrentMilestoneOfCohortDelta(cohort_id)
     .then(composeMilestoneModal)
     .then(view =>
-      // console.log(0);
+      // logger.info(0);
       web.views.open({
         view,
         trigger_id,
       }))
-    .catch(err => console.error(err));
+    .catch(err => logger.error(err));
 };
 
 export const requestTopicBreakout = (payload, respond) => {
@@ -31,5 +32,5 @@ export const requestTopicBreakout = (payload, respond) => {
 
   // TODO: schedule the breakout on database
   sendMessageToChannel()
-    .catch(err => console.error(err));
+    .catch(err => logger.error(err));
 };

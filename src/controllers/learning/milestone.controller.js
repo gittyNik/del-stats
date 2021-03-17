@@ -1,4 +1,4 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import { Topic } from '../../models/topic';
 import { deleteMilestoneTeams, createMilestoneTeams, Team } from '../../models/team';
 import { Resource } from '../../models/resource';
@@ -8,6 +8,7 @@ import {
   updateMilestones,
   deleteMilestones,
 } from '../../models/milestone';
+import logger from '../../util/logger';
 
 export const getAllMilestones = (req, res) => {
   Milestone.findAll({})
@@ -37,7 +38,7 @@ export const create = (req, res) => {
         data: tepMilestone,
       });
     })
-    .catch(err => console.error(err));
+    .catch(err => logger.error(err));
 };
 
 export const update = (req, res) => {
@@ -81,7 +82,7 @@ export const getAllByMilestone = (req, res) => {
         });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -94,7 +95,7 @@ export const getTeam = (req, res) => {
   })
     .then((data) => { res.json(data); })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -110,7 +111,7 @@ export const createTeam = (req, res) => {
         data: team,
       });
     })
-    .catch(err => console.error(err));
+    .catch(err => logger.error(err));
 };
 
 export const updateTeam = (req, res) => {
@@ -145,7 +146,7 @@ export const generateMilestoneTeams = (req, res) => {
       });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -158,7 +159,7 @@ export const getMilestoneTeams = (req, res) => {
   })
     .then((data) => { res.json(data); })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -171,7 +172,7 @@ export const resetMilestoneTeams = (req, res) => {
       res.send({ data });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -189,7 +190,7 @@ export const createMilestone = (req, res) => {
     problem_statement, learning_competencies, releases, starter_repo,
     alias, duration, updated_by)
     .then((data) => { res.json(data); })
-    .catch(err => console.error(err));
+    .catch(err => logger.error(err));
 };
 
 export const updateMilestone = (req, res) => {
@@ -206,7 +207,7 @@ export const updateMilestone = (req, res) => {
     releases, learning_competencies, prerequisite_milestones, guidelines,
     alias, duration)
     .then(() => { res.send('Milestone Updated'); })
-    .catch(err => console.error(err));
+    .catch(err => logger.error(err));
 };
 
 export const deleteMilestone = (req, res) => {

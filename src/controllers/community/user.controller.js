@@ -15,6 +15,7 @@ import {
 } from '../../models/cohort';
 import { createOrUpdateContact } from '../../integrations/hubspot/controllers/contacts.controller';
 import { createDeal, associateDealWithContact } from '../../integrations/hubspot/controllers/deals.controller';
+import logger from '../../util/logger';
 
 const {
   CATALYST, EDUCATOR, ADMIN, SUPERADMIN, REVIEWER,
@@ -35,7 +36,7 @@ export const updateUser = (req, res) => {
       data,
     });
   }).catch(err => {
-    console.error(err);
+    logger.error(err);
     res.sendStatus(500);
   });
 };
@@ -106,16 +107,16 @@ export const updateProfile = (req, res) => {
                 });
               })
               .catch(err => {
-                console.error(err);
+                logger.error(err);
                 res.sendStatus(500);
               });
           });
       }).catch(err => {
-        console.error(err);
+        logger.error(err);
         res.sendStatus(500);
       });
   }).catch(err => {
-    console.error(err);
+    logger.error(err);
     res.sendStatus(500);
   });
 };
@@ -137,7 +138,7 @@ export const getEducators = (req, res) => {
       data,
     });
   }).catch(err => {
-    console.error(err);
+    logger.error(err);
     res.sendStatus(500);
   });
 };
@@ -156,7 +157,7 @@ export const getUsersByRole = (req, res) => {
       });
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -176,7 +177,7 @@ export const removeUserStatusApi = (req, res) => {
       data,
     });
   }).catch(err => {
-    console.error(err);
+    logger.error(err);
     res.sendStatus(500);
   });
 };
@@ -205,7 +206,7 @@ export const updateUserStatus = (req, res) => {
       data,
     });
   }).catch(err => {
-    console.error(err);
+    logger.error(err);
     res.sendStatus(500);
   });
 };
@@ -221,7 +222,7 @@ export const leastAttendanceInCohort = async (req, res) => {
       data,
     });
   }).catch(err => {
-    console.error(err);
+    logger.error(err);
     res.sendStatus(500);
   });
 };
@@ -236,7 +237,7 @@ export const addProfilePictureAPI = async (req, res) => {
       type: 'success',
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({
       text: 'Failed to create signedUrl for uploading profile picture',
       type: 'failure',
@@ -267,7 +268,7 @@ export const getUserByEmailAPI = async (req, res) => {
       });
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };

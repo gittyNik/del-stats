@@ -1,8 +1,10 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import faker from 'faker';
 import { Date } from 'core-js';
 import _ from 'lodash';
-import { randomNum, generateUuids, cleanJSON, getSomeElements, cleanArray } from '../../src/util/seederUtils';
+import {
+  randomNum, generateUuids, cleanJSON, getSomeElements, cleanArray,
+} from '../../src/util/seederUtils';
 
 const STATUS = [
   'active',

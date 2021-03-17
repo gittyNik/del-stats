@@ -1,9 +1,12 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import faker from 'faker';
 import _ from 'lodash';
 import {
   randomNum, generateUuids, cleanArray, generateArray, cleanJSON,
 } from '../../src/util/seederUtils';
+import {
+  BREAKOUT_PATH,
+} from '../../src/models/topic';
 
 const MILESTONE = {
   id: uuid(),
@@ -34,7 +37,7 @@ const TOPIC = {
   domain: _.sample(['generic', 'tech', 'mindset', 'dsa']),
   created_at: new Date(),
   updated_at: new Date(),
- path: _.sample(BREAKOUT_PATH),
+  path: _.sample(BREAKOUT_PATH),
 };
 
 const CHALLENGE_DIFFICULTY = ['easy', 'medium', 'difficult'];

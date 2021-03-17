@@ -13,6 +13,7 @@ import {
   addLearnerStatus,
   updateCohortById,
 } from '../../models/cohort';
+import logger from '../../util/logger';
 
 import { USER_ROLES } from '../../models/user';
 
@@ -30,7 +31,7 @@ export const getCohortByName = (req, res) => {
       res.json({ cohorts });
     })
     .catch((e) => {
-      console.error(e);
+      logger.error(e);
       res.sendStatus(404);
     });
 };
@@ -107,7 +108,7 @@ export const beginCohort = (req, res) => {
       res.send(cohort);
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(404);
     });
 
@@ -125,7 +126,7 @@ export const beginParallelCohort = (req, res) => {
       res.send(cohort);
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(404);
     });
 
@@ -152,7 +153,7 @@ export const getCohortByLearnerId = (req, res) => {
       });
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(404);
     });
 };

@@ -1,3 +1,7 @@
+
+.history/
+.eslintcache
+build/
 node_modules
 .env
 doc
@@ -8,8 +12,7 @@ tmp
 .idea/
 .vscode/
 connectToDB.sh
+.coverage
+test/coverage
 
-.history/
 
-build/
-test/coverage/

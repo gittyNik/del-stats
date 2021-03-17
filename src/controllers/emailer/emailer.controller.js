@@ -1,36 +1,10 @@
 import _ from 'lodash';
-import AWS from 'aws-sdk';
 import nodemailer from 'nodemailer';
 import { getLearnerDetailsForCohorts } from '../../models/cohort';
+import logger from '../../util/logger';
+import { downloadFile, type_upload } from '../../util/file-fetcher';
 
-const {
-  AWS_BUCKET_NAME, AWS_ACCESS_KEY,
-  AWS_SECRET, AWS_REGION, AWS_BASE_PATH,
-} = process.env;
-
-AWS.config.update(
-  {
-    accessKeyId: AWS_ACCESS_KEY,
-    secretAccessKey: AWS_SECRET,
-    region: AWS_REGION,
-  },
-);
-const s3 = new AWS.S3();
-
-async function downloadFile(bucket, objectKey) {
-  try {
-    const params = {
-      Bucket: bucket,
-      Key: objectKey,
-    };
-
-    const data = await s3.getObject(params).promise();
-    return data;
-  } catch (e) {
-    throw new Error(`Could not retrieve file from S3: ${e.message}`);
-  }
-}
-
+const BUCKET_PATH = type_upload.emailer;
 export const replaceFields = (key, value, htmlFile) => htmlFile.replace(`{{${key}}}`, value);
 
 export const sendEmail = async (from_name, to_users, subject,
@@ -48,7 +22,7 @@ export const sendEmail = async (from_name, to_users, subject,
     },
   });
 
-  let html_file = await downloadFile(AWS_BUCKET_NAME, html_path);
+  let html_file = await downloadFile(BUCKET_PATH.bucketName, html_path);
   let html = html_file.Body.toString('utf-8');
   Object.keys(replacement_fields).forEach((key) => {
     html = replaceFields(key, replacement_fields[key], html);
@@ -66,7 +40,7 @@ export const sendEmail = async (from_name, to_users, subject,
   if (!(_.isEmpty(email_attachments))) {
     let attachment_array = [];
     await Promise.all(email_attachments.map(async (attachment) => {
-      const attachment_file = await downloadFile(AWS_BUCKET_NAME, attachment.aws_path);
+      const attachment_file = await downloadFile(BUCKET_PATH.bucketName, attachment.aws_path);
       const attach_file = attachment_file.Body;
       attachment_array.push(
         {
@@ -82,11 +56,11 @@ export const sendEmail = async (from_name, to_users, subject,
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      console.error(error);
+      logger.error(error);
       return 'Error occurred';
     }
-    console.log('Email sent: %s', info.response);
-    // console.log('Message sent: %s', info.messageId);
+    logger.info('Email sent: %s', info.response);
+    // logger.info('Message sent: %s', info.messageId);
     return info.messageId;
   });
 };

@@ -1,4 +1,5 @@
 import web from '../client';
+import logger from '../../../../util/logger';
 
 export const postMessage = async ({
   channel, text, blocks,
@@ -14,14 +15,14 @@ export const postMessage = async ({
     }
     return res.error;
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     return false;
   }
 };
 
 export const postEphemeral = async ({
-  attachments, channel, text, user
+  attachments, channel, text, user,
 }) => {
-  console.log('example');
+  logger.info('example');
   return true;
 };

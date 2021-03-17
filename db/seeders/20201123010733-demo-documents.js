@@ -1,4 +1,4 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import faker from 'faker';
 import _ from 'lodash';
 import { cleanArray, cleanJSON } from '../../src/util/seederUtils';
@@ -6,7 +6,7 @@ import { cleanArray, cleanJSON } from '../../src/util/seederUtils';
 const USER_ROLES = ['learner', 'educator', 'enabler', 'catalyst', 'admin',
   'guest', 'superadmin', 'reviewer', 'operations', 'recruiter', 'career-services'];
 
-const providers = ['stackoverflow', 'github', 'google', 'facebook', 'linkedin', 'zoom'];
+// const providers = ['stackoverflow', 'github', 'google', 'facebook', 'linkedin', 'zoom'];
 
 const USER = {
   id: uuid(),

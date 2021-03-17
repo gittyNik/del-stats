@@ -1,4 +1,4 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import faker from 'faker';
 import _ from 'lodash';
 import { compatibleArray, randomNum, cleanJSON } from '../../src/util/seederUtils';
@@ -25,22 +25,21 @@ const BREAKOUT_TYPE = [
 
 module.exports = {
   up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(async (t) => {
-
     const catalysts = await queryInterface.sequelize.query(
       `SELECT id from users
       WHERE role='catalyst';`,
     );
 
     const topics = await queryInterface.sequelize.query(
-      `SELECT id from topics;`
+      'SELECT id from topics;',
     );
 
     const breakout_templates = await queryInterface.sequelize.query(
-      `SELECT id from breakout_templates;`
+      'SELECT id from breakout_templates;',
     );
 
     const cohorts = await queryInterface.sequelize.query(
-      `SELECT id from cohorts;`
+      'SELECT id from cohorts;',
     );
 
     // catalyst, updated_by not mapped users

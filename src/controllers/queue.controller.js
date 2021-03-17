@@ -1,5 +1,6 @@
 import { Queue, QueueScheduler, Worker } from 'bullmq';
 import Redis from 'ioredis';
+import logger from '../util/logger';
 
 const connection = new Redis(process.env.REDIS_URL);
 const queue = new Queue('delta', { connection });
@@ -29,11 +30,11 @@ export const createWorker = handler => {
   const worker = new Worker('delta', handler, { connection });
 
   worker.on('completed', (job) => {
-    // console.log(`${job.id} has completed!`);
+    // logger.info(`${job.id} has completed!`);
   });
 
   worker.on('failed', (job, err) => {
-    console.error(`${job.id} has failed with ${err.message}`);
+    logger.error(`${job.id} has failed with ${err.message}`);
   });
 
   // initialize scheduler after a worker is created

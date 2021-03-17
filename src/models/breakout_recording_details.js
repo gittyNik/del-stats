@@ -244,7 +244,7 @@ export const getVideoLikesRating = async (video_id, user_id, sort_by = 'likes') 
       (a, b) => (a + Number(b.rating)), 0,
     ) / breakout_ratings.length;
 
-    if (isNaN(breakout_ratings)) {
+    if (Number.isNaN(breakout_ratings)) {
       breakout_ratings = 0;
     }
     if (likedCount.length) {
@@ -372,6 +372,7 @@ export const updateRecordingDetails = async (
       raw: true,
       returning: true,
     });
+    // eslint-disable-next-line prefer-destructuring
     updatedRecording = updated[1][0];
   } else {
     updatedRecording = await BreakoutRecordingsDetails.create(

@@ -3,7 +3,9 @@ import {
   getAllApplications, getApplicationsByUserId, getApplicationById,
   getLiveApplications, addApplication, updateApplication, deleteApplication,
   payment, getLatestApplication, getApplicationStats, getApplicationStageAPI,
-  setApplicationStageAPI, getPaymentAmount,
+  setApplicationStageAPI, getPaymentAmount, verifyPayment,
+  logProcessFailure, setOfferedISA,
+  getApplicationByStatus,
 } from '../../controllers/firewall/application.controller';
 import { apiNotReady } from '../../controllers/api.controller';
 
@@ -55,6 +57,17 @@ router.get('/latest', getLatestApplication);
  * @apiGroup Application
  */
 router.get('/user/:id', getApplicationsByUserId);
+
+/**
+ * @api {get} /firewall/applications/status/ Get Application by status
+ * @apiDescription Get application by status
+ * @apiHeader {String} authorization JWT Token
+ * @apiName ApplicationStatus
+ * @apiGroup Application
+ *
+ * @apiParam {String} status Status to filter applications
+ */
+router.post('/status', getApplicationByStatus);
 
 /**
  * @api {get} /firewall/applications/:id Get an Application
@@ -151,5 +164,35 @@ router.patch('/:id/payment', payment);
  * @apiParam {String} purpose Purpose of Payment
  */
 router.get('/payment-amount', getPaymentAmount);
+
+/**
+ * @api {get} /firewall/applications/payment/:payment_id/verify Verify Payment
+ * @apiDescription Verify payment status based on payment_id
+ * @apiHeader {String} authorization JWT Token
+ * @apiName ApplicationPayment
+ * @apiGroup Application
+ *
+ * @apiParam {String} payment_id Payment ID
+ */
+router.post('/payment/:payment_request_id/verify', verifyPayment);
+
+/**
+ * @api {post} /firewall/applications/offerISA change offered_ISA status
+ * @apiDescription Change offered ISA status for ISA/non-ISA
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ApplicationOfferISA
+ * @apiGroup Application
+ */
+router.post('/offerISA', setOfferedISA);
+
+// admin guest operations and educator
+/**
+ * @api {post} /career/applications/logProcessFailure Log Process
+ * @apiDescription Log failure/success events to process_status
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ApplicationLogFailure
+ * @apiGroup Application
+ */
+router.post('/logProcessFailure', logProcessFailure);
 
 export default router;

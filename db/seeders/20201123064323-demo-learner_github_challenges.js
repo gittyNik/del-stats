@@ -1,17 +1,16 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import faker from 'faker';
 import _ from 'lodash';
 import { randomNum, cleanArray } from '../../src/util/seederUtils';
 
 module.exports = {
   up: (queryInterface) => queryInterface.sequelize.transaction(async (t) => {
-
     const learner_challenges = await queryInterface.sequelize.query(
-      `SELECT id from learner_challenges;`
+      'SELECT id from learner_challenges;',
     );
 
     const cohort_milestones = await queryInterface.sequelize.query(
-      `SELECT id from cohort_milestones;`
+      'SELECT id from cohort_milestones;',
     );
 
     const LEARNER_GITHUB_CHALLENGE = () => ({

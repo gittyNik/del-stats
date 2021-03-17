@@ -1,5 +1,6 @@
 import { google } from 'googleapis';
 import { convertToEventBody } from '../../util/calendar-util';
+import logger from '../../util/logger';
 
 export const listEvents = (auth) => {
   const calendar = google.calendar({ version: 'v3', auth });
@@ -15,7 +16,7 @@ export const listEvents = (auth) => {
       return (events.length > 0) ? events : false;
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       return false;
     });
 };
@@ -32,7 +33,7 @@ export const createEvent = (auth, event_details) => {
     end = d.toISOString();
   }
   let event = convertToEventBody(summary, start, end, description, location);
-  // console.log(event);
+  // logger.info(event);
   return calendar.events
     .insert({
       auth,
@@ -44,8 +45,8 @@ export const createEvent = (auth, event_details) => {
       htmlLink: _event.data.htmlLink,
     }))
     .catch(err => {
-      console.error(`Error in creating Google calendar event: ${err}`);
-      console.debug(`Error details: ${err.stack}`);
+      logger.error(`Error in creating Google calendar event: ${err}`);
+      logger.debug(`Error details: ${err.stack}`);
       // return new Error('Failed to create a calendar event');
       return null;
     });
@@ -74,8 +75,8 @@ export const updateEvent = async (auth, eventId, event_details) => {
     .then(_event => _event.data)
     .then(_event => ({ id: _event.id, htmlLink: _event.htmlLink }))
     .catch(err => {
-      console.error(`Error in updating Google calendar event: ${err}`);
-      console.debug(`Error details: ${err.stack}`);
+      logger.error(`Error in updating Google calendar event: ${err}`);
+      logger.debug(`Error details: ${err.stack}`);
       return false;
     });
 };
@@ -91,7 +92,7 @@ export const deleteEvent = async (auth, eventId) => {
     })
     .then(_event => _event.data)
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       return new Error('Unable to delete the event');
     });
 };

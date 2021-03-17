@@ -2,7 +2,7 @@ import Sequelize from 'sequelize';
 import _ from 'lodash';
 import db from '../database';
 import { USER_ROLES } from './user';
-import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
+import { getViewUrlS3 } from '../util/file-fetcher';
 import { CompanyProfile } from './company_profile';
 import { Challenge } from './challenge';
 
@@ -105,8 +105,8 @@ export const getJobPostingFromId = (id, role,
     .then(async (jobPosting) => {
       if (jobPosting) {
         if (jobPosting.logo) {
-          let logo = await getViewUrlS3(jobPosting.logo, '', 'company_logo');
-          jobPosting.logo = logo.signedRequest;
+          let logo = await getViewUrlS3(jobPosting.logo, 'company_logo');
+          jobPosting.logo = logo;
         }
         if ((jobPosting) && (role === LEARNER)) {
           let views = 1;

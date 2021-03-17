@@ -32,7 +32,7 @@ cron.schedule('0 10 * * *', async () => {
       });
     }
   } else {
-    console.log('TIME FOR DAILY SLACK REMINDERS');
+    logger.info('TIME FOR DAILY SLACK REMINDERS');
   }
 }, {
   scheduled: true,

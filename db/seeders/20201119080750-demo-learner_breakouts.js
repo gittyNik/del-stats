@@ -1,8 +1,8 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import faker from 'faker';
 import _ from 'lodash';
 import {
-  randomNum, generateUuids, cleanArray, cleanJSON, compatibleArray,
+  randomNum, generateUuids, cleanJSON, compatibleArray,
 } from '../../src/util/seederUtils';
 
 const MILESTONE = {

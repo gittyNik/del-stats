@@ -1,4 +1,4 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import _ from 'lodash';
 
 export const cleanEntry = (obj) => JSON.stringify(obj).replace(/"/g, '\\"');

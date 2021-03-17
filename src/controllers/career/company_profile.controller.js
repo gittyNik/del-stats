@@ -3,6 +3,7 @@ import {
   createCompanyProfile, updateCompanyProfileById,
   removeCompanyProfile, getCompanyProfileFromRecruiterId,
 } from '../../models/company_profile';
+import logger from '../../util/logger';
 
 export const getAllCompanyProfilesAPI = (req, res) => {
   let {
@@ -19,7 +20,7 @@ export const getAllCompanyProfilesAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -34,7 +35,7 @@ export const getCompanyProfileFromIdAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -48,7 +49,7 @@ export const getCompanyProfileFromRecruiterIdAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -101,7 +102,7 @@ export const createCompanyProfileAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -155,7 +156,7 @@ export const updateCompanyProfileByIdAPI = (req, res) => {
     type: 'success',
   }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -178,7 +179,7 @@ export const removeCompanyProfileAPI = (req, res) => {
     type: 'success',
   }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
