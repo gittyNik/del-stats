@@ -1,4 +1,5 @@
 import { WebClient } from '@slack/web-api';
+import _ from 'lodash';
 import { getCurrentMilestoneOfCohortDelta, markMilestoneReview } from '../../../../models/cohort_milestone';
 import { Cohort, getLearnersFromCohorts } from '../../../../models/cohort';
 import { Milestone } from '../../../../models/milestone';
@@ -114,14 +115,14 @@ export const sendMessageToSlackChannel = (text, context, channel) => web.chat.po
 })
   .catch(err => logger.error(err));
 
-export const postOverlappingBreakouts = async (n_days, overlappingBreakouts) => {
+export const postOverlappingBreakouts = async (n_days, overlappingBreakouts, duplicateField) => {
   const channelId = process.env.SLACK_PE_SCHEDULING_CHANNEL;
   let n_day = new Date();
   n_day.setDate(n_day.getDate() + n_days);
-  let context = `<!channel> Overlapping sessions for date: *${n_day.getDate()}-${n_day.getMonth() + 1}-${n_day.getFullYear()}*`;
+  let context = `<!channel> Overlapping *${duplicateField}* sessions for date: *${n_day.getDate()}-${n_day.getMonth() + 1}-${n_day.getFullYear()}*`;
 
-  if (overlappingBreakouts === null) {
-    const textMessage = 'No Catalyst overlapping sessions for the day';
+  if (_.isEmpty(overlappingBreakouts)) {
+    const textMessage = `No ${duplicateField} overlapping sessions for the day`;
     return sendMessageToSlackChannel(textMessage, context, channelId);
   }
   const postOnChannel = async (textBody) => {
@@ -170,7 +171,7 @@ export const postOverlappingBreakouts = async (n_days, overlappingBreakouts) => 
 
   Object.entries(overlappingBreakouts).forEach(([key, breakout]) => {
     // let b_type;
-    breakout_text += `Catalyst: *${key}*\n\n${'_'.repeat(50)}\n\n`;
+    breakout_text += `${duplicateField}: *${key}*\n\n${'_'.repeat(50)}\n\n`;
     breakout.forEach(eachBreakout => {
       let b_topic;
       switch (eachBreakout.type) {
@@ -194,7 +195,7 @@ export const postOverlappingBreakouts = async (n_days, overlappingBreakouts) => 
     breakout_text += `${'_'.repeat(50)}\n`;
   });
   try {
-    console.log(breakout_text);
+    // console.log(breakout_text);
     const res = await postOnChannel(breakout_text);
     data.push(res);
   } catch (err) {

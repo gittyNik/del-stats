@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { User } from '../../models/user';
+import { getLimitedDetailsOfUser } from '../../models/user';
 import logger from '../../util/logger';
 
 const sendAuthFailure = (res) => {
@@ -19,7 +19,7 @@ export const authenticateRequest = (req, res, next) => {
       console.warn('User is not authorized');
       sendAuthFailure(res);
     } else {
-      User.findByPk(jwtData.userId, { raw: true })
+      getLimitedDetailsOfUser(jwtData.userId)
         .then((user) => {
           req.jwtData = { user, ...jwtData };
           return next();

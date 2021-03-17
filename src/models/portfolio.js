@@ -119,6 +119,10 @@ export const getPortfoliosFromId = (id, role) => Portfolio.findOne({
         });
       }
     }
+    // if an array is empty return null
+    if (Array.isArray(completePortfolio) && (!completePortfolio.length)) {
+      completePortfolio = null;
+    }
     return completePortfolio;
   });
 
@@ -144,7 +148,10 @@ export const getPortfoliosByStatus = (
   },
 );
 
-export const getAPortfolio = ({ id, learner_id, role }) => {
+export const getAPortfolio = ({
+  id, learner_id, role, getRubrics,
+}) => {
+  getRubrics = getRubrics || false;
   let whereObj = {};
   if (id) {
     whereObj.id = id;
@@ -196,13 +203,18 @@ export const getAPortfolio = ({ id, learner_id, role }) => {
           }, { where: whereObj });
         }
       }
+      // if an array is empty return null
+      if (Array.isArray(completePortfolio) && (!completePortfolio.length)) {
+        completePortfolio = null;
+      }
       return completePortfolio;
     })
     .then(async portfolio => {
-      if (portfolio.learner_id) {
-        const { milestone_rubrics, top10Rubrics } = await getReviewRubricForALearner(
-          portfolio.learner_id,
-        );
+      if (portfolio && portfolio.learner_id && getRubrics) {
+        const {
+          milestone_rubrics,
+          top10Rubrics,
+        } = await getReviewRubricForALearner(portfolio.learner_id);
         portfolio.milestone_rubrics = milestone_rubrics;
         portfolio.top10Rubrics = top10Rubrics;
       }

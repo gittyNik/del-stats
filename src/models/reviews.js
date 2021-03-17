@@ -2,7 +2,9 @@ import Sequelize from 'sequelize';
 import { v4 as uuid } from 'uuid';
 import { over } from 'lodash';
 import { CohortBreakout, BreakoutWithOptions, overlappingCatalystBreakout } from './cohort_breakout';
-import { getLiveMilestones, getCohortLiveMilestones } from './cohort_milestone';
+import {
+  getLiveMilestones, getCohortLiveMilestones, getPreviousCohortMilestone,
+} from './cohort_milestone';
 import { getTeamsbyCohortMilestoneId } from './team';
 import { LearnerBreakout } from './learner_breakout';
 import { getReviewSlotsByProgram } from './review_slots';
@@ -293,7 +295,7 @@ export const calculateReviewTime = (reviewDate, reviewForTeam) => {
   return reviewScheduledUTC;
 };
 
-export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => {
+export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone, start_date = null) => {
   let milestonecohort = cohortMilestone;
   let defaultSlot = reviewSlots[0];
   let learnerTeams = await getTeamsbyCohortMilestoneId(
@@ -372,7 +374,15 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
         warning_context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
     }
 
-    let timeSlot = calculateReviewTime(milestonecohort.review_scheduled, reviewForTeam);
+    let scheduled_date;
+    // If start date provided, use that to schedule reviews
+    if (start_date) {
+      scheduled_date = new Date(Date.parse(start_date));
+    } else {
+      scheduled_date = milestonecohort.review_scheduled;
+    }
+
+    let timeSlot = calculateReviewTime(scheduled_date, reviewForTeam);
     let { review_duration, reviewer } = reviewForTeam;
 
     // Logic to check for Overlapping session for Catalyst
@@ -401,7 +411,7 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
             warning_context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
         }
 
-        timeSlot = calculateReviewTime(milestonecohort.review_scheduled, reviewForTeam);
+        timeSlot = calculateReviewTime(scheduled_date, reviewForTeam);
         review_duration = reviewForTeam.review_duration;
         reviewer = reviewForTeam.reviewer;
 
@@ -419,6 +429,9 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone) => 
         });
 
         loopCount += 1;
+        if (overlaps.length === 0) {
+          break;
+        }
         if (loopCount === 3) {
           break;
         }
@@ -486,6 +499,28 @@ export const createCohortReviewSchedule = (
         deadlineMilestones.forEach(
           cohortMilestone => createTeamReviewBreakout(
             slotsForReview, cohortMilestone,
+          ),
+        );
+      });
+  });
+
+export const createPastCohortMilestoneReviews = (
+  {
+    program,
+    cohort_duration,
+    cohort_milestone_ids,
+    start_date,
+  },
+) => getReviewSlotsByProgram(program,
+  cohort_duration)
+  .then(reviewSlots => {
+    let slotsForReview = reviewSlots;
+    return getPreviousCohortMilestone(cohort_milestone_ids)
+      .then((deadlineMilestones) => {
+        console.log(`Scheduling Reviews for ${deadlineMilestones.length} Cohorts`);
+        deadlineMilestones.forEach(
+          cohortMilestone => createTeamReviewBreakout(
+            slotsForReview, cohortMilestone, start_date,
           ),
         );
       });

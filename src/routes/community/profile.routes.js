@@ -26,6 +26,16 @@ router.get('/', getProfile);
  */
 router.patch('/', updateProfile);
 
+/**
+ * @api {patch} /picture  Update profile picture of user
+ * @apiDescription Update user's profile picture
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UpdateUserProfile
+ * @apiGroup Profile
+ *
+ * @apiParam {String} user_id User Id
+ * @apiParam {String} picture_url Profile Picture url
+ */
+router.post('/picture', addProfilePictureAPI);
 
-router.get('/picture', addProfilePictureAPI);
 export default router;

@@ -75,15 +75,15 @@ export const getRecordingsById = id => BreakoutRecordings.findOne(
 
 export const getRecordingsByCatalyst = (catalyst_id, skip = 0,
   limit = 10, sort_by = 'likes') => BreakoutRecordings.findAll(
-  {
-    where: { catalyst_id },
-    offset: skip,
-    limit,
-    order: [
-      [sort_by, 'DESC'],
-    ],
-  },
-);
+    {
+      where: { catalyst_id },
+      offset: skip,
+      limit,
+      order: [
+        [sort_by, 'DESC'],
+      ],
+    },
+  );
 
 export const updateRecordingInCohortBreakout = async (
   video_id,
@@ -104,17 +104,17 @@ export const updateRecordingInCohortBreakout = async (
 export const createRecordingEntry = (catalyst_id,
   recording_url, recording_details, topics,
   breakout_template_id, cohort_breakout_id) => BreakoutRecordings.create(
-  {
-    catalyst_id,
-    recording_url,
-    recording_details,
-    created_at: Sequelize.literal('NOW()'),
-    topics_array: topics,
-    likes: 0,
-    breakout_template_id,
-  },
-).then(async data => {
-  await updateRecordingInCohortBreakout(data.id, cohort_breakout_id);
-  data.cohort_breakout_id = cohort_breakout_id;
-  return data;
-});
+    {
+      catalyst_id,
+      recording_url,
+      recording_details,
+      created_at: Sequelize.literal('NOW()'),
+      topics_array: topics,
+      likes: 0,
+      breakout_template_id,
+    },
+  ).then(async data => {
+    await updateRecordingInCohortBreakout(data.id, cohort_breakout_id);
+    data.cohort_breakout_id = cohort_breakout_id;
+    return data;
+  });

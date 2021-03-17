@@ -48,9 +48,9 @@ const fetchProfileFromGithub = ({ githubToken, expiry }) =>
       const profile = profileResponse.body;
       // fetching all emails from github
       const emailResponse = await request
-        .get(`https://api.github.com/user/emails?${githubToken}`)
-        .set("User-Agent", process.env.GITHUB_APP_NAME);
-      profile.emails = emailResponse.body.map((o) => o.email);
+        .get(`https://api.github.com/user/emails?${githubToken}`);
+      profile.emails = emailResponse.body.map(o => o.email);
+      console.debug(`User emails for Github Signin: ${profile.emails}`);
       return { profile, githubToken, expiry };
     });
 
@@ -101,9 +101,9 @@ const addTeamToExponentSoftware = async (userProfile) => {
   if (isEdu) {
     return { userProfile, teamName: "Educators" };
   }
-  if (
-    userProfile.user.role === "catalyst" ||
-    userProfile.user.role === "reviewer"
+  if (userProfile.user.role === 'catalyst' || userProfile.user.role === 'reviewer'
+    // || userProfile.user.roles.includes('reviewer')
+    // || userProfile.user.roles.includes('catalyst')
   ) {
     return { userProfile, teamName: userProfile.user.role, excluded: true };
   }
@@ -217,29 +217,28 @@ export const signinWithGithub = (req, res) => {
     .then(fetchProfileFromGithub)
     // If no user's email is not found with github emails,
     // then authentication error should be sent as resopnse
-    .then(({ profile, githubToken, expiry }) =>
-      getUserIdByEmail(profile.emails)
-        .then((socialConnection) => {
-          if (socialConnection) {
-            return getProfile(socialConnection.user_id);
-          }
-          let profileEmails = profile.emails.map((email) =>
-            email.toLowerCase()
-          );
-          return getUserFromEmails(profileEmails);
-        })
-        .then((user) => {
-          if (user === null || user.role === USER_ROLES.GUEST) {
-            return Promise.reject("NO_EMAIL");
-          }
-          return {
-            profile,
-            githubToken,
-            expiry,
-            user,
-          };
-        })
-    )
+    .then(({ profile, githubToken, expiry }) => getUserIdByEmail(profile.emails)
+      .then(socialConnection => {
+        if (socialConnection) {
+          return getProfile(socialConnection.user_id);
+        }
+        let profileEmails = profile.emails.map(email => email.toLowerCase());
+        return getUserFromEmails(profileEmails);
+      })
+      .then(user => {
+        if (user === null || user.role === USER_ROLES.GUEST
+          // || user.roles.includes(USER_ROLES.GUEST)
+        ) {
+          return Promise.reject('NO_EMAIL');
+        }
+        if ('email' in user) { console.log(`User email: ${user.email}`); }
+        return {
+          profile,
+          githubToken,
+          expiry,
+          user,
+        };
+      }))
     .then(addGithubProfile)
     .then(addTeamToExponentSoftware)
     .then(sendOrgInvites)
@@ -260,7 +259,8 @@ export const signinWithGithub = (req, res) => {
         res.status(404).send("No user found with email");
       } else {
         logger.error(`Sign in failed: ${err}`);
-        res.status(500).send("Authentication Failed");
+        logger.error(`Error details: ${err.stack}`);
+        res.status(500).send('Authentication Failed');
       }
     });
 };
@@ -370,7 +370,7 @@ export const handleGoogleCallback = async (req, res) => {
           });
           // logger.info(dataSC.user);
           // Create calendar events if user is learner
-          if (user.role === USER_ROLES.LEARNER) {
+          if ((user.role === USER_ROLES.LEARNER) || user.roles.includes(USER_ROLES.LEARNER)) {
             try {
               await createCalendarEventsForLearner(user.id);
             } catch (err) {

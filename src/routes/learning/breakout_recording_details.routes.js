@@ -2,6 +2,7 @@ import Express from 'express';
 import {
   getAllRecordingsAPI, getVideoLikesRatingAPI, getVideoByCatalystAPI,
   createRecording, updateRecordingsAPI, getVideoLikedByUserAPI,
+  getAverageStatsCatalystAPI,
 } from '../../controllers/learning/breakout_recording_details.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -58,6 +59,16 @@ router.get('/:id', getVideoLikesRatingAPI);
  * @apiGroup ContentBreakoutsRecordings
  */
 router.get('/catalyst/:id', getVideoByCatalystAPI);
+
+/**
+ * @api {get} /learning/content/breakouts/recordings/details/catalyst/:id
+ * Get all Content Breakouts recordings for Catalyst
+ * @apiDescription get all Content Breakouts recordings
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetContentBreakouts
+ * @apiGroup ContentBreakoutsRecordings
+ */
+router.get('/catalyst/:id/stats', getAverageStatsCatalystAPI);
 
 // Restrict modifications for any applicant to the cohorts
 

@@ -583,8 +583,7 @@ export const getLearnersForCohortBreakout = async (breakout_topic,
   cohort_id,
   cohort_breakout_id,
   breakout_status = 'scheduled',
-  type = 'lecture',
-) => {
+  type = 'lecture') => {
   if ((breakout_status !== 'completed') && (type === 'lecture')) {
     await LearnerBreakout.destroy({
       where: {
@@ -765,14 +764,16 @@ export const updateBreakoutCalendarEventForCatalyst = async ({
   }
   let calendarDetails = await getCalendarDetailsOfCohortBreakout(id);
   // todo check dates using epoch time.
-  const checkTime = () => (updated_time !== null) && (new Date(updated_time).getTime() !== new Date(time_scheduled).getTime());
+  const checkTime = () => (updated_time !== null) && (
+    new Date(updated_time).getTime() !== new Date(time_scheduled).getTime());
   // check if catalyst needs to be changed
   let googleOAuthCatalyst;
   if ((catalyst_id !== null) && (catalyst_id !== prevCatalystId)) {
     // create event for that catalyst and update it in cohort_breakout details with new property
     // check if calendarEvent already created then delete old catalyst event
     // and create event for new catalyst.
-    if (typeof details.catalystCalendarEvent !== 'undefined') {
+    if ((typeof details.catalystCalendarEvent !== 'undefined')
+      && (details.catalystCalendarEvent !== null)) {
       let googleOAuthPrevCatalyst = await getGoogleOauthOfUser(prevCatalystId);
       await deleteEvent(googleOAuthPrevCatalyst, oldEventId);
       // googleOAuthCatalyst = await getGoogleOauthOfUser(catalyst_id);
@@ -902,10 +903,10 @@ export const getTodaysCohortBreakouts = async () => {
   return breakouts;
 };
 
-export const getNDaysCohortBreakouts = async (n_days) => {
+export const getNDaysDuplicateCatalystBreakouts = async (n_days) => {
   let n_days_plus = n_days + 1;
   // todo: Need a better way to get start of the day in Asia/Kolkata timezone.
-  const todaysBreakouts = await db.query("select c1.* from cohort_breakouts c1 where exists(select 1 from cohort_breakouts c2 where tstzrange(c2.time_scheduled, c2.time_scheduled + make_interval(secs => c2.duration / 1000), '[]') && tstzrange(c1.time_scheduled, c1.time_scheduled + make_interval(secs => c1.duration / 1000), '[]') and c2.catalyst_id = c1.catalyst_id and c2.topic_id <> c1.topic_id and c2.id <> c1.id and time_scheduled between now() + ':n_days days'::INTERVAL and now() + ':n_days_plus days'::INTERVAL) order by c1.time_scheduled;", {
+  const todaysBreakouts = await db.query("select c1.* from cohort_breakouts c1 where exists(select 1 from cohort_breakouts c2 where tstzrange(c2.time_scheduled, c2.time_scheduled + make_interval(secs => c2.duration / 1000), '[]') && tstzrange(c1.time_scheduled, c1.time_scheduled + make_interval(secs => c1.duration / 1000), '[]') and c2.catalyst_id = c1.catalyst_id and ((c2.type='lecture' and c2.topic_id <> c1.topic_id) or (c2.type in ('assessment','reviews'))) and c2.id <> c1.id and time_scheduled between now() + ':n_days days'::INTERVAL and now() + ':n_days_plus days'::INTERVAL) order by c1.time_scheduled;", {
     model: CohortBreakout,
     replacements: {
       n_days,
@@ -945,9 +946,67 @@ export const getNDaysCohortBreakouts = async (n_days) => {
   return null;
 };
 
+export const getNDaysCohortBreakouts = async (n_days) => {
+  let n_days_plus = n_days + 1;
+  // todo: Need a better way to get start of the day in Asia/Kolkata timezone.
+  const todaysBreakouts = await db.query("select c1.* from cohort_breakouts c1 where exists(select 1 from cohort_breakouts c2 where tstzrange(c2.time_scheduled, c2.time_scheduled + make_interval(secs => c2.duration / 1000), '[]') && tstzrange(c1.time_scheduled, c1.time_scheduled + make_interval(secs => c1.duration / 1000), '[]') and c2.cohort_id = c1.cohort_id and c2.id <> c1.id and time_scheduled between now() + ':n_days days'::INTERVAL and now() + ':n_days_plus days'::INTERVAL) order by c1.time_scheduled;", {
+    model: CohortBreakout,
+    replacements: {
+      n_days,
+      n_days_plus,
+    },
+    raw: true,
+  });
+
+  if (todaysBreakouts) {
+    let duplicateBreakouts = await Promise.all(todaysBreakouts.map(async breakout => {
+      let cohortDetails = await getCohortFromId(breakout.cohort_id);
+      let userDetails = await getUserName(breakout.catalyst_id);
+      const time = new Date(breakout.time_scheduled).toLocaleTimeString([], {
+        timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit',
+      });
+      try {
+        breakout.topics = breakout.details.topics.replace(/\n(?!$)/g, ', ');
+        breakout.topics = breakout.topics.replace(/\n/, '');
+        if (breakout.type === 'assessment') {
+          const learnerSlackId = await getSlackIdForLearner(breakout.details.learner_id);
+          breakout.topics = `Assessment for <@${learnerSlackId}>`;
+        }
+      } catch (err) {
+        breakout.topics = await getTopicNameById(breakout.topic_id);
+      }
+      let duration = (cohortDetails.duration === 16) ? 'Full-Time' : 'Part-time';
+      breakout.catalyst = userDetails.name;
+      breakout.cohortName = cohortDetails.name;
+      breakout.breakout_time = time;
+      breakout.topics = `Cohort: *${cohortDetails.name}* ${duration} ${cohortDetails.location} \n ${breakout.topics} at *${time}* \n`;
+      return breakout;
+    }));
+
+    const groupedDuplicates = _.groupBy(duplicateBreakouts, 'cohortName');
+    let duplicateCohortBreakouts = {};
+    Object.entries(groupedDuplicates).forEach(([key, value]) => {
+      const unique = [...new Set(value.map(item => item.type))];
+      if (((unique.length <= 1) && (unique.indexOf('lecture') === -1)) || (unique.indexOf('lecture') === -1)) {
+        console.log('Discarding this sessions');
+      } else {
+        duplicateCohortBreakouts[key] = value;
+      }
+    });
+    return duplicateCohortBreakouts;
+  }
+  return null;
+};
+
 export const getDuplicateBreakouts = async (n_days) => {
+  const payload = await getNDaysDuplicateCatalystBreakouts(n_days);
+  const res = await postOverlappingBreakouts(n_days, payload, 'Catalyst');
+  return res;
+};
+
+export const getDuplicateCohortBreakouts = async (n_days) => {
   const payload = await getNDaysCohortBreakouts(n_days);
-  const res = await postOverlappingBreakouts(n_days, payload);
+  const res = await postOverlappingBreakouts(n_days, payload, 'Cohort');
   return res;
 };
 
@@ -971,12 +1030,12 @@ export const updateOneCohortBreakouts = async (details, cohort_breakout) => {
   });
 };
 
-export const updateSanboxUrl = async (id, sandbox_id, sandbox_url) => {
+export const updateSandboxUrl = async (id, sandbox_id, sandbox_url) => {
   let breakout = await findOneCohortBreakout({ id });
 
   let breakoutDetails = breakout.details;
   breakoutDetails.sandbox = { sandbox_id, sandbox_url };
-  return updateOneCohortBreakouts(breakoutDetails, id);
+  return updateOneCohortBreakouts(breakoutDetails, breakout);
 };
 
 export const getMilestoneDetailsForReview = (cohort_breakout_id) => CohortBreakout
@@ -1013,6 +1072,7 @@ export const overlappingCatalystBreakout = (
       [Sequelize.Op.in]: types,
     },
   },
+  logging: console.log,
   raw: true,
 });
 

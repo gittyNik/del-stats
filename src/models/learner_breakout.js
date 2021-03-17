@@ -136,19 +136,40 @@ export const createLearnerBreakoutsForLearners = (
 });
 
 export const removeLearnerBreakouts = async (learner_id, current_cohort_id) => {
-  const now = Sequelize.literal('NOW()');
-  return db.query(
-    `delete from learner_breakouts where id in (select l.id from learner_breakouts as l left join cohort_breakouts as c on l.cohort_breakout_id=c.id where l.learner_id in (\'${learner_id}\') and c.cohort_id=\'${current_cohort_id}\' and c.time_scheduled>\'${new Date(new Date()).toUTCString()}\')`,
+  const now = new Date(new Date()).toUTCString();
+  await db.query(
+    'delete from learner_breakouts where id in (select l.id from learner_breakouts as l left join cohort_breakouts as c on l.cohort_breakout_id=c.id where l.learner_id=:learner_id and c.cohort_id=:current_cohort_id and c.time_scheduled>:time_scheduled);',
+    {
+      model: LearnerBreakout,
+      replacements: {
+        learner_id: `${learner_id}`,
+        current_cohort_id: `${current_cohort_id}`,
+        time_scheduled: `${now}`,
+      },
+    },
   );
 
-  // LearnerBreakout.destroy({
-  //   where: {
-  //     [Op.and]: {
-  //       learner_id,
+  // Delete Reviews with Zero Learners assigned
+  await db.query('delete from cohort_breakouts where id in (select c.id from cohort_breakouts as c left join learner_breakouts as l on l.cohort_breakout_id=c.id where l.cohort_breakout_id is null and c.type=:type and c.time_scheduled>:time_scheduled and c.cohort_id=:current_cohort_id);',
+    {
+      model: CohortBreakout,
+      replacements: {
+        current_cohort_id: `${current_cohort_id}`,
+        time_scheduled: `${now}`,
+        type: 'reviews',
+      },
+    });
 
-  //     },
-  //   },
-  // });
+  return db.query('delete from cohort_breakouts where id in (select l.cohort_breakout_id from learner_breakouts as l left join cohort_breakouts as c on l.cohort_breakout_id=c.id where l.learner_id=:learner_id and c.cohort_id=:current_cohort_id and c.time_scheduled>:time_scheduled and c.type=:type);',
+    {
+      model: CohortBreakout,
+      replacements: {
+        learner_id: `${learner_id}`,
+        current_cohort_id: `${current_cohort_id}`,
+        time_scheduled: `${now}`,
+        type: 'assessment',
+      },
+    });
 };
 
 export const createLearnerBreakouts = (

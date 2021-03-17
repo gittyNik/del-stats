@@ -1,19 +1,37 @@
 import Sequelize from 'sequelize';
 // import { Program } from './program';
+import _ from 'lodash';
 import { Application, updateCohortJoining } from './application';
 import {
   User, USER_ROLES, changeUserRole, addUserStatus,
+  removeUserStatus,
 } from './user';
 import db from '../database';
-import { createCohortMilestones, CohortMilestone, getLiveCohortMilestone } from './cohort_milestone';
+import {
+  createCohortMilestones, CohortMilestone,
+  getLiveCohortMilestone,
+} from './cohort_milestone';
 import { getCohortBreakoutsBetweenDates } from './cohort_breakout';
 // import { BreakoutTemplate, CreateBreakoutsInMilestone } from './breakout_template';
 import { createTypeBreakoutsInMilestone } from './breakout_template';
-import { removeLearnerBreakouts, createLearnerBreakouts, createLearnerBreakoutsForCurrentMS } from './learner_breakout';
-import { moveLearnerToNewGithubTeam, deleteGithubRepository, addLearnerToGithubTeam } from '../integrations/github/controllers';
-import { removeLearnerFromSlackChannel, moveLearnerToNewSlackChannel, addLearnersToCohortChannel } from './slack_channels';
+import {
+  removeLearnerFromTeam,
+} from '../controllers/operations/learners.controller';
+import {
+  removeLearnerBreakouts,
+  createLearnerBreakouts, createLearnerBreakoutsForCurrentMS,
+} from './learner_breakout';
+import {
+  moveLearnerToNewGithubTeam,
+  addLearnerToGithubTeam,
+} from '../integrations/github/controllers';
+import {
+  removeLearnerFromSlackChannel,
+  moveLearnerToNewSlackChannel, addLearnersToCohortChannel,
+} from './slack_channels';
 import { removeLearnerFromGithubTeam } from '../integrations/github/controllers/teams.controller';
 import logger from '../util/logger';
+import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
 
 export const COHORT_STATUS = [
   'upcoming',
@@ -59,6 +77,48 @@ export const Cohort = db.define('cohorts', {
   duration: Sequelize.INTEGER,
 
 });
+
+export const getLearnerCohort = learner_id => Cohort.findOne({
+  where: {
+    learners: { [Sequelize.Op.contains]: [learner_id] },
+  },
+  raw: true,
+});
+
+export const updateCohortById = async ({
+  id,
+  location,
+  program,
+  start_date,
+  status,
+  name,
+  duration,
+  type,
+  updated_by_id,
+  updated_by_name,
+}) => {
+  try {
+    if (status !== null) {
+      const message = `${program} Cohort: *${name}* ${location} has been marked: *${status}* by ${updated_by_name}`;
+      const context = 'Cohort status update';
+      sendMessageToSlackChannel(message, context, process.env.SLACK_LEARNER_AFFAIRS);
+    }
+  } catch (err) {
+    console.warn('Failed to send slack message');
+  }
+  return Cohort.update({
+    location,
+    program_id: program,
+    start_date,
+    status,
+    name,
+    duration,
+    type,
+  }, {
+    where: { id },
+    returning: true,
+  });
+};
 
 export const findAllCohorts = (
   where, attributes, include, order,
@@ -132,8 +192,10 @@ export const addLearnerPaths = (learners) => learners.map(learner => {
   if (learner.status) {
     if (learner.status.indexOf('frontend') > -1) {
       learner.path = 'Frontend';
-    } else {
+    } else if (learner.status.indexOf('backend') > -1) {
       learner.path = 'Backend';
+    } else {
+      learner.path = 'N/A';
     }
   }
   return learner;
@@ -261,7 +323,7 @@ export const beginParallelCohorts = (cohort_ids) => Promise.all(
         cohort.duration,
         cohort.program_id,
       ).then((allBreakouts) => {
-      // logger.info(`All breakouts scheduled for the cohort ${cohort_id} `);
+        // logger.info(`All breakouts scheduled for the cohort ${cohort_id} `);
       });
       // logger.info(milestones);
       cohort.milestones = milestones;
@@ -358,20 +420,84 @@ export const addLearnerStatus = async (
   },
 ) => {
   let futureCohort;
+  let currentCohort;
+  let futureCohortName;
+
   if (future_cohort_id) {
     futureCohort = await getCohortFromId(future_cohort_id);
+    if ('name' in futureCohort) {
+      futureCohortName = futureCohort.name;
+    }
   }
-  let currentCohort = await getCohortFromId(cohort_id);
+
+  currentCohort = await getLiveCohortMilestone(cohort_id);
+  if (_.isEmpty(currentCohort)) {
+    currentCohort = await getCohortFromId(cohort_id);
+  }
+
   let status_reason;
+  let milestone_name;
+  let milestone_id;
+  let cohort_milestone_id;
+  let cohort_name;
+  let cohort_year;
+  let program;
+  let duration;
+  let cohortDuration;
+
+  if (('milestone.name' in currentCohort) && (currentCohort['milestone.name'])) {
+    milestone_name = currentCohort['milestone.name'];
+    milestone_id = currentCohort.milestone_id;
+    cohort_milestone_id = currentCohort.id;
+    cohort_name = currentCohort['cohort.name'];
+    cohort_year = currentCohort['cohort.start_date'].getFullYear();
+    program = currentCohort['cohort.program_id'];
+    duration = currentCohort['cohort.duration'];
+  }
+
+  if ((cohort_name === undefined) && ('name' in currentCohort)) {
+    cohort_name = currentCohort.name;
+    cohort_year = currentCohort.start_date.getFullYear();
+    program = currentCohort.program_id;
+    duration = currentCohort.duration;
+  }
+
+  // NEED TO CHANGE THIS WHILE ADDING DESIGN PROGRAM
+  if (duration) {
+    cohortDuration = duration === 16 ? 'FT' : 'PT';
+  }
 
   if (status === 'moved') {
-    status_reason = `Moved from current cohort: ${currentCohort.name} to future cohort: ${futureCohort.name}`;
+    status_reason = `Moved from current cohort: ${cohort_name} ${cohortDuration} ${cohort_year} ${program} to future cohort: ${futureCohortName}`;
   } else if (status === 'staged') {
-    status_reason = `Learner staged from ${currentCohort.name}`;
+    status_reason = `Learner staged from ${cohort_name} ${cohortDuration} ${cohort_year} ${program}. Milestone: ${milestone_name}`;
   } else if (status === 'removed') {
-    status_reason = `Learner removed from cohort: ${currentCohort.name}`;
+    try {
+      await removeUserStatus(
+        user_id, 'staged', 'Added to Cohort',
+        updated_by_id, updated_by_name,
+        milestone_id, milestone_name,
+        cohort_id, cohort_name,
+      );
+    } catch (err) {
+      console.warn(`Unable to remove user: ${user_id} status: staged`);
+    }
+    if ((cohort_name !== null) || (cohort_name !== undefined)) {
+      status_reason = `Learner removed from cohort: ${cohort_name} ${cohortDuration} ${cohort_year} ${program}. Milestone: ${milestone_name}`;
+    }
+    status_reason = 'Learner removed. Learner was staged previously';
   } else if (status === 'added-to-cohort') {
-    status_reason = `Learner added to cohort: ${currentCohort.name}`;
+    try {
+      await removeUserStatus(
+        user_id, 'staged', 'Added to Cohort',
+        updated_by_id, updated_by_name,
+        milestone_id, milestone_name,
+        cohort_id, cohort_name,
+      );
+    } catch (err) {
+      console.warn(`Unable to remove user: ${user_id} status: staged`);
+    }
+    status_reason = `Learner added to cohort: ${cohort_name} ${cohortDuration} ${cohort_year} ${program}`;
   }
 
   return addUserStatus({
@@ -381,7 +507,10 @@ export const addLearnerStatus = async (
     updated_by_id,
     updated_by_name,
     cohort_id,
-    cohort_name: currentCohort.name,
+    cohort_name,
+    milestone_id,
+    milestone_name,
+    cohort_milestone_id,
   });
 };
 
@@ -397,6 +526,7 @@ export const moveLearnertoDifferentCohort = async (
   removeLearnerFromCohort(learner_id, current_cohort_id),
   addLearnerToCohort(learner_id, future_cohort_id),
   updateCohortJoining(learner_id, future_cohort_id),
+  removeLearnerFromTeam(learner_id, current_cohort_id),
   moveLearnerToNewGithubTeam(
     learner_id,
     current_cohort_id,
@@ -422,6 +552,7 @@ export const removeLearner = async ({
   updated_by_name,
 }) => Promise.all([
   removeLearnerFromCohort(learner_id, current_cohort_id),
+  removeLearnerFromTeam(learner_id, current_cohort_id),
   removeLearnerFromGithubTeam(
     learner_id,
     current_cohort_id,
@@ -456,8 +587,8 @@ export const addLearner = async ({
   let data = { learners, cohort_id };
 
   try {
-      addLearnerToGithubTeam(learner_id, cohort_id),
-    await addLearnersToCohortChannel(cohort_id, learners);
+    addLearnerToGithubTeam(learner_id, cohort_id),
+      await addLearnersToCohortChannel(cohort_id, learners);
     return data;
   } catch (err) {
     return err;

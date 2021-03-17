@@ -1,20 +1,7 @@
-<<<<<<< HEAD
-node_modules
-.env
-doc
-api-build
-.DS_Store
-temp
-tmp
-.idea/
-.vscode/
-connectToDB.sh
 
 .history/
-
 .eslintcache
 build/
-=======
 node_modules
 .env
 doc
@@ -28,5 +15,4 @@ connectToDB.sh
 .coverage
 test/coverage
 
-.history/
->>>>>>> update-node
+

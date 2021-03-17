@@ -70,7 +70,7 @@ export const getRubricsByProgram = (program, type) => Rubrics.findAll(
 );
 
 export const getRubricsByMilestone = (
-  milestone_id, program, type, rubric_for,
+  milestone_id, program, type, rubric_for, path = 'common',
 ) => {
   if (milestone_id) {
     if (rubric_for) {

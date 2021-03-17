@@ -94,50 +94,16 @@ export const getAllLikesRating = async (skip = 0,
     raw: true,
     order,
   });
-  let likedCount = {};
-  if (breakoutDetails) {
-    likedCount = breakoutDetails.filter(details => details.liked_by_user);
-    let breakout_ratings = breakoutDetails.filter(
-      currentValue => (typeof Number(currentValue.rating) === 'number' && Number(currentValue.rating) > 0),
-    );
-    breakout_ratings = breakout_ratings.reduce(
-      (a, b) => (a + Number(b.rating)), 0,
-    ) / breakout_ratings.length;
-
-    if (isNaN(breakout_ratings)) {
-      breakout_ratings = 0;
-    }
-    if (likedCount.length) {
-      likedCount[0].rating = breakout_ratings;
-      [likedCount] = likedCount;
-    } else {
-      likedCount = {
-        video_id,
-        breakout_recording: breakoutDetails[0],
-        liked_by_user: false,
-        likes: 0,
-        rating: breakout_ratings,
-      };
-    }
-  }
-  let userInfo = await BreakoutRecordingsDetails.findOne({
-    where: {
-      video_id,
-      user_id,
-    },
-    include: [{
-      model: User,
-      attributes: ['name'],
-    }],
-    raw: true,
-  });
-
-  let breakoutInfo = { ...likedCount, userInfo };
-  return breakoutInfo;
+  return breakoutDetails;
 };
 
-export const getVideoByCatalyst = (catalyst_id, skip = 0,
-  limit = 10, sort_by = 'likes') => {
+export const getVideoByCatalyst = ({
+  catalyst_id, skip,
+  limit, sort_by,
+}) => {
+  skip = skip || 0;
+  limit = limit || 10;
+  sort_by = sort_by || 'likes';
   let where = {};
   let order;
   if (sort_by === 'date') {
@@ -154,7 +120,7 @@ export const getVideoByCatalyst = (catalyst_id, skip = 0,
     where.liked_by_user = true;
     order = Sequelize.literal(`${sort_by} DESC`);
   }
-  where['breakout_recording.catalyst_id'] = catalyst_id;
+  where['$breakout_recording.catalyst_id$'] = catalyst_id;
   return BreakoutRecordingsDetails.findAll({
     attributes: [
       'video_id',
@@ -180,6 +146,38 @@ export const getVideoByCatalyst = (catalyst_id, skip = 0,
           attributes: ['name'],
         }],
         attributes: ['catalyst_id', 'video_views', 'recording_url', 'created_at'],
+      },
+    ],
+    raw: true,
+    order,
+  });
+};
+
+export const getAverageStatsCatalyst = ({
+  catalyst_id,
+}) => {
+  let where = {};
+  let order;
+  where.liked_by_user = true;
+  where['$breakout_recording.catalyst_id$'] = catalyst_id;
+  return BreakoutRecordingsDetails.findAll({
+    attributes: [
+      [Sequelize.fn('count', Sequelize.col('liked_by_user')), 'likes'],
+      [Sequelize.fn('avg', Sequelize.col('breakout_rating')), 'rating'],
+    ],
+    group: [
+      'breakout_recording.catalyst_id',
+      'breakout_recording.user.id',
+    ],
+    where,
+    include: [
+      {
+        model: BreakoutRecordings,
+        include: [{
+          model: User,
+          attributes: ['name'],
+        }],
+        attributes: ['catalyst_id'],
       },
     ],
     raw: true,
@@ -246,7 +244,7 @@ export const getVideoLikesRating = async (video_id, user_id, sort_by = 'likes') 
       (a, b) => (a + Number(b.rating)), 0,
     ) / breakout_ratings.length;
 
-    if (isNaN(breakout_ratings)) {
+    if (Number.isNaN(breakout_ratings)) {
       breakout_ratings = 0;
     }
     if (likedCount.length) {
@@ -328,7 +326,7 @@ export const getVideoLikedByUser = async (user_id, skip = 0,
           model: User,
           attributes: ['name'],
         }],
-        attributes: ['catalyst_id', 'video_views', 'recording_url', 'created_at'],
+        attributes: ['catalyst_id', 'video_views', 'recording_url', 'created_at', 'topics_array'],
       },
     ],
     raw: true,
@@ -374,6 +372,7 @@ export const updateRecordingDetails = async (
       raw: true,
       returning: true,
     });
+    // eslint-disable-next-line prefer-destructuring
     updatedRecording = updated[1][0];
   } else {
     updatedRecording = await BreakoutRecordingsDetails.create(

@@ -84,6 +84,11 @@ export const User = db.define(
   {},
 );
 
+export const getLimitedDetailsOfUser = id => User.findByPk(id, {
+  attributes: ['id', 'name', 'email', 'phone', 'status', 'role', 'roles', 'profile'],
+  raw: true,
+});
+
 export const getUserName = id => User.findByPk(id, {
   attributes: ['name', 'status'],
   raw: true,
@@ -165,6 +170,7 @@ export const getOrCreateUser = phone => User.findOrCreate({
 export const createUser = (user, role = USER_ROLES.GUEST) => User.create({
   id: uuid(),
   role,
+  roles: [role],
   ...user,
 });
 
@@ -238,7 +244,7 @@ export const removeUserStatus = (
 
 export const addUserStatus = ({
   id, status, status_reason, updated_by_id, updated_by_name, milestone_id, milestone_name,
-  cohort_id, cohort_name,
+  cohort_id, cohort_name, cohort_milestone_id,
 }) => {
   if (AVAILABLE_USER_STATUS.indexOf(status) > -1) {
     return User.findOne({
@@ -274,6 +280,9 @@ export const addUserStatus = ({
         if ((cohort_id) && (cohort_name)) {
           statusDetails.cohort = { id: cohort_id, name: cohort_name };
         }
+        if (cohort_milestone_id) {
+          statusDetails.cohort_milestone_id = cohort_milestone_id;
+        }
 
         userStatus.status_reason.push(statusDetails);
         userStatus.status.push(status);
@@ -301,13 +310,10 @@ export const changeUserRole = (learner_id, role, roles) => User.update({
   },
 });
 
-export const addProfilePicture = async (user, action) => {
-  const { user_id, picture_url } = user;
-  return User.update({
-    picture: picture_url,
-  }, {
-    where: {
-      id: user_id,
-    },
-  });
-};
+export const addProfilePicture = async ({ user_id, picture_url }) => User.update({
+  picture: picture_url,
+}, {
+  where: {
+    id: user_id,
+  },
+});

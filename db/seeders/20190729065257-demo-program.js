@@ -9,7 +9,6 @@ const milestone1 = {
 
 const demoProgram = {
   id: 'demo',
-  name: 'Demo',
   location: faker.address.city(),
   milestones: `{${milestone1.id}}`,
   duration: 2, // weeks

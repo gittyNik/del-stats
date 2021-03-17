@@ -6,10 +6,8 @@ import db from '../database';
 import {
   CohortMilestone,
   getDataForMilestoneName,
+  getCurrentCohortMilestone,
 } from './cohort_milestone';
-import {
-  createLearnerBreakoutsForMilestone,
-} from './cohort_breakout';
 import { getProfile } from './user';
 import {
   toSentenceCase,
@@ -26,6 +24,9 @@ import {
   lastNBreakoutsForLearner,
 } from '../controllers/operations/attendance.controller';
 import logger from '../util/logger';
+import {
+  deleteLearnerTeams,
+} from './learner_github_milestones';
 
 export const Team = db.define('milestone_learner_teams', {
   id: {
@@ -56,6 +57,12 @@ export const Team = db.define('milestone_learner_teams', {
   updated_at: {
     type: Sequelize.DATE,
     defaultValue: Sequelize.literal('now()'),
+  },
+});
+
+export const deleteTeamById = id => Team.destroy({
+  where: {
+    id,
   },
 });
 
@@ -429,6 +436,13 @@ export const removeLearnerFromMSTeam = (user_id, team_id) => Team.findOne({
   .then(async team => {
     let sc = await getGithubConnecionByUserId(user_id);
     await removeCollaboratorFromRepository(sc.username, team.github_repo_link);
+    if (team.learners.length === 0) {
+      // Delete entry in Github stats if Zero commits and delete team later
+      let deletedStats = await deleteLearnerTeams(team.id);
+      if (deletedStats.length) {
+        return deleteTeamById(team.id);
+      }
+    }
     return Team.update({
       learners: team.learners,
     }, {
@@ -437,6 +451,28 @@ export const removeLearnerFromMSTeam = (user_id, team_id) => Team.findOne({
       },
     });
   });
+
+export const getOneTeamToAddLearner = async (current_cohort_id) => {
+  let cohortMilestone = await getCurrentCohortMilestone(current_cohort_id);
+  let foundTeam = true;
+  let teamId;
+  while (foundTeam) {
+    let teams = cohortMilestone.milestone_learner_teams;
+    if (teams.length > 0) {
+      for (let team = 0; team < teams.length; team++) {
+        if (teams[team].learners.length < 4) {
+          teamId = teams[team].id;
+          foundTeam = false;
+          break;
+        }
+      }
+    } else {
+      console.log('No Team to add learner to');
+      foundTeam = false;
+    }
+  }
+  return teamId;
+};
 
 export const moveLearnerBetweenMSTeam = (current_team_id, user_id, future_team_id) => Promise.all([
   removeLearnerFromMSTeam(user_id, current_team_id),

@@ -28,6 +28,7 @@ import {
 } from '../integrations/github/controllers/index';
 
 import { getResourceByTopic } from './resource';
+import { Application } from './application';
 
 export class NoMilestoneCommits extends Error {
   constructor(message, cause) {
@@ -155,13 +156,13 @@ export const getCohortMilestoneTeamsBeforeDate = (
   }],
 });
 
-export const getCohortMilestoneBylearnerId = learner_id => Cohort.findOne({
-  where: {
-    learners: {
-      [Sequelize.Op.contains]: [learner_id],
+export const getCohortMilestoneBylearnerId = learner_id => Application.findOne(
+  {
+    where: {
+      user_id: learner_id,
     },
   },
-}).then(cohort => getCohortMilestones(cohort.id));
+).then(cohort => getCohortMilestones(cohort.cohort_joining));
 
 export const getOrCreateMilestoneTeams = milestone_id => getMilestoneTeams(milestone_id)
   .then(teams => {
@@ -369,6 +370,21 @@ export const getLiveMilestones = (program, cohort_duration) => {
   });
 };
 
+export const getPreviousCohortMilestone = (cohort_milestone_ids) => CohortMilestone.findAll({
+  order: [
+    [Cohort, 'duration', 'ASC'],
+  ],
+  where: {
+    id: { [Sequelize.Op.in]: cohort_milestone_ids },
+    '$cohort.status$': 'live',
+    '$milestone.starter_repo$': {
+      [Sequelize.Op.ne]: null,
+    },
+  },
+  include: [Cohort, Milestone],
+  raw: true,
+});
+
 export const getCohortLiveMilestones = (program, cohort_duration, cohort_id) => {
   const now = Sequelize.literal('NOW()');
   let nextSevenDays = new Date();
@@ -449,10 +465,18 @@ export const getLiveCohortMilestone = (cohort_id) => {
       review_scheduled: { [gt]: now },
       cohort_id,
     },
-    // include: [Cohort, Milestone],
+    include: [Milestone, Cohort],
     raw: true,
   });
 };
+
+export const getLiveCohortMilestoneBylearnerId = learner_id => Application.findOne(
+  {
+    where: {
+      user_id: learner_id,
+    },
+  },
+).then(cohort => getLiveCohortMilestone(cohort.cohort_joining));
 
 export const getCurrentMilestoneOfCohortDelta = (cohort_id) => {
   const now = Sequelize.literal('NOW()');
@@ -492,7 +516,7 @@ export const getCurrentCohortMilestone = async (cohort_id) => {
       },
       cohort_id,
     },
-    raw: true,
+    include: [Team],
   });
 };
 

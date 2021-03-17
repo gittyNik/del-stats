@@ -1,7 +1,10 @@
 import {
-  Topic, createTopic, deleteTopic, updateATopic,
+  createTopic, deleteTopic, updateATopic,
   getTopics, getTopicById,
 } from '../../models/topic';
+import {
+  getLiveCohortMilestoneBylearnerId,
+} from '../../models/cohort_milestone';
 import { Resource } from '../../models/resource';
 import logger from '../../util/logger';
 
@@ -32,10 +35,37 @@ export const getAllResourcesByTopic = (req, res) => {
     .catch(err => res.status(500).send(err));
 };
 
-export const getAllTopics = (req, res) => {
-  getTopics()
-    .then((data) => { res.json(data); })
-    .catch(err => res.status(500).send(err));
+export const getAllTopics = async (req, res) => {
+  const user_id = req.jwtData.user.id;
+  const { for_user } = req.query;
+  let program;
+  let cohort;
+  if (for_user) {
+    cohort = await getLiveCohortMilestoneBylearnerId(user_id);
+    if ('cohort.program_id' in cohort) {
+      program = cohort['cohort.program_id'];
+    } else {
+      program = 'tep';
+    }
+  } else {
+    program = null;
+  }
+  getTopics(program)
+    .then((data) => {
+      const response = {
+        topics: data,
+        message: 'Topics fetched successfully',
+        type: 'success',
+      };
+      if (cohort && 'milestone.id' in cohort) {
+        response.milestone_id = cohort['milestone.id'];
+      }
+      res.json(response);
+    })
+    .catch(err => {
+      console.error(`Error while fetching topics: ${err}`);
+      res.status(500);
+    });
 };
 
 export const getTopic = (req, res) => {

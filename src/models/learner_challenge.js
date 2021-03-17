@@ -5,13 +5,11 @@ import { getChallengeByChallengeId, Challenge } from './challenge';
 import { getCohortFromId } from './cohort';
 import { getGithubConnecionByUserId } from './social_connection';
 import {
-  createGithubRepositoryFromTemplate,
-  addCollaboratorToRepository,
-  repositoryPresentOrNot,
-  isRepositoryCollaborator,
   createRepositoryifnotPresentFromTemplate,
   provideAccessToRepoIfNot,
+  getUserCommitsForRepo,
 } from '../integrations/github/controllers';
+
 import { User } from './user';
 
 export const LearnerChallenge = db.define('learner_challenges', {
@@ -49,6 +47,20 @@ export const LearnerChallenge = db.define('learner_challenges', {
 });
 
 const { gt, between } = Sequelize.Op;
+
+export const getRepoDetails = async (repo) => LearnerChallenge.findOne({
+  include: [
+    {
+      model: User,
+      attributes: ['name', 'id'],
+    },
+    Challenge,
+  ],
+  where: {
+    repo,
+  },
+  raw: true,
+});
 
 export const latestChallengeInCohort = async (cohort_id) => {
   let ch = await getCohortFromId(cohort_id);
@@ -124,18 +136,17 @@ export const learnerChallengesFindOrCreate = async (
         raw: true,
       });
     }
+    let socialConnection = await getGithubConnecionByUserId(learner_id);
+    let chllenge = await getChallengeByChallengeId(challenge_id);
+    let repo_name;
+    if (job_application_id) {
+      repo_name = `${socialConnection.username}_${job_application_id}_${chllenge.starter_repo}`;
+    } else {
+      repo_name = `${socialConnection.username}_${chllenge.starter_repo}`;
+    }
 
     if (challenge === null) {
       // No challenge for this learner yet
-
-      let socialConnection = await getGithubConnecionByUserId(learner_id);
-      let chllenge = await getChallengeByChallengeId(challenge_id);
-      let repo_name;
-      if (job_application_id) {
-        repo_name = `${socialConnection.username}_${job_application_id}_${chllenge.starter_repo}`;
-      } else {
-        repo_name = `${socialConnection.username}_${chllenge.starter_repo}`;
-      }
       // Create repository for Challenge
       await createRepositoryifnotPresentFromTemplate(
         chllenge.starter_repo,
@@ -159,6 +170,13 @@ export const learnerChallengesFindOrCreate = async (
         repo_link: `https://github.com/${process.env.SOAL_LEARNER_ORG}/${repo_name}`,
       };
     }
+    try {
+      await getUserCommitsForRepo(repo_name);
+      console.log(`Fetched commits for Repo: ${repo_name}`);
+    } catch (err) {
+      console.warn(`Error while fetching commits: ${err}`);
+    }
+
     // // Create repository for Challenge
     // await createRepositoryifnotPresentFromTemplate(
     //   chllenge.starter_repo,

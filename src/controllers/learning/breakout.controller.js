@@ -7,14 +7,14 @@ import {
   updateBreakoutCalendarEventForCatalyst,
   updateCohortBreakouts,
   createLearnerBreakoutsForMilestone,
-  updateSanboxUrl,
+  updateSandboxUrl,
   findOneCohortBreakout,
   getLearnersForCohortBreakout,
 
   createOrUpdateCohortBreakout,
   markBreakoutFinished,
   autoMarkAttendance,
-  getDuplicateBreakouts,
+  getDuplicateCohortBreakouts,
 } from '../../models/cohort_breakout';
 import {
   createScheduledMeeting,
@@ -174,7 +174,7 @@ export const getLiveCohortsBreakouts = (req, res) => {
         include: [
           {
             model: User,
-            attributes: ['name'],
+            attributes: ['name', 'role'],
             as: 'catalyst',
           },
           Cohort,
@@ -622,7 +622,6 @@ export const updateZoomMeeting = (req, res) => {
  * 1. update/create zoom meeting.
  * 2. update/create calendarevent for Catalyst
  * 3. create/update calendar event for all learners in that cohort.
- * 4. todo: update only for learners of a certain path (backend/frontend).
  */
 export const updateCohortBreakout = async (req, res) => {
   const { updated_time, catalyst_id: newCatalystId } = req.body;
@@ -803,12 +802,13 @@ export const createCohortMilestoneLearnerBreakouts = async (req, res) => {
     });
 };
 
+
 export const sendDuplicateBreakouts = async (req, res) => {
   let {
     days,
   } = req.params;
   days = parseInt(days, 10);
-  await getDuplicateBreakouts(days)
+  await getDuplicateCohortBreakouts(days)
     .then((data) => {
       res.status(201).json({ data });
     })
@@ -818,14 +818,14 @@ export const sendDuplicateBreakouts = async (req, res) => {
     });
 };
 
-export const updateSanboxDetails = async (req, res) => {
+export const updateSandboxDetails = async (req, res) => {
   let {
     id,
   } = req.params;
   let {
     sandbox_id, url,
   } = req.body;
-  await updateSanboxUrl(id, sandbox_id, url)
+  await updateSandboxUrl(id, sandbox_id, url)
     .then((data) => {
       res.status(201).json({ data });
     })

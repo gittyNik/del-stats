@@ -2,8 +2,6 @@ import Sequelize from 'sequelize';
 import request from 'superagent';
 import { v4 as uuid } from 'uuid';
 import jwt from 'jsonwebtoken';
-import moment from 'moment';
-import { exceptions } from 'winston';
 import _ from 'lodash';
 import db from '../database';
 import { LearnerBreakout } from './learner_breakout';
@@ -73,9 +71,12 @@ export const deleteMeetingFromZoom = (video_id) => {
     .delete(`${ZOOM_BASE_URL}meetings/${video_id}`)
     .set('Authorization', `Bearer ${zoom_token}`)
     .set('User-Agent', 'Zoom-api-Jwt-Request')
-    .then(data => {
+    .then(async data => {
       if (data.status === 204) {
-        // logger.info('Meeting successfully deleted');
+        await VideoMeeting.destroy(
+          { where: { video_id } },
+        );
+        // console.log('Meeting successfully deleted');
         return true;
       }
       logger.error(`failed to delete Meeting ${video_id}`);
@@ -142,13 +143,16 @@ export const createScheduledMeeting = async (topic, start_time,
     settings: meetingSettings,
   };
 
+  console.log(`Catalyst email for meeting: ${catalyst_email}`);
   // Logic for using Pro Zoom accounts
   if ((catalyst_email === null) || (catalyst_email === undefined)) {
     // logger.info('trying to create meeting');
     // Calculate End time for Meeting
     let starting_time = new Date(start_time);
+    start_time = starting_time.toISOString();
     let end_time = new Date(start_time);
     end_time.setMinutes(end_time.getMinutes() + duration);
+    end_time = end_time.toISOString();
 
     // Check if Meeting exist between same start and end time
     let concurrent_meet = await VideoMeeting.findAll({
@@ -156,7 +160,9 @@ export const createScheduledMeeting = async (topic, start_time,
         zoom_user: { [opIn]: zoom_user_array },
         start_time: { [between]: [starting_time, end_time] },
       },
+      logging: console.log,
     });
+    console.log(`Concurrent meetings: ${concurrent_meet}`);
     let zoom_user_index = 0;
 
     // Meetings will be created in a particular order of user id
@@ -165,10 +171,10 @@ export const createScheduledMeeting = async (topic, start_time,
     if (concurrent_meet) {
       zoom_user_index = concurrent_meet.length;
     }
-    try {
-      catalyst_email = zoom_user_array[zoom_user_index];
-      host_key = host_key_arrays[zoom_user_index];
-    } catch (err) {
+
+    catalyst_email = zoom_user_array[zoom_user_index];
+    host_key = host_key_arrays[zoom_user_index];
+    if (catalyst_email === undefined) {
       [catalyst_email] = zoom_user_array;
       [host_key] = host_key_arrays;
     }

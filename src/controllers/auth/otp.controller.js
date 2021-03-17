@@ -1,6 +1,7 @@
 import SendOtp from 'sendotp';
+import request from 'superagent';
 import {
-  getOrCreateUser, getUserFromPhone,
+  getUserFromPhone,
   createUser,
   getUserByEmail, USER_ROLES,
 } from '../../models/user';
@@ -10,6 +11,28 @@ import { sendMessageToSlackChannel } from '../../integrations/slack/team-app/con
 import logger from '../../util/logger';
 
 const sendOtp = new SendOtp(process.env.MSG91_API_KEY, 'Use {{otp}} to login with DELTA. Please do not share it with anybody! {SOAL Team}');
+
+//
+// Check OTP Balance, type = 106
+export const checkBalance = () => request
+  .get(`https://control.msg91.com/api/balance.php?authkey=${process.env.MSG91_API_KEY}&type=106`)
+  .then(data => parseInt(data.text, 10))
+  .catch(err => {
+    console.warn(`Error fetching message balance: ${err}`);
+    return null;
+  });
+
+export const checkBalanceApi = async (req, res) => {
+  try {
+    const balance = await checkBalance();
+    return res.json({
+      message: 'Message Balance',
+      balance,
+    });
+  } catch (err) {
+    return res.sendStatus(500);
+  }
+};
 
 export const requestOTP = (phone, res) => {
   sendOtp.setOtpExpiry(5);

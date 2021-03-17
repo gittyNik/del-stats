@@ -1,9 +1,17 @@
 import Express from 'express';
 import {
   sendOTP, retryOTP, verifyOTP, registerRecruiterAPI,
+  checkBalanceApi,
 } from '../../controllers/auth/otp.controller';
 
 const router = Express.Router();
+
+/**
+ * @api {get} /auth/otp/balance Check OTP Balance
+ * @apiName CheckBalance
+ * @apiGroup Authentication
+ */
+router.get('/balance', checkBalanceApi);
 
 /**
  * @api {post} /auth/otp/send Send OTP to the user

@@ -1,4 +1,3 @@
-import { getCohortFromLearnerId } from '../../models/cohort';
 import {
   getAllReviews, getReviewsById,
   getReviewsByStatus, getReviewsByUserId,
@@ -10,6 +9,7 @@ import {
   updateTeamReview,
   createCohortReviewSchedule,
   getCompletedReviewsForLearner,
+  createPastCohortMilestoneReviews,
 } from '../../models/reviews';
 import logger from '../../util/logger';
 
@@ -100,6 +100,23 @@ export const createCohortReviewScheduleAPI = (req, res) => {
     cohort_duration, cohort_id).then((data) => { res.json(data); })
     .catch(err => {
       logger.error(err);
+      res.status(500).send(err);
+    });
+};
+
+export const createPastCohortMilestoneReviewScheduleAPI = (req, res) => {
+  const {
+    program, cohort_duration, cohort_milestone_ids,
+    start_date,
+  } = req.body;
+  createPastCohortMilestoneReviews({
+    program,
+    cohort_duration,
+    cohort_milestone_ids,
+    start_date,
+  }).then((data) => { res.json(data); })
+    .catch(err => {
+      console.error(err);
       res.status(500).send(err);
     });
 };

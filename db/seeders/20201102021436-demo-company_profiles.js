@@ -1,13 +1,13 @@
-import { v4 as uuid } from 'uuid';
+// import { v4 as uuid } from 'uuid';
 import faker from 'faker';
 import _ from 'lodash';
 import logger from '../../src/util/logger';
 
 // CONSTANTS
-const STATUS = [
-  'active',
-  'removed',
-];
+// const STATUS = [
+//   'active',
+//   'removed',
+// ];
 
 const tag_ids = [
   '27cf70e6-6a0f-4ceb-a784-50657d58baae',
@@ -79,14 +79,14 @@ const getSomeElements = (array) => faker.random.arrayElements(array, faker.rando
   min: 1, max: array.length,
 }));
 
-const cleanArray = (arr) => `{"${arr.map(e => cleanEntry(e)).join('", "')}"}`;
-
 const cleanEntry = (obj) => JSON.stringify(obj).replace(/"/g, '\\"');
+
+const cleanArray = (arr) => `{"${arr.map(e => cleanEntry(e)).join('", "')}"}`;
 
 // Individual Rows
 const createCompanyProfile = (id, recruiter_id) => ({
   id,
-  name: faker.company.companyName(),
+
   description: faker.company.catchPhrase(),
   logo: 'http://placeimg.com/640/480/business',
   website: faker.internet.url(),
@@ -104,13 +104,13 @@ const createRecruiters = (id) => ({
   id,
   name: faker.name.findName(),
   email: faker.internet.email(),
-  phone: faker.phone.phoneNumber('+919#########'),
+  phone: faker.phone.phoneNumber('919#########'),
   role: 'recruiter',
 });
 
 // SEEDER
 const seeder = {
-  up: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(transaction => {
+  up: (queryInterface) => queryInterface.sequelize.transaction(transaction => {
     const addRecruiters = queryInterface.bulkInsert(
       'users', recruiters.map(createRecruiters),
       { transaction },
@@ -129,7 +129,7 @@ const seeder = {
       });
   }),
 
-  down: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(transaction => Promise.all([
+  down: (queryInterface) => queryInterface.sequelize.transaction(transaction => Promise.all([
     queryInterface.bulkDelete('company_profiles', null, { transaction }),
     queryInterface.bulkDelete(
       'users',

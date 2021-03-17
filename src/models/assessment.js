@@ -6,7 +6,7 @@ import { LearnerBreakout } from './learner_breakout';
 import { getAssessmentSlotsByProgram } from './assessment_slots';
 import { changeTimezone } from './breakout_template';
 import { User, getProfile } from './user';
-import { getCurrentCohortMilestone } from './cohort_milestone';
+import { getLiveCohortMilestone } from './cohort_milestone';
 import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
 
 const WEEK_VALUES = {
@@ -330,6 +330,9 @@ export const createLearnerAssessmentBreakout = async (
           });
 
           loopCount += 1;
+          if (overlaps.length === 0) {
+            break;
+          }
           if (loopCount === 2) {
             break;
           }
@@ -388,7 +391,7 @@ export const createAssessmentSchedule = (
     return getLearnersFromCohorts(cohort_ids)
       .then(async (cohortsForAssessments) => Promise.all(cohortsForAssessments.map(
         async singleCohort => {
-          let cohortMilestones = await getCurrentCohortMilestone(singleCohort.id);
+          let cohortMilestones = await getLiveCohortMilestone(singleCohort.id);
           return createLearnerAssessmentBreakout(
             slotsForReview, singleCohort, assessment_start,
             excluded_learners, cohortMilestones.id,

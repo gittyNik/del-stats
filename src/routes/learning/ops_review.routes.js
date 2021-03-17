@@ -10,6 +10,7 @@ import {
   updateTeamReviewAPI,
   createCohortReviewScheduleAPI,
   getCompletedReviewsForLearnerAPI,
+  createPastCohortMilestoneReviewScheduleAPI,
 } from '../../controllers/learning/reviews.controller';
 import {
   allowMultipleRoles,
@@ -18,12 +19,24 @@ import {
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, CATALYST, EDUCATOR, REVIEWER, SUPERADMIN,
+  ADMIN, CATALYST, EDUCATOR, REVIEWER, LEARNER,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER, SUPERADMIN]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER, LEARNER]));
+
+/**
+ * @api {get} /learning/ops/reviews Get Reviews for a learner
+ * @apiDescription get Reviews for a learner
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetReviews
+ * @apiGroup Reviews
+ */
+
+router.get('/completed/:email', getCompletedReviewsForLearnerAPI);
+
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER]));
 
 /**
  * @api {get} /learning/ops/reviews Get all Reviews
@@ -101,8 +114,6 @@ router.get('/status/:id', getReviewsByStatusAPI);
  */
 router.patch('/learner/:id', updateReviewForLearnerAPI);
 
-router.get('/completed/:email', getCompletedReviewsForLearnerAPI);
-
 // Restrict modifications for any applicant to the cohorts
 router.use(allowAdminsOnly);
 
@@ -127,6 +138,17 @@ router.post('/schedule', createReviewScheduleAPI);
  * @apiParam {String} Program name
  */
 router.post('/cohort-schedule', createCohortReviewScheduleAPI);
+
+/**
+ * @api {post} /learning/ops/reviews/past-milestone Schedule Reviews for Past Milestone
+ * @apiDescription schedule create Reviews for Past MS
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName ScheduleReviews
+ * @apiGroup Reviews
+ *
+ * @apiParam {String} Program name
+ */
+router.post('/past-milestone', createPastCohortMilestoneReviewScheduleAPI);
 
 /**
  * @api {post} /learning/ops/reviews/ Add Team Reviews

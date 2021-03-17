@@ -1,6 +1,6 @@
 import Express from 'express';
 import {
-  addCatalyst,
+  addCatalyst, cumulativeTimeTaken, sessionsStartedOnTime, getAllBreakoutRecordingsForCatalystApi
 } from '../../controllers/operations/catalyst.controller';
 import { USER_ROLES } from '../../models/user';
 import {
@@ -23,5 +23,35 @@ router.use(allowMultipleRoles([ADMIN, SUPERADMIN, OPERATIONS, EDUCATOR]));
  * @apiGroup Catalyst
  */
 router.post('/', addCatalyst);
+
+/**
+ * @api {post} /operations/catalyst/cumulativeTimeTaken returns cumulative time for catalysts
+ * @apiDescription returns cumulative time taken by catalyst for day, week, month and overall
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName TimeTakenByCatalyst
+ * @apiGroup Catalyst
+ */
+// returns cumulative time taken by catalyst for day, week, month and overall
+router.post('/cumulativeTimeTaken/:id', cumulativeTimeTaken);
+
+/**
+ * @api {post} /operations/catalyst/sessionsStartedOnTime returns count of sessions started on time
+ * @apiDescription returns count of sessions started on time
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName CountSessionsStartedOnTime
+ * @apiGroup Catalyst
+ */
+// returns cumulative time taken by catalyst for day, week, month and overall
+router.post('/sessionsStartedOnTime/:id', sessionsStartedOnTime);
+
+/**
+ * @api {post} /operations/catalyst/getAllBOForCatalyst/:id returns likes, views, ratings of BO by catalyst
+ * @apiDescription returns likes, views, ratings of BO by catalyst
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName getAllBOForCatalyst
+ * @apiGroup Catalyst
+ */
+// returns cumulative time taken by catalyst for day, week, month and overall
+router.post('/getAllBOForCatalyst/:id', getAllBreakoutRecordingsForCatalystApi);
 
 export default router;

@@ -45,7 +45,8 @@ export const createEvent = (auth, event_details) => {
       htmlLink: _event.data.htmlLink,
     }))
     .catch(err => {
-      logger.error(err);
+      logger.error(`Error in creating Google calendar event: ${err}`);
+      logger.debug(`Error details: ${err.stack}`);
       // return new Error('Failed to create a calendar event');
       return null;
     });
@@ -74,7 +75,8 @@ export const updateEvent = async (auth, eventId, event_details) => {
     .then(_event => _event.data)
     .then(_event => ({ id: _event.id, htmlLink: _event.htmlLink }))
     .catch(err => {
-      logger.error(err);
+      logger.error(`Error in updating Google calendar event: ${err}`);
+      logger.debug(`Error details: ${err.stack}`);
       return false;
     });
 };
