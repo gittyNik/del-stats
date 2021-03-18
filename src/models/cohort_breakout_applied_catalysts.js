@@ -1,25 +1,39 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
-  class cohort_breakout_applied_catalysts extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-    }
-  };
-  cohort_breakout_applied_catalysts.init({
-    firstName: DataTypes.STRING,
-    lastName: DataTypes.STRING,
-    email: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'cohort_breakout_applied_catalysts',
-  });
-  return cohort_breakout_applied_catalysts;
+import Sequelize from 'sequelize';
+import { v4 as uuid } from 'uuid';
+import db from '../database';
+
+const CohortBreakoutAppliedCatalyst = db.define('cohort_breakout_applied_catalyst', {
+  id: {
+    allowNull: false,
+    primaryKey: true,
+    type: Sequelize.UUID,
+    default: Sequelize.UUIDV4,
+  },
+  cohort_breakout_id: {
+    type: Sequelize.UUID,
+  },
+  applied_catalyst_id: {
+    type: Sequelize.UUID,
+  },
+  created_at: {
+    type: Sequelize.DATE,
+    // defaultValue: Sequelize.literal('NOW()'),
+  },
+  updated_at: {
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.literal('NOW()'),
+  },
+});
+
+const createBreakoutAppliedCatalystRelation = (cohort_breakout_id,
+  applied_catalysts_id) => CohortBreakoutAppliedCatalyst.create({
+  id: uuid(),
+  cohort_breakout_id,
+  applied_catalysts_id,
+  created_at: new Date(),
+});
+
+export {
+  CohortBreakoutAppliedCatalyst,
+  createBreakoutAppliedCatalystRelation,
 };
