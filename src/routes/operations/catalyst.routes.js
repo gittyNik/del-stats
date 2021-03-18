@@ -1,6 +1,6 @@
 import Express from 'express';
 import {
-  addCatalyst, cumulativeTimeTaken, sessionsStartedOnTime, getAllBreakoutRecordingsForCatalystApi
+  addCatalyst, cumulativeTimeTaken, sessionsStartedOnTime, getAllBreakoutRecordingsForCatalystApi,
 } from '../../controllers/operations/catalyst.controller';
 import { USER_ROLES } from '../../models/user';
 import {
@@ -45,7 +45,8 @@ router.post('/cumulativeTimeTaken/:id', cumulativeTimeTaken);
 router.post('/sessionsStartedOnTime/:id', sessionsStartedOnTime);
 
 /**
- * @api {post} /operations/catalyst/getAllBOForCatalyst/:id returns likes, views, ratings of BO by catalyst
+ * @api {post} /operations/catalyst/getAllBOForCatalyst/:id returns likes, views,
+ * ratings of BO by catalyst
  * @apiDescription returns likes, views, ratings of BO by catalyst
  * @apiHeader {String} authorization JWT Token.
  * @apiName getAllBOForCatalyst
