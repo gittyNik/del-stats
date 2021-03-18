@@ -127,7 +127,9 @@ export const addCollaboratorToRepository = async (
   permission,
 });
 
-export const removeCollaboratorFromRepository = (collaborater, repo) => octokit.repos.removeCollaborator({
+export const removeCollaboratorFromRepository = (
+  collaborater, repo,
+) => octokit.repos.removeCollaborator({
   owner: org,
   repo,
   username: collaborater,

@@ -155,7 +155,7 @@ export const moveLearnerToNewGithubTeam = async (
     future_duration,
   );
 
-  await removeMemberFromTeam(current_team_name, sc.username);
+  // await removeMemberFromTeam(current_team_name, sc.username);
   try {
     let teamId = await getOneTeamToAddLearner(current_cohort_id);
     await addLearnerToMSTeam(learner_id, teamId);
