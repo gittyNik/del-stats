@@ -310,9 +310,10 @@ const addGoogleProfile = ({
 // checks if google proiver is present in social connection
 // sends redirect url if not found.
 export const checkGoogleOrSendRedirectUrl = async (req, res) => {
-  const { userId } = req.jwtData;
+  const { user } = req.jwtData;
   // logger.info(req.jwtData);
-  logger.info(' user_id: ', userId);
+  logger.info(' user_id: ', user.id);
+  let userId = user.id;
   const result = await SocialConnection.findOne({
     where: {
       user_id: userId,
