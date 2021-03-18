@@ -1,4 +1,5 @@
 import Express from 'express';
+import logger from '../../../util/logger';
 // import interactionController from './interaction.controller';
 // import eventController from './event.controller';
 // import commandController from './command.controller';
@@ -7,7 +8,7 @@ import Express from 'express';
 const router = Express.Router();
 
 router.use('/', (req, res) => {
-  console.log('Clique app not ready');
+  logger.info('Clique app not ready');
   res.sendStatus(404);
 });
 

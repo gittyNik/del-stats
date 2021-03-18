@@ -7,6 +7,7 @@ import {
   getUserAndTeamAssessments,
   updateAssessment,
 } from '../../models/assessment';
+import logger from '../../util/logger';
 
 export const getAllAssessmentsAPI = (req, res) => {
   const { assessment_date } = req.query;
@@ -89,7 +90,7 @@ export const createAssessmentScheduleAPI = (req, res) => {
     cohort_ids, assessment_start, phase,
     excluded_learners).then((data) => { res.json(data); })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500).send(err);
     });
 };

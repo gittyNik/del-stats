@@ -11,7 +11,7 @@ import {
 import {
   getAllCohortBreakouts,
   getBreakoutsForCohortMilestone,
-  updateSanboxDetails,
+  updateSandboxDetails,
   validateAttendanceForBreakout,
   createUpdateCohortBreakout,
   autoMarkBreakoutAttendance,
@@ -91,7 +91,7 @@ router.use(allowMultipleRoles([ADMIN, SUPERADMIN, CATALYST, EDUCATOR, REVIEWER])
  * @apiName UpdateBreakoutSandbox
  * @apiGroup CohortBreakout
  */
-router.patch('/:id/sandbox', updateSanboxDetails);
+router.patch('/:id/sandbox', updateSandboxDetails);
 
 /**
  * @api {get} /learning/ops/breakouts/:id/attendance Update Sandbox details

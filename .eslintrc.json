@@ -1,7 +1,8 @@
 {
   "env": {
     "browser": true,
-    "es6": true
+    "es6": true,
+    "jest": true
   },
   "extends": [
     "airbnb-base"
@@ -10,13 +11,34 @@
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"
   },
-  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
-  "plugins": [
-    "@typescript-eslint"
-  ],
-  "rules": {}
+  "rules": {
+    "no-console": 0,
+    "arrow-parens": 0,
+    "camelcase": 0,
+    "no-plusplus": 0,
+    "prefer-const": 0,
+    "no-param-reassign": 0,
+    "prefer-promise-reject-errors": 0,
+    "import/no-cycle": 0,
+    "array-callback-return": 0
+  },
+  "overrides": [
+    {
+      "files": [
+        "*.test.js",
+        "*.spec.js"
+      ],
+      "rules": {
+        "jest/no-disabled-tests": "warn",
+        "jest/no-focused-tests": "warn",
+        "jest/no-identical-title": "warn",
+        "jest/prefer-to-have-length": "warn",
+        "jest/valid-expect": "warn"
+      }
+    }
+  ]
 }

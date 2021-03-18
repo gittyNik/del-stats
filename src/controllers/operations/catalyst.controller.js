@@ -27,10 +27,11 @@ export const addCatalyst = (req, res) => {
       data,
     }))
     .catch((err) => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };
+
 export const completedBreakoutsByCatalyst = ({ catalyst_id }) => CohortBreakout.findAll({
   where: {
     catalyst_id,

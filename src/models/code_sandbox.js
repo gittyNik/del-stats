@@ -2,6 +2,7 @@ import Sequelize from 'sequelize';
 import request from 'superagent';
 import uuid from 'uuid';
 import db from '../database';
+import logger from '../util/logger';
 
 const CODE_ENDPOINT = 'https://codesandbox.io/api/v1/';
 
@@ -51,7 +52,7 @@ export const createSandbox = async (payload) => {
       .set('Accept', 'application/json')
       .send(payload)
       .query(embed_options);
-    // console.log(response);
+    // logger.info(response);
     // todo: store the sandbox id in DB.
     return CodeSandbox.create({
       id: uuid(),
@@ -59,7 +60,7 @@ export const createSandbox = async (payload) => {
       sandbox_setting,
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     return {
       text: 'Failed to create a sandbox',
       err,

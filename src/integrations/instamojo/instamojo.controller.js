@@ -1,6 +1,6 @@
 import { Application } from '../../models/application';
 import db from '../../database';
-import { logger } from '../../util/logger';
+import logger from '../../util/logger';
 
 export const PAYMENT_TYPES = {
   pe_first_tranche: 'SOAL TEP-PE 1st Tranche',
@@ -22,7 +22,7 @@ export const instamojo_webhook = (req, res) => {
         payment_details,
       }, { where: { id }, returning: true, plain: true })
         .then(result => {
-          // console.log('result: ', result[1].dataValues);
+          // logger.info('result: ', result[1].dataValues);
           let res_data = result[1].dataValues.payment_details.response_data;
           let { status } = res_data[res_data.length - 1];
           if (status === 'Credit') {

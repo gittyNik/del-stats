@@ -1,4 +1,4 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import request from 'superagent';
 import Sequelize from 'sequelize';
 import {
@@ -6,6 +6,9 @@ import {
   submitApplication,
   getApplicationStage,
   setApplicationStage,
+  setApplicationStageByApplicationId,
+  offerISA,
+  logProcessStatus,
 } from '../../models/application';
 import { Program } from '../../models/program';
 import { Cohort } from '../../models/cohort';
@@ -20,6 +23,7 @@ import { sendFirewallResult } from '../../integrations/slack/team-app/controller
 import { scheduleFirewallRetry } from '../queue.controller';
 import { updateDealApplicationStatus } from '../../integrations/hubspot/controllers/deals.controller';
 import { PAYMENT_TYPES } from '../../integrations/instamojo/instamojo.controller';
+import { checkPaymentStatus } from '../../integrations/instamojo/payment.controller';
 import { logger } from '../../util/logger';
 
 export const getAllApplications = (req, res) => {
@@ -34,7 +38,7 @@ export const getApplicationById = (req, res) => {
   const { id } = req.params;
   Application.findAll({
     where: { id },
-    include: [Cohort, User],
+    include: [{ model: Cohort, as: 'applicationCohortJoining' }, User],
   })
     .then(data => res.status(200).json(data))
     .catch(() => res.sendStatus(500));
@@ -74,7 +78,7 @@ export const getLiveApplications = (req, res) => {
     where: {
       status: ['applied', 'review_pending', 'offered', 'rejected'],
     },
-    include: [Cohort, User],
+    include: [{ model: Cohort, as: 'applicationCohortApplied' }, User],
     order: [[Sequelize.col('created_at'), Sequelize.literal('DESC')]],
   })
     .then(data => res.status(200).json(data))
@@ -83,42 +87,32 @@ export const getLiveApplications = (req, res) => {
 
 export const addApplication = (req, res) => {
   const { id: user_id, profile } = req.jwtData.user;
-  const { cohort_applied } = req.body;
-  updateDealApplicationStatus(profile.hubspotDealId, 'applied').then(() => {
-    Cohort.findByPk(cohort_applied).then((cohort) => {
-      if (cohort === null) {
-        return Promise.reject('cohort not found');
+  const { program_id } = req.body;
+  updateDealApplicationStatus(profile.hubspotDealId, 'applied')
+    .then(() => Program.findOne({ where: { id: program_id } }))
+    .then((program) => { // existence of cohort verified
+      if (program === null) {
+        return Promise.reject('program not found');
       }
-      return Program.findOne({ where: { id: cohort.program_id } });
-    })
-      .then((program) => { // existence of cohort verified
-        if (program === null) {
-          return Promise.reject('program not found');
-        }
-        const testSeriesTemplate = program.test_series;
-        const applicationId = uuid();
-        return Application.create({
-          id: applicationId,
-          user_id,
-          cohort_applied,
-          cohort_joining: cohort_applied,
-          status: 'applied',
-          created_at: new Date(),
-          updated_at: new Date(),
-        })
-          .then(application => generateTestSeries(testSeriesTemplate, application))
-          .then((application) => {
-            res.status(201).json(application);
-          });
+      const testSeriesTemplate = program.test_series;
+      const applicationId = uuid();
+      return Application.create({
+        id: applicationId,
+        user_id,
+        program_id,
+        status: 'applied',
+        created_at: new Date(),
+        updated_at: new Date(),
       })
-      .catch((err) => {
-        console.error(err);
-        res.sendStatus(500);
-      });
-  }).catch(err => {
-    console.error(err);
-    res.sendStatus(500);
-  });
+        .then(application => generateTestSeries(testSeriesTemplate, application))
+        .then((application) => {
+          res.status(201).json(application);
+        });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+    });
 };
 
 // This is redundant, use the instance method from Application model
@@ -131,7 +125,7 @@ const populateTestResponses = application => {
 // h.o. function
 const notifyApplicationSubmitted = (phone) => (application) => Promise.all([
   sendSms(phone, 'Dear candidate, your application is under review. You will be notified of any updates.')
-    .catch(err => console.error(err)),
+    .catch(err => logger.error(err)),
   populateTestResponses(application)
     .then(appli => {
       try {
@@ -179,7 +173,7 @@ export const updateApplication = (req, res) => {
       .then(data => res.send({ data }))
       .catch(() => res.sendStatus(500));
   } else if (status) {
-    updateDealApplicationStatus(profile.hubspotDealId, status).then(result => Application.update({
+    updateDealApplicationStatus(profile.hubspotDealId, status).then(_result => Application.update({
       status,
       updated_at: new Date(),
     }, { where: { id }, returning: true }))
@@ -187,7 +181,7 @@ export const updateApplication = (req, res) => {
       .then(notifyApplicationReview(req.body.phone, status))
       .then(application => res.send(application))
       .catch((err) => {
-        console.error(err);
+        logger.error(err);
         res.sendStatus(500);
       });
   } else {
@@ -296,7 +290,7 @@ export const payment = async (req, res) => {
         payment_details: pd,
       }, { where: { id }, returning: true, plain: true })
         .then(() => {
-          // console.log(result[1].dataValues);
+          // logger.info(result[1].dataValues);
           res.status(200).send({
             message: 'Payment Details containing the instamojo redirect url',
             data: response.body.payment_request,
@@ -333,6 +327,29 @@ export const payment = async (req, res) => {
     });
 };
 
+export const verifyPayment = async (req, res) => {
+  try {
+    let payment_id = null;
+    let payment_request_id = null;
+    payment_request_id = req.params.payment_request_id;
+    if (req.body.payment_id) {
+      payment_id = req.body.payment_id;
+    }
+
+    let status = await checkPaymentStatus({ payment_id, payment_request_id });
+    res.status(200).send({
+      message: status,
+      type: 'success',
+    });
+  } catch (err) {
+    console.log('%%%%%%%%%%', err);
+    res.status(500).send({
+      message: err,
+      type: 'failure',
+    });
+  }
+};
+
 export const getApplicationStats = (req, res) => {
   const { id } = req.params;
   const user_id = req.jwtData.user.id;
@@ -354,7 +371,7 @@ export const getApplicationStats = (req, res) => {
       });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -368,12 +385,98 @@ export const getApplicationStageAPI = (req, res) => {
 export const setApplicationStageAPI = (req, res) => {
   const user_id = req.jwtData.user.id;
   const {
-    stage, cohort_applied,
+    application_id, stage, cohort_applied,
     is_isa, is_job_guarantee,
-    payment_type,
+    payment_type, payment_option_selected,
+    offered_isa,
+    cohort_joining,
   } = req.body;
 
-  setApplicationStage(user_id, stage, cohort_applied,
-    is_isa, is_job_guarantee, payment_type).then(data => res.status(200).json(data))
+  if (application_id) {
+    setApplicationStageByApplicationId({
+      application_id,
+      stage,
+      cohort_applied,
+      is_isa,
+      is_job_guarantee,
+      payment_type,
+      payment_option_selected,
+      offered_isa,
+      cohort_joining,
+    })
+      .then(data => res.status(200).json(data))
+      .catch(() => res.sendStatus(500));
+  } else {
+    setApplicationStage(
+      {
+        user_id,
+        stage,
+        cohort_applied,
+        is_isa,
+        is_job_guarantee,
+        payment_type,
+        payment_option_selected,
+        offered_isa,
+        cohort_joining,
+      },
+    ).then(data => res.status(200).json(data))
+      .catch(() => res.sendStatus(500));
+  }
+};
+
+export const setOfferedISA = (req, res) => {
+  const { user_id } = req.params; // user_id
+  const { offered_status } = req.body;
+  offerISA(user_id, offered_status)
+    .then(data => res.status(201).json({
+      message: `ISA status: ${offered_status}`,
+      data,
+      type: 'success',
+    }))
     .catch(() => res.sendStatus(500));
+};
+
+export const logProcessFailure = (req, res) => {
+  const { user_id } = req.params; // user_id
+  const { event } = req.body;
+  logProcessStatus(user_id, event)
+    .then(data => res.status(201).json({
+      message: 'Logged Status',
+      data,
+      type: 'success',
+    }))
+    .catch(() => res.sendStatus(500));
+};
+
+export const getApplicationByStatus = (req, res) => {
+  let {
+    limit, page,
+  } = req.query;
+  const { status } = req.body;
+  const { Op } = Sequelize;
+  let offset;
+  if ((limit) && (page)) {
+    offset = limit * (page - 1);
+  }
+  Application.findAndCountAll(
+    {
+      where: {
+        stage: {
+          [Op.or]: [...status],
+        },
+      },
+      include: [{ model: Cohort, as: 'applicationCohortJoining' }, User],
+      offset,
+      limit,
+    },
+  )
+    .then(data => res.status(201).json({
+      message: 'Applications fetched',
+      data,
+      type: 'success',
+    }))
+    .catch(err => {
+      console.error(err.stack);
+      res.sendStatus(500);
+    });
 };

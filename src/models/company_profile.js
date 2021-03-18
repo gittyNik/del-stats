@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import _ from 'lodash';
 import db from '../database';
-import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
+import { getViewUrlS3 } from '../util/file-fetcher';
 import { USER_ROLES } from './user';
 
 const {
@@ -65,8 +65,8 @@ export const getCompanyProfileFromRecruiterId = (id, role) => CompanyProfile.fin
   raw: true,
 }).then(async (companyProfile) => {
   if (companyProfile) {
-    let logo = await getViewUrlS3(companyProfile.logo, '', 'company_logo');
-    companyProfile.logo = logo.signedRequest;
+    let logo = await getViewUrlS3(companyProfile.logo, 'company_logo');
+    companyProfile.logo = logo;
   }
   if ((companyProfile) && (role === LEARNER)) {
     let views = 1;
@@ -89,8 +89,8 @@ export const getCompanyProfileFromId = (id, role) => CompanyProfile.findOne({
   raw: true,
 }).then(async (companyProfile) => {
   if (companyProfile.logo) {
-    let logo = await getViewUrlS3(companyProfile.logo, '', 'company_logo');
-    companyProfile.logo = logo.signedRequest;
+    let logo = await getViewUrlS3(companyProfile.logo, 'company_logo');
+    companyProfile.logo = logo;
   }
   if ((companyProfile) && (role === LEARNER)) {
     let views = 1;

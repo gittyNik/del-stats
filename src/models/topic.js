@@ -2,7 +2,7 @@ import Sequelize from 'sequelize';
 import uuid from 'uuid';
 import db from '../database';
 
-const BREAKOUT_PATH = [
+export const BREAKOUT_PATH = [
   'frontend',
   'backend',
   'common',

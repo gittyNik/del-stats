@@ -9,7 +9,7 @@ const migration = {
       allowNull: false,
       type: Sequelize.STRING,
     },
-    prerequisite_milestones: Sequelize.ARRAY(Sequelize.UUID),
+    // prerequisite_milestones: Sequelize.ARRAY(Sequelize.UUID),
     program: Sequelize.STRING,
     problem_statement: Sequelize.TEXT,
     learning_competencies: Sequelize.ARRAY(Sequelize.STRING),

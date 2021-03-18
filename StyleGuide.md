@@ -109,7 +109,7 @@ Your opening braces go on the same line as the statement.
 
 ```js
 if (true) {
-  console.log('winning');
+  logger.info('winning');
 }
 ```
 
@@ -118,7 +118,7 @@ if (true) {
 ```js
 if (true)
 {
-  console.log('losing');
+  logger.info('losing');
 }
 ```
 
@@ -265,7 +265,7 @@ the triple equality operator as it will work just as expected.
 ```js
 var a = 0;
 if (a !== '') {
-  console.log('winning');
+  logger.info('winning');
 }
 
 ```
@@ -275,7 +275,7 @@ if (a !== '') {
 ```js
 var a = 0;
 if (a == '') {
-  console.log('losing');
+  logger.info('losing');
 }
 ```
 
@@ -309,7 +309,7 @@ Any non-trivial conditions should be assigned to a descriptively named variable 
 var isValidPassword = password.length >= 4 && /^(?=.*\d).{4,}$/.test(password);
 
 if (isValidPassword) {
-  console.log('winning');
+  logger.info('winning');
 }
 ```
 
@@ -317,7 +317,7 @@ if (isValidPassword) {
 
 ```js
 if (password.length >= 4 && /^(?=.*\d).{4,}$/.test(password)) {
-  console.log('losing');
+  logger.info('losing');
 }
 ```
 
@@ -385,7 +385,7 @@ will produce better stack traces, heap and cpu profiles.
 
 ```js
 req.on('end', function onEnd() {
-  console.log('winning');
+  logger.info('winning');
 });
 ```
 
@@ -393,7 +393,7 @@ req.on('end', function onEnd() {
 
 ```js
 req.on('end', function() {
-  console.log('losing');
+  logger.info('losing');
 });
 ```
 
@@ -409,7 +409,7 @@ setTimeout(function() {
 }, 1000);
 
 function afterConnect() {
-  console.log('winning');
+  logger.info('winning');
 }
 ```
 
@@ -418,7 +418,7 @@ function afterConnect() {
 ```js
 setTimeout(function() {
   client.connect(function() {
-    console.log('losing');
+    logger.info('losing');
   });
 }, 1000);
 ```
@@ -544,7 +544,7 @@ be forever grateful.
 ```js
 var a = [];
 if (!a.length) {
-  console.log('winning');
+  logger.info('winning');
 }
 ```
 
@@ -557,6 +557,6 @@ Array.prototype.empty = function() {
 
 var a = [];
 if (a.empty()) {
-  console.log('losing');
+  logger.info('losing');
 }
 ```

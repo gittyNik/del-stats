@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import { Portfolio, updatePortfolioStatus } from './portfolio';
 import db from '../database';
 import { JobPosting } from './job_postings';
@@ -9,7 +9,8 @@ import {
 } from './learner_challenge';
 import { LearnerInterviews } from './learner_interviews';
 import { CompanyProfile } from './company_profile';
-import { getViewUrlS3 } from '../controllers/firewall/documents.controller';
+import { getViewUrlS3 } from '../util/file-fetcher';
+import logger from '../util/logger';
 
 const APPLICATION_STATUS = [
   'active',
@@ -208,8 +209,8 @@ export const getJobApplicationsForLearnerId = async ({
   });
   const learnerJobs = await Promise.all(jobApplications.map(async jobApplication => {
     if (jobApplication['job_posting.company_profile.logo']) {
-      let logo = await getViewUrlS3(jobApplication['job_posting.company_profile.logo'], '', 'company_logo');
-      jobApplication['job_posting.company_profile.logo'] = logo.signedRequest;
+      let logo = await getViewUrlS3(jobApplication['job_posting.company_profile.logo'], 'company_logo');
+      jobApplication['job_posting.company_profile.logo'] = logo;
     }
     return jobApplication;
   }));
@@ -274,7 +275,8 @@ export const createJobApplication = ({
 
 export const createJobApplicationForPortofolio = async (
   {
-    job_posting_id, portfolio_id, learner_id,
+    job_posting_id, portfolio_id,
+    // learner_id,
     assignment_id, assignment_due_date,
   },
 ) => {
@@ -370,7 +372,7 @@ export const deleteJobApplication = (id) => JobApplication
   .destroy({ where: { id } })
   .then(() => { 'Job application deleted.'; })
   .catch(err => {
-    console.error(err);
+    logger.error(err);
     return { text: 'Failed to delete Job application' };
   });
 

@@ -11,6 +11,7 @@ import {
   getCompletedReviewsForLearner,
   createPastCohortMilestoneReviews,
 } from '../../models/reviews';
+import logger from '../../util/logger';
 
 export const getAllReviewsAPI = (req, res) => {
   const { review_date } = req.query;
@@ -88,7 +89,7 @@ export const createReviewScheduleAPI = (req, res) => {
   const { program, cohort_duration } = req.body;
   createReviewSchedule(program, cohort_duration).then((data) => { res.json(data); })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500).send(err);
     });
 };
@@ -98,7 +99,7 @@ export const createCohortReviewScheduleAPI = (req, res) => {
   createCohortReviewSchedule(program,
     cohort_duration, cohort_id).then((data) => { res.json(data); })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500).send(err);
     });
 };
@@ -161,7 +162,7 @@ export const getCompletedReviewsForLearnerAPI = async (req, res) => {
       data,
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({
       message: 'Error while fetching reviews for learner',
       type: 'failure',

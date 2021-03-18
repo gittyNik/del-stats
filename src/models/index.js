@@ -45,6 +45,9 @@ import { LearnerRecruiters } from './learner_recruiter';
 import { JobPosting } from './job_postings';
 import { CompanyProfile } from './company_profile';
 import { ShortlistedPortfolios } from './shortlisted_portfolios';
+import { PaymentDetails } from './payment_details';
+import { PaymentIntervals } from './payment_intervals';
+import logger from '../util/logger';
 
 // TODO: describe all associations here
 
@@ -56,8 +59,9 @@ Cohort.belongsTo(Program, { foreignKey: 'program_id' });
 // CohortMilestone.belongsTo(Cohort, { foreignKey: 'cohort_id' });
 Cohort.hasMany(CohortBreakout, { foreignKey: 'cohort_id' });
 CohortBreakout.belongsTo(Cohort);
-Application.belongsTo(Cohort, { foreignKey: 'cohort_applied' });
-Application.belongsTo(Cohort, { foreignKey: 'cohort_joining' });
+Application.belongsTo(Cohort, { as: 'applicationCohortApplied', foreignKey: 'cohort_applied' });
+Application.belongsTo(Cohort, { as: 'applicationCohortJoining', foreignKey: 'cohort_joining' });
+Application.belongsTo(Program, { foreignKey: 'program_id' });
 
 // User.hasMany(SocialConnection, {foreignKey: 'user_id'});
 // SocialConnection.belongsTo(User, {foreignKey: 'user_id'})
@@ -164,6 +168,15 @@ Portfolio.belongsToMany(CompanyProfile, {
   as: 'ShortlistedPortfoliosForCompanies',
 });
 
+PaymentDetails.hasOne(PaymentIntervals, {
+  foreignKey: 'payment_details_id'
+});
+
+
+PaymentDetails.hasOne(Application, { as: 'PaymentApplicant', foreignKey: 'payment_option_selected' });
+Application.belongsTo(PaymentDetails, { as: 'ApplicationPayment', foreignKey: 'payment_option_selected' });
+// PaymentIntervals.belongsTo(PaymentDetails)
+
 // User.belongsTo(Cohort);
 // Cohort.hasMany(User, { foreignKey: 'learners' });
 // User.belongsTo(Cohort);
@@ -208,4 +221,6 @@ export default {
   User,
   connection,
   LearnerInterviews,
+  PaymentDetails,
+  PaymentIntervals
 };

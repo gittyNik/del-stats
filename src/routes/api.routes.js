@@ -32,6 +32,15 @@ const router = Express.Router();
 // All routes
 router.use(browserAccessControl);
 
+/**
+ * @api {get} / Get sample response
+ * @apiDescription Get a sample response for logged in users
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetSampleResponse
+ * @apiGroup Profile
+ */
+router.get('/', sendSampleResponse);
+
 // Public routes
 router.use('/auth', authRouter);
 router.use('/doc', devOnly, Express.static('./doc'));
@@ -57,15 +66,6 @@ router.use('/operations', operations);
 
 // Code Interview
 router.use('/codeinterview', codeInterviewRouter);
-
-/**
- * @api {get} / Get sample response
- * @apiDescription Get a sample response for logged in users
- * @apiHeader {String} authorization JWT Token.
- * @apiName GetSampleResponse
- * @apiGroup Profile
- */
-router.get('/', sendSampleResponse);
 
 /**
  * @api {get} /swagger.json Get swagger json

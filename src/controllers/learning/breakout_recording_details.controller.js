@@ -3,6 +3,7 @@ import {
   getVideoByCatalyst, createRecordingEntry, updateRecordingDetails,
   getAverageStatsCatalyst,
 } from '../../models/breakout_recording_details';
+import logger from '../../util/logger';
 
 export const getAllRecordingsAPI = (req, res) => {
   let { skip, limit, sort_by } = req.query;
@@ -20,7 +21,7 @@ export const getAllRecordingsAPI = (req, res) => {
     });
   })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500).send(err);
     });
 };
@@ -105,7 +106,7 @@ export const createRecording = (req, res) => {
   )
     .then((data) => { res.json(data); })
     .catch(err => {
-      console.log(err);
+      logger.error(err);
       res.status(500).send(err);
     });
 };

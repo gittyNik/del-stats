@@ -35,6 +35,7 @@ router.get('/', getAllBreakoutTemplatesAPI);
  * @apiDescription get all Content Breakouts templates
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetContentBreakouts
+ * @apiGroup ContentBreakoutTemplates
  */
 router.get('/:id', getBreakoutTemplateByIdAPI);
 

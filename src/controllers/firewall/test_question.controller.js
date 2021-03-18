@@ -1,4 +1,4 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import { TestQuestion } from '../../models/test_question';
 
 export const populateQuestionDetails = testSeries => (

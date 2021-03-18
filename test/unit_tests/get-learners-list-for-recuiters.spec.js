@@ -3,6 +3,7 @@ import '../../src/models';
 import { getLearnerList } from '../../src/models/portfolio';
 import { getReviewRubricForALearner } from '../../src/models/learner_breakout';
 import { getMilestoneDetailsForReview } from '../../src/models/cohort_breakout';
+import logger from '../../src/util/logger';
 
 describe('should return a list of learners registered for placement drive', () => {
   beforeAll(() => {
@@ -10,7 +11,7 @@ describe('should return a list of learners registered for placement drive', () =
       .authenticate()
       .then(async () => {
         const res = await db.query('SELECT current_database()');
-        console.log(`DB connected: ${res[0][0].current_database}`);
+        logger.info(`DB connected: ${res[0][0].current_database}`);
       });
   });
 
@@ -22,7 +23,7 @@ describe('should return a list of learners registered for placement drive', () =
   describe('get list of learners', () => {
     test('should return getLearnerList', async () => {
       const res = await getLearnerList();
-      console.log(res);
+      logger.info(res);
       expect(res).toBeDefined();
     });
   });
@@ -31,16 +32,16 @@ describe('should return a list of learners registered for placement drive', () =
     test.only('getReviewRubricForALearner', async () => {
       const learner_id = '18d61ecb-af60-4c16-9d28-3a24d1a3064f';
       const res = await getReviewRubricForALearner(learner_id);
-      console.log(JSON.stringify(res, null, 4));
-      console.log('=-------------------------------==---');
-      console.log(JSON.stringify(res[0], null, 4))
+      logger.info(JSON.stringify(res, null, 4));
+      logger.info('=-------------------------------==---');
+      logger.info(JSON.stringify(res[0], null, 4))
       expect(res).toBeDefined();
     });
 
     test.only('getMilestoneDetails', async () => {
       const cohort_breakout_id = 'ed8e1b79-e0b4-44c6-8c15-19c09f89e1f2';
       const res = await getMilestoneDetailsForReview(cohort_breakout_id);
-      console.log(JSON.stringify(res, null, 4));
+      logger.info(JSON.stringify(res, null, 4));
       expect(res).toBeDefined();
     })
   })

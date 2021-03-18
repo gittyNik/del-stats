@@ -7,6 +7,10 @@ import {
 import {
   addShortlistedLearners,
 } from '../../models/shortlisted_portfolios';
+import {
+  addProfilePicture,
+} from '../community/user.controller';
+import logger from '../../util/logger';
 
 export const getAllPortfoliosAPI = (req, res) => {
   let { limit, page } = req.query;
@@ -21,7 +25,7 @@ export const getAllPortfoliosAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -41,7 +45,7 @@ export const getLearnerListAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500).json({
         text: 'Failed to get all learners list',
         type: 'failure',
@@ -62,7 +66,7 @@ export const getPortfoliosByStatusAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -77,7 +81,7 @@ export const getPortfolioByUser = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -92,7 +96,7 @@ export const getPortfolioById = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -140,12 +144,12 @@ export const addResumeForLearner = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
 
-export const createPortfolioAPI = (req, res) => {
+export const createPortfolioAPI = async (req, res) => {
   const {
     showcase_projects,
     fields_of_interest,
@@ -165,9 +169,25 @@ export const createPortfolioAPI = (req, res) => {
     learner_id,
     additional_links,
     available_time_slots,
+    profile_picture,
   } = req.body;
   const user_name = req.jwtData.user.name;
   const user_id = req.jwtData.user.id;
+
+  try {
+    if (profile_picture === '') {
+      await addProfilePicture({ user_id, profile_picture });
+    } else if (profile_picture) {
+      await addProfilePicture({ user_id, profile_picture });
+    }
+  } catch (err) {
+    console.error(err.stack);
+    res.status(500).json({
+      text: 'Failed to save or update profile picture',
+      type: 'failure',
+    });
+  }
+
   let updated_by = [{
     user_name,
     updated_at: new Date(),
@@ -200,7 +220,7 @@ export const createPortfolioAPI = (req, res) => {
       type: 'success',
     }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -259,7 +279,7 @@ export const updatePortfolio = (req, res) => {
     type: 'success',
   }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -315,7 +335,7 @@ export const updatePortfolioLearnerAPI = (req, res) => {
     type: 'success',
   }))
     .catch(err => {
-      console.error(err.stack);
+      logger.error(err);
       res.status(500);
     });
 };

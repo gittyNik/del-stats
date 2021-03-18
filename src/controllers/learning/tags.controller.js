@@ -1,13 +1,14 @@
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import {
   Tags, getResourcesByTag, getTagIdbyName, getTagIdbyNames,
 } from '../../models/tags';
+import logger from '../../util/logger';
 
 export const getTags = (req, res) => {
   Tags.findAll({})
     .then(data => res.json(data))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -19,7 +20,7 @@ export const getTag = (req, res) => {
   })
     .then(data => res.json(data))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -28,11 +29,11 @@ export const getTagIdName = (req, res) => {
   const { tag_name } = req.params;
   getTagIdbyName(tag_name)
     .then(data => {
-      // console.log(data);
+      // logger.info(data);
       res.send({ data });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -41,11 +42,11 @@ export const getTagIdNames = (req, res) => {
   const { tag_name } = req.body;
   getTagIdbyNames(tag_name)
     .then(data => {
-      // console.log(data);
+      // logger.info(data);
       res.send({ data });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.sendStatus(500);
     });
 };
@@ -73,11 +74,11 @@ export const createTags = (req, res) => {
     similar_tags,
   })
     .then(data => {
-      // console.log(data);
+      // logger.info(data);
       res.send('Tag created');
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -113,7 +114,7 @@ export const updateTags = (req, res) => {
   })
     .then(() => res.send('Tags updated.'))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };
@@ -126,7 +127,7 @@ export const deleteTags = (req, res) => {
   })
     .then(() => res.send('Deleted Tag. '))
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       res.status(500);
     });
 };
