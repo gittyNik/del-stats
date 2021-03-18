@@ -311,7 +311,7 @@ const addGoogleProfile = ({
 // sends redirect url if not found.
 export const checkGoogleOrSendRedirectUrl = async (req, res) => {
   const { user } = req.jwtData;
-  // logger.info(req.jwtData);
+  logger.info(req.jwtData);
   logger.info(' user_id: ', user.id);
   let userId = user.id;
   const result = await SocialConnection.findOne({
