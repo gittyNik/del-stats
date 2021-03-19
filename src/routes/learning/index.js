@@ -9,9 +9,11 @@ import tagRouter from './tags.routes';
 import teamRouter from './teams.route';
 import slackRouter from './slack.routes';
 import learnerFaqRouter from './faq.routes';
+import authenticate from '../../controllers/auth/auth.controller';
 
 const router = Express.Router();
 
+router.use(authenticate);
 router.use('/activity', activity);
 router.use('/content', content);
 router.use('/nudge', nudge);
