@@ -13,7 +13,7 @@ const arrayToObject = (array) => array.reduce((obj, item) => {
   return obj;
 }, {});
 
-export const lastNBreakoutsForLearner = (learner_id, number, type = 'lecture') => LearnerBreakout.findAll({
+export const lastNBreakoutsForLearner = async (learner_id, number, type = 'lecture') => LearnerBreakout.findAll({
   where: {
     learner_id,
     '$cohort_breakout.type$': type,
@@ -23,6 +23,11 @@ export const lastNBreakoutsForLearner = (learner_id, number, type = 'lecture') =
   include: [
     {
       model: CohortBreakout,
+      include: [{
+        model: Cohort,
+        attributes: ['name'],
+      },
+      ],
       attributes: [],
       required: false,
     },
@@ -125,21 +130,9 @@ export const getAllLiveCohortAttendance = async (offset, limit, order) => {
           cohort_name: cohort[v.cohort_id],
         })),
         last_five_breakouts: {
-          lecture: await lastNBreakoutsForLearner(key, 5, 'lecture').map(bk => {
-            const obj = JSON.parse(JSON.stringify(bk));
-            obj.cohort = cohort[bk.cohort_id];
-            return obj;
-          }),
-          review: await lastNBreakoutsForLearner(key, 5, 'reviews').map(bk => {
-            const obj = JSON.parse(JSON.stringify(bk));
-            obj.cohort = cohort[bk.cohort_id];
-            return obj;
-          }),
-          assessment: await lastNBreakoutsForLearner(key, 5, 'assessment').map(bk => {
-            const obj = JSON.parse(JSON.stringify(bk));
-            obj.cohort = cohort[bk.cohort_id];
-            return obj;
-          }),
+          lecture: await lastNBreakoutsForLearner(key, 5, 'lecture'),
+          review: await lastNBreakoutsForLearner(key, 5, 'reviews'),
+          assessment: await lastNBreakoutsForLearner(key, 5, 'assessment'),
         },
       })));
       return {
