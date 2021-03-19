@@ -20,11 +20,11 @@ import { getApplicationDetails } from './agreement_template.controller';
 import { generateTestSeries, populateTestSeries } from './test.controller';
 import { sendSms, TEMPLATE_FIREWALL_REVIEWED } from '../../util/sms';
 import { sendFirewallResult } from '../../integrations/slack/team-app/controllers/firewall.controller';
-import { scheduleFirewallRetry } from '../queue.controller';
+// import { scheduleFirewallRetry } from '../queue.controller';
 import { updateDealApplicationStatus } from '../../integrations/hubspot/controllers/deals.controller';
 import { PAYMENT_TYPES } from '../../integrations/instamojo/instamojo.controller';
 import { checkPaymentStatus } from '../../integrations/instamojo/payment.controller';
-import { logger } from '../../util/logger';
+import logger from '../../util/logger';
 
 export const getAllApplications = (req, res) => {
   Application.findAll({
@@ -88,6 +88,8 @@ export const getLiveApplications = (req, res) => {
 export const addApplication = (req, res) => {
   const { id: user_id, profile } = req.jwtData.user;
   const { program_id } = req.body;
+  logger.info('Application Body: ');
+  logger.info(req.body);
   updateDealApplicationStatus(profile.hubspotDealId, 'applied')
     .then(() => Program.findOne({ where: { id: program_id } }))
     .then((program) => { // existence of cohort verified
