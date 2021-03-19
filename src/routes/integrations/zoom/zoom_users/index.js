@@ -1,5 +1,5 @@
 import Express from 'express';
-import { userInfo } from './zoom_users.controller';
+import { userInfo } from '../../../../integrations/zoom/zoom_users/zoom_users.controller';
 
 const router = Express.Router();
 

@@ -2,11 +2,11 @@ import Express from 'express';
 import {
   scheduleNewMeeting, meetingDetails,
   listMeetings, attachZoomToBreakout,
-} from './meetings.controller';
+} from '../../../../integrations/zoom/meetings/meetings.controller';
 import {
   allowMultipleRoles,
-} from '../../../controllers/auth/roles.controller';
-import { USER_ROLES } from '../../../models/user';
+} from '../../../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../../../models/user';
 
 const {
   ADMIN, CATALYST, EDUCATOR,
@@ -22,7 +22,7 @@ router.use(allowMultipleRoles([ADMIN, OPERATIONS, EDUCATOR, CATALYST, LEARNER, R
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetMeeting
  * @apiGroup VideoMeeting
- * 
+ *
  */
 router.get('/:meetingId', meetingDetails);
 
