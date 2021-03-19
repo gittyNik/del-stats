@@ -1,9 +1,14 @@
 import Sequelize from 'sequelize';
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 import db from '../database';
 import { Topic } from './topic';
 
-const mockInterviewSlots = db.define('mock_interview_slots', {
+const status = [
+  'active',
+  'inactive',
+];
+
+const MockInterviewSlots = db.define('mock_interview_slots', {
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
@@ -11,20 +16,24 @@ const mockInterviewSlots = db.define('mock_interview_slots', {
   },
   created_at: {
     type: Sequelize.DATE,
-    defaultValue: Sequelize.literal('NOW()'),
+    // defaultValue: Sequelize.literal('NOW()'),
   },
   updated_at: {
     type: Sequelize.DATE,
-    // defaultValue: Sequelize.literal('NOW()'),
+    defaultValue: Sequelize.literal('NOW()'),
   },
   program: {
     type: Sequelize.STRING,
   },
   cohort_duration: {
-    type: Sequelize.STRING,
+    type: Sequelize.INTEGER,
   },
   mock_interview_duration: {
     type: Sequelize.INTEGER,
+  },
+  mock_interview_day: {
+    type: Sequelize.STRING,
+    allowNull: false,
   },
   time_scheduled: {
     type: Sequelize.TIME,
@@ -37,6 +46,74 @@ const mockInterviewSlots = db.define('mock_interview_slots', {
   slot_order: {
     type: Sequelize.INTEGER,
   },
+  status: {
+    type: Sequelize.ENUM(...status),
+    defaultValue: 'active',
+  },
 });
 
-export default mockInterviewSlots;
+export default MockInterviewSlots;
+
+const weekDays = [
+  {
+    day: 'Tuesday',
+    slot: 1,
+    week: 0,
+  },
+  {
+    day: 'Wednesday',
+    slot: 2,
+    week: 0,
+  },
+  {
+    day: 'Thursday',
+    slot: 3,
+    week: 0,
+  },
+  {
+    day: 'Friday',
+    slot: 4,
+    week: 0,
+  },
+  // {
+  //   day: 'Saturday',
+  //   slot: 5,
+  //   week: 0,
+  // },
+  // {
+  //   day: 'Sunday',
+  //   slot: 6,
+  //   week: 0,
+  // },
+  {
+    day: 'Monday',
+    slot: 6,
+    week: 1,
+  },
+];
+
+const slotData = async (cohort_duration, program) => {
+  let inithours = (cohort_duration >= 26) ? 19 : 7;
+  let finalHours = 22;
+  let data = [];
+  weekDays.map(d => {
+    for (let i = inithours; i <= finalHours; i++) {
+      let hr = (i < 10) ? `0${i}` : i;
+      let time_scheduled = `${hr}:00:00`;
+      data.push({
+        id: uuid(),
+        created_at: new Date(),
+        updated_at: new Date(),
+        program,
+        cohort_duration,
+        mock_interview_duration: 60 * 60 * 1000,
+        mock_interview_day: d.day,
+        time_scheduled,
+        week: d.week,
+        slot_order: d.slot,
+        status: 'active',
+      });
+    }
+  });
+  await MockInterviewSlots.bulkCreate(data);
+};
