@@ -1,8 +1,11 @@
 import Express from 'express';
-import meetingRouter from '../../../integrations/zoom/meetings';
-import zoomUserRouter from '../../../integrations/zoom/zoom_users';
+import meetingRouter from './meetings';
+import zoomUserRouter from './zoom_users';
+import authenticate from '../../../controllers/auth/auth.controller';
 
 const router = Express.Router();
+
+router.use(authenticate);
 
 router.use(Express.json({ limit: '20mb' }));
 router.use(Express.urlencoded({ limit: '20mb', extended: false }));
