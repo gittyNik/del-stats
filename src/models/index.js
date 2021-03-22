@@ -184,7 +184,6 @@ Application.belongsTo(PaymentDetails, { as: 'ApplicationPayment', foreignKey: 'p
 
 export default {
   Application,
-  Assessment,
   BrowserHistoryItem,
   BrowserVisitItem,
   Challenge,
