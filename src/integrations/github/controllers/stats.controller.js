@@ -27,6 +27,7 @@ export const contributersInRepository = async (repo, socialConnection) => {
   return request
     .get(`https://api.github.com/repos/${org}/${repo}/stats/contributors`)
     .set('accept', 'application/vnd.github.baptiste-preview+json')
+    .set('User-Agent', process.env.GITHUB_APP_NAME)
     .set('authorization', `token ${access_token}`)
     .then(data => JSON.parse(data.text))
     .catch(err => {
