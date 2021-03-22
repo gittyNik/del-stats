@@ -144,7 +144,7 @@ export const learnerChallengesFindOrCreate = async (
     } else {
       repo_name = `${socialConnection.username}_${chllenge.starter_repo}`;
     }
-
+    console.log(challenge);
     if (challenge === null) {
       // No challenge for this learner yet
       // Create repository for Challenge

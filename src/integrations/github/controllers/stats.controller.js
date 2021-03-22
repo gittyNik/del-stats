@@ -44,6 +44,7 @@ export const weeklyCommitActivityData = async (repo, socialConnection) => {
       `https://api.github.com/repos/${org}/${repo}/stats/commit_activity`,
     )
     .set('accept', 'application/vnd.github.baptiste-preview+json')
+    .set('User-Agent', process.env.GITHUB_APP_NAME)
     .set('authorization', `token ${access_token}`)
     .then(data => (data.text === '' ? [] : JSON.parse(data.text)))
     .catch(err => {
