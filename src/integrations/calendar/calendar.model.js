@@ -46,7 +46,7 @@ export const createEvent = (auth, event_details) => {
     }))
     .catch(err => {
       logger.error(`Error in creating Google calendar event: ${err}`);
-      logger.debug(`Error details: ${err.stack}`);
+      logger.debug(err.errors);
       // return new Error('Failed to create a calendar event');
       return null;
     });

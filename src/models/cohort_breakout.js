@@ -783,6 +783,8 @@ export const updateBreakoutCalendarEventForCatalyst = async ({
   }
   if ((catalyst_id === null) && (cohort_breakout.catalyst_id)) {
     googleOAuthCatalyst = await getGoogleOauthOfUser(prevCatalystId);
+  } else {
+    googleOAuthCatalyst = await getGoogleOauthOfUser(catalyst_id);
   }
   calendarDetails.start = checkTime() ? updated_time : time_scheduled;
   let catalystCalendarEvent;
