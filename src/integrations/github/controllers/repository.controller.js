@@ -53,11 +53,11 @@ const getAllRepositoryCollaborators = async (repo) => getNumberOfPages(
 );
 
 // const isRepositoryCollaboratorOrNot = async (repo, collaborater) =>
-// 	octokit.repos.checkCollaborator({
-// 		owner,
-// 		repo,
-// 		username
-// 	});
+// octokit.repos.checkCollaborator({
+// owner,
+// repo,
+// username
+// });
 
 export const createGithubRepository = (repo, is_template) => octokit.repos.createInOrg({
   org,
@@ -89,6 +89,7 @@ export const createGithubRepositoryFromTemplate = async (
       `https://api.github.com/repos/${org}/${template_repo_name}/generate`,
     )
     .send(params)
+    .set('User-Agent', process.env.GITHUB_APP_NAME)
     .set('accept', 'application/vnd.github.baptiste-preview+json')
     .set('authorization', `token ${process.env.GITHUB_ACCESS_TOKEN}`)
     .then((data) => JSON.parse(data.text));
