@@ -115,6 +115,7 @@ export const getGoogleOauthOfUser = async (user_id) => {
     });
     return oauth2Client;
   }
+  logger.info(`Unable to fetch Google token for user: ${user_id}`);
   return null;
 };
 
