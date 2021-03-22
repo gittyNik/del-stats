@@ -1,5 +1,4 @@
 import { Application } from './application';
-import { Assessment } from './assessment';
 import { BrowserHistoryItem } from './browser_history_items';
 import { BrowserVisitItem } from './browser_visit_items';
 import { Challenge } from './challenge';
@@ -169,9 +168,8 @@ Portfolio.belongsToMany(CompanyProfile, {
 });
 
 PaymentDetails.hasOne(PaymentIntervals, {
-  foreignKey: 'payment_details_id'
+  foreignKey: 'payment_details_id',
 });
-
 
 PaymentDetails.hasOne(Application, { as: 'PaymentApplicant', foreignKey: 'payment_option_selected' });
 Application.belongsTo(PaymentDetails, { as: 'ApplicationPayment', foreignKey: 'payment_option_selected' });
@@ -222,5 +220,5 @@ export default {
   connection,
   LearnerInterviews,
   PaymentDetails,
-  PaymentIntervals
+  PaymentIntervals,
 };

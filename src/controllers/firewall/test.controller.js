@@ -21,6 +21,39 @@ export const getAllTests = (req, res) => {
     });
 };
 
+// export const populateRubric = test => Application.findByPk(test.application_id, {
+//   include: [
+//     { model: Cohort, as: 'applicationCohortJoining' },
+//     Program],
+//   raw: true,
+// }).then(application => {
+//   console.log(application['program.test_series']);
+//   const [template] = application['program.test_series'].tests
+//     .filter(t => t.purpose === test.purpose);
+//   if (template) {
+//     test.rubric = template.rubric;
+//   }
+//   return test;
+// });
+export const populateRubric = test => Application.findByPk(test.application_id, {
+  include: [{
+    model: Cohort,
+    as: 'applicationCohortApplied',
+    foreignKey: 'cohort_applied',
+    include: [Program],
+  }],
+  raw: true,
+}).then(application => {
+  const [template] = application['applicationCohortApplied.program.test_series'].tests
+    .filter(t => t.purpose === test.purpose);
+  if (template) {
+    test.rubric = template.rubric;
+  }
+  return test;
+});
+
+const populateRubrics = tests => Promise.all(tests.map(populateRubric));
+
 export const getTestByApplicationId = (req, res) => {
   const { id } = req.params;
   Test.findAll({ where: { application_id: id }, raw: true })
@@ -39,19 +72,6 @@ export const getTestByApplicationId = (req, res) => {
       res.sendStatus(500);
     });
 };
-
-export const populateRubric = test => Application.findByPk(test.application_id, {
-  include: [{ model: Cohort, as: 'applicationCohortJoining' }, Program],
-  raw: true,
-}).then(application => {
-  const [template] = application['program.test_series'].tests
-    .filter(t => t.purpose === test.purpose);
-  if (template) {
-    test.rubric = template.rubric;
-  }
-  return test;
-});
-const populateRubrics = tests => Promise.all(tests.map(populateRubric));
 
 export const getTestById = (req, res) => {
   const { id } = req.params;
