@@ -1,7 +1,6 @@
 import Sequelize from 'sequelize';
 import { v4 as uuid } from 'uuid';
 import db from '../database';
-import { Topic } from './topic';
 
 const status = [
   'active',
@@ -92,7 +91,7 @@ const weekDays = [
   },
 ];
 
-const slotData = async (cohort_duration, program) => {
+const slotData = (cohort_duration, program) => {
   let inithours = (cohort_duration >= 26) ? 19 : 7;
   let finalHours = 22;
   let data = [];
@@ -115,5 +114,9 @@ const slotData = async (cohort_duration, program) => {
       });
     }
   });
-  await MockInterviewSlots.bulkCreate(data);
+  return MockInterviewSlots.bulkCreate(data);
+};
+
+export {
+  slotData,
 };

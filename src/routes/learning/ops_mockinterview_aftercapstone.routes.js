@@ -1,10 +1,7 @@
 import Express from 'express';
 import {
-  
-} from '../../controllers/learning/learner_breakout.controller';
-import {
-
-} from '../../controllers/learning/breakout.controller';
+  createMockInterviewsSlotsApi,
+} from '../../controllers/learning/ops_mockinterview.controller';
 
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -24,6 +21,13 @@ const router = Express.Router();
  */
 // router.get('/', getAllMockInterviewsApi);
 
-
+/**
+ * @api {post} /learning/ops/aftercapstone create mockinterviews slots
+ * @apiDescription Create Mock Interview Slots
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName createMockInterview
+ * @apiGroup MockInterviews
+ */
+router.post('/', createMockInterviewsSlotsApi);
 
 export default router;
