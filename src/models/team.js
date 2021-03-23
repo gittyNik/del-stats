@@ -180,8 +180,8 @@ const toGithubFormat = str => {
 
 export const getLeastAttendingLearners = (
   learners, threshold = 5,
-) => Promise.all(learners.map(id => {
-  let last5Breakouts = lastNBreakoutsForLearner(id, threshold);
+) => Promise.all(learners.map(async id => {
+  let last5Breakouts = await lastNBreakoutsForLearner(id, threshold);
   return last5Breakouts.filter(({ attendance }) => attendance === false);
 }));
 
@@ -295,7 +295,8 @@ export const splitFrontEndAndBackEnd = cohort_milestone_id => async learnerIds =
     }
   }
   // Create common breakouts for all
-  // learnerBreakouts.push(createLearnerBreakoutsForMilestone(learnerIds, cohort_milestone_id, 'common'));
+  // learnerBreakouts.push(
+  // createLearnerBreakoutsForMilestone(learnerIds, cohort_milestone_id, 'common'));
   // await Promise.all(learnerBreakouts);
 
   teams = await Promise.all(teams.map(async (team, i) => {
