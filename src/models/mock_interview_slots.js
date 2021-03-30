@@ -7,7 +7,7 @@ const status = [
   'inactive',
 ];
 
-const MockInterviewSlots = db.define('mock_interview_slots', {
+export const MockInterviewSlots = db.define('mock_interview_slots', {
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
