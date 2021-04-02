@@ -3,6 +3,7 @@ import { Cohort } from './cohort';
 import MockInterviewSlots from './mock_interview_slots';
 import { CohortBreakout } from './cohort_breakout';
 import { changeTimezone } from './breakout_template';
+import { LearnerBreakout } from './learner_breakout';
 
 const WEEK_VALUES = {
   monday: 1,
@@ -14,51 +15,57 @@ const WEEK_VALUES = {
   sunday: 7,
 };
 
-const createMockInterviewsForCohort_afterCapstone = ({ cohort_id, start_date }) => {
-  Cohort.findOne({
-    where: {
-      id: cohort_id,
-    },
-  })
-    .then(cohort => ({ cohort_duration: cohort.cohort_duration, learners: cohort.learners }))
-    .then(({ cohort_duration, learners }) => MockInterviewSlots
-      .find({
-        where: {
-          cohort_duration,
-        },
-      })
-      .then(slots => ({
+const createMockInterviewsForCohort_afterCapstone = ({ cohort_id, start_date }) => Cohort.findOne({
+  where: {
+    id: cohort_id,
+  },
+})
+  .then(cohort => ({ cohort_duration: cohort.cohort_duration, learners: cohort.learners }))
+  .then(({ cohort_duration, learners }) => MockInterviewSlots
+    .find({
+      where: {
         cohort_duration,
-        learners,
-        slots,
-      })))
-    .then(({ cohort_duration, learners, slots }) => {
-      let cohort_breakouts = [];
-      let learner_breakouts = [];
-      let index = 0;
-      while() {
-        slot[index]
-        start_date.getDay()
-        
-      }
-      
-      
+      },
+    })
+    .then(slots => ({
+      cohort_duration,
+      learners,
+      slots,
+    })))
+  .then(({ cohort_duration, learners, slots }) => {
+    let cohort_breakouts = [];
+    let cohort_breakouts_2 = [];
+    let learner_breakouts = [];
+    let flag = false; // record when we get to week 0
 
-      start_date = new Date(start_date.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-      slots.map(slot => {
-        let cb_uuid = uuid();
-        if (slot.status === 'active') {
-          let time_split = slot.time_scheduled.split(':');
-          let time_scheduled = new Date(start_date.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-          
-          time_scheduled.setDate(start_date.getDate() + (((
-            WEEK_VALUES[slot.mock_interview_day.toLowerCase()]
+    slots.map(slot => {
+      let cb_uuid = uuid();
+      if (slot.status === 'active') {
+        let time_split = slot.time_scheduled.split(':');
+        let time_scheduled = new Date(start_date.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+
+        time_scheduled.setDate(start_date.getDate() + (((
+          WEEK_VALUES[slot.mock_interview_day.toLowerCase()]
             + 7 - start_date.getDay()) % 7)));
-        
-          time_scheduled.setHours(time_split[0], time_split[1], time_split[2]);
-        
-          time_scheduled = changeTimezone(time_scheduled, 'Asia/Kolkata');
 
+        time_scheduled.setHours(time_split[0], time_split[1], time_split[2]);
+
+        time_scheduled = changeTimezone(time_scheduled, 'Asia/Kolkata');
+
+        if (WEEK_VALUES[slot.mock_interview_day.toLowerCase()] === start_date.getDay()) {
+          flag = true;
+        }
+
+        if (!flag) {
+          cohort_breakouts_2.push({
+            id: cb_uuid,
+            type: 'mockinterview-aftercapstone',
+            cohort_id,
+            time_scheduled: slot.time_scheduled,
+            duration: slot.mock_interview_duration,
+            location: 'Online',
+          });
+        } else {
           cohort_breakouts.push({
             id: cb_uuid,
             type: 'mockinterview-aftercapstone',
@@ -66,17 +73,27 @@ const createMockInterviewsForCohort_afterCapstone = ({ cohort_id, start_date }) 
             time_scheduled: slot.time_scheduled,
             duration: slot.mock_interview_duration,
             location: 'Online',
-          });  
+          });
         }
-        
-        // learner_breakouts.push({
-        //   id: uuid(),
+      }
 
-        // })
+      // learner_breakouts.push({
+      //   id: uuid(),
+
+      // })
+    });
+    cohort_breakouts = [...cohort_breakouts, ...cohort_breakouts_2];
+    learners.map((learner_id, index) => {
+      learner_breakouts.push({
+        id: uuid(),
+        cohort_breakout_id: cohort_breakouts[index],
+        learner_id,
       });
     });
-};
+    CohortBreakout
+      .bulkCreate(cohort_breakouts)
+      .then(() => LearnerBreakout
+        .bulkCreate(learner_breakouts));
+  });
 
-export {
-  createMockInterviewsForCohort_afterCapstone,
-};
+export default createMockInterviewsForCohort_afterCapstone;
