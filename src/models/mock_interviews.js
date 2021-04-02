@@ -96,4 +96,13 @@ const createMockInterviewsForCohort_afterCapstone = ({ cohort_id, start_date }) 
         .bulkCreate(learner_breakouts));
   });
 
-export default createMockInterviewsForCohort_afterCapstone;
+const getAllMockInterviews_afterCapstone = () => CohortBreakout.findAll({
+  where: {
+    type: 'mockinterview-aftercapstone',
+  },
+});
+
+export {
+  createMockInterviewsForCohort_afterCapstone,
+  getAllMockInterviews_afterCapstone,
+};
