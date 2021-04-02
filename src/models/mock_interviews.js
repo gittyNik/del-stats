@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import { Cohort } from './cohort';
-import MockInterviewSlots from './mock_interview_slots';
+import { MockInterviewSlots } from './mock_interview_slots';
 import { CohortBreakout } from './cohort_breakout';
 import { changeTimezone } from './breakout_template';
 import { LearnerBreakout } from './learner_breakout';
@@ -28,11 +28,11 @@ const createMockInterviewsForCohort_afterCapstone = ({ cohort_id, start_date }) 
       },
     })
     .then(slots => ({
-      cohort_duration,
+      // cohort_duration,
       learners,
       slots,
     })))
-  .then(({ cohort_duration, learners, slots }) => {
+  .then(({ learners, slots }) => {
     let cohort_breakouts = [];
     let cohort_breakouts_2 = [];
     let learner_breakouts = [];

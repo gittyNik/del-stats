@@ -7,7 +7,7 @@ const status = [
   'inactive',
 ];
 
-export const MockInterviewSlots = db.define('mock_interview_slots', {
+const MockInterviewSlots = db.define('mock_interview_slots', {
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
@@ -51,7 +51,7 @@ export const MockInterviewSlots = db.define('mock_interview_slots', {
   },
 });
 
-export default MockInterviewSlots;
+// export default MockInterviewSlots;
 
 const weekDays = [
   {
@@ -119,4 +119,5 @@ const slotData = (cohort_duration, program) => {
 
 export {
   slotData,
+  MockInterviewSlots,
 };
