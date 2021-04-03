@@ -15,7 +15,7 @@ import {
 } from '../../models/cohort';
 import logger from '../../util/logger';
 
-import { USER_ROLES } from '../../models/user';
+// import { USER_ROLES } from '../../models/user';
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
@@ -178,7 +178,9 @@ export const moveLearnertoDifferentCohortEndpoint = async (req, res) => {
       type: 'success',
     });
   } catch (err) {
-    res.status(500).send(err);
+    logger.error('Unable to move leaners: ');
+    logger.error(err);
+    res.status(500);
   }
 };
 
@@ -186,19 +188,25 @@ export const removeLearnerEndpoint = async (req, res) => {
   const { learner_id, current_cohort_id } = req.body;
   const updated_by_id = req.jwtData.user.id;
   const updated_by_name = req.jwtData.user.name;
-  let bk = await removeLearner(
-    {
-      learner_id,
-      current_cohort_id,
-      updated_by_id,
-      updated_by_name,
-    },
-  );
-  res.send({
-    message: 'Remove Learner Endpoint',
-    data: bk,
-    type: 'success',
-  });
+  try {
+    let bk = await removeLearner(
+      {
+        learner_id,
+        current_cohort_id,
+        updated_by_id,
+        updated_by_name,
+      },
+    );
+    res.send({
+      message: 'Remove Learner Endpoint',
+      data: bk,
+      type: 'success',
+    });
+  } catch (err) {
+    logger.error('Unable to remove leaners: ');
+    logger.error(err);
+    res.status(500);
+  }
 };
 
 export const addLearnerEndpoint = (req, res) => {
@@ -217,7 +225,8 @@ export const addLearnerEndpoint = (req, res) => {
     data,
     type: 'success',
   })).catch(err => {
-    console.log('ERROR ADDING LEARNER:', err);
+    logger.error('ERROR ADDING LEARNER');
+    logger.error(err);
     res.status(500);
   });
 };
@@ -240,7 +249,8 @@ export const addLearnerStatusAPI = (req, res) => {
     data,
     type: 'success',
   })).catch(err => {
-    console.log('ERROR ADDING LEARNER Status:', err);
+    logger.error('ERROR ADDING LEARNER Status:');
+    logger.error(err);
     res.status(500);
   });
 };
@@ -252,6 +262,8 @@ export const liveCohorts = (req, res) => {
       data,
       type: 'success',
     })).catch(err => {
-      res.status(500).send(err);
+      logger.error('Unable to get live cohorts');
+      logger.error(err);
+      res.status(500);
     });
 };
