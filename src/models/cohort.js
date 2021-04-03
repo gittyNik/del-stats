@@ -587,8 +587,21 @@ export const addLearner = async ({
   let data = { learners, cohort_id };
 
   try {
-    addLearnerToGithubTeam(learner_id, cohort_id),
-      await addLearnersToCohortChannel(cohort_id, learners);
+    await learners.map(learner_id => Promise.all([
+      changeUserRole(learner_id, USER_ROLES.LEARNER),
+      addLearnerToCohort(learner_id, cohort_id),
+      updateCohortJoining(learner_id, cohort_id),
+      addLearnerToGithubTeam(learner_id, cohort_id),
+      createLearnerBreakoutsForCurrentMS(learner_id, cohort_breakouts),
+      addLearnerStatus({
+        user_id: learner_id,
+        updated_by_id,
+        updated_by_name,
+        cohort_id,
+        status: 'added-to-cohort',
+      }),
+    ]));
+    await addLearnersToCohortChannel(cohort_id, learners);
     return data;
   } catch (err) {
     return err;
