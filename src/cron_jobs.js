@@ -12,7 +12,7 @@ import {
   getNDaysDuplicateCatalystBreakouts,
   getNDaysCohortBreakouts,
 } from './models/cohort_breakout';
-import { logger } from './util/logger';
+import logger from './util/logger';
 import 'dotenv/config';
 
 const redis = new Redis(process.env.REDIS_URL);
