@@ -12,6 +12,9 @@ import {
   getNDaysDuplicateCatalystBreakouts,
   getNDaysCohortBreakouts,
 } from './models/cohort_breakout';
+import {
+  createReviewSchedule,
+} from './models/reviews';
 import logger from './util/logger';
 import 'dotenv/config';
 
@@ -23,13 +26,33 @@ cron.schedule('0 10 * * *', async () => {
     const alreadyStarted = await redis.get('BREAKOUTS');
     if (alreadyStarted === null) {
       // overlapStartDay is only a number used to handle multiple messages on channel
-      redis.setex('BREAKOUTS', 3600, 'STARTED');
+      await redis.setex('BREAKOUTS', 3600, 'STARTED');
       const payload = await getTodaysCohortBreakouts();
       const res = await postTodaysBreakouts(payload);
       logger.info({
         text: 'Todays breakouts posted on SPE',
         data: res,
       });
+    }
+  } else {
+    logger.info('TIME FOR DAILY SLACK REMINDERS');
+  }
+}, {
+  scheduled: true,
+  timezone: 'Asia/Kolkata',
+});
+
+// Every Thursday run cron at 8pm to schedule reviews
+cron.schedule('0 8 * * 3', async () => {
+  if (process.env.NODE_ENV === 'production') {
+    const alreadyStarted = await redis.get('REVIEWS');
+    if (alreadyStarted === null) {
+      // overlapStartDay is only a number used to handle multiple messages on channel
+      await redis.setex('REVIEWS', 3600, 'STARTED');
+      await createReviewSchedule('tep', 16);
+      logger.info('Reviews have been scheduled for Full-time');
+      await createReviewSchedule('tep', 26);
+      logger.info('Reviews have been scheduled for Part-time');
     }
   } else {
     logger.info('TIME FOR DAILY SLACK REMINDERS');
@@ -47,7 +70,7 @@ cron.schedule('0 9 * * *', async () => {
     const alreadyStarted = await redis.get('CONFLICT');
     if (alreadyStarted === null) {
       // overlapStartDay is only a number used to handle multiple messages on channel
-      redis.setex('CONFLICT', 3600, overlapStartDay);
+      await redis.setex('CONFLICT', 3600, overlapStartDay);
       const payload = await getNDaysDuplicateCatalystBreakouts(startDate);
       await postOverlappingBreakouts(startDate, payload, 'Catalyst');
       const cohortPayload = await getNDaysCohortBreakouts(startDate);
