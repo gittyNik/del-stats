@@ -600,6 +600,10 @@ export const addLearner = async ({
       status: 'added-to-cohort',
     }),
   ]));
-  await addLearnersToCohortChannel(cohort_id, learners);
+  try {
+    await addLearnersToCohortChannel(cohort_id, learners);
+  } catch (err) {
+    logger.info('Unable to add learner to slack');
+  }
   return data;
 };
