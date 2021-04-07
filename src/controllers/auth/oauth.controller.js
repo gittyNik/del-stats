@@ -21,6 +21,11 @@ import logger from '../../util/logger';
 
 dotenv.config();
 
+const {
+  CATALYST, RECRUITER, REVIEWER, OPERATIONS, CAREER_SERVICES,
+} = USER_ROLES;
+const EXCLUDED_GITHUB_ROLES = [CATALYST, RECRUITER, REVIEWER, OPERATIONS, CAREER_SERVICES];
+
 const getGithubAccessToken = async (code) => {
   const params = {
     client_id: process.env.GITHUB_CLIENT_ID,
@@ -103,7 +108,7 @@ const addTeamToExponentSoftware = async (userProfile) => {
   if (isEdu) {
     return { userProfile, teamName: 'Educators' };
   }
-  if (userProfile.user.role === 'catalyst' || userProfile.user.role === 'reviewer'
+  if ((EXCLUDED_GITHUB_ROLES.indexOf(userProfile.user.role) > -1)
   // || userProfile.user.roles.includes('reviewer')
   // || userProfile.user.roles.includes('catalyst')
   ) {
