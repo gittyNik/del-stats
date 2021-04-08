@@ -151,7 +151,7 @@ export const getAllLearnerAttendance = async ({
   offset, limit, order, filters,
 }) => {
   let whereObj = {};
-  let liveLearners;
+  let filterCohorts = true;
   // Filters on Learner Roles
   if ('active-learners' in filters && filters['active-learners']) {
     whereObj.roles = { [Sequelize.Op.contains]: ['learner'] };
@@ -174,6 +174,7 @@ export const getAllLearnerAttendance = async ({
       whereObj.id = {
         [Sequelize.Op.in]: filters.users.ids,
       };
+      filterCohorts = false;
     }
   }
   let whereCohorts = {
@@ -185,48 +186,49 @@ export const getAllLearnerAttendance = async ({
   });
   let cohort = arrayToObject(allCohorts);
   // Filters on Cohort
-  if ('cohort' in filters && filters.cohort) {
+  if (filterCohorts && ('cohorts' in filters && filters.cohorts)) {
     let requestedCohorts = allCohorts;
-    if ('program' in filters.cohort && filters.cohort.program) {
+    if ('program' in filters.cohorts && filters.cohorts.program) {
       requestedCohorts = requestedCohorts.filter(
-        eachCohort => eachCohort.program_id === filters.cohort.program,
+        eachCohort => eachCohort.program_id === filters.cohorts.program,
       );
     }
-    if ('duration' in filters.cohort && filters.cohort.duration) {
+    if ('duration' in filters.cohorts && filters.cohorts.duration) {
       requestedCohorts = requestedCohorts.filter(
-        eachCohort => eachCohort.duration === filters.cohort.duration,
+        eachCohort => eachCohort.duration === filters.cohorts.duration,
       );
     }
-    if ('type' in filters.cohort && filters.cohort.type) {
+    if ('type' in filters.cohorts && filters.cohorts.type) {
       requestedCohorts = requestedCohorts.filter(
-        eachCohort => eachCohort.type === filters.cohort.type,
+        eachCohort => eachCohort.type === filters.cohorts.type,
       );
     }
-    if ('name' in filters.cohort && filters.cohort.name) {
+    if ('name' in filters.cohorts && filters.cohorts.name) {
       requestedCohorts = requestedCohorts.filter(
-        eachCohort => eachCohort.name === filters.cohort.name,
+        eachCohort => eachCohort.name === filters.cohorts.name,
       );
     }
-    if ('id' in filters.cohort && filters.cohort.id) {
+    if ('id' in filters.cohorts && filters.cohorts.id) {
       requestedCohorts = requestedCohorts.filter(eachCohort => eachCohort.id === filters.cohort.id);
     }
     let filteredLearners = requestedCohorts.map(eachCohort => eachCohort.learners);
-    const allLearners = [].concat(...filteredLearners);
-    const splicedLearners = allLearners.splice(offset, offset + limit);
+    let allLearners = [].concat(...filteredLearners);
+    if ((offset !== undefined) && (limit !== undefined)) {
+      allLearners = allLearners.splice(offset, offset + limit);
+    }
     // This is because additional filters on learner name,status and cohort can
     // be applied together
-    whereObj.id = { [Sequelize.Op.in]: splicedLearners };
+    whereObj.id = { [Sequelize.Op.in]: allLearners };
   }
-  if (liveLearners === undefined) {
-    liveLearners = await User.findAll({
-      where: whereObj,
-      attributes: ['id'],
-      limit,
-      offset,
-      raw: true,
-    });
-    liveLearners = liveLearners.map(learner => learner.id);
-  }
+  let liveLearners = await User.findAll({
+    where: whereObj,
+    attributes: ['id'],
+    limit,
+    offset,
+    raw: true,
+  });
+  liveLearners = liveLearners.map(learner => learner.id);
+
   const learnerAttendance = await LearnerBreakout.findAll({
     attributes: [
       [Sequelize.fn('count', Sequelize.col('attendance')), 'attendance_count'],
