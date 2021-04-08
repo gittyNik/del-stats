@@ -1,7 +1,7 @@
 import Express from 'express';
 import {
-  addCatalyst, cumulativeTimeTakenApi, sessionsStartedOnTime, 
-  getAllBreakoutRecordingsForCatalystApi, getCumulativeTimeTakenForAll
+  addCatalyst, cumulativeTimeTakenApi, sessionsStartedOnTime,
+  getAllBreakoutRecordingsForCatalystApi, getCumulativeTimeTakenForAll,
 } from '../../controllers/operations/catalyst.controller';
 import { USER_ROLES } from '../../models/user';
 import {
