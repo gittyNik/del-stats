@@ -26,10 +26,13 @@ const createMockInterviewsApi = (req, res) => {
       data,
       message: 'Mock Interviews created',
     }))
-    .catch(err => res.status(500).send({
-      data: err,
-      message: 'Failed in creating Mock Interviews',
-    }));
+    .catch(err => {
+      console.log(err);
+      res.json({
+        data: err,
+        message: 'Failed in creating Mock Interviews',
+      });
+    });
 };
 export {
   createMockInterviewsSlotsApi,

@@ -19,13 +19,15 @@ const createMockInterviewsForCohort_afterCapstone = ({ cohort_id, start_date }) 
   where: {
     id: cohort_id,
   },
+  raw: true,
 })
   .then(cohort => ({ cohort_duration: cohort.cohort_duration, learners: cohort.learners }))
   .then(({ cohort_duration, learners }) => MockInterviewSlots
-    .find({
+    .findAll({
       where: {
-        cohort_duration,
+        cohort_duration: cohort_duration || 16,
       },
+      raw: true,
     })
     .then(slots => ({
       // cohort_duration,
@@ -42,16 +44,14 @@ const createMockInterviewsForCohort_afterCapstone = ({ cohort_id, start_date }) 
       let cb_uuid = uuid();
       if (slot.status === 'active') {
         let time_split = slot.time_scheduled.split(':');
+        start_date = new Date(start_date);
         let time_scheduled = new Date(start_date.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-
         time_scheduled.setDate(start_date.getDate() + (((
           WEEK_VALUES[slot.mock_interview_day.toLowerCase()]
             + 7 - start_date.getDay()) % 7)));
 
         time_scheduled.setHours(time_split[0], time_split[1], time_split[2]);
-
         time_scheduled = changeTimezone(time_scheduled, 'Asia/Kolkata');
-
         if (WEEK_VALUES[slot.mock_interview_day.toLowerCase()] === start_date.getDay()) {
           flag = true;
         }
@@ -61,7 +61,7 @@ const createMockInterviewsForCohort_afterCapstone = ({ cohort_id, start_date }) 
             id: cb_uuid,
             type: 'mockinterview-aftercapstone',
             cohort_id,
-            time_scheduled: slot.time_scheduled,
+            time_scheduled,
             duration: slot.mock_interview_duration,
             location: 'Online',
           });
@@ -70,27 +70,24 @@ const createMockInterviewsForCohort_afterCapstone = ({ cohort_id, start_date }) 
             id: cb_uuid,
             type: 'mockinterview-aftercapstone',
             cohort_id,
-            time_scheduled: slot.time_scheduled,
+            time_scheduled,
             duration: slot.mock_interview_duration,
             location: 'Online',
           });
         }
       }
-
-      // learner_breakouts.push({
-      //   id: uuid(),
-
-      // })
     });
+
     cohort_breakouts = [...cohort_breakouts, ...cohort_breakouts_2];
+    cohort_breakouts.splice(learners.length);
     learners.map((learner_id, index) => {
       learner_breakouts.push({
         id: uuid(),
-        cohort_breakout_id: cohort_breakouts[index],
+        cohort_breakout_id: cohort_breakouts[index].id,
         learner_id,
       });
     });
-    CohortBreakout
+    return CohortBreakout
       .bulkCreate(cohort_breakouts)
       .then(() => LearnerBreakout
         .bulkCreate(learner_breakouts));
