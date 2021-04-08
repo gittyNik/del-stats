@@ -132,4 +132,13 @@ export const deleteTopic = (id) => Topic.destroy(
   { where: { id } },
 );
 
+export const getAssessmentPhases = (program, duration) => Topic.findAll({
+  where: {
+    program,
+    description: 'Assessments',
+  },
+  attributes: ['milestone_id', 'title'],
+  raw: true,
+});
+
 export default Topic;

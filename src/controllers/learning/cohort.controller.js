@@ -1,3 +1,4 @@
+import Sequelize from 'sequelize';
 import {
   Cohort,
   getFutureCohorts,
@@ -14,8 +15,7 @@ import {
   updateCohortById,
 } from '../../models/cohort';
 import logger from '../../util/logger';
-
-import { USER_ROLES } from '../../models/user';
+import { User } from '../../models/user';
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
@@ -254,4 +254,36 @@ export const liveCohorts = (req, res) => {
     })).catch(err => {
       res.status(500).send(err);
     });
+};
+
+export const learnerDetails = async (req, res) => {
+  const { cohort_id, attributes } = req.body;
+  console.log('Hello');
+  try {
+    const cohort = await Cohort.findOne({
+      where: { id: cohort_id },
+      attributes: ['learners'],
+      raw: true,
+    });
+
+    const result = await User.findAll({
+      where: { id: { [Sequelize.Op.in]: cohort.learners } },
+      attributes,
+      raw: true,
+    });
+
+    return res.status(200).send({
+      message: 'Get all learner details Successful!',
+      data: result,
+      type: 'success',
+    });
+  } catch (err) {
+    logger.error(err);
+
+    return res.status(500).send({
+      message: 'Getting all learner details Failed!',
+      data: err,
+      type: 'failure',
+    });
+  }
 };

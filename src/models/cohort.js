@@ -19,7 +19,7 @@ import {
 } from '../controllers/operations/learners.controller';
 import {
   removeLearnerBreakouts,
-  createLearnerBreakouts, createLearnerBreakoutsForCurrentMS,
+  createLearnerBreakouts,
 } from './learner_breakout';
 import {
   moveLearnerToNewGithubTeam,
@@ -588,9 +588,16 @@ export const addLearner = async ({
 
   try {
     addLearnerToGithubTeam(learner_id, cohort_id),
-      await addLearnersToCohortChannel(cohort_id, learners);
+    await addLearnersToCohortChannel(cohort_id, learners);
     return data;
   } catch (err) {
     return err;
   }
 };
+
+export const getAllLearnerDetailsFromCohort = async ({ cohort_id }) => {
+  const result = await Cohort.findOne({ where: cohort_id, attributes: ['learners'] });
+  return result;
+};
+
+// array of objects to array of
