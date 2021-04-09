@@ -301,14 +301,17 @@ export const addUserStatus = ({
   throw Error('Status not valid');
 };
 
-export const changeUserRole = (learner_id, role, roles) => User.update({
-  role,
-  roles,
-}, {
-  where: {
-    id: learner_id,
-  },
-});
+export const changeUserRole = (learner_id, role) => {
+  let roles = [role];
+  return User.update({
+    role,
+    roles,
+  }, {
+    where: {
+      id: learner_id,
+    },
+  });
+};
 
 export const addProfilePicture = async ({ user_id, picture_url }) => User.update({
   picture: picture_url,

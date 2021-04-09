@@ -10,7 +10,7 @@ import {
 import {
   Topic,
 } from '../../models/topic';
-import { logger } from '../../util/logger';
+import logger from '../../util/logger';
 
 export const addCatalyst = (req, res) => {
   const { name, email, phone } = req.body;
@@ -226,7 +226,7 @@ export const getAllBreakoutRecordingsForCatalystApi = async (req, res) => {
     limit, offset, sort_by, topics, user_id,
   } = req.body;
 
-  const catalyst_id = user_id ? user_id : req.params.id;
+  const catalyst_id = user_id || req.params.id;
 
   limit = limit || 10;
   sort_by = sort_by || 'video_views';

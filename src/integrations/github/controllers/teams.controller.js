@@ -6,6 +6,7 @@ import { getNumberOfPages } from './pagination.controller';
 import { getGithubConnecionByUserId } from '../../../models/social_connection';
 import { getCohortFromId } from '../../../models/cohort';
 import { addLearnerToMSTeam, getOneTeamToAddLearner } from '../../../models/team';
+import logger from '../../../util/logger';
 
 export const toSentenceCase = (str) => `${str.charAt(0).toUpperCase()}${str.substring(1).toLowerCase()}`;
 
@@ -188,6 +189,7 @@ export const addLearnerToGithubTeam = async (
   learner_id,
   current_cohort_id,
 ) => {
+  logger.debug('Adding learner to Github');
   let current_cohort = await getCohortFromId(current_cohort_id);
   let current_duration = current_cohort.duration === 16 ? 'Full-Time' : 'Part-Time';
   let current_team_name = teamNameFormat(
