@@ -45,8 +45,7 @@ router.post('/cumulativeTimeTaken/:id', cumulativeTimeTaken);
 router.post('/sessionsStartedOnTime/:id', sessionsStartedOnTime);
 
 /**
- * @api {post} /operations/catalyst/getAllBOForCatalyst/:id returns likes, views,
- * ratings of BO by catalyst
+ * @api {post} /operations/catalyst/getAllBOForCatalyst/:id returns likes, views, ratings
  * @apiDescription returns likes, views, ratings of BO by catalyst
  * @apiHeader {String} authorization JWT Token.
  * @apiName getAllBOForCatalyst
