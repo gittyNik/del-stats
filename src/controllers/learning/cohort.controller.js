@@ -1,4 +1,3 @@
-import Sequelize from 'sequelize';
 import {
   Cohort,
   getFutureCohorts,
@@ -11,18 +10,21 @@ import {
   addLearner,
   beginParallelCohorts,
   getLiveCohorts,
+  learnerDetails,
   addLearnerStatus,
   updateCohortById,
 } from '../../models/cohort';
 import logger from '../../util/logger';
-import { User } from '../../models/user';
 
 // import { USER_ROLES } from '../../models/user';
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
     .then((data) => res.json({ data }))
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 export const getCohortByName = (req, res) => {
@@ -84,14 +86,20 @@ export const updateCohort = (req, res) => {
     updated_by_id,
     updated_by_name,
   }).then((data) => res.json({ data }))
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 export const deleteCohort = (req, res) => {
   const { id } = req.params;
   Cohort.destroy({ where: { id } })
     .then(() => res.status(204))
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 export const getUpcomingCohorts = (req, res) => {
@@ -270,21 +278,11 @@ export const liveCohorts = (req, res) => {
     });
 };
 
-export const learnerDetails = async (req, res) => {
-  const { cohort_id, attributes } = req.body;
-  console.log('Hello');
-  try {
-    const cohort = await Cohort.findOne({
-      where: { id: cohort_id },
-      attributes: ['learners'],
-      raw: true,
-    });
+export const learnerDetailsAPI = async (req, res) => {
+  const { cohort_ids, attributes } = req.body;
 
-    const result = await User.findAll({
-      where: { id: { [Sequelize.Op.in]: cohort.learners } },
-      attributes,
-      raw: true,
-    });
+  try {
+    const result = await learnerDetails({ cohort_ids, attributes });
 
     return res.status(200).send({
       message: 'Get all learner details Successful!',
@@ -296,7 +294,6 @@ export const learnerDetails = async (req, res) => {
 
     return res.status(500).send({
       message: 'Getting all learner details Failed!',
-      data: err,
       type: 'failure',
     });
   }

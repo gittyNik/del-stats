@@ -9,7 +9,7 @@ import {
   getUpcomingCohorts,
   deleteCohort,
   beginCohort,
-  learnerDetails,
+  learnerDetailsAPI,
   getCohortByLearnerId,
   createUpdateCohortBreakout,
   moveLearnertoDifferentCohortEndpoint,
@@ -124,7 +124,7 @@ router.post('/addStatus', addLearnerStatusAPI);
  * @apiName GetCohort
  * @apiGroup Cohort
  */
-router.post('/learnerDetails', learnerDetails);
+router.post('/learnerDetails', learnerDetailsAPI);
 
 /**
  * @api {patch} /cohorts/movelearner move learner to a new cohort

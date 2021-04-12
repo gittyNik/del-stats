@@ -609,9 +609,30 @@ export const addLearner = async ({
   return data;
 };
 
-export const getAllLearnerDetailsFromCohort = async ({ cohort_id }) => {
-  const result = await Cohort.findOne({ where: cohort_id, attributes: ['learners'] });
+export const learnerDetails = async ({ cohort_ids, attributes }) => {
+  const cohorts = await Cohort.findAll({
+    where: {
+      id: {
+        [Sequelize.Op.in]: cohort_ids,
+      },
+    },
+    attributes: ['learners', 'name', 'id'],
+    raw: true,
+  });
+
+  const learners = await Promise.all(
+    cohorts.map(cohort => User.findAll({
+      where: { id: { [Sequelize.Op.in]: cohort.learners } },
+      attributes,
+      raw: true,
+    })),
+  );
+
+  const result = cohorts.map((cohort, i) => ({
+    id: cohort.id,
+    name: cohort.name,
+    learners: learners[i],
+  }));
+
   return result;
 };
-
-// array of objects to array of
