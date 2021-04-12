@@ -1,7 +1,7 @@
 import Express from 'express';
 import {
   switchUser, switchUserByEmail, switchToFakeUser, getConfig, addConfig,
-  updateConfig,
+  updateConfig, getUserForRole,
 } from '../controllers/admin.controller';
 import { allowSuperAdminOnly } from '../controllers/auth/roles.controller';
 
@@ -47,6 +47,16 @@ router.patch('/config_params', updateConfig);
  * @apiGroup Admin
  */
 router.get('/switch_user/fake', switchToFakeUser);
+
+/**
+ * @api {get} /admin/switch_user/role Switch User by Role
+ * @apiDescription Gain access to another user's data by generating an access token
+ * @apiHeader {String} authorization JWT Token of superadmin
+ * @apiName SwitchUser
+ * @apiGroup Admin
+ */
+router.get('/switch_user/role', getUserForRole);
+
 /**
  * @api {get} /admin/switch_user/:user_id Switch User
  * @apiDescription Gain access to another user's data by generating an access token
