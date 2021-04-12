@@ -9,10 +9,7 @@ if (process.env.DB_LOGGING === 'true') {
 const common = {
   dialect: 'postgres',
   dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false,
-    },
+    ssl: { require: true, rejectUnauthorized: false },
   },
   pool: {
     max: 5,
