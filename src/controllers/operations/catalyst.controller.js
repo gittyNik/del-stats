@@ -107,7 +107,7 @@ export const cumulativeTimeTaken = async (catalyst_id) => {
 
     return data;
   } catch (err) {
-    console.error(err.message, err);
+    logger.error(err.message, err);
     return err;
   }
 };
@@ -148,7 +148,7 @@ export const sessionsStartedOnTime = async (req, res) => {
       data,
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     return res.status(500);
   }
 };
