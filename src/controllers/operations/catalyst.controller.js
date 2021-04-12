@@ -6,7 +6,7 @@ import { CohortBreakout } from '../../models/cohort_breakout';
 import { BreakoutRecordings } from '../../models/breakout_recordings';
 import { BreakoutRecordingsDetails } from '../../models/breakout_recording_details';
 import { Topic } from '../../models/topic';
-import { logger } from '../../util/logger';
+import logger from '../../util/logger';
 
 const MILLI_SEC_HOUR = 1 * 60 * 60 * 1000;
 
@@ -26,11 +26,11 @@ export const addCatalyst = (req, res) => {
     }))
     .catch((err) => {
       logger.error(err);
-      res.status(500);
+      return res.status(500);
     });
 };
 
-export const completedBreakoutsByCatalyst = async ({ catalyst_id }) => await CohortBreakout.findAll({
+export const completedBreakoutsByCatalyst = ({ catalyst_id }) => CohortBreakout.findAll({
   where: {
     catalyst_id,
     status: 'completed',
@@ -118,13 +118,13 @@ export const cumulativeTimeTakenApi = async (req, res) => {
   try {
     const data = await cumulativeTimeTaken(catalyst_id);
 
-    res.json({
+    return res.json({
       message: 'cumulativeTimeTaken Success!',
       type: 'Success',
       data,
     });
-  } catch (e) {
-    res.json({
+  } catch (err) {
+    return res.json({
       message: err.message,
       type: 'Failure',
       data: err,
@@ -140,7 +140,7 @@ export const sessionsStartedOnTime = async (req, res) => {
       where: { catalyst_id, time_started: { [Op.lte]: 'time_scheduled' } },
     });
 
-    res.json({
+    return res.json({
       message: `Count of Sessions started on time is  ${
         parseInt(data, 10) || 0
       }`,
@@ -149,7 +149,7 @@ export const sessionsStartedOnTime = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500);
+    return res.status(500);
   }
 };
 
@@ -243,8 +243,9 @@ export const getAllBreakoutRecordingsForCatalyst = async ({
       message: 'Fetched Breakouts',
     };
     return recordingDetails;
-  } catch (e) {
-    console.log(err);
+  } catch (err) {
+    logger.error(err);
+    return err;
   }
 };
 
@@ -265,7 +266,7 @@ export const getAllBreakoutRecordingsForCatalystApi = async (req, res) => {
       catalyst_id,
     });
 
-    res.json({
+    return res.json({
       message: 'getAllBreakoutRecordingsForCatalyst Success',
       type: 'Success',
       data,
@@ -273,7 +274,7 @@ export const getAllBreakoutRecordingsForCatalystApi = async (req, res) => {
   } catch (err) {
     logger.error(err);
 
-    res.json({
+    return res.json({
       message: err.message,
       type: 'failure',
     });
@@ -306,13 +307,13 @@ export const getCumulativeTimeTakenForAll = async (req, res) => {
       ),
     );
 
-    res.json({
+    return res.json({
       message: 'cumulativeTimeTaken for all Success!',
       type: 'Success',
       data: resData,
     });
   } catch (err) {
-    res.json({
+    return res.json({
       message: err.message,
       type: 'Failure',
       data: err,
