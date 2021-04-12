@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 import db from '../database';
 
 export const BREAKOUT_PATH = [
@@ -84,7 +84,7 @@ export const getTopicsByMilestone = (milestone_id, program) => Topic.findAll(
 export const getTopicIdsByMilestone = (milestone_id, program, path) => Topic.findAll(
   {
     where: { milestone_id, program, path },
-    attributes: ['id'],
+    attributes: ['id', 'name'],
     raw: true,
   },
 );

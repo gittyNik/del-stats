@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import request from 'superagent';
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 import db from '../database';
 import logger from '../util/logger';
 
