@@ -107,7 +107,7 @@ export const cumulativeTimeTaken = async (catalyst_id) => {
 
     return data;
   } catch (err) {
-    logger.error(err.message, err);
+    logger.error(err);
     return err;
   }
 };
