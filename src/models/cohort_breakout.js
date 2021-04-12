@@ -1018,8 +1018,8 @@ export const getDublicateBreakoutsForCatalystAndCohorts = async ({ n_days, slack
   data.duplicate_catalyst_breakouts = await getNDaysDuplicateCatalystBreakouts(n_days);
 
   if (slack) {
-    data.slack_response_cohort = await postOverlappingBreakouts(n_days, data.duplicate_cohort_breakouts, 'Cohort');
-    data.slack_response_catalyst = await postOverlappingBreakouts(n_days, data.duplicate_catalyst_breakouts, 'Catalyst');
+    await postOverlappingBreakouts(n_days, data.duplicate_cohort_breakouts, 'Cohort');
+    await postOverlappingBreakouts(n_days, data.duplicate_catalyst_breakouts, 'Catalyst');
   }
 
   return data;
