@@ -1,6 +1,6 @@
 import {
   createTopic, deleteTopic, updateATopic,
-  getTopics, getTopicById,
+  getTopics, getTopicById, getTopicIdsByMilestone,
 } from '../../models/topic';
 import {
   getLiveCohortMilestoneBylearnerId,
@@ -69,7 +69,7 @@ export const getAllTopics = async (req, res) => {
 };
 
 export const getTopic = (req, res) => {
-  const { id } = req.params.id;
+  const { id } = req.params;
 
   getTopicById(id)
     .then((data) => { res.json(data); })
@@ -77,7 +77,7 @@ export const getTopic = (req, res) => {
 };
 
 export const deleteOne = (req, res) => {
-  const { id } = req.params.id;
+  const { id } = req.params;
 
   deleteTopic(id)
     .then(() => { res.send('Deleted Topic'); })
@@ -107,4 +107,16 @@ export const updateTopic = (req, res) => {
       res.send('Topic Updated');
     })
     .catch(err => res.status(500).send(err));
+};
+
+export const getTopicByMilestonesAPI = (req, res) => {
+  const { id } = req.params;
+  const { program, path } = req.query;
+
+  getTopicIdsByMilestone(id, program, path)
+    .then((data) => { res.json(data); })
+    .catch(err => {
+      logger.error(err);
+      res.status(500);
+    });
 };
