@@ -13,6 +13,7 @@ import {
 import {
   getCohortFromId,
 } from '../../models/cohort';
+import { getViewUrlS3 } from '../../util/file-fetcher';
 import { createOrUpdateContact } from '../../integrations/hubspot/controllers/contacts.controller';
 import { createDeal, associateDealWithContact } from '../../integrations/hubspot/controllers/deals.controller';
 import logger from '../../util/logger';
@@ -21,8 +22,19 @@ const {
   CATALYST, EDUCATOR, ADMIN, SUPERADMIN, REVIEWER,
 } = USER_ROLES;
 
-export const getProfile = (req, res) => {
-  res.json({ user: req.jwtData.user });
+export const getProfile = async (req, res) => {
+  const { user_id } = req.query;
+  let userInfo;
+  if (user_id) {
+    userInfo = await User.findByPk(user_id, {
+      raw: true,
+    });
+  } else {
+    userInfo = req.jwtData.user;
+  }
+  let picture = await getViewUrlS3(userInfo.picture, 'profile_picture');
+  userInfo.picture = picture;
+  res.json({ user: userInfo });
 };
 
 export const updateUser = (req, res) => {
@@ -99,7 +111,7 @@ export const updateProfile = (req, res) => {
               returning: true,
               raw: true,
             })
-              .then(result => result[1][0])
+              .then(resultData => resultData[1][0])
               .then(data => {
                 res.send({
                   data,

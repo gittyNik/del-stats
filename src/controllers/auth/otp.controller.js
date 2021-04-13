@@ -10,7 +10,7 @@ import { createOrUpdateContact } from '../../integrations/hubspot/controllers/co
 import { sendMessageToSlackChannel } from '../../integrations/slack/team-app/controllers/milestone.controller';
 import logger from '../../util/logger';
 
-const sendOtp = new SendOtp(process.env.MSG91_API_KEY, 'Use {{otp}} to login with DELTA. Please do not share it with anybody! {SOAL Team}');
+const sendOtp = new SendOtp(process.env.MSG91_API_KEY, '{{otp}} is the OTP to verify your mobile number with SOAL. Please do not share this with anyone. This OTP is valid for 10 minutes.');
 
 //
 // Check OTP Balance, type = 106

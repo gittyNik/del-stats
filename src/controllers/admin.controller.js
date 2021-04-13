@@ -1,9 +1,13 @@
 import faker from 'faker';
 import { v4 as uuid } from 'uuid';
-import { User } from '../models/user';
+import { User, USER_ROLES } from '../models/user';
 import { getSoalToken } from '../util/token';
 import { ConfigParam } from '../models/config_param';
 import logger from '../util/logger';
+
+const {
+  SUPERADMIN,
+} = USER_ROLES;
 
 const switchUserResponse = (userPromise, res) => {
   userPromise.then((user) => {
@@ -18,6 +22,25 @@ const switchUserResponse = (userPromise, res) => {
       logger.error(err);
       res.sendStatus(500);
     });
+};
+
+export const getUserForRole = async (req, res) => {
+  const { role, email } = req.query;
+  let whereObj = {};
+  if (role) {
+    if (role === SUPERADMIN) {
+      return res.sendStatus(500);
+    }
+    whereObj.role = role;
+  }
+  if (email) {
+    whereObj.email = email;
+  }
+  const userPromise = User.findOne({
+    where: whereObj,
+  });
+
+  return switchUserResponse(userPromise, res);
 };
 
 // get Access as any user with id

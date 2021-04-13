@@ -1,7 +1,7 @@
 import Express from 'express';
 import {
   getAllResourcesByTopic, create, getAllTopics,
-  getTopic, deleteOne, updateTopic,
+  getTopic, deleteOne, updateTopic, getTopicByMilestonesAPI,
 } from '../../controllers/learning/topic.controller';
 import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -22,6 +22,15 @@ router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER]));
  * @apiGroup ContentTopics
  */
 router.get('/', getAllTopics);
+
+/**
+ * @api {get} /learning/content/topics/milestone/:id Get Topics by Milestone
+ * @apiDescription get a Content Topic
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetContentTopic
+ * @apiGroup ContentTopic
+ */
+router.get('/milestone/:id', getTopicByMilestonesAPI);
 
 /**
  * @api {get} /learning/content/topics/:id Get a Content Topic

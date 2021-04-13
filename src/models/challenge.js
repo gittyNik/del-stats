@@ -1,5 +1,5 @@
 import Sequelize, { Op } from 'sequelize';
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 import db from '../database';
 import { createRepositoryifnotPresent, addFileToRepo } from '../integrations/github/controllers/repository.controller';
 

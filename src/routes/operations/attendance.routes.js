@@ -1,6 +1,7 @@
 import Express from 'express';
 import {
   getAttendanceForCohorts,
+  getAttendanceForLearners,
 } from '../../controllers/operations/attendance.controller';
 import { USER_ROLES } from '../../models/user';
 import {
@@ -23,5 +24,14 @@ router.use(allowMultipleRoles([ADMIN, SUPERADMIN, OPERATIONS, EDUCATOR]));
  * @apiGroup Attendance
  */
 router.get('/', getAttendanceForCohorts);
+
+/**
+ * @api {post} /operations/attendance Get all attendance
+ * @apiDescription get all Attendance with filters
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetAttendance
+ * @apiGroup Attendance
+ */
+router.post('/', getAttendanceForLearners);
 
 export default router;
