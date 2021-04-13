@@ -49,6 +49,37 @@ export const getMilestoneDetails = milestone_id => Milestone.findByPk(milestone_
 
 export const getAllMilestones = () => Milestone.findAll({});
 
+export const getMilestonesByProgram = (program, attributes, topics) => {
+  topics = (topics === 'true');
+  let topicsAtrributes;
+  if (!topics) {
+    topicsAtrributes = [];
+  }
+  if (attributes) {
+    return Milestone.findAll({
+      where: {
+        '$topics.program$': program,
+      },
+      attributes,
+      include: [{
+        model: Topic,
+        required: topics,
+        attributes: topicsAtrributes,
+      }],
+    });
+  }
+  return Milestone.findAll({
+    where: {
+      '$topics.program$': program,
+    },
+    include: [{
+      model: Topic,
+      required: topics,
+      attributes: topicsAtrributes,
+    }],
+  });
+};
+
 export const getMilestonesByName = name => Milestone.findAll(
   { where: { name } },
 );
