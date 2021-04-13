@@ -32,8 +32,10 @@ export const getProfile = async (req, res) => {
   } else {
     userInfo = req.jwtData.user;
   }
-  let picture = await getViewUrlS3(userInfo.picture, 'profile_picture');
-  userInfo.picture = picture;
+  if ('picture' in userInfo && userInfo.picture) {
+    let picture = await getViewUrlS3(userInfo.picture, 'profile_picture');
+    userInfo.picture = picture;
+  }
   res.json({ user: userInfo });
 };
 
