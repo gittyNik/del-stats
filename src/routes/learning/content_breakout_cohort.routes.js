@@ -1,6 +1,7 @@
 import Express from 'express';
 import {
-  getBreakouts, createBreakout, updateBreakout, deleteBreakout, getLiveCohortsBreakouts,
+  getBreakouts, createBreakout,
+  updateBreakout, deleteBreakout, getLiveCohortsBreakouts, removeVideoPathAPI,
 } from '../../controllers/learning/breakout.controller';
 import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -81,6 +82,15 @@ router.post('/', createBreakout);
  * @apiParam {Number} attendance_count Total attendence for the Breakout
  */
 router.patch('/:id', updateBreakout);
+
+/**
+ * @api {delete} /learning/content/breakouts/recordings/:id/video Remove video recording and details
+ * @apiDescription Remove video recording and details from given cohort breakout id
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetContentBreakouts
+ * @apiGroup ContentBreakoutsRecordings
+ */
+router.delete('/:id/video', removeVideoPathAPI);
 
 /**
  * @api {delete} /learning/content/breakouts/cohort/:id Delete Content Breakout
