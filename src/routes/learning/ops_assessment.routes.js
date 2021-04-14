@@ -6,6 +6,8 @@ import {
   createAssessmentScheduleAPI,
   getUserAndTeamAssessmentsAPI,
   updateAssessmentForLearnerAPI,
+  getAssessmentCohortsAPI,
+  getAssessmentPhasesAPI,
 } from '../../controllers/learning/assessment.controller';
 import {
   allowMultipleRoles,
@@ -29,15 +31,6 @@ router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR]));
  * @apiGroup Assessments
  */
 router.get('/', getAllAssessmentsAPI);
-
-/**
- * @api {get} /learning/ops/assessments/:id Get assessments for Team
- * @apiDescription get a document for Team
- * @apiHeader {String} authorization JWT Token.
- * @apiName GetAssessments
- * @apiGroup Assessments
- */
-router.get('/:id', getAssessmentsByTeamAPI);
 
 /**
  * @api {get} /learning/ops/assessments/assessment/:id/ Get assessment by id
@@ -74,6 +67,40 @@ router.get('/user/team/:id', getUserAndTeamAssessmentsAPI);
  * @apiGroup Assessments
  */
 router.get('/status/:id', getAssessmentsByStatusAPI);
+
+/**
+ * @api {patch} /learning/ops/assessments/getAssessmentCohorts  get cohorts with Assessments
+ * @apiDescription get cohorts with Assessments next week
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName getAssessmentCohorts
+ * @apiGroup Assessments
+ *
+ * @apiParam {String} milestone  Milestone ID
+ * @apiParam {String} duration duration of program
+ * @apiParam {String} program program id 'tep'
+ */
+router.get('/getAssessmentCohorts', getAssessmentCohortsAPI);
+
+/**
+   * @api {patch} /learning/ops/assessments/getAssessmentPhases Available phases of assessment
+   * @apiDescription Returns Available phases for assessments
+   * @apiHeader {String} authorization JWT Token.
+   * @apiName getAssessmentPhases
+   * @apiGroup Assessments
+   *
+   * @apiParam {String} duration duration of program
+   * @apiParam {String} program program id 'tep'
+   */
+router.get('/getAssessmentPhases', getAssessmentPhasesAPI);
+
+/**
+ * @api {get} /learning/ops/assessments/:id Get assessments for Team
+ * @apiDescription get a document for Team
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetAssessments
+ * @apiGroup Assessments
+ */
+router.get('/:id', getAssessmentsByTeamAPI);
 
 // Restrict modifications for any applicant to the cohorts
 router.use(allowAdminsOnly);

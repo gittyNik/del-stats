@@ -19,7 +19,8 @@ import {
 } from '../controllers/operations/learners.controller';
 import {
   removeLearnerBreakouts,
-  createLearnerBreakouts, createLearnerBreakoutsForCurrentMS,
+  createLearnerBreakouts,
+  createLearnerBreakoutsForCurrentMS,
 } from './learner_breakout';
 import {
   moveLearnerToNewGithubTeam,
@@ -606,4 +607,32 @@ export const addLearner = async ({
     logger.info('Unable to add learner to slack');
   }
   return data;
+};
+
+export const learnerDetails = async ({ cohort_ids, attributes }) => {
+  const cohorts = await Cohort.findAll({
+    where: {
+      id: {
+        [Sequelize.Op.in]: cohort_ids,
+      },
+    },
+    attributes: ['learners', 'name', 'id'],
+    raw: true,
+  });
+
+  const learners = await Promise.all(
+    cohorts.map(cohort => User.findAll({
+      where: { id: { [Sequelize.Op.in]: cohort.learners } },
+      attributes,
+      raw: true,
+    })),
+  );
+
+  const result = cohorts.map((cohort, i) => ({
+    id: cohort.id,
+    name: cohort.name,
+    learners: learners[i],
+  }));
+
+  return result;
 };

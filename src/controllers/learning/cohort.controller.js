@@ -10,6 +10,7 @@ import {
   addLearner,
   beginParallelCohorts,
   getLiveCohorts,
+  learnerDetails,
   addLearnerStatus,
   updateCohortById,
 } from '../../models/cohort';
@@ -20,7 +21,10 @@ import logger from '../../util/logger';
 export const getCohorts = (req, res) => {
   Cohort.findAll()
     .then((data) => res.json({ data }))
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 export const getCohortByName = (req, res) => {
@@ -82,14 +86,20 @@ export const updateCohort = (req, res) => {
     updated_by_id,
     updated_by_name,
   }).then((data) => res.json({ data }))
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 export const deleteCohort = (req, res) => {
   const { id } = req.params;
   Cohort.destroy({ where: { id } })
     .then(() => res.status(204))
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 export const getUpcomingCohorts = (req, res) => {
@@ -266,4 +276,25 @@ export const liveCohorts = (req, res) => {
       logger.error(err);
       res.status(500);
     });
+};
+
+export const learnerDetailsAPI = async (req, res) => {
+  const { cohort_ids, attributes } = req.body;
+
+  try {
+    const result = await learnerDetails({ cohort_ids, attributes });
+
+    return res.status(200).send({
+      message: 'Get all learner details Successful!',
+      data: result,
+      type: 'success',
+    });
+  } catch (err) {
+    logger.error(err);
+
+    return res.status(500).send({
+      message: 'Getting all learner details Failed!',
+      type: 'failure',
+    });
+  }
 };
