@@ -262,7 +262,7 @@ export const getAllBreakoutTemplates = async () => {
           attributes: ['title', 'path', 'optional'],
           include: [{
             model: Milestone,
-            attributes: ['name', 'alias'],
+            attributes: ['name', 'alias', 'id'],
           }],
           raw: true,
         });

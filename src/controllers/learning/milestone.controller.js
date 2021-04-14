@@ -7,11 +7,23 @@ import {
   createMilestones,
   updateMilestones,
   deleteMilestones,
+  getMilestonesByProgram,
 } from '../../models/milestone';
 import logger from '../../util/logger';
 
 export const getAllMilestones = (req, res) => {
   Milestone.findAll({})
+    .then((data) => { res.json(data); })
+    .catch(err => res.status(500).send(err));
+};
+
+export const getAllMilestonesByProgram = (req, res) => {
+  let { program, attributes, isTopics } = req.query;
+  if (attributes) {
+    attributes = attributes.split(',');
+  }
+  isTopics = isTopics || false;
+  getMilestonesByProgram(program, attributes, isTopics)
     .then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };

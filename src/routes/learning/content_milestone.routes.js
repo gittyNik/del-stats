@@ -1,6 +1,7 @@
 import Express from 'express';
 import {
   getAllMilestones, createMilestone, updateMilestone, deleteMilestone,
+  getAllMilestonesByProgram,
 } from '../../controllers/learning/milestone.controller';
 import {
   getCohortMilestonesByUserId,
@@ -16,14 +17,6 @@ const {
 } = USER_ROLES;
 
 router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, LEARNER]));
-/**
- * @api {get} /learning/content/milestones/:milestone_id Get Content Milestone
- * @apiDescription get Content Milestone
- * @apiHeader {String} authorization JWT Token.
- * @apiName GetContentMilestone
- * @apiGroup ContentMilestone
- */
-router.get('/:milestone_id', getCohortMilestoneWithDetails);
 
 /**
  * @api {get} /learning/content/milestones Get all Content Milestones
@@ -33,6 +26,24 @@ router.get('/:milestone_id', getCohortMilestoneWithDetails);
  * @apiGroup ContentMilestones
  */
 router.get('/', getAllMilestones);
+
+/**
+ * @api {get} /learning/content/milestones/program Get all Content Milestones by Program
+ * @apiDescription get all Content Milestones
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetContentMilestones
+ * @apiGroup ContentMilestones
+ */
+router.get('/program', getAllMilestonesByProgram);
+
+/**
+ * @api {get} /learning/content/milestones/:milestone_id Get Content Milestone
+ * @apiDescription get Content Milestone
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetContentMilestone
+ * @apiGroup ContentMilestone
+ */
+router.get('/:milestone_id', getCohortMilestoneWithDetails);
 
 router.get('/user/:user_id', getCohortMilestonesByUserId);
 

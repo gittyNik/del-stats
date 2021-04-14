@@ -25,18 +25,24 @@ const {
 export const getProfile = async (req, res) => {
   const { user_id } = req.query;
   let userInfo;
-  if (user_id) {
-    userInfo = await User.findByPk(user_id, {
-      raw: true,
-    });
-  } else {
-    userInfo = req.jwtData.user;
+  try {
+    if (user_id) {
+      userInfo = await User.findByPk(user_id, {
+        raw: true,
+      });
+    } else {
+      userInfo = req.jwtData.user;
+    }
+    if ('picture' in userInfo && userInfo.picture) {
+      let picture = await getViewUrlS3(userInfo.picture, 'profile_picture');
+      userInfo.picture = picture;
+    }
+    res.json({ user: userInfo });
+  } catch (err) {
+    logger.error('Fetching User profile');
+    logger.error(err);
+    res.sendStatus(500);
   }
-  if ('picture' in userInfo && userInfo.picture) {
-    let picture = await getViewUrlS3(userInfo.picture, 'profile_picture');
-    userInfo.picture = picture;
-  }
-  res.json({ user: userInfo });
 };
 
 export const updateUser = (req, res) => {

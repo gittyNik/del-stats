@@ -111,7 +111,7 @@ export const updateTopic = (req, res) => {
 
 export const getTopicByMilestonesAPI = (req, res) => {
   const { id } = req.params;
-  const { program, path } = req.query;
+  let { program, path } = req.query;
 
   getTopicIdsByMilestone(id, program, path)
     .then((data) => { res.json(data); })

@@ -249,19 +249,23 @@ export const addLearnerToChannels = async (cohort_id, learnerSlackID) => {
 export const getUserInfoSlack = async (emailId) => {
   const { SLACK_DELTA_BOT_TOKEN, EXTERNAL_TIMEOUT } = process.env;
   try {
+    const params = {
+      email: emailId,
+    };
+    const data = Object.keys(params)
+      .map((key) => `${key}=${encodeURIComponent(params[key])}`)
+      .join('&');
     const response = await axios({
       method: 'post',
       url: 'https://slack.com/api/users.lookupByEmail',
-      data: {
-        email: emailId,
-      },
+      data,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Authorization: `Bearer ${SLACK_DELTA_BOT_TOKEN}`,
       },
       timeout: EXTERNAL_TIMEOUT,
     });
-    let { ok, user } = response.body;
+    let { ok, user } = response.data;
 
     if (ok) {
       return user.id;
@@ -272,6 +276,7 @@ export const getUserInfoSlack = async (emailId) => {
       email: emailId,
     };
   } catch (err) {
+    logger.error(err);
     return {
       text: `Error finding slackId for ${emailId}`,
       email: emailId,

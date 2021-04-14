@@ -81,13 +81,22 @@ export const getTopicsByMilestone = (milestone_id, program) => Topic.findAll(
   { where: { milestone_id, program } },
 );
 
-export const getTopicIdsByMilestone = (milestone_id, program, path) => Topic.findAll(
-  {
-    where: { milestone_id, program, path },
-    attributes: ['id', 'name'],
-    raw: true,
-  },
-);
+export const getTopicIdsByMilestone = (milestone_id, program, path) => {
+  if (path) {
+    return Topic.findAll(
+      {
+        where: { milestone_id, program, path },
+        raw: true,
+      },
+    );
+  }
+  return Topic.findAll(
+    {
+      where: { milestone_id, program },
+      raw: true,
+    },
+  );
+};
 
 export const getTopicIdsByPath = (milestone_id, program, path) => Topic.findAll(
   {
