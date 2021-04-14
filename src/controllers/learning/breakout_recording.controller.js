@@ -98,11 +98,18 @@ export const removeVideoPath = async ({ cohort_breakout_id }) => {
   const cohort_breakout = await CohortBreakout.findOne({
     where: { id: cohort_breakout_id },
   });
+
+  if (!cohort_breakout || !cohort_breakout.details
+    || !cohort_breakout.details || !cohort_breakout.details.recording
+    || !cohort_breakout.details.recording.id) {
+    throw Error('No recording found in cohort breakout details!');
+  }
+
   const breakout_recording = await BreakoutRecordings.findOne({
     where: { id: cohort_breakout.details.recording.id },
   });
   if (!breakout_recording || !breakout_recording.id) {
-    return false;
+    throw Error('breakout_recording not found but mentioned in cohort breakout!');
   }
 
   const breakout_recording_details = await BreakoutRecordingsDetails.findAll({
@@ -128,8 +135,7 @@ export const removeVideoPathAPI = async (req, res) => {
   const cohort_breakout_id = req.params.id;
   try {
     const data = await removeVideoPath({ cohort_breakout_id });
-    if (data) return res.status(201).json({ data, type: 'success', message: 'Removing video successful!' });
-    return res.status(201).json({ data, type: 'success', message: 'breakout_recording not found but mentioned in CohortBreakout!' });
+    return res.status(201).json({ data, type: 'success', message: 'Removing video successful!' });
   } catch (e) {
     logger.error(e);
     return res.status(500).json({ type: 'failure', message: 'Removing Video failure!' });
