@@ -33,8 +33,6 @@ import { getLiveCohorts, Cohort } from '../../models/cohort';
 import { User, USER_ROLES } from '../../models/user';
 import { Milestone } from '../../models/milestone';
 import logger from '../../util/logger';
-import { BreakoutRecordings } from '../../models/breakout_recordings';
-import { BreakoutRecordingsDetails } from '../../models/breakout_recording_details';
 
 const {
   between, gte,
@@ -854,35 +852,4 @@ export const validateAttendanceForBreakout = async (req, res) => {
       logger.error(err);
       res.status(500).send({ err });
     });
-};
-
-export const removeVideoPath = async ({ cohort_breakout_id }) => {
-  const cohort_breakout_details = await CohortBreakout.findOne({ where: { id: cohort_breakout_id, attributes: ['details'] } });
-  const breakout_recording = await BreakoutRecordings.findOne({
-    where: { id: cohort_breakout_details.id },
-  });
-  const breakout_recording_details = await BreakoutRecordingsDetails.findOne({
-    where: { video_id: breakout_recording.id },
-  });
-
-  if (breakout_recording_details) {
-    await breakout_recording_details.destroy();
-  }
-
-  await breakout_recording.destroy();
-  delete cohort_breakout_details.recording;
-  await cohort_breakout_details.save();
-
-  return true;
-};
-
-export const removeVideoPathAPI = async (req, res) => {
-  const cohort_breakout_id = req.params.id;
-  try {
-    const data = await removeVideoPath({ cohort_breakout_id });
-    return res.status(201).json({ data, type: 'success', message: 'Removing video successful!' });
-  } catch (e) {
-    logger.error(e);
-    return res.status(500).json({ type: 'failure', message: 'Removing Video failure!' });
-  }
 };

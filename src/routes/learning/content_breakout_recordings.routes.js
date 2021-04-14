@@ -1,7 +1,7 @@
 import Express from 'express';
 import {
   getAllRecordingsAPI,
-  createRecording, updateRecordingsAPI, getVideoUrl,
+  createRecording, updateRecordingsAPI, getVideoUrl, removeVideoPathAPI,
 } from '../../controllers/learning/breakout_recording.controller';
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
@@ -59,5 +59,14 @@ router.post('/', createRecording);
  * @apiParam {recording_details} recording details
  */
 router.patch('/:id', updateRecordingsAPI);
+
+/**
+ * @api {delete} /learning/content/breakouts/recordings/:id/video Remove video recording and details
+ * @apiDescription Remove video recording and details from given cohort breakout id
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetContentBreakouts
+ * @apiGroup ContentBreakoutsRecordings
+ */
+router.delete('/:id/video', removeVideoPathAPI);
 
 export default router;
