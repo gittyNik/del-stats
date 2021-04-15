@@ -1,6 +1,7 @@
 import Express from 'express';
 import {
-  getBreakouts, createBreakout, updateBreakout, deleteBreakout, getLiveCohortsBreakouts,
+  getBreakouts, createBreakout,
+  updateBreakout, deleteBreakout, getLiveCohortsBreakouts,
 } from '../../controllers/learning/breakout.controller';
 import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';

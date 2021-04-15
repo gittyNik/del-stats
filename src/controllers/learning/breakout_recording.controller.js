@@ -1,7 +1,15 @@
 import {
   getAllBreakoutRecordings, getRecordingsById, getRecordingsByCatalyst,
   createRecordingEntry, updateRecordings, getRecordingVideoUrl,
+  BreakoutRecordings,
 } from '../../models/breakout_recordings';
+import {
+  CohortBreakout,
+} from '../../models/cohort_breakout';
+import {
+  BreakoutRecordingsDetails,
+} from '../../models/breakout_recording_details';
+
 import logger from '../../util/logger';
 
 export const getAllRecordingsAPI = (req, res) => {
@@ -84,4 +92,52 @@ export const updateRecordingsAPI = (req, res) => {
   updateRecordings(id, likes, views,
     recording_details, breakout_template_id).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
+};
+
+export const removeVideoPath = async ({ cohort_breakout_id }) => {
+  const cohort_breakout = await CohortBreakout.findOne({
+    where: { id: cohort_breakout_id },
+  });
+
+  if (!cohort_breakout || !cohort_breakout.details
+    || !cohort_breakout.details || !cohort_breakout.details.recording
+    || !cohort_breakout.details.recording.id) {
+    throw Error('No recording found in cohort breakout details!');
+  }
+
+  const breakout_recording = await BreakoutRecordings.findOne({
+    where: { id: cohort_breakout.details.recording.id },
+  });
+  if (!breakout_recording || !breakout_recording.id) {
+    throw Error('breakout_recording not found but mentioned in cohort breakout!');
+  }
+
+  const breakout_recording_details = await BreakoutRecordingsDetails.findAll({
+    where: { video_id: breakout_recording.id },
+  });
+  if (breakout_recording_details) {
+    await BreakoutRecordingsDetails.destroy({
+      where: { video_id: breakout_recording.id },
+    });
+  }
+
+  await breakout_recording.destroy();
+
+  const { recording, ...excludeRecording } = cohort_breakout.details;
+  await CohortBreakout.update({
+    details: excludeRecording,
+  }, { where: { id: cohort_breakout_id } });
+
+  return true;
+};
+
+export const removeVideoPathAPI = async (req, res) => {
+  const cohort_breakout_id = req.params.id;
+  try {
+    const data = await removeVideoPath({ cohort_breakout_id });
+    return res.status(201).json({ data, type: 'success', message: 'Removing video successful!' });
+  } catch (e) {
+    logger.error(e);
+    return res.status(500).json({ type: 'failure', message: 'Removing Video failure!' });
+  }
 };

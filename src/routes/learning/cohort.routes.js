@@ -9,6 +9,7 @@ import {
   getUpcomingCohorts,
   deleteCohort,
   beginCohort,
+  learnerDetailsAPI,
   getCohortByLearnerId,
   createUpdateCohortBreakout,
   moveLearnertoDifferentCohortEndpoint,
@@ -116,6 +117,14 @@ router.post('/addLearner', addLearnerEndpoint);
  * @apiGroup Cohort
  */
 router.post('/addStatus', addLearnerStatusAPI);
+
+/**
+ * @api {post} /cohorts/LearnerDetails Get learners and their details by cohort_id
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetCohort
+ * @apiGroup Cohort
+ */
+router.post('/learnerDetails', learnerDetailsAPI);
 
 /**
  * @api {patch} /cohorts/movelearner move learner to a new cohort

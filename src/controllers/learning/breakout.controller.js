@@ -10,11 +10,10 @@ import {
   updateSandboxUrl,
   findOneCohortBreakout,
   getLearnersForCohortBreakout,
-
   createOrUpdateCohortBreakout,
   markBreakoutFinished,
   autoMarkAttendance,
-  getDuplicateCohortBreakouts,
+  getDublicateBreakoutsForCatalystAndCohorts,
 } from '../../models/cohort_breakout';
 import {
   createScheduledMeeting,
@@ -803,17 +802,19 @@ export const createCohortMilestoneLearnerBreakouts = async (req, res) => {
 };
 
 export const sendDuplicateBreakouts = async (req, res) => {
-  let {
-    days,
-  } = req.params;
+  let { days } = req.params;
+  let { slack } = req.query;
+
   days = parseInt(days, 10);
-  await getDuplicateCohortBreakouts(days)
-    .then((data) => {
-      res.status(201).json({ data });
-    })
+  await getDublicateBreakoutsForCatalystAndCohorts({ n_days: days, slack })
+    .then((data) => res.status(201).json({
+      message: 'Getting Duplicate Breakouts Success!!',
+      data,
+      type: 'success',
+    }))
     .catch((err) => {
-      console.error(err);
-      res.status(500).send({ err });
+      logger.error(err);
+      return res.status(500);
     });
 };
 
