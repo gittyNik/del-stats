@@ -40,7 +40,7 @@ export const completedBreakoutsByCatalyst = ({ catalyst_id }) => CohortBreakout.
 
 export const cumulativeTimeTaken = async (catalyst_id) => {
   const convertMilisIntoHours = (milis) => (milis / MILLI_SEC_HOUR).toFixed(2);
-
+  const now = Sequelize.literal('NOW()');
   try {
     let today = await CohortBreakout.sum('time_taken_by_catalyst', {
       where: {
@@ -67,19 +67,34 @@ export const cumulativeTimeTaken = async (catalyst_id) => {
     let todayBOCount = await CohortBreakout.count({
       where: {
         catalyst_id,
-        time_scheduled: { [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0)) },
+        time_scheduled: {
+          [Sequelize.Op.between]: [
+            new Date(new Date().setHours(0, 0, 0, 0)),
+            now,
+          ],
+        },
       },
     });
     let thisWeekBOCount = await CohortBreakout.count({
       where: {
         catalyst_id,
-        time_scheduled: { [Op.gte]: moment().startOf('week').toDate() },
+        time_scheduled: {
+          [Sequelize.Op.between]: [
+            moment().startOf('week').toDate(),
+            now,
+          ],
+        },
       },
     });
     let thisMonthBOCount = await CohortBreakout.count({
       where: {
         catalyst_id,
-        time_scheduled: { [Op.gte]: moment().startOf('month').toDate() },
+        time_scheduled: {
+          [Sequelize.Op.between]: [
+            moment().startOf('month').toDate(),
+            now,
+          ],
+        },
       },
     });
     let overallBOCount = await CohortBreakout.count({

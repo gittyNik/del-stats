@@ -146,7 +146,7 @@ export const getAssessmentPhases = (program, duration) => Topic.findAll({
     program,
     description: 'Assessments',
   },
-  attributes: ['milestone_id', 'title'],
+  attributes: ['id', 'milestone_id', 'title'],
   raw: true,
 });
 
