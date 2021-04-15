@@ -9,12 +9,24 @@ import {
 } from '../../controllers/auth/roles.controller';
 
 const {
-  ADMIN, SUPERADMIN, OPERATIONS, EDUCATOR,
+  ADMIN, CATALYST, OPERATIONS, EDUCATOR,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, SUPERADMIN, OPERATIONS, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, OPERATIONS, EDUCATOR]));
+
+/**
+ * @api {post} /operations/catalyst/getAllBOForCatalyst/:id returns likes, views, ratings
+ * @apiDescription returns likes, views, ratings of BO by catalyst
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName getAllBOForCatalyst
+ * @apiGroup Catalyst
+ */
+// returns cumulative time taken by catalyst for day, week, month and overall
+router.post('/getAllBOForCatalyst/:id', getAllBreakoutRecordingsForCatalystApi);
+
+router.use(allowMultipleRoles([ADMIN, OPERATIONS, EDUCATOR]));
 
 /**
  * @api {post} /operations/catalyst Adds catalyst to delta
@@ -54,15 +66,5 @@ router.post('/CumulativeTimeTakenForAll/', getCumulativeTimeTakenForAll);
  */
 // returns cumulative time taken by catalyst for day, week, month and overall
 router.post('/sessionsStartedOnTime/:id', sessionsStartedOnTime);
-
-/**
- * @api {post} /operations/catalyst/getAllBOForCatalyst/:id returns likes, views, ratings
- * @apiDescription returns likes, views, ratings of BO by catalyst
- * @apiHeader {String} authorization JWT Token.
- * @apiName getAllBOForCatalyst
- * @apiGroup Catalyst
- */
-// returns cumulative time taken by catalyst for day, week, month and overall
-router.post('/getAllBOForCatalyst/:id', getAllBreakoutRecordingsForCatalystApi);
 
 export default router;

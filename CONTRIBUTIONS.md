@@ -41,8 +41,27 @@ Every model should have the following fields
 
 ```javascript
 id - defaultValue: Sequelize.UUIDV4,
-created_at - No Default
-updated_at - Default: NOW()
+sequelize.define(
+    'example',
+    {
+      id: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+        primaryKey: true,
+      },
+      updated_by: Sequelize.ARRAY(Sequelize.JSON),
+    },
+    {
+      tableName: 'example',
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
+      deletedAt: 'deleted_at',
+      paranoid: true,
+      timestamps: true,
+    },
+  );
+
+https://stackoverflow.com/questions/54687518/how-to-use-paranoid-in-sequelize/54688296
 updated_by - Should populate the user id creating or updating
 ```
 
