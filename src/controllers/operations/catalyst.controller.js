@@ -67,19 +67,19 @@ export const cumulativeTimeTaken = async (catalyst_id) => {
     let todayBOCount = await CohortBreakout.count({
       where: {
         catalyst_id,
-        time_started: { [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0)) },
+        time_scheduled: { [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0)) },
       },
     });
     let thisWeekBOCount = await CohortBreakout.count({
       where: {
         catalyst_id,
-        time_started: { [Op.gte]: moment().startOf('week').toDate() },
+        time_scheduled: { [Op.gte]: moment().startOf('week').toDate() },
       },
     });
     let thisMonthBOCount = await CohortBreakout.count({
       where: {
         catalyst_id,
-        time_started: { [Op.gte]: moment().startOf('month').toDate() },
+        time_scheduled: { [Op.gte]: moment().startOf('month').toDate() },
       },
     });
     let overallBOCount = await CohortBreakout.count({
@@ -283,7 +283,7 @@ export const getAllBreakoutRecordingsForCatalystApi = async (req, res) => {
 
 export const getCumulativeTimeTakenForAll = async (req, res) => {
   let { limit, offset } = req.body;
-  limit = limit || 5;
+  limit = limit || 20;
   offset = offset || 0;
 
   try {
