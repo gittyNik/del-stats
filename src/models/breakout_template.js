@@ -82,15 +82,7 @@ export const BreakoutTemplate = db.define('breakout_templates', {
     type: Sequelize.DATE,
     defaultValue: Sequelize.literal('NOW()'),
   },
-  updated_by: {
-    type: Sequelize.ARRAY(
-      {
-        type: Sequelize.UUID,
-        references: { model: 'users' },
-      },
-    ),
-    allowNull: true,
-  },
+  updated_by_user: Sequelize.ARRAY(Sequelize.JSON),
   cohort_duration: Sequelize.INTEGER,
   program_id: {
     type: Sequelize.UUID,
@@ -320,7 +312,7 @@ export const getAllBreakoutTemplatesByProgram = (program_id,
 
 export const getBreakoutTemplateById = id => BreakoutTemplate.findByPk(id);
 
-export const createBreakoutTemplate = (
+export const createBreakoutTemplate = ({
   name, topic_id,
   mandatory,
   level,
@@ -332,9 +324,9 @@ export const createBreakoutTemplate = (
   after_days,
   cohort_duration,
   program_id,
-  user_id,
+  user,
   status,
-) => BreakoutTemplate.create(
+}) => BreakoutTemplate.create(
   {
     id: uuid(),
     name,
@@ -349,12 +341,17 @@ export const createBreakoutTemplate = (
     after_days,
     cohort_duration,
     program_id,
-    updated_by: [user_id],
+    updated_by: [{
+      user_id: user.id,
+      name: user.name,
+      date: new Date(),
+    }],
     status,
   },
 );
 
-export const updateBreakoutTemplate = (id,
+export const updateBreakoutTemplate = ({
+  id,
   name,
   topic_id,
   mandatory,
@@ -365,18 +362,33 @@ export const updateBreakoutTemplate = (id,
   duration,
   time_scheduled,
   after_days,
-  user_id,
+  user,
   cohort_duration,
   program_id,
-  status) => BreakoutTemplate.findOne({
+  status,
+}) => BreakoutTemplate.findOne({
   where: {
     id,
   },
 })
   .then((milestone) => {
-    milestone.updated_by.push(user_id);
-    milestone.update({
-      updated_by: milestone.updated_by,
+    let updated_by = milestone.updated_by_user;
+    if (updated_by) {
+      let user_details = {
+        user_id: user.id,
+        name: user.name,
+        date: new Date(),
+      };
+      updated_by.push(user_details);
+    } else {
+      updated_by = [{
+        user_id: user.id,
+        name: user.name,
+        date: new Date(),
+      }];
+    }
+    return milestone.update({
+      updated_by_user: updated_by,
       name,
       topic_id,
       mandatory,
@@ -394,6 +406,7 @@ export const updateBreakoutTemplate = (id,
       where: {
         id,
       },
+      returning: true,
     });
   });
 
