@@ -9,6 +9,7 @@ import {
 import {
   BreakoutRecordingsDetails,
 } from '../../models/breakout_recording_details';
+import { USER_ROLES } from '../../models/user';
 
 import logger from '../../util/logger';
 
@@ -94,10 +95,18 @@ export const updateRecordingsAPI = (req, res) => {
     .catch(err => res.status(500).send(err));
 };
 
-export const removeVideoPath = async ({ cohort_breakout_id }) => {
+export const removeVideoPath = async ({ cohort_breakout_id, is_superadmin, req_catalyst_id }) => {
   const cohort_breakout = await CohortBreakout.findOne({
     where: { id: cohort_breakout_id },
   });
+
+  if (!cohort_breakout || cohort_breakout.catalyst_id !== req_catalyst_id || !is_superadmin) {
+    throw Error('No authorized to remove video!');
+  }
+
+  if (!cohort_breakout || cohort_breakout.status === 'completed') {
+    throw Error('Breakout is already completed, contact superadmin !');
+  }
 
   if (!cohort_breakout || !cohort_breakout.details
     || !cohort_breakout.details || !cohort_breakout.details.recording
@@ -133,8 +142,10 @@ export const removeVideoPath = async ({ cohort_breakout_id }) => {
 
 export const removeVideoPathAPI = async (req, res) => {
   const cohort_breakout_id = req.params.id;
+  const is_superadmin = (req.jwtData.user.role === USER_ROLES.SUPERADMIN);
+  const req_catalyst_id = req.jwtData.user.id;
   try {
-    const data = await removeVideoPath({ cohort_breakout_id });
+    const data = await removeVideoPath({ cohort_breakout_id, is_superadmin, req_catalyst_id });
     return res.status(201).json({ data, type: 'success', message: 'Removing video successful!' });
   } catch (e) {
     logger.error(e);

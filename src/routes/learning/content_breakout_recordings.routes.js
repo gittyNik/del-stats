@@ -60,6 +60,8 @@ router.post('/', createRecording);
  */
 router.patch('/:id', updateRecordingsAPI);
 
+router.use(allowMultipleRoles([CATALYST, REVIEWER, EDUCATOR, ADMIN]));
+
 /**
  * @api {delete} /learning/content/breakouts/recordings/:id/video Remove video recording and details
  * @apiDescription Remove video recording and details from given cohort breakout id
