@@ -387,7 +387,7 @@ export const updateBreakoutTemplate = ({
         date: new Date(),
       }];
     }
-    return milestone.update({
+    return BreakoutTemplate.update({
       updated_by_user: updated_by,
       name,
       topic_id,

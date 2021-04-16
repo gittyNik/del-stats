@@ -243,7 +243,7 @@ export const updateDebitDetailsForLearner = ({
     }
     learnerDocument.nach_debit_details.push(nach_debit_details);
 
-    return learnerDocument.update({
+    return Documents.update({
       nach_debit_details: learnerDocument.nach_debit_details,
     }, {
       where: {
@@ -277,7 +277,7 @@ export const createUserEntry = ({
       });
     }
 
-    return userDocuments.update({
+    return Documents.update({
       esign_document_id,
       document_details,
       status,
@@ -506,7 +506,7 @@ export const updateUserEntry = ({
       }
     }
 
-    return learnerDocument.update({
+    return Documents.update({
       esign_document_id,
       document_details,
       status,

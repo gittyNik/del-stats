@@ -201,7 +201,11 @@ export const createMilestone = (req, res) => {
   createMilestones(name, prerequisite_milestones,
     problem_statement, learning_competencies, releases, starter_repo,
     alias, duration, updated_by)
-    .then((data) => { res.json(data); })
+    .then((data) => res.status(201).json({
+      message: 'Milestone created',
+      data,
+      type: 'success',
+    }))
     .catch(err => logger.error(err));
 };
 
@@ -218,11 +222,23 @@ export const updateMilestone = (req, res) => {
     name, problem_statement, starter_repo, user_id,
     releases, learning_competencies, prerequisite_milestones, guidelines,
     alias, duration)
-    .then(() => { res.send('Milestone Updated'); })
-    .catch(err => logger.error(err));
+    .then(() => res.status(200).json({
+      message: 'Milestone updated',
+      type: 'success',
+    }))
+    .catch(err => {
+      logger.error(err);
+      res.status(500);
+    });
 };
 
 export const deleteMilestone = (req, res) => {
-  deleteMilestones().then(() => { res.send('Deleted milestone '); })
-    .catch(err => res.status(500).send(err));
+  deleteMilestones().then(() => res.status(200).json({
+    message: 'Milestone deleted',
+    type: 'success',
+  }))
+    .catch(err => {
+      logger.error(err);
+      res.status(500);
+    });
 };
