@@ -9,7 +9,7 @@ import {
 } from '../../models/shortlisted_portfolios';
 import {
   addProfilePicture,
-} from '../community/user.controller';
+} from '../../models/user';
 import logger from '../../util/logger';
 
 export const getAllPortfoliosAPI = (req, res) => {
@@ -88,8 +88,9 @@ export const getPortfolioByUser = (req, res) => {
 
 export const getPortfolioById = (req, res) => {
   const { id } = req.params;
+  const { getRubrics } = req.query;
   const { role } = req.jwtData.user;
-  getAPortfolio({ id, role })
+  getAPortfolio({ id, role, getRubrics })
     .then(data => res.status(201).json({
       message: 'Portfolios fetched',
       data,

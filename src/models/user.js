@@ -135,7 +135,7 @@ export const updateUserData = (id, phone, email, location, profile) => User.find
     }
 
     let mergedUserDetails = { ...profile, ...userStatus.profile };
-    return userStatus.update({
+    return User.update({
       profile: mergedUserDetails,
       phone,
       email,

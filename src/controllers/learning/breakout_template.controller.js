@@ -18,7 +18,10 @@ export const getBreakoutTemplateByIdAPI = (req, res) => {
   const { id } = req.params;
 
   getBreakoutTemplateById(id).then((data) => { res.json(data); })
-    .catch(err => res.status(500).send(err));
+    .catch(err => {
+      logger.error(err);
+      res.status(500);
+    });
 };
 
 export const createBreakoutTemplateAPI = (req, res) => {
@@ -37,24 +40,32 @@ export const createBreakoutTemplateAPI = (req, res) => {
     program_id,
     status,
   } = req.body;
-  const user_id = req.jwtData.user.id;
+  const { user } = req.jwtData;
 
   createBreakoutTemplate(
-    name,
-    topic_id,
-    mandatory,
-    level,
-    primary_catalyst,
-    secondary_catalysts,
-    details,
-    duration,
-    time_scheduled,
-    after_days,
-    cohort_duration,
-    program_id,
-    user_id,
-    status,
-  ).then((data) => { res.json(data); })
+    {
+      name,
+      topic_id,
+      mandatory,
+      level,
+      primary_catalyst,
+      secondary_catalysts,
+      details,
+      duration,
+      time_scheduled,
+      after_days,
+      cohort_duration,
+      program_id,
+      user,
+      status,
+    },
+  ).then((data) => {
+    res.status(201).json({
+      message: 'Breakout template created',
+      data,
+      type: 'success',
+    });
+  })
     .catch(err => {
       logger.error(err);
       res.status(500).send(err);
@@ -78,29 +89,51 @@ export const updateBreakoutTemplateAPI = (req, res) => {
     status,
   } = req.body;
   const { id } = req.params;
-  const user_id = req.jwtData.user.id;
+  const { user } = req.jwtData;
 
-  updateBreakoutTemplate(id,
-    name,
-    topic_id,
-    mandatory,
-    level,
-    primary_catalyst,
-    secondary_catalysts,
-    details,
-    duration,
-    time_scheduled,
-    after_days,
-    user_id,
-    cohort_duration,
-    program_id,
-    status).then((data) => { res.json(data); })
-    .catch(err => res.status(500).send(err));
+  updateBreakoutTemplate(
+    {
+      id,
+      name,
+      topic_id,
+      mandatory,
+      level,
+      primary_catalyst,
+      secondary_catalysts,
+      details,
+      duration,
+      time_scheduled,
+      after_days,
+      user,
+      cohort_duration,
+      program_id,
+      status,
+    },
+  ).then((data) => {
+    res.status(200).json({
+      message: 'Breakout template updated',
+      data,
+      type: 'success',
+    });
+  })
+    .catch(err => {
+      logger.error(err);
+      res.status(500);
+    });
 };
 
 export const deleteBreakoutTemplateAPI = (req, res) => {
   const { id } = req.params;
 
-  deleteBreakoutTemplate(id).then((data) => { res.json(data); })
-    .catch(err => res.status(500).send(err));
+  deleteBreakoutTemplate(id).then((data) => {
+    res.status(200).json({
+      message: 'Breakout template deleted',
+      data,
+      type: 'success',
+    });
+  })
+    .catch(err => {
+      logger.error(err);
+      res.status(500);
+    });
 };

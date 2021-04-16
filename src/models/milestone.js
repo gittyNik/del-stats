@@ -120,7 +120,7 @@ export const updateMilestones = (id,
     } else {
       milestone.updated_by = [user_id];
     }
-    milestone.update({
+    return Milestone.update({
       name,
       updated_by: milestone.updated_by,
       problem_statement,

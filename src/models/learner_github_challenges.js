@@ -247,7 +247,7 @@ export const createOrUpdateLearnerGithubDataForChallenge = (
       learnerGithub.repository_commits.push(...new_commits);
     }
 
-    return learnerGithub.update({
+    return LearnerGithubChallenge.update({
       number_of_lines: no_lines,
       repository_commits: learnerGithub.repository_commits,
       last_committed_at,
