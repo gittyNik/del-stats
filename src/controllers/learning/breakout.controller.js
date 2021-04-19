@@ -466,33 +466,57 @@ export const updateBreakout = (req, res) => {
     catalyst_feedback,
     attendence_count,
   } = req.body;
-  const user_id = req.jwtData.user.id;
+  const { user } = req.jwtData;
   const { id } = req.params;
 
-  CohortBreakout.update(
-    {
-      type,
-      domain,
-      topic_id,
-      cohort_id,
-      time_scheduled,
-      duration,
-      location,
-      catalyst_id,
-      status,
-      catalyst_notes,
-      catalyst_feedback,
-      attendence_count,
-      updated_by: [user_id],
+  return CohortBreakout.findOne({
+    where: {
+      id,
     },
-    {
-      where: { id },
-    },
-  )
-    .then(() => res.send('Cohort Breakout updated.'))
-    .catch((err) => {
-      logger.error(err);
-      res.status(500);
+  })
+    .then((cohortBreakout) => {
+      let updated_by = cohortBreakout.updated_by_user;
+      if (updated_by) {
+        let user_details = {
+          user_id: user.id,
+          name: user.name,
+          date: new Date(),
+          details: 'Cohort Breakout has been updated',
+        };
+        updated_by.push(user_details);
+      } else {
+        updated_by = [{
+          user_id: user.id,
+          name: user.name,
+          date: new Date(),
+          details: 'Cohort Breakout has been updated',
+        }];
+      }
+      return CohortBreakout.update(
+        {
+          type,
+          domain,
+          topic_id,
+          cohort_id,
+          time_scheduled,
+          duration,
+          location,
+          catalyst_id,
+          status,
+          catalyst_notes,
+          catalyst_feedback,
+          attendence_count,
+          updated_by_user: updated_by,
+        },
+        {
+          where: { id },
+        },
+      )
+        .then(() => res.send('Cohort Breakout updated.'))
+        .catch((err) => {
+          logger.error(err);
+          res.status(500);
+        });
     });
 };
 
@@ -625,6 +649,8 @@ export const updateZoomMeeting = (req, res) => {
 export const updateCohortBreakout = async (req, res) => {
   const { updated_time, catalyst_id: newCatalystId } = req.body;
   const { id } = req.params;
+  const { user } = req.jwtData;
+
   try {
     let cohort_breakout = await findOneCohortBreakout({ id })
       .then(_cohortBreakout => _cohortBreakout.get({ plain: true }))
@@ -652,6 +678,24 @@ export const updateCohortBreakout = async (req, res) => {
     details.catalystCalendarEvent = catalystCalendarEvent;
     let whereObject;
 
+    let updated_by = cohort_breakout.updated_by_user;
+    if (updated_by) {
+      let user_details = {
+        user_id: user.id,
+        name: user.name,
+        date: new Date(),
+        details: `Schedule has been updated from: ${oldTime} Catalyst Id: ${catalyst_id}`,
+      };
+      updated_by.push(user_details);
+    } else {
+      updated_by = [{
+        user_id: user.id,
+        name: user.name,
+        date: new Date(),
+        details: `Schedule has been updated from: ${oldTime} Catalyst Id: ${catalyst_id}`,
+      }];
+    }
+
     if (cohort_breakout.type === 'lecture') {
       whereObject = {
         topic_id: cohort_breakout.topic_id,
@@ -667,6 +711,7 @@ export const updateCohortBreakout = async (req, res) => {
         time_scheduled: updated_time || oldTime,
         catalyst_id: newCatalystId || catalyst_id,
         details,
+        updated_by_user: updated_by,
       },
       whereObject,
     })
@@ -697,7 +742,7 @@ export const calculateAfterDays = (previousTime, afterDays) => {
 };
 
 // TODO: Make this transactional, if one fails, all should revert
-export const updateMilestoneByDays = async (cohortId, updateByDays, user_id = null) => {
+export const updateMilestoneByDays = async (cohortId, updateByDays, user = null) => {
   let currentDateTime = new Date();
   await CohortMilestone.findAll({
     where: {
@@ -750,10 +795,27 @@ export const updateMilestoneByDays = async (cohortId, updateByDays, user_id = nu
           zoomMeetingId = cohortBreakout.details.zoom.id;
         }
         // Update breakout time and Zoom meeting
+        let updated_by = cohortBreakout.updated_by_user;
+        if (updated_by) {
+          let user_details = {
+            user_id: user.id,
+            name: user.name,
+            date: new Date(),
+            details: `${user.name} has updated milestones by ${updateByDays} days`,
+          };
+          updated_by.push(user_details);
+        } else {
+          updated_by = [{
+            user_id: user.id,
+            name: user.name,
+            date: new Date(),
+            details: `${user.name} has updated milestones by ${updateByDays} days`,
+          }];
+        }
         return CohortBreakout.update(
           {
             time_scheduled: updatedScheduledTime,
-            updated_by: [user_id],
+            updated_by_user: updated_by,
           },
           {
             where: {
@@ -776,8 +838,8 @@ export const updateMilestoneByDays = async (cohortId, updateByDays, user_id = nu
 export const updateMilestonesBreakoutTimelines = async (req, res) => {
   let { updated_time } = req.body;
   const { id: cohort_id } = req.params;
-  const user_id = req.jwtData.user.id;
-  await updateMilestoneByDays(cohort_id, updated_time, user_id)
+  const { user } = req.jwtData;
+  await updateMilestoneByDays(cohort_id, updated_time, user)
     .then((data) => {
       res.status(201).json({ data });
     })

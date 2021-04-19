@@ -62,7 +62,13 @@ sequelize.define(
   );
 
 https://stackoverflow.com/questions/54687518/how-to-use-paranoid-in-sequelize/54688296
-updated_by - Should populate the user id creating or updating, name and
+updated_by - Should populate the user id creating or updating, name and date as below
+
+Keep the key names in updated_by same as to maintain 1 format
+user_id: user.id,
+name: user.name,
+date: new Date(),
+details: 'purpose of update'
 ```
 
 ### ROLES

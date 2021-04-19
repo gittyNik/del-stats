@@ -108,15 +108,7 @@ export const CohortBreakout = db.define('cohort_breakouts', {
     defaultValue: Sequelize.literal('NOW()'),
   },
   team_feedback: Sequelize.JSON,
-  updated_by: {
-    type: Sequelize.ARRAY(
-      {
-        type: Sequelize.UUID,
-        references: { model: 'users' },
-      },
-    ),
-    allowNull: true,
-  },
+  updated_by_user: Sequelize.ARRAY(Sequelize.JSON),
   time_taken_by_catalyst: {
     type: Sequelize.INTEGER,
   },
