@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 import { v4 as uuid } from 'uuid';
+import cache from '../cache';
 import db from '../database';
 import { Topic } from './topic';
 import { User } from './user';
@@ -229,74 +230,81 @@ export const createTypeBreakoutsInMilestone = (cohort_id, program_id,
     cohort_id, codeSandBox, videoMeet));
 
 export const getAllBreakoutTemplates = async () => {
-  let breakoutTemplates = await BreakoutTemplate.findAll({
-    where: {
-      status: 'active',
-    },
-    include: [
-      {
-        model: User,
-        attributes: ['name'],
+  let allBreakoutTemplates;
+  const cachedTemplates = await cache.get('BREAKOUT_TEMPLATES');
+  if (cachedTemplates === null) {
+    let breakoutTemplates = await BreakoutTemplate.findAll({
+      where: {
+        status: 'active',
       },
-    ],
-    raw: true,
-  });
-  let catalystMenonization = {};
-  let topicMenonization = {};
-  let allBreakoutTemplates = await Promise.all(breakoutTemplates.map(async eachTemplate => {
-    let topicsData = await Promise.all(eachTemplate.topic_id.map(
-      eachTopic => {
-        // Avoiding duplicate api calls
-        if (eachTopic in topicMenonization) {
-          return Promise.resolve(topicMenonization[eachTopic]);
-        }
-        return Topic.findByPk(eachTopic, {
-          attributes: ['title', 'path', 'optional'],
-          include: [{
-            model: Milestone,
-            attributes: ['name', 'alias', 'id'],
-          }],
-          raw: true,
-        });
-      },
-    ));
-    if (eachTemplate.secondary_catalysts !== null) {
-      let secondaryCatalyst = await Promise.all(eachTemplate.secondary_catalysts.map(
-        catalyst_id => {
+      include: [
+        {
+          model: User,
+          attributes: ['name'],
+        },
+      ],
+      raw: true,
+    });
+    let catalystMenonization = {};
+    let topicMenonization = {};
+    allBreakoutTemplates = await Promise.all(breakoutTemplates.map(async eachTemplate => {
+      let topicsData = await Promise.all(eachTemplate.topic_id.map(
+        eachTopic => {
           // Avoiding duplicate api calls
-          if (catalyst_id in catalystMenonization) {
-            return Promise.resolve(catalystMenonization[catalyst_id]);
+          if (eachTopic in topicMenonization) {
+            return Promise.resolve(topicMenonization[eachTopic]);
           }
-          return User.findOne(
-            {
-              where: {
-                id: catalyst_id,
-              },
-              attributes: ['name'],
-              raw: true,
-            },
-          );
+          return Topic.findByPk(eachTopic, {
+            attributes: ['title', 'path', 'optional'],
+            include: [{
+              model: Milestone,
+              attributes: ['name', 'alias', 'id'],
+            }],
+            raw: true,
+          });
         },
       ));
-      eachTemplate.secondaryCatalyst = secondaryCatalyst.map(eachCatalyst => {
-        catalystMenonization[eachCatalyst.id] = eachCatalyst;
-        return eachCatalyst.name;
-      });
-    } else {
-      eachTemplate.secondaryCatalyst = [];
-    }
-    eachTemplate.topicNames = topicsData.map(eachTopic => eachTopic.title);
-    eachTemplate.topics = topicsData;
-    let cohortDuration;
-    if (eachTemplate.cohort_duration === 16) {
-      cohortDuration = 'Full-time';
-    } else {
-      cohortDuration = 'Part-time';
-    }
-    eachTemplate.duration /= 60000;
-    eachTemplate.cohortDuration = cohortDuration;
-    return eachTemplate;
-  }));
+      if (eachTemplate.secondary_catalysts !== null) {
+        let secondaryCatalyst = await Promise.all(eachTemplate.secondary_catalysts.map(
+          catalyst_id => {
+            // Avoiding duplicate api calls
+            if (catalyst_id in catalystMenonization) {
+              return Promise.resolve(catalystMenonization[catalyst_id]);
+            }
+            return User.findOne(
+              {
+                where: {
+                  id: catalyst_id,
+                },
+                attributes: ['name'],
+                raw: true,
+              },
+            );
+          },
+        ));
+        eachTemplate.secondaryCatalyst = secondaryCatalyst.map(eachCatalyst => {
+          catalystMenonization[eachCatalyst.id] = eachCatalyst;
+          return eachCatalyst.name;
+        });
+      } else {
+        eachTemplate.secondaryCatalyst = [];
+      }
+      eachTemplate.topicNames = topicsData.map(eachTopic => eachTopic.title);
+      eachTemplate.topics = topicsData;
+      let cohortDuration;
+      if (eachTemplate.cohort_duration === 16) {
+        cohortDuration = 'Full-time';
+      } else {
+        cohortDuration = 'Part-time';
+      }
+      eachTemplate.duration /= 60000;
+      eachTemplate.cohortDuration = cohortDuration;
+      return eachTemplate;
+    }));
+    await cache.set('BREAKOUT_TEMPLATES', JSON.stringify(allBreakoutTemplates), 'EX', 604800);
+  } else {
+    allBreakoutTemplates = JSON.parse(cachedTemplates);
+  }
   return allBreakoutTemplates;
 };
 
@@ -371,7 +379,13 @@ export const updateBreakoutTemplate = ({
     id,
   },
 })
-  .then((milestone) => {
+  .then(async (milestone) => {
+    try {
+      await cache.del('BREAKOUT_TEMPLATES');
+    } catch (err) {
+      logger.warn('Cannot find key in Redis');
+    }
+
     let updated_by = milestone.updated_by_user;
     if (updated_by) {
       let user_details = {

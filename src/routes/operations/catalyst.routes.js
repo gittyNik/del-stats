@@ -48,7 +48,7 @@ router.use(allowMultipleRoles([ADMIN, OPERATIONS, EDUCATOR]));
 router.post('/', addCatalyst);
 
 /**
- * @api {post} /operations/catalyst/getCumulativeTimeTakenForAll returns cumulative time for all catalysts
+ * @api {post} /operations/catalyst/CumulativeTimeTakenForAll returns cumulative time for all catalysts
  * @apiDescription returns cumulative time taken by catalyst for day, week, month and overall, paginated with limit and offset
  * @apiHeader {String} authorization JWT Token.
  * @apiName TimeTakenByCatalyst

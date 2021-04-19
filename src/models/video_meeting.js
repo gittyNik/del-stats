@@ -296,7 +296,7 @@ export const learnerAttendance = async ({
             },
             raw: true,
           });
-          if (isPartOfCohort) {
+          if (mark_attendance && isPartOfCohort) {
             notifyAttendanceLearnerInChannel(cohort_breakout_id, user_email, inTime);
           }
         } catch (err) {
