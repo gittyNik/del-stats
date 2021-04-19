@@ -13,6 +13,7 @@ import {
   learnerDetails,
   addLearnerStatus,
   updateCohortById,
+  findAllCohorts,
 } from '../../models/cohort';
 import logger from '../../util/logger';
 
@@ -20,6 +21,24 @@ import logger from '../../util/logger';
 
 export const getCohorts = (req, res) => {
   Cohort.findAll()
+    .then((data) => res.json({ data }))
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
+};
+
+export const getCohortsByProgram = (req, res) => {
+  let { program_id, duration } = req.query;
+  program_id = program_id || 'tep';
+  duration = duration || 16;
+
+  let whereObj = {
+    program_id,
+    duration,
+    status: 'live',
+  };
+  findAllCohorts(whereObj)
     .then((data) => res.json({ data }))
     .catch((err) => {
       logger.error(err);

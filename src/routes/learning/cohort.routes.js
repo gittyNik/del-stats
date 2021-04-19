@@ -1,5 +1,4 @@
 import Express from 'express';
-import { CodeGuruReviewer } from 'aws-sdk';
 import {
   getCohortByName,
   getCohorts,
@@ -11,14 +10,12 @@ import {
   beginCohort,
   learnerDetailsAPI,
   getCohortByLearnerId,
-  createUpdateCohortBreakout,
   moveLearnertoDifferentCohortEndpoint,
-  markCompleteBreakout,
   removeLearnerEndpoint,
   addLearnerEndpoint,
   beginParallelCohort,
   liveCohorts,
-  autoMarkBreakoutAttendance,
+  getCohortsByProgram,
   addLearnerStatusAPI,
 } from '../../controllers/learning/cohort.controller';
 import {
@@ -67,6 +64,14 @@ router.get('/upcoming', getUpcomingCohorts);
  * @apiGroup Cohort
  */
 router.get('/live', liveCohorts);
+
+/**
+ * @api {get} /cohorts/live-program Get live Cohorts by Program
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName LiveCohorts
+ * @apiGroup Cohort
+ */
+router.get('/live-program', getCohortsByProgram);
 
 /**
  * @api {get} /cohorts/:id Get a cohort by id

@@ -200,27 +200,6 @@ export const getAllLearnerGithubDataChallengeById = id => LearnerGithubChallenge
   },
 );
 
-export const getLearnerGithubDataByTeam = milestone_team_id => LearnerGithubChallenge.findOne(
-  {
-    where: {
-      team_id: milestone_team_id,
-    },
-    include: [
-      {
-        model: User,
-        include: [
-          {
-            model: SocialConnection,
-            attributes: ['username', 'access_token'],
-            where: {
-              provider: PROVIDERS.GITHUB,
-            },
-          }],
-        attributes: ['name'],
-      }, Challenge],
-  },
-);
-
 export const createOrUpdateLearnerGithubDataForChallenge = (
   learner_challenge_id, no_lines, new_commits,
   last_committed_at, commits_count, cohort_milestone_id,
@@ -255,7 +234,7 @@ export const createOrUpdateLearnerGithubDataForChallenge = (
       cohort_milestone_id,
     }, {
       where: {
-        team_id: learner_challenge_id,
+        learner_challenge_id,
       },
     });
   });

@@ -90,6 +90,7 @@ export const getLearnerBreakoutsByBreakoutId = (req, res) => {
 
 export const markAttendance = (req, res) => {
   const { learnerBreakouts } = req.body;
+  const { user } = req.jwtData;
   Promise.all(
     learnerBreakouts.map((breakout) => LearnerBreakout.update(
       {
@@ -103,6 +104,26 @@ export const markAttendance = (req, res) => {
     )),
   )
     .then(async () => {
+      const cohortBreakout = await CohortBreakout.findOne({
+        where: { id: learnerBreakouts[0].cohort_breakout_id },
+      });
+      let updated_by = cohortBreakout.updated_by_user;
+      if (updated_by) {
+        let user_details = {
+          user_id: user.id,
+          name: user.name,
+          date: new Date(),
+          details: 'Attendance marked',
+        };
+        updated_by.push(user_details);
+      } else {
+        updated_by = [{
+          user_id: user.id,
+          name: user.name,
+          date: new Date(),
+          details: 'Attendance marked',
+        }];
+      }
       await CohortBreakout.update({
         status: 'running',
         update_at: Date.now(),
