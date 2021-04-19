@@ -1,7 +1,6 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import 'dotenv/config';
-import request from 'superagent';
 import app from './server';
 import db from './database';
 import './cron_jobs';

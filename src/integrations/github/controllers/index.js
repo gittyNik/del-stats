@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { octokit, org } from './git.auth.controller';
+import Redis from 'ioredis';
 import {
   createTeam,
   getTeamIdByName,
@@ -89,7 +89,8 @@ import {
   getTopicById,
 } from '../../../models/topic';
 import logger from '../../../util/logger';
-import cache from '../../../cache';
+
+const redis = new Redis(process.env.REDIS_URL);
 
 // Returns latest commit object of given user {{username}} in repository {{repo_name}}
 const getRecentCommit = async (req, res) => {
@@ -982,7 +983,7 @@ export const getAllStats = async (req, res) => {
 
   try {
     let userKey = `${cohort_milestone_id}_${user_id}`;
-    let cachedStats = await cache.get(userKey);
+    let cachedStats = await redis.get(userKey);
     let allStats;
     if (cachedStats === null) {
       let socialConnection = await getGithubByUserId(user_id);
@@ -1123,7 +1124,7 @@ export const getAllStats = async (req, res) => {
           },
         };
       }
-      await cache.set(userKey, JSON.stringify(allStats), 'EX', 7200);
+      await redis.set(userKey, JSON.stringify(allStats), 'EX', 7200);
     } else {
       allStats = JSON.parse(cachedStats);
     }
