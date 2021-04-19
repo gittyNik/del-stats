@@ -180,6 +180,6 @@ export const removeVideoPathAPI = async (req, res) => {
       });
     }
     logger.error(e);
-    return res.status(500).json({ type: 'failure', message: e.message });
+    return res.status(500);
   }
 };

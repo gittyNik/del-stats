@@ -55,9 +55,11 @@ export const createUpdateCohortBreakout = (req, res) => {
           data,
         });
       })
-      .catch((err) => res.status(500).send({
-        err,
-      }));
+      .catch((err) => {
+        logger.error('Error updating cohort breakout');
+        logger.error(err);
+        return res.status(500);
+      });
   } else {
     res.status(403).send('You do not have access to this data!');
   }
@@ -76,9 +78,17 @@ export const autoMarkBreakoutAttendance = (req, res) => {
           message: 'Learner attendance data',
         });
       })
-      .catch((err) => res.status(500).send({
-        err,
-      }));
+      .catch((err) => {
+        if (err.name === 'HttpBadRequest') {
+          return res.status(err.statusCode).json({
+            message: err.message,
+            type: 'failure',
+          });
+        }
+        logger.error('Error marking breakout attendance');
+        logger.error(err);
+        return res.status(500);
+      });
   } else {
     res.status(403).send('You do not have access to mark attendance for this breakout!');
   }
@@ -96,9 +106,17 @@ export const markCompleteBreakout = (req, res) => {
           data,
         });
       })
-      .catch((err) => res.status(500).send({
-        err,
-      }));
+      .catch((err) => {
+        if (err.name === 'HttpBadRequest') {
+          return res.status(err.statusCode).json({
+            message: err.message,
+            type: 'failure',
+          });
+        }
+        logger.error('Error marking breakout as finished');
+        logger.error(err);
+        return res.status(500);
+      });
   } else {
     res.status(403).send('You do not have access to this data!');
   }

@@ -5,9 +5,14 @@ import jwt from 'jsonwebtoken';
 import _ from 'lodash';
 import db from '../database';
 import { LearnerBreakout } from './learner_breakout';
-import { SocialConnection } from './social_connection';
+import {
+  SocialConnection,
+  getSocialConnecionByUserId,
+} from './social_connection';
 import { CohortBreakout } from './cohort_breakout';
-import { User, getUserByEmail } from './user';
+import {
+  User, getUserByEmail, getLimitedDetailsOfUser,
+} from './user';
 import { changeTimezone } from './breakout_template';
 import {
   notifyAttendanceLearnerInChannel,
@@ -242,13 +247,17 @@ export const createScheduledMeeting = async (topic, start_time,
   );
 };
 
-export const learnerAttendance = async (participant, catalyst_id,
-  cohort_breakout_id, attentiveness_threshold, duration_threshold) => {
+export const learnerAttendance = async ({
+  participant, catalyst_id,
+  cohort_breakout_id, attentiveness_threshold, duration_threshold,
+  catalyst_session_time, mark_attendance,
+}) => {
   const {
-    user_email, duration, attentiveness_score, join_time,
+    user_email, duration, attentiveness_score,
   } = participant;
   let attentivenessScore = parseFloat(attentiveness_score);
   let durationTime = parseFloat(duration);
+  let zoomUserThreshold = catalyst_session_time * duration_threshold;
   // if (isNaN(attentivenessScore)) {
   //   attentivenessScore = attentiveness_threshold;
   // }
@@ -274,7 +283,7 @@ export const learnerAttendance = async (participant, catalyst_id,
   if (userConnection) {
     if (userConnection.user_id !== catalyst_id) {
       let attendance;
-      if ((durationTime >= duration_threshold)) {
+      if ((durationTime >= zoomUserThreshold)) {
         attendanceCount += 1;
         attendance = true;
       } else {
@@ -296,14 +305,26 @@ export const learnerAttendance = async (participant, catalyst_id,
         attendance = false;
       }
       try {
-        LearnerBreakout.update({
-          attendance,
-        }, {
-          where: {
-            cohort_breakout_id,
-            learner_id: userConnection.user_id,
-          },
-        });
+        if (mark_attendance) {
+          await LearnerBreakout.update({
+            attendance,
+            attendance_details: participant,
+          }, {
+            where: {
+              cohort_breakout_id,
+              learner_id: userConnection.user_id,
+            },
+          });
+        } else {
+          await LearnerBreakout.update({
+            attendance_details: participant,
+          }, {
+            where: {
+              cohort_breakout_id,
+              learner_id: userConnection.user_id,
+            },
+          });
+        }
       } catch (err) {
         if (attendance) {
           attendanceCount -= 1;
@@ -316,18 +337,6 @@ export const learnerAttendance = async (participant, catalyst_id,
           logger.error(err);
         }
       }
-    } else {
-      // Add time taken by Catalyst for breakout
-      let breakoutTime = durationTime * 1000;
-      await CohortBreakout.update({
-        time_taken_by_catalyst: breakoutTime,
-        time_started: join_time,
-        update_at: Date.now(),
-      }, {
-        where: {
-          id: cohort_breakout_id,
-        },
-      });
     }
 
     return attendanceCount;
@@ -335,9 +344,25 @@ export const learnerAttendance = async (participant, catalyst_id,
   return 0;
 };
 
-export const markIndividualAttendance = async (participants, catalyst_id,
-  cohort_breakout_id, attentiveness_threshold, duration_threshold) => {
+export const markIndividualAttendance = async (
+  participants, catalyst_id,
+  cohort_breakout_id, attentiveness_threshold,
+  duration_threshold, mark_attendance,
+) => {
   let seen = {};
+  let breakout_duration = [];
+
+  let catalystDetails;
+  let catalystEmail;
+  let catalystSessionTime;
+  catalystDetails = await getLimitedDetailsOfUser(catalyst_id);
+
+  if (_.isEmpty(catalystDetails)) {
+    catalystDetails = await getSocialConnecionByUserId(catalyst_id, 'zoom');
+  }
+  if (catalystDetails) {
+    catalystEmail = catalystDetails.email;
+  }
   participants = participants.filter((entry) => {
     let previous;
 
@@ -346,21 +371,54 @@ export const markIndividualAttendance = async (participants, catalyst_id,
       // Yes, grab it and add this data to it
       previous = seen[entry.user_email];
       previous.duration += entry.duration;
+      if (entry.join_time > previous.join_time) {
+        entry.join_time = previous.join_time;
+      }
+      if (entry.leave_time < previous.leave_time) {
+        entry.leave_time = previous.leave_time;
+      }
 
       // Don't keep this entry, we've merged it into the previous one
       return false;
     }
-
     // Remember that we've seen it
     seen[entry.user_email] = entry;
+    breakout_duration.push(entry.duration);
 
     // Keep this one, we'll merge any others that match into it
     return true;
   });
+
+  catalystSessionTime = seen[catalystEmail].duration;
+
+  const attendedTimes = breakout_duration.sort((a, b) => a - b);
+  const secondUserDuration = attendedTimes[attendedTimes.length - 2];
+  if ((attendedTimes.length > 0) && (secondUserDuration < catalystSessionTime)) {
+    catalystSessionTime = secondUserDuration;
+  }
+
+  // Add time taken by Catalyst for breakout
+  let breakoutTime = catalystSessionTime * 1000;
+  await CohortBreakout.update({
+    time_taken_by_catalyst: breakoutTime,
+    time_started: seen[catalystEmail].join_time,
+    update_at: Date.now(),
+  }, {
+    where: {
+      id: cohort_breakout_id,
+    },
+  });
   const attendanceCount = Promise.all(participants.map(async (participant) => {
     try {
-      let attendance_count = await learnerAttendance(participant, catalyst_id,
-        cohort_breakout_id, attentiveness_threshold, duration_threshold);
+      let attendance_count = await learnerAttendance({
+        participant,
+        catalyst_id,
+        cohort_breakout_id,
+        attentiveness_threshold,
+        duration_threshold,
+        catalystSessionTime,
+        mark_attendance,
+      });
       return attendance_count;
     } catch (err) {
       logger.error('error in finding user', err);
@@ -373,18 +431,12 @@ export const markIndividualAttendance = async (participants, catalyst_id,
 // function for adding two numbers
 const add = (a, b) => a + b;
 
-/*
-From Zoom API endpoint get users in breakout and mark attendance for them
-https://marketplace.zoom.us/docs/api-reference/zoom-api/reports/reportmeetingparticipants
-Zoom returns the users that attended a meeting, using this to mark attendance
-*/
-export const markAttendanceFromZoom = (meeting_id, catalyst_id,
-  cohort_breakout_id, attentiveness_threshold = 70, duration_threshold = 600) => {
+export const getZoomParticipants = async (meeting_id) => {
   const { ZOOM_BASE_URL } = process.env;
   const page_size = 100;
   // logger.info('Marking attendance for Cohort Breakout id', cohort_breakout_id);
 
-  return (request
+  return request
     .get(`${ZOOM_BASE_URL}report/meetings/${meeting_id}/participants?page_size=${page_size}`) // todo: need to assign delta user to zoom user
     .set('Authorization', `Bearer ${zoom_token}`)
     .set('User-Agent', 'Zoom-api-Jwt-Request')
@@ -396,26 +448,43 @@ export const markAttendanceFromZoom = (meeting_id, catalyst_id,
         total_records,
         next_page_token,
       } = data.body;
-      // logger.info(`Fetched data for Zoom Meeting: ${meeting_id}`);
-      return markIndividualAttendance(
-        participants, catalyst_id,
-        cohort_breakout_id, attentiveness_threshold, duration_threshold,
-      )
-        .then(async attendanceCountArray => {
-          const attendanceCount = attendanceCountArray.reduce(add);
-          await CohortBreakout.update({
-            attendance_count: attendanceCount,
-            status: 'running',
-            update_at: Date.now(),
-          }, {
-            where: {
-              id: cohort_breakout_id,
-            },
-          });
+      return participants;
+    })
+    .catch(err => {
+      logger.error(err);
+      throw new Error('Cannot get Participants for the meeting');
+    });
+};
 
-          return getLearnerAttendanceForBreakout(cohort_breakout_id);
-        });
-    }));
+/*
+From Zoom API endpoint get users in breakout and mark attendance for them
+https://marketplace.zoom.us/docs/api-reference/zoom-api/reports/reportmeetingparticipants
+Zoom returns the users that attended a meeting, using this to mark attendance
+*/
+export const markAttendanceFromZoom = async (meeting_id, catalyst_id,
+  cohort_breakout_id, mark_attendance = true,
+  attentiveness_threshold = 70, duration_threshold = 0.5) => {
+  // logger.info(`Fetched data for Zoom Meeting: ${meeting_id}`);
+  const participants = await getZoomParticipants(meeting_id);
+  const attendanceCountArray = await markIndividualAttendance(
+    participants, catalyst_id,
+    cohort_breakout_id, attentiveness_threshold,
+    duration_threshold, mark_attendance,
+  );
+  const attendanceCount = attendanceCountArray.reduce(add);
+  if (mark_attendance) {
+    await CohortBreakout.update({
+      attendance_count: attendanceCount,
+      status: 'running',
+      update_at: Date.now(),
+    }, {
+      where: {
+        id: cohort_breakout_id,
+      },
+    });
+  }
+
+  return getLearnerAttendanceForBreakout(cohort_breakout_id);
 };
 
 export const updateVideoMeeting = async (meetingId, updatedTime) => {

@@ -1,7 +1,6 @@
 import Sequelize from 'sequelize';
 import { v4 as uuid } from 'uuid';
 import async from 'async';
-import _ from 'lodash';
 import db from '../database';
 import { Cohort, getCohortFromLearnerId } from './cohort';
 import {
@@ -16,8 +15,6 @@ import { createEvent, deleteEvent } from '../integrations/calendar/calendar.mode
 import { getUserName } from './user';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 import logger from '../util/logger';
-
-const { Op } = Sequelize;
 
 export const LearnerBreakout = db.define('learner_breakouts', {
   id: {
@@ -53,6 +50,7 @@ export const LearnerBreakout = db.define('learner_breakouts', {
     defaultValue: Sequelize.literal('NOW()'),
   },
   review_feedback: Sequelize.JSON,
+  attendance_details: Sequelize.JSON,
 });
 
 // LearnerBreakout.addHook('afterCreate', 'createCalendarEvent',

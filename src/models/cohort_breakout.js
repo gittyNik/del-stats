@@ -41,6 +41,7 @@ import { getGoogleOauthOfUser } from '../util/calendar-util';
 import { createEvent, deleteEvent, updateEvent } from '../integrations/calendar/calendar.model';
 import logger from '../util/logger';
 import { getSlackIdForLearner } from './slack_channels';
+import { HttpBadRequest } from '../util/errors';
 // import sandbox from 'bullmq/dist/classes/sandbox';
 
 export const EVENT_STATUS = [
@@ -180,20 +181,21 @@ export const startBreakout = (
   });
 };
 
-export const markZoomAttendance = (cohort_breakout_details) => {
+export const markZoomAttendance = (cohort_breakout_details, mark_attendance = true) => {
   try {
     const { join_url } = cohort_breakout_details.details.zoom;
     const { catalyst_id, id: cohort_breakout_id } = cohort_breakout_details;
     let mettingDetails = join_url.split('/')[4];
     let meetingId = mettingDetails.split('?')[0];
-    return markAttendanceFromZoom(meetingId, catalyst_id, cohort_breakout_id);
+    return markAttendanceFromZoom(meetingId, catalyst_id,
+      cohort_breakout_id, mark_attendance);
   } catch (err) {
     // If meeting does not have zoom url
     // If zoom meeting url creation has failed
     console.error(`Error in auto marking attendance: ${err}`);
     // console.warn('Meeting missing Zoom url');
     // console.warn(cohort_breakout_details);
-    throw Error('Meeting missing Zoom url');
+    throw HttpBadRequest('Meeting missing Zoom url');
   }
 };
 
@@ -301,7 +303,7 @@ export const markBreakoutFinished = (
   cohort_breakout_id, name = '',
 ) => markBreakoutComplete(cohort_breakout_id)
   .then((completeBreakout) => Promise.all([
-    // markZoomAttendance(completeBreakout[1]),
+    markZoomAttendance(completeBreakout[1], false),
     showCompletedBreakoutOnSlack(
       completeBreakout[1].topicId,
       completeBreakout[1].cohortId,
