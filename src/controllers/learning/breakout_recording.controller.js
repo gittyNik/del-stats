@@ -175,7 +175,7 @@ export const removeVideoPathAPI = async (req, res) => {
   } catch (e) {
     if (e.name === 'HttpBadRequest') {
       return res.status(e.statusCode).json({
-        message: encodeURI.message,
+        message: e.message,
         type: 'failure',
       });
     }
