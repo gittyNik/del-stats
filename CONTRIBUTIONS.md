@@ -62,7 +62,7 @@ sequelize.define(
   );
 
 https://stackoverflow.com/questions/54687518/how-to-use-paranoid-in-sequelize/54688296
-updated_by - Should populate the user id creating or updating
+updated_by - Should populate the user id creating or updating, name and
 ```
 
 ### ROLES

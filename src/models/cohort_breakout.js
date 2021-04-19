@@ -935,8 +935,12 @@ export const getNDaysDuplicateCatalystBreakouts = async (n_days) => {
         breakout.topics = await getTopicNameById(breakout.topic_id);
       }
       let duration = (cohortDetails.duration === 16) ? 'Full-Time' : 'Part-time';
+      breakout.cohortDuration = duration;
       breakout.catalyst = userDetails.name;
+      breakout.cohortName = cohortDetails.name;
       breakout.breakout_time = time;
+      breakout.program = cohortDetails.program_id;
+      breakout.breakoutTopics = breakout.topics;
       breakout.topics = `Cohort: *${cohortDetails.name}* ${duration} ${cohortDetails.location} \n ${breakout.topics} at *${time}* \n`;
       return breakout;
     }));
@@ -978,9 +982,12 @@ export const getNDaysCohortBreakouts = async (n_days) => {
         breakout.topics = await getTopicNameById(breakout.topic_id);
       }
       let duration = (cohortDetails.duration === 16) ? 'Full-Time' : 'Part-time';
+      breakout.cohortDuration = duration;
       breakout.catalyst = userDetails.name;
       breakout.cohortName = cohortDetails.name;
       breakout.breakout_time = time;
+      breakout.program = cohortDetails.program_id;
+      breakout.breakoutTopics = breakout.topics;
       breakout.topics = `Cohort: *${cohortDetails.name}* ${duration} ${cohortDetails.location} \n ${breakout.topics} at *${time}* \n`;
       return breakout;
     }));
