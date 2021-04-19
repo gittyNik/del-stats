@@ -26,6 +26,16 @@ router.use(allowMultipleRoles([ADMIN, CATALYST, OPERATIONS, EDUCATOR]));
 // returns cumulative time taken by catalyst for day, week, month and overall
 router.post('/getAllBOForCatalyst/:id', getAllBreakoutRecordingsForCatalystApi);
 
+/**
+ * @api {post} /operations/catalyst/cumulativeTimeTaken returns cumulative time for catalysts
+ * @apiDescription returns cumulative time taken by catalyst for day, week, month and overall
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName TimeTakenByCatalyst
+ * @apiGroup Catalyst
+ */
+// returns cumulative time taken by catalyst for day, week, month and overall
+router.get('/cumulativeTimeTaken/:id', cumulativeTimeTakenApi);
+
 router.use(allowMultipleRoles([ADMIN, OPERATIONS, EDUCATOR]));
 
 /**
@@ -36,16 +46,6 @@ router.use(allowMultipleRoles([ADMIN, OPERATIONS, EDUCATOR]));
  * @apiGroup Catalyst
  */
 router.post('/', addCatalyst);
-
-/**
- * @api {post} /operations/catalyst/cumulativeTimeTaken returns cumulative time for catalysts
- * @apiDescription returns cumulative time taken by catalyst for day, week, month and overall
- * @apiHeader {String} authorization JWT Token.
- * @apiName TimeTakenByCatalyst
- * @apiGroup Catalyst
- */
-// returns cumulative time taken by catalyst for day, week, month and overall
-router.get('/cumulativeTimeTaken/:id', cumulativeTimeTakenApi);
 
 /**
  * @api {post} /operations/catalyst/getCumulativeTimeTakenForAll returns cumulative time for all catalysts
