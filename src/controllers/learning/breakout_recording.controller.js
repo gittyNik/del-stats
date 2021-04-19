@@ -10,7 +10,7 @@ import {
   BreakoutRecordingsDetails,
 } from '../../models/breakout_recording_details';
 import { USER_ROLES } from '../../models/user';
-
+import { HttpBadRequest } from '../../util/errors';
 import logger from '../../util/logger';
 
 export const getAllRecordingsAPI = (req, res) => {
@@ -95,30 +95,34 @@ export const updateRecordingsAPI = (req, res) => {
     .catch(err => res.status(500).send(err));
 };
 
-export const removeVideoPath = async ({ cohort_breakout_id, is_superadmin, req_catalyst_id }) => {
+export const removeVideoPath = async ({ cohort_breakout_id, is_superadmin, req_catalyst }) => {
+  const {
+    id: req_catalyst_id,
+    name,
+  } = req_catalyst;
   const cohort_breakout = await CohortBreakout.findOne({
     where: { id: cohort_breakout_id },
   });
 
-  if (!cohort_breakout || cohort_breakout.catalyst_id !== req_catalyst_id || !is_superadmin) {
-    throw Error('No authorized to remove video!');
+  if ((!is_superadmin) && (!cohort_breakout || cohort_breakout.catalyst_id !== req_catalyst_id)) {
+    throw new HttpBadRequest('No authorized to remove video!');
   }
 
-  if (!cohort_breakout || cohort_breakout.status === 'completed') {
-    throw Error('Breakout is already completed, contact superadmin !');
+  if ((!is_superadmin) && (!cohort_breakout || cohort_breakout.status === 'completed')) {
+    throw new HttpBadRequest('Breakout is already completed, contact superadmin!');
   }
 
   if (!cohort_breakout || !cohort_breakout.details
     || !cohort_breakout.details || !cohort_breakout.details.recording
     || !cohort_breakout.details.recording.id) {
-    throw Error('No recording found in cohort breakout details!');
+    throw new HttpBadRequest('No recording found in cohort breakout details!');
   }
 
   const breakout_recording = await BreakoutRecordings.findOne({
     where: { id: cohort_breakout.details.recording.id },
   });
   if (!breakout_recording || !breakout_recording.id) {
-    throw Error('breakout_recording not found but mentioned in cohort breakout!');
+    throw new HttpBadRequest('breakout_recording not found but mentioned in cohort breakout!');
   }
 
   const breakout_recording_details = await BreakoutRecordingsDetails.findAll({
@@ -133,8 +137,26 @@ export const removeVideoPath = async ({ cohort_breakout_id, is_superadmin, req_c
   await breakout_recording.destroy();
 
   const { recording, ...excludeRecording } = cohort_breakout.details;
+  let updated_by = cohort_breakout.updated_by_user;
+  if (updated_by) {
+    let user_details = {
+      user_id: req_catalyst_id,
+      name,
+      date: new Date(),
+      details: 'Deleted Breakout Video',
+    };
+    updated_by.push(user_details);
+  } else {
+    updated_by = [{
+      user_id: req_catalyst_id,
+      name,
+      date: new Date(),
+      details: 'Deleted Breakout Video',
+    }];
+  }
   await CohortBreakout.update({
     details: excludeRecording,
+    updated_by_user: updated_by,
   }, { where: { id: cohort_breakout_id } });
 
   return true;
@@ -143,12 +165,21 @@ export const removeVideoPath = async ({ cohort_breakout_id, is_superadmin, req_c
 export const removeVideoPathAPI = async (req, res) => {
   const cohort_breakout_id = req.params.id;
   const is_superadmin = (req.jwtData.user.role === USER_ROLES.SUPERADMIN);
-  const req_catalyst_id = req.jwtData.user.id;
+  const { user: req_catalyst } = req.jwtData;
+
   try {
-    const data = await removeVideoPath({ cohort_breakout_id, is_superadmin, req_catalyst_id });
+    const data = await removeVideoPath({
+      cohort_breakout_id, is_superadmin, req_catalyst,
+    });
     return res.status(201).json({ data, type: 'success', message: 'Removing video successful!' });
   } catch (e) {
+    if (e.name === 'HttpBadRequest') {
+      return res.status(e.statusCode).json({
+        message: encodeURI.message,
+        type: 'failure',
+      });
+    }
     logger.error(e);
-    return res.status(500).json({ type: 'failure', message: 'Removing Video failure!' });
+    return res.status(500).json({ type: 'failure', message: e.message });
   }
 };
