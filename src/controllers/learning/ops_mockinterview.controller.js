@@ -1,6 +1,6 @@
 // import Sequelize from 'sequelize';
 import { slotData } from '../../models/mock_interview_slots';
-import { createMockInterviewsForCohort_afterCapstone } from '../../models/mock_interviews';
+import { createMockInterviewsForMultipleCohort_afterCapstone } from '../../models/mock_interviews';
 
 // const {
 //   between, gte,
@@ -20,8 +20,12 @@ const createMockInterviewsSlotsApi = (req, res) => {
 };
 
 const createMockInterviewsApi = (req, res) => {
-  const { cohort_id, start_date } = req.body;
-  createMockInterviewsForCohort_afterCapstone({ cohort_id, start_date })
+  const {
+    cohorts, start_date, learners_exclude, program,
+  } = req.body;
+  createMockInterviewsForMultipleCohort_afterCapstone({
+    cohorts, start_date, learners_exclude, program,
+  })
     .then(data => res.send({
       data,
       message: 'Mock Interviews created',

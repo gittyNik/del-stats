@@ -15,7 +15,9 @@ const WEEK_VALUES = {
   sunday: 7,
 };
 
-const createMockInterviewsForCohort_afterCapstone = ({ cohort_id, start_date }) => Cohort.findOne({
+const createMockInterviewsForCohort_afterCapstone = ({
+  cohort_id, start_date, learners_exclude, program,
+}) => Cohort.findOne({
   where: {
     id: cohort_id,
   },
@@ -25,6 +27,7 @@ const createMockInterviewsForCohort_afterCapstone = ({ cohort_id, start_date }) 
   .then(({ cohort_duration, learners }) => MockInterviewSlots
     .findAll({
       where: {
+        program,
         cohort_duration: cohort_duration || 16,
       },
       raw: true,
@@ -79,6 +82,9 @@ const createMockInterviewsForCohort_afterCapstone = ({ cohort_id, start_date }) 
     });
 
     cohort_breakouts = [...cohort_breakouts, ...cohort_breakouts_2];
+    if (learners_exclude) {
+      learners = learners.filter(learner_id => !learners_exclude.includes(learner_id));
+    }
     cohort_breakouts.splice(learners.length);
     learners.map((learner_id, index) => {
       learner_breakouts.push({
@@ -93,6 +99,15 @@ const createMockInterviewsForCohort_afterCapstone = ({ cohort_id, start_date }) 
         .bulkCreate(learner_breakouts));
   });
 
+const createMockInterviewsForMultipleCohort_afterCapstone = ({
+  cohorts,
+  start_date,
+  learners_exclude = null,
+  program,
+}) => cohorts.map(cohort_id => createMockInterviewsForCohort_afterCapstone({
+  cohort_id, start_date, learners_exclude, program,
+}));
+
 const getAllMockInterviews_afterCapstone = () => CohortBreakout.findAll({
   where: {
     type: 'mockinterview-aftercapstone',
@@ -101,5 +116,6 @@ const getAllMockInterviews_afterCapstone = () => CohortBreakout.findAll({
 
 export {
   createMockInterviewsForCohort_afterCapstone,
+  createMockInterviewsForMultipleCohort_afterCapstone,
   getAllMockInterviews_afterCapstone,
 };
