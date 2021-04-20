@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import Redis from 'ioredis';
+import cache from '../../../cache';
 import {
   createTeam,
   getTeamIdByName,
@@ -89,8 +89,6 @@ import {
   getTopicById,
 } from '../../../models/topic';
 import logger from '../../../util/logger';
-
-const redis = new Redis(process.env.REDIS_URL);
 
 // Returns latest commit object of given user {{username}} in repository {{repo_name}}
 const getRecentCommit = async (req, res) => {
@@ -983,7 +981,7 @@ export const getAllStats = async (req, res) => {
 
   try {
     let userKey = `${cohort_milestone_id}_${user_id}`;
-    let cachedStats = await redis.get(userKey);
+    let cachedStats = await cache.get(userKey);
     let allStats;
     if (cachedStats === null) {
       let socialConnection = await getGithubByUserId(user_id);
@@ -1124,7 +1122,7 @@ export const getAllStats = async (req, res) => {
           },
         };
       }
-      await redis.set(userKey, JSON.stringify(allStats), 'EX', 7200);
+      await cache.set(userKey, JSON.stringify(allStats), 'EX', 7200);
     } else {
       allStats = JSON.parse(cachedStats);
     }

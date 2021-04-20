@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import { v4 as uuid } from 'uuid';
-import Redis from 'ioredis';
+import cache from '../cache';
 import db from '../database';
 import { Topic } from './topic';
 import { User } from './user';
@@ -9,8 +9,6 @@ import { createCohortBreakouts } from './cohort_breakout';
 import { createLearnerBreakoutsForCohortMilestones } from './learner_breakout';
 import { Milestone } from './milestone';
 import logger from '../util/logger';
-
-const redis = new Redis(process.env.REDIS_URL);
 
 export const BREAKOUT_LEVEL = ['beginner', 'intermediate', 'advanced'];
 
@@ -233,7 +231,7 @@ export const createTypeBreakoutsInMilestone = (cohort_id, program_id,
 
 export const getAllBreakoutTemplates = async () => {
   let allBreakoutTemplates;
-  const cachedTemplates = await redis.get('BREAKOUT_TEMPLATES');
+  const cachedTemplates = await cache.get('BREAKOUT_TEMPLATES');
   if (cachedTemplates === null) {
     let breakoutTemplates = await BreakoutTemplate.findAll({
       where: {
@@ -303,7 +301,7 @@ export const getAllBreakoutTemplates = async () => {
       eachTemplate.cohortDuration = cohortDuration;
       return eachTemplate;
     }));
-    await redis.set('BREAKOUT_TEMPLATES', JSON.stringify(allBreakoutTemplates), 'EX', 604800);
+    await cache.set('BREAKOUT_TEMPLATES', JSON.stringify(allBreakoutTemplates), 'EX', 604800);
   } else {
     allBreakoutTemplates = JSON.parse(cachedTemplates);
   }
@@ -383,7 +381,7 @@ export const updateBreakoutTemplate = ({
 })
   .then(async (milestone) => {
     try {
-      await redis.del('BREAKOUT_TEMPLATES');
+      await cache.del('BREAKOUT_TEMPLATES');
     } catch (err) {
       logger.warn('Cannot find key in Redis');
     }
