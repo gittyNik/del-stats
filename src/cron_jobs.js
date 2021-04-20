@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import Redis from 'ioredis';
+import cache from './cache';
 import {
   checkBalance,
 } from './controllers/auth/otp.controller';
@@ -18,15 +18,13 @@ import {
 import logger from './util/logger';
 import 'dotenv/config';
 
-const redis = new Redis(process.env.REDIS_URL);
-
 // Every day at 10:AM - 0 10 * * *
 cron.schedule('0 10 * * *', async () => {
   if (process.env.NODE_ENV === 'production') {
-    const alreadyStarted = await redis.get('BREAKOUTS');
+    const alreadyStarted = await cache.get('BREAKOUTS');
     if (alreadyStarted === null) {
       // overlapStartDay is only a number used to handle multiple messages on channel
-      await redis.setex('BREAKOUTS', 3600, 'STARTED');
+      await cache.setex('BREAKOUTS', 3600, 'STARTED');
       const payload = await getTodaysCohortBreakouts();
       const res = await postTodaysBreakouts(payload);
       logger.info({
@@ -45,10 +43,10 @@ cron.schedule('0 10 * * *', async () => {
 // Every Thursday run cron at 8pm to schedule reviews
 cron.schedule('0 8 * * 3', async () => {
   if (process.env.NODE_ENV === 'production') {
-    const alreadyStarted = await redis.get('REVIEWS');
+    const alreadyStarted = await cache.get('REVIEWS');
     if (alreadyStarted === null) {
       // overlapStartDay is only a number used to handle multiple messages on channel
-      await redis.setex('REVIEWS', 3600, 'STARTED');
+      await cache.setex('REVIEWS', 3600, 'STARTED');
       await createReviewSchedule('tep', 16);
       logger.info('Reviews have been scheduled for Full-time');
       await createReviewSchedule('tep', 26);
@@ -67,10 +65,10 @@ cron.schedule('0 9 * * *', async () => {
   if (process.env.NODE_ENV === 'production') {
     const overlapStartDay = process.env.OVERLAP_START_DATE;
     let startDate = parseInt(overlapStartDay, 10);
-    const alreadyStarted = await redis.get('CONFLICT');
+    const alreadyStarted = await cache.get('CONFLICT');
     if (alreadyStarted === null) {
       // overlapStartDay is only a number used to handle multiple messages on channel
-      await redis.setex('CONFLICT', 3600, overlapStartDay);
+      await cache.setex('CONFLICT', 3600, overlapStartDay);
       const payload = await getNDaysDuplicateCatalystBreakouts(startDate);
       await postOverlappingBreakouts(startDate, payload, 'Catalyst');
       const cohortPayload = await getNDaysCohortBreakouts(startDate);

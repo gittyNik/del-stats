@@ -354,7 +354,7 @@ export const markIndividualAttendance = async (
 
   let catalystDetails;
   let catalystEmail;
-  let catalystSessionTime;
+  let catalyst_session_time;
   catalystDetails = await getLimitedDetailsOfUser(catalyst_id);
 
   if (_.isEmpty(catalystDetails)) {
@@ -389,16 +389,16 @@ export const markIndividualAttendance = async (
     return true;
   });
 
-  catalystSessionTime = seen[catalystEmail].duration;
+  catalyst_session_time = seen[catalystEmail].duration;
 
   const attendedTimes = breakout_duration.sort((a, b) => a - b);
   const secondUserDuration = attendedTimes[attendedTimes.length - 2];
-  if ((attendedTimes.length > 0) && (secondUserDuration < catalystSessionTime)) {
-    catalystSessionTime = secondUserDuration;
+  if ((attendedTimes.length > 0) && (secondUserDuration < catalyst_session_time)) {
+    catalyst_session_time = secondUserDuration;
   }
 
   // Add time taken by Catalyst for breakout
-  let breakoutTime = catalystSessionTime * 1000;
+  let breakoutTime = catalyst_session_time * 1000;
   await CohortBreakout.update({
     time_taken_by_catalyst: breakoutTime,
     time_started: seen[catalystEmail].join_time,
@@ -416,7 +416,7 @@ export const markIndividualAttendance = async (
         cohort_breakout_id,
         attentiveness_threshold,
         duration_threshold,
-        catalystSessionTime,
+        catalyst_session_time,
         mark_attendance,
       });
       return attendance_count;
