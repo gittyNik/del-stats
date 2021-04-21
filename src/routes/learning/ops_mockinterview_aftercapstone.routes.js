@@ -4,15 +4,16 @@ import {
   createMockInterviewsApi,
 } from '../../controllers/learning/ops_mockinterview.controller';
 
-// import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
-// import { USER_ROLES } from '../../models/user';
+import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
+import { USER_ROLES } from '../../models/user';
 
-// const {
-//   ADMIN, SUPERADMIN, CATALYST, EDUCATOR, REVIEWER,
-// } = USER_ROLES;
+const {
+  ADMIN, OPERATIONS,
+} = USER_ROLES;
 
 const router = Express.Router();
 
+router.use(allowMultipleRoles([ADMIN, OPERATIONS]));
 /**
  * @api {get} /learning/ops/aftercapstone Get all mockinterviews
  * @apiDescription get all Breakouts attended by learnes
