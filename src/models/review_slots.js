@@ -1,6 +1,8 @@
 import Sequelize from 'sequelize';
 import db from '../database';
 import { User } from './user';
+import cache from '../cache';
+import logger from '../util/logger';
 
 export const ReviewSlots = db.define('review_slots', {
   id: {
@@ -48,25 +50,32 @@ export const ReviewSlots = db.define('review_slots', {
 });
 
 export const getAllReviewSlots = async () => {
-  let reviewSlots = await ReviewSlots.findAll({
-    include: [{
-      model: User,
-      attributes: [['name', 'reviewer']],
-    }],
-    raw: true,
-  });
+  let allReviewSlots;
+  const cachedSlots = await cache.get('REVIEW_SLOTS');
+  if (cachedSlots === null) {
+    let reviewSlots = await ReviewSlots.findAll({
+      include: [{
+        model: User,
+        attributes: [['name', 'reviewer']],
+      }],
+      raw: true,
+    });
 
-  let allReviewSlots = await Promise.all(reviewSlots.map(async eachSlot => {
-    let cohortDuration;
-    if (eachSlot.cohort_duration >= 26) {
-      cohortDuration = 'Part-time';
-    } else {
-      cohortDuration = 'Full-time';
-    }
-    eachSlot.review_duration /= 60000;
-    eachSlot.cohortDuration = cohortDuration;
-    return eachSlot;
-  }));
+    allReviewSlots = await Promise.all(reviewSlots.map(async eachSlot => {
+      let cohortDuration;
+      if (eachSlot.cohort_duration >= 26) {
+        cohortDuration = 'Part-time';
+      } else {
+        cohortDuration = 'Full-time';
+      }
+      eachSlot.review_duration /= 60000;
+      eachSlot.cohortDuration = cohortDuration;
+      return eachSlot;
+    }));
+    await cache.set('REVIEW_SLOTS', JSON.stringify(allReviewSlots), 'EX', 604800);
+  } else {
+    allReviewSlots = JSON.parse(cachedSlots);
+  }
   return allReviewSlots;
 };
 
@@ -93,33 +102,54 @@ export const getReviewSlotsById = id => ReviewSlots.findOne(
   { where: { id } },
 );
 
-export const createReviewSlots = (cohort_duration, program,
+export const createReviewSlots = async (cohort_duration, program,
   review_day, time_scheduled, reviewer, week, review_duration,
-  slot_order) => ReviewSlots.create(
-  {
-    cohort_duration,
+  slot_order) => {
+  try {
+    await cache.del('REVIEW_SLOTS');
+  } catch (err) {
+    logger.warn('Cannot find key in Redis');
+  }
+  return ReviewSlots.create(
+    {
+      cohort_duration,
+      review_day,
+      program,
+      time_scheduled,
+      reviewer,
+      week,
+      review_duration,
+      slot_order,
+      created_at: Sequelize.literal('NOW()'),
+    },
+  );
+};
+
+export const updateReviewSlots = async (id, review_day,
+  time_scheduled, reviewer, week, review_duration,
+  slot_order) => {
+  try {
+    await cache.del('REVIEW_SLOTS');
+  } catch (err) {
+    logger.warn('Cannot find key in Redis');
+  }
+  return ReviewSlots.update({
     review_day,
-    program,
     time_scheduled,
     reviewer,
     week,
     review_duration,
     slot_order,
-    created_at: Sequelize.literal('NOW()'),
-  },
-);
+  }, { where: { id } });
+};
 
-export const updateReviewSlots = (id, review_day,
-  time_scheduled, reviewer, week, review_duration,
-  slot_order) => ReviewSlots.update({
-  review_day,
-  time_scheduled,
-  reviewer,
-  week,
-  review_duration,
-  slot_order,
-}, { where: { id } });
-
-export const deleteReviewSlot = (id) => ReviewSlots.destroy(
-  { where: { id } },
-);
+export const deleteReviewSlot = async (id) => {
+  try {
+    await cache.del('REVIEW_SLOTS');
+  } catch (err) {
+    logger.warn('Cannot find key in Redis');
+  }
+  return ReviewSlots.destroy(
+    { where: { id } },
+  );
+};

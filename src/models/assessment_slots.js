@@ -2,6 +2,8 @@ import Sequelize from 'sequelize';
 import db from '../database';
 import { User } from './user';
 import { Topic } from './topic';
+import cache from '../cache';
+import logger from '../util/logger';
 
 export const AssessmentSlots = db.define('assessment_slots', {
   id: {
@@ -52,36 +54,43 @@ export const AssessmentSlots = db.define('assessment_slots', {
 
 export const getAllAssessmentSlots = async () => {
   let assessmentPhases = {};
-  let assessmentSlots = await AssessmentSlots.findAll({
-    include: [{
-      model: User,
-      attributes: [['name', 'reviewer']],
-    }],
-    raw: true,
-  });
-  let allAssessmentSlots = await Promise.all(assessmentSlots.map(async eachSlot => {
-    let cohortDuration;
-    let assessmentTopic;
-    let { phase } = eachSlot;
-    if (phase in assessmentPhases) {
-      assessmentTopic = assessmentPhases[phase];
-    } else {
-      assessmentTopic = await Topic.findByPk(phase, {
-        attributes: ['title'],
-        raw: true,
-      });
-      assessmentPhases[phase] = assessmentTopic;
-    }
-    if (eachSlot.cohort_duration >= 26) {
-      cohortDuration = 'Part-time';
-    } else {
-      cohortDuration = 'Full-time';
-    }
-    eachSlot.assessment_duration /= 60000;
-    eachSlot.cohortDuration = cohortDuration;
-    eachSlot.assessmentPhase = assessmentTopic;
-    return eachSlot;
-  }));
+  let allAssessmentSlots;
+  const cachedSlots = await cache.get('ASSESSMENT_SLOTS');
+  if (cachedSlots === null) {
+    let assessmentSlots = await AssessmentSlots.findAll({
+      include: [{
+        model: User,
+        attributes: [['name', 'reviewer']],
+      }],
+      raw: true,
+    });
+    allAssessmentSlots = await Promise.all(assessmentSlots.map(async eachSlot => {
+      let cohortDuration;
+      let assessmentTopic;
+      let { phase } = eachSlot;
+      if (phase in assessmentPhases) {
+        assessmentTopic = assessmentPhases[phase];
+      } else {
+        assessmentTopic = await Topic.findByPk(phase, {
+          attributes: ['title'],
+          raw: true,
+        });
+        assessmentPhases[phase] = assessmentTopic;
+      }
+      if (eachSlot.cohort_duration >= 26) {
+        cohortDuration = 'Part-time';
+      } else {
+        cohortDuration = 'Full-time';
+      }
+      eachSlot.assessment_duration /= 60000;
+      eachSlot.cohortDuration = cohortDuration;
+      eachSlot.assessmentPhase = assessmentTopic;
+      return eachSlot;
+    }));
+    await cache.set('ASSESSMENT_SLOTS', JSON.stringify(allAssessmentSlots), 'EX', 604800);
+  } else {
+    allAssessmentSlots = JSON.parse(cachedSlots);
+  }
   return allAssessmentSlots;
 };
 
@@ -111,34 +120,55 @@ export const getAssessmentSlotsById = id => AssessmentSlots.findOne(
   { where: { id } },
 );
 
-export const createAssessmentSlots = (cohort_duration, program,
+export const createAssessmentSlots = async (cohort_duration, program,
   assessment_day, time_scheduled, reviewer, week, assessment_duration,
-  slot_order, phase) => AssessmentSlots.create(
-  {
-    cohort_duration,
+  slot_order, phase) => {
+  try {
+    await cache.del('ASSESSMENT_SLOTS');
+  } catch (err) {
+    logger.warn('Cannot find key in Redis');
+  }
+  return AssessmentSlots.create(
+    {
+      cohort_duration,
+      assessment_day,
+      program,
+      time_scheduled,
+      reviewer,
+      week,
+      assessment_duration,
+      slot_order,
+      phase,
+      created_at: Sequelize.literal('NOW()'),
+    },
+  );
+};
+
+export const updateAssessmentSlots = async (id, assessment_day,
+  time_scheduled, reviewer, week, assessment_duration,
+  slot_order) => {
+  try {
+    await cache.del('ASSESSMENT_SLOTS');
+  } catch (err) {
+    logger.warn('Cannot find key in Redis');
+  }
+  return AssessmentSlots.update({
     assessment_day,
-    program,
     time_scheduled,
     reviewer,
     week,
     assessment_duration,
     slot_order,
-    phase,
-    created_at: Sequelize.literal('NOW()'),
-  },
-);
+  }, { where: { id } });
+};
 
-export const updateAssessmentSlots = (id, assessment_day,
-  time_scheduled, reviewer, week, assessment_duration,
-  slot_order) => AssessmentSlots.update({
-  assessment_day,
-  time_scheduled,
-  reviewer,
-  week,
-  assessment_duration,
-  slot_order,
-}, { where: { id } });
-
-export const deleteAssessmentSlot = (id) => AssessmentSlots.destroy(
-  { where: { id } },
-);
+export const deleteAssessmentSlot = async (id) => {
+  try {
+    await cache.del('ASSESSMENT_SLOTS');
+  } catch (err) {
+    logger.warn('Cannot find key in Redis');
+  }
+  return AssessmentSlots.destroy(
+    { where: { id } },
+  );
+};
