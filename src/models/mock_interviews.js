@@ -104,9 +104,9 @@ const createMockInterviewsForMultipleCohort_afterCapstone = ({
   start_date,
   learners_exclude = null,
   program,
-}) => cohorts.map(cohort_id => createMockInterviewsForCohort_afterCapstone({
+}) => Promise.all(cohorts.map(cohort_id => createMockInterviewsForCohort_afterCapstone({
   cohort_id, start_date, learners_exclude, program,
-}));
+})));
 
 const getAllMockInterviews_afterCapstone = () => CohortBreakout.findAll({
   where: {
