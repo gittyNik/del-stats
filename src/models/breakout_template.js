@@ -320,7 +320,7 @@ export const getAllBreakoutTemplatesByProgram = (program_id,
 
 export const getBreakoutTemplateById = id => BreakoutTemplate.findByPk(id);
 
-export const createBreakoutTemplate = ({
+export const createBreakoutTemplate = async ({
   name, topic_id,
   mandatory,
   level,
@@ -334,29 +334,36 @@ export const createBreakoutTemplate = ({
   program_id,
   user,
   status,
-}) => BreakoutTemplate.create(
-  {
-    id: uuid(),
-    name,
-    topic_id,
-    mandatory,
-    level,
-    primary_catalyst,
-    secondary_catalysts,
-    details,
-    duration,
-    time_scheduled,
-    after_days,
-    cohort_duration,
-    program_id,
-    updated_by: [{
-      user_id: user.id,
-      name: user.name,
-      date: new Date(),
-    }],
-    status,
-  },
-);
+}) => {
+  try {
+    await cache.del('BREAKOUT_TEMPLATES');
+  } catch (err) {
+    logger.warn('Cannot find key in Redis');
+  }
+  return BreakoutTemplate.create(
+    {
+      id: uuid(),
+      name,
+      topic_id,
+      mandatory,
+      level,
+      primary_catalyst,
+      secondary_catalysts,
+      details,
+      duration,
+      time_scheduled,
+      after_days,
+      cohort_duration,
+      program_id,
+      updated_by: [{
+        user_id: user.id,
+        name: user.name,
+        date: new Date(),
+      }],
+      status,
+    },
+  );
+};
 
 export const updateBreakoutTemplate = ({
   id,
@@ -424,6 +431,13 @@ export const updateBreakoutTemplate = ({
     });
   });
 
-export const deleteBreakoutTemplate = (id) => BreakoutTemplate.destroy(
-  { where: { id } },
-);
+export const deleteBreakoutTemplate = async (id) => {
+  try {
+    await cache.del('BREAKOUT_TEMPLATES');
+  } catch (err) {
+    logger.warn('Cannot find key in Redis');
+  }
+  return BreakoutTemplate.destroy(
+    { where: { id } },
+  );
+};
