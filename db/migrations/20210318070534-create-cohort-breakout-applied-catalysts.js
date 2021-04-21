@@ -1,33 +1,39 @@
-'use strict';
+const request_status = [
+  'accepted',
+  'rejected',
+  'retained',
+];
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('cohort_breakout_applied_catalysts', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.UUID,
+        default: Sequelize.UUIDV4,
       },
-      firstName: {
-        type: Sequelize.STRING
+      cohort_breakout_id: {
+        type: Sequelize.UUID,
       },
-      lastName: {
-        type: Sequelize.STRING
+      applied_catalyst_id: {
+        type: Sequelize.UUID,
       },
-      email: {
-        type: Sequelize.STRING
+      status: {
+        type: Sequelize.ENUM(...request_status),
       },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+      updated_by: {
+        type: Sequelize.ARRAY(Sequelize.UUID),
       },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      }
+    },
+    {
+      tableName: 'cohort_breakout_applied_catalyst',
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
+      timestamps: true,
     });
   },
-  down: async (queryInterface, Sequelize) => {
+  down: async (queryInterface) => {
     await queryInterface.dropTable('cohort_breakout_applied_catalysts');
-  }
+  },
 };
