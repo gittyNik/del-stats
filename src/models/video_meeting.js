@@ -21,6 +21,7 @@ import {
   getLearnerAttendanceForBreakout,
 } from '../controllers/learning/learner_breakout.controller';
 import logger from '../util/logger';
+import { HttpBadRequest } from '../util/errors';
 
 const { in: opIn, between } = Sequelize.Op;
 
@@ -356,10 +357,6 @@ export const markIndividualAttendance = async (
   let catalystEmail;
   let catalyst_session_time;
   catalystDetails = await getLimitedDetailsOfUser(catalyst_id);
-
-  if (_.isEmpty(catalystDetails)) {
-    catalystDetails = await getSocialConnecionByUserId(catalyst_id, 'zoom');
-  }
   if (catalystDetails) {
     catalystEmail = catalystDetails.email;
   }
@@ -389,7 +386,23 @@ export const markIndividualAttendance = async (
     return true;
   });
 
-  catalyst_session_time = seen[catalystEmail].duration;
+  try {
+    catalyst_session_time = seen[catalystEmail].duration;
+  } catch (err) {
+    try {
+      // If Catalyst is using another Zoom email, check for it in social connection
+      catalystDetails = await getSocialConnecionByUserId(catalyst_id, 'zoom');
+      if (catalystDetails) {
+        catalystEmail = catalystDetails.email;
+      } else {
+        throw new Error();
+      }
+      catalyst_session_time = seen[catalystEmail].duration;
+    } catch (err1) {
+      logger.warn(err1);
+      throw new HttpBadRequest('Catalyst was not in the session with registered email id');
+    }
+  }
 
   const attendedTimes = breakout_duration.sort((a, b) => a - b);
   const secondUserDuration = attendedTimes[attendedTimes.length - 2];

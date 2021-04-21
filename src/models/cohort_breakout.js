@@ -62,6 +62,7 @@ export const BREAKOUT_TYPE = [
   'reviews',
   'assessment',
   '1on1',
+  'mockinterview-aftercapstone',
 ];
 
 export const CohortBreakout = db.define('cohort_breakouts', {
@@ -182,13 +183,12 @@ export const startBreakout = (
 };
 
 export const markZoomAttendance = (cohort_breakout_details, mark_attendance = true) => {
+  const { catalyst_id, id: cohort_breakout_id } = cohort_breakout_details;
+  let meetingId;
   try {
     const { join_url } = cohort_breakout_details.details.zoom;
-    const { catalyst_id, id: cohort_breakout_id } = cohort_breakout_details;
     let mettingDetails = join_url.split('/')[4];
-    let meetingId = mettingDetails.split('?')[0];
-    return markAttendanceFromZoom(meetingId, catalyst_id,
-      cohort_breakout_id, mark_attendance);
+    [meetingId] = mettingDetails.split('?');
   } catch (err) {
     // If meeting does not have zoom url
     // If zoom meeting url creation has failed
@@ -197,6 +197,8 @@ export const markZoomAttendance = (cohort_breakout_details, mark_attendance = tr
     // console.warn(cohort_breakout_details);
     throw HttpBadRequest('Meeting missing Zoom url');
   }
+  return markAttendanceFromZoom(meetingId, catalyst_id,
+    cohort_breakout_id, mark_attendance);
 };
 
 export const markBreakoutComplete = (breakout_id) => CohortBreakout.update(

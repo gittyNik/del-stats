@@ -46,6 +46,7 @@ import { CompanyProfile } from './company_profile';
 import { ShortlistedPortfolios } from './shortlisted_portfolios';
 import { PaymentDetails } from './payment_details';
 import { PaymentIntervals } from './payment_intervals';
+import { CohortBreakoutAppliedCatalyst } from './cohort_breakout_applied_catalysts';
 import logger from '../util/logger';
 
 // TODO: describe all associations here
@@ -182,6 +183,20 @@ Application.belongsTo(PaymentDetails, { as: 'ApplicationPayment', foreignKey: 'p
 // Cohort.hasMany(User, { foreignKey: '' });
 // User.belongsTo(Cohort);
 
+// Many to many relation between LearnerInterviews and User through LearnerRecruiter table
+User.belongsToMany(CohortBreakout, {
+  through: CohortBreakoutAppliedCatalyst,
+  foreignKey: 'applied_catalyst_id',
+  // otherKey: 'learner_interview_id',
+  as: 'CohortBreakouts',
+});
+CohortBreakout.belongsToMany(User, {
+  through: CohortBreakoutAppliedCatalyst,
+  // otherKey: 'learner_interview_id',
+  foreignKey: 'cohort_breakout_id',
+  as: 'RequestedByCatalysts',
+});
+
 export default {
   Application,
   BrowserHistoryItem,
@@ -220,4 +235,5 @@ export default {
   LearnerInterviews,
   PaymentDetails,
   PaymentIntervals,
+  CohortBreakoutAppliedCatalyst,
 };
