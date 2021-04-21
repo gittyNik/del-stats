@@ -2,6 +2,11 @@ import Sequelize from 'sequelize';
 import { v4 as uuid } from 'uuid';
 import db from '../database';
 
+const request_status = [
+  'accepted',
+  'rejected',
+  'retained',
+];
 const CohortBreakoutAppliedCatalyst = db.define('cohort_breakout_applied_catalyst', {
   id: {
     allowNull: false,
@@ -15,14 +20,18 @@ const CohortBreakoutAppliedCatalyst = db.define('cohort_breakout_applied_catalys
   applied_catalyst_id: {
     type: Sequelize.UUID,
   },
-  created_at: {
-    type: Sequelize.DATE,
-    // defaultValue: Sequelize.literal('NOW()'),
+  status: {
+    type: Sequelize.ENUM(...request_status),
   },
-  updated_at: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.literal('NOW()'),
+  updated_by: {
+    type: Sequelize.ARRAY(Sequelize.UUID),
   },
+},
+{
+  tableName: 'cohort_breakout_applied_catalyst',
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  timestamps: true,
 });
 
 const createBreakoutAppliedCatalystRelation = (cohort_breakout_id,
@@ -30,7 +39,7 @@ const createBreakoutAppliedCatalystRelation = (cohort_breakout_id,
   id: uuid(),
   cohort_breakout_id,
   applied_catalysts_id,
-  created_at: new Date(),
+  // created_at: new Date(),
 });
 
 export {
