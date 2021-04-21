@@ -1,22 +1,20 @@
 // import Sequelize from 'sequelize';
 import { slotData } from '../../models/mock_interview_slots';
 import { createMockInterviewsForMultipleCohort_afterCapstone } from '../../models/mock_interviews';
-
-// const {
-//   between, gte,
-// } = Sequelize.Op;
+import logger from '../../util/logger';
 
 const createMockInterviewsSlotsApi = (req, res) => {
   const { cohort_duration, program } = req.body;
   slotData(cohort_duration, program)
-    .then(data => res.send({
+    .then(data => res.status(201).send({
       data,
       message: 'Mock Interview slots created',
+      type: 'success',
     }))
-    .catch(err => res.status(500).send({
-      data: err,
-      message: 'Failed in creating Mock Interview Slots',
-    }));
+    .catch(err => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 const createMockInterviewsApi = (req, res) => {
@@ -26,16 +24,14 @@ const createMockInterviewsApi = (req, res) => {
   createMockInterviewsForMultipleCohort_afterCapstone({
     cohorts, start_date, learners_exclude, program,
   })
-    .then(data => res.send({
+    .then(data => res.status(201).send({
       data,
       message: 'Mock Interviews created',
+      type: 'success',
     }))
     .catch(err => {
-      console.log(err);
-      res.json({
-        data: err,
-        message: 'Failed in creating Mock Interviews',
-      });
+      logger.error(err);
+      return res.status(500);
     });
 };
 export {
