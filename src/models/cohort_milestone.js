@@ -694,7 +694,7 @@ export const getCohortMilestoneIds = (cohort_id) => CohortMilestone.findAll({
 export const getAssessmentCohorts = (milestone, duration, program) => {
   const nextWeek = moment().add(7, 'days').toDate();
   return CohortMilestone.findAll({
-    order: Sequelize.col('release_time'),
+    order: Sequelize.col('review_scheduled'),
     where: {
       release_time: { [lte]: nextWeek },
       review_scheduled: { [gt]: nextWeek },

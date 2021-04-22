@@ -232,6 +232,7 @@ export const createLearnerAssessmentBreakout = async (
   excluded_learners,
   cohort_milestone_id,
 ) => {
+  let lastCreatedSlot;
   let {
     learners, name, id, duration, location,
   } = cohortLearners;
@@ -339,6 +340,8 @@ export const createLearnerAssessmentBreakout = async (
         }
       }
 
+      lastCreatedSlot = timeSlot;
+
       return createAssessmentEntry(
         learnerDetails.name,
         id,
@@ -350,7 +353,7 @@ export const createLearnerAssessmentBreakout = async (
         null,
         reviewer,
         phase,
-      ).then(createReviewBreakout => {
+      ).then(async createReviewBreakout => {
         let cohort_breakout_id = createReviewBreakout.id;
         let review_feedback = { type: 'assessment' };
         LearnerBreakout.create({
@@ -372,6 +375,7 @@ export const createLearnerAssessmentBreakout = async (
   } catch (err2) {
     console.warn('Unable to send message to slack');
   }
+  return lastCreatedSlot;
 };
 
 export const createAssessmentSchedule = (

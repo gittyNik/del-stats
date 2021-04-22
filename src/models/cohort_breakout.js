@@ -1090,8 +1090,8 @@ export const overlappingCatalystBreakout = (
       [Sequelize.Op.in]: types,
     },
   },
-  logging: console.log,
   raw: true,
+  logging: console.log,
 });
 
 export default CohortBreakout;
