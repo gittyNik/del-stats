@@ -219,7 +219,7 @@ export const createScheduledMeeting = async (topic, start_time,
         duration,
         start_time: db_update_time,
         zoom_user: catalyst_email,
-      })
+      }, { logging: console.log })
         .then(video =>
           // logger.info('meeting updated in db.');
           // logger.info(video);

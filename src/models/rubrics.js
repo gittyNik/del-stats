@@ -70,8 +70,11 @@ export const getRubricsByProgram = (program, type) => Rubrics.findAll(
 );
 
 export const getRubricsByMilestone = (
-  milestone_id, program, type, rubric_for, path = 'common',
+  {
+    milestone_id, program, type, rubric_for, path,
+  },
 ) => {
+  path = path || 'common';
   if (milestone_id) {
     if (rubric_for) {
       return db.query('select * from rubrics where program=:program and type=:type and rubric_for=:rubric_for and (milestone_id is null or milestone_id=:milestone_id);', {

@@ -8,16 +8,16 @@ import {
   getUsersByRole,
   getUserByEmailAPI,
 } from '../../controllers/community/user.controller';
-import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
+import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, CATALYST, EDUCATOR, REVIEWER,
+  ADMIN, EDUCATOR, REVIEWER,
 } = USER_ROLES;
 
 const router = express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER]));
+router.use(allowMultipleRoles([ADMIN, EDUCATOR, REVIEWER]));
 
 router.post('/', updateUserStatus);
 
@@ -31,7 +31,7 @@ router.get('/role/:role', getUsersByRole);
 
 router.get('/email/:email', getUserByEmailAPI);
 
-router.use(allowMultipleRoles([ADMIN]));
+router.use(allowAdminsOnly);
 
 router.patch('/', updateUser);
 
