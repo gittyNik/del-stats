@@ -44,7 +44,7 @@ cron.schedule('0 10 * * *', async () => {
 });
 
 // Every Thursday run cron at 8pm to schedule reviews
-cron.schedule('0 9 * * 3', async () => {
+cron.schedule('0 9 * * 4', async () => {
   if (process.env.NODE_ENV === 'production') {
     const alreadyStarted = await cache.get('REVIEWS');
     if (alreadyStarted === null) {
@@ -64,7 +64,7 @@ cron.schedule('0 9 * * 3', async () => {
 });
 
 // Every Thursday run cron at 8pm to schedule reviews
-cron.schedule('0 8 * * 3', async () => {
+cron.schedule('0 8 * * 4', async () => {
   if (process.env.NODE_ENV === 'production') {
     const alreadyStarted = await cache.get('ASSESSMENTS');
     if (alreadyStarted === null) {
