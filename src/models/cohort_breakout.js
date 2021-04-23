@@ -301,23 +301,26 @@ export const autoMarkAttendance = async (
   return attendance;
 };
 
-export const markBreakoutFinished = (
+export const markBreakoutFinished = async (
   cohort_breakout_id, name = '',
-) => markBreakoutComplete(cohort_breakout_id)
-  .then((completeBreakout) => Promise.all([
-    markZoomAttendance(completeBreakout[1], false),
-    showCompletedBreakoutOnSlack(
-      completeBreakout[1].topicId,
-      completeBreakout[1].cohortId,
-      name,
-      cohort_breakout_id,
-    ),
-  ]))
-  .then(async (data) => {
-    const slackResponse = await postAttendaceInCohortChannel(cohort_breakout_id);
-    data.slackNotify = (slackResponse.ok) ? 'Notified on Slack' : slackResponse.error;
-    return data;
-  });
+) => {
+  let completeBreakout = await markBreakoutComplete(cohort_breakout_id);
+  try {
+    await markZoomAttendance(completeBreakout[1], false);
+  } catch (err) {
+    logger.warn('Unable to get breakout time');
+  }
+
+  let data = await showCompletedBreakoutOnSlack(
+    completeBreakout[1].topicId,
+    completeBreakout[1].cohortId,
+    name,
+    cohort_breakout_id,
+  );
+  const slackResponse = await postAttendaceInCohortChannel(cohort_breakout_id);
+  data.slackNotify = (slackResponse.ok) ? 'Notified on Slack' : slackResponse.error;
+  return data;
+};
 
 export const createNewBreakout = (
   breakout_template_id,
@@ -706,31 +709,38 @@ export const getCalendarDetailsOfCohortBreakout = async (id) => {
   let description;
   // logger.info(cohort_breakout);
   const {
-    type, domain, breakout_template_id,
-    time_scheduled, duration, location, status,
+    type, domain, breakout_template_id, details,
+    time_scheduled, duration, location, status, cohort_id,
   } = cohort_breakout;
   if (type === 'lecture') {
     const breakoutTemplate = await BreakoutTemplate.findOne({
       where: { id: breakout_template_id },
       raw: true,
     });
+    const cohort = await Cohort.findOne({
+      where: { id: cohort_id },
+      attributes: ['name'],
+      raw: true,
+    });
     const { name, topic_id: topic_ids } = breakoutTemplate;
 
+    let path = 'Common';
     const topics = await Promise.all(topic_ids.map(async topic_id => {
       const topic = await Topic.findOne({
-        attributes: ['title'],
+        attributes: ['title', 'path'],
         where: { id: topic_id },
         raw: true,
       });
+      path = topic.path;
       return topic.title;
     }));
-    summary = `${name.toUpperCase()} BO`;
+    summary = `SOAL ${path} BO : ${cohort.name.toUpperCase()} ${name.toUpperCase()}`;
     description = `Topics:
   ${topics.join('\n ')}
   `;
   } else {
-    summary = type;
-    description = type;
+    summary = `SOAL ${type.toUpperCase()}`;
+    description = details.topics;
   }
   // convert milliseconds into minutes 360000 -> 60 minutes;
   return ({
