@@ -8,7 +8,7 @@ import {
   getUsersByRole,
   getUserByEmailAPI,
 } from '../../controllers/community/user.controller';
-import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/roles.controller';
+import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
@@ -31,7 +31,7 @@ router.get('/role/:role', getUsersByRole);
 
 router.get('/email/:email', getUserByEmailAPI);
 
-router.use(allowAdminsOnly);
+router.use(allowMultipleRoles([ADMIN]));
 
 router.patch('/', updateUser);
 
