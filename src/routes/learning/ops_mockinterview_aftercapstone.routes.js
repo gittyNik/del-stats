@@ -35,7 +35,7 @@ router.use(allowMultipleRoles([ADMIN, OPERATIONS]));
 router.post('/', createMockInterviewsSlotsApi);
 
 /**
- * @api {post} /learning/ops/aftercapstone create mockinterviews slots
+ * @api {patch} /learning/ops/aftercapstone/:id update mockinterviews slots
  * @apiDescription Create Mock Interview Slots
  * @apiHeader {String} authorization JWT Token.
  * @apiName createMockInterview
@@ -44,7 +44,7 @@ router.post('/', createMockInterviewsSlotsApi);
 router.patch('/:id', updateMockInterviewsSlotsByIdApi);
 
 /**
- * @api {post} /learning/ops/aftercapstone create mockinterviews slots
+ * @api {delete} /learning/ops/aftercapstone:id delete mockinterviews slots
  * @apiDescription Create Mock Interview Slots
  * @apiHeader {String} authorization JWT Token.
  * @apiName createMockInterview
