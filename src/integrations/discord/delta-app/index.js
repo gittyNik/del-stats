@@ -1,8 +1,22 @@
 import Express from 'express';
 import compression from 'compression';
 import oauth2Route from './routes/oauth.route';
+import { botConfig } from './config';
+import client from './client';
 
 const router = Express.Router();
+
+client.login(botConfig);
+
+client.on('ready', () => {
+  console.log(`bot client Logged in as ${client.user.tag}!`);
+});
+
+client.on('message', msg => {
+  if (msg.content === 'ping') {
+    msg.reply('pong');
+  }
+});
 
 router.get('/', (req, res) => res.send({ data: 'hello' }));
 

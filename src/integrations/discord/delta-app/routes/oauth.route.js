@@ -1,19 +1,16 @@
 import Express from 'express';
-import { discordAuth } from '../client';
+import { discordOAuth2, discordBotOAuth2 } from '../client';
 import oauth2Route from '../handlers/oauth.handler';
 import authenticate from '../../../../controllers/auth/auth.controller';
+import { allowSuperAdminOnly } from '../../../../controllers/auth/roles.controller';
 
 const router = Express.Router();
-
-router.get('/', (req, res) => {
-  let uri = discordAuth.code.getUri();
-  res.redirect(uri);
-});
 
 router.get('/redirect', oauth2Route);
 
 // Private Routes.
 router.use(authenticate);
+router.use(allowSuperAdminOnly);
 
 /*
  * @api {post} /integrations/slack/delta/web/notify-learners  Notify learners in slack
@@ -29,5 +26,17 @@ router.use(authenticate);
  * @apiParam {Number} team_number Team number for review
  * */
 // router.post('/notify-learners', notifyLearnersInChannel);
+
+// invite bot to server using OAuth2
+router.get('/invite-bot', (req, res) => {
+  let uri = discordBotOAuth2.code.getUri();
+  res.redirect(uri);
+});
+
+// invite user to discord,
+router.get('/join-discord', (req, res) => {
+  let uri = discordOAuth2.code.getUri();
+  res.redirect(uri);
+});
 
 export default router;
