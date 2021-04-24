@@ -38,10 +38,10 @@ export const createMockInterviewsApi = (req, res) => {
 export const updateMockInterviewsSlotsByIdApi = (req, res) => {
   const { id } = req.params;
   const {
-    cohort_duration, mock_interview_day, time_scheduled, slot_status,
+    cohort_duration, mock_interview_day, time_scheduled, status,
   } = req.body;
   updateSlotById({
-    id, cohort_duration, mock_interview_day, time_scheduled, slot_status,
+    id, cohort_duration, mock_interview_day, time_scheduled, status,
   })
     .then(data => res.status(201).send({
       data,
