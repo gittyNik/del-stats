@@ -44,7 +44,7 @@ router.post('/', createMockInterviewsSlotsApi);
 router.patch('/:id', updateMockInterviewsSlotsByIdApi);
 
 /**
- * @api {delete} /learning/ops/aftercapstone:id delete mockinterviews slots
+ * @api {delete} /learning/ops/aftercapstone/:id delete mockinterviews slots
  * @apiDescription Create Mock Interview Slots
  * @apiHeader {String} authorization JWT Token.
  * @apiName createMockInterview
