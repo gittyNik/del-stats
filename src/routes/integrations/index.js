@@ -1,6 +1,7 @@
 import Express from 'express';
 import compression from 'compression';
 import slackRouter from './slack';
+import discordRouter from './discord';
 import instamojoRouter from './instamojo';
 import hubspotRouter from './hubspot';
 import twitterRouter from './twitter';
@@ -16,6 +17,7 @@ const router = Express.Router();
 router.use(browserAccessControl);
 
 router.use('/slack', slackRouter);
+router.use('/discord', discordRouter);
 
 router.use(compression());
 router.use(Express.json({ limit: '20mb' }));

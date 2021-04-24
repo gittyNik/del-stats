@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import db from '../database';
-import { User } from './user';
+// import { User } from './user';
 import logger from '../util/logger';
 
 export const PROVIDERS = Object.freeze({
@@ -10,6 +10,7 @@ export const PROVIDERS = Object.freeze({
   LINKEDIN: 'linkedin',
   ZOOM: 'zoom',
   STACKOVERFLOW: 'stackoverflow',
+  DISCORD: 'discord',
 });
 
 export const SocialConnection = db.define(
@@ -35,19 +36,18 @@ export const SocialConnection = db.define(
   {},
 );
 
-export const authSlack = (username, team) =>
-  // check if there is a social connection with workspace username
-  SocialConnection.findOne({
-    where: {
-      provider: `slack_${team}`,
-      username,
-    },
-  }).then(social_connection => {
-    if (social_connection === null) {
-      return Promise.reject('User not found!');
-    }
-    return social_connection;
-  });
+// check if there is a social connection with workspace username
+export const authSlack = (username, team) => SocialConnection.findOne({
+  where: {
+    provider: `slack_${team}`,
+    username,
+  },
+}).then(social_connection => {
+  if (social_connection === null) {
+    return Promise.reject('User not found!');
+  }
+  return social_connection;
+});
 
 export const getGoogleTokens = (user_id) => SocialConnection.findOne({
   where: {
