@@ -1,12 +1,13 @@
 import logger from '../../../../util/logger';
 import { getUserInfo, addDiscordSocialConnection } from '../controllers/user.controller';
-import { discordAuth } from '../client';
+import { discordOAuth2 } from '../client';
 import { User } from '../../../../models/user';
 import { HttpBadRequest } from '../../../../util/errors';
 
 const oauthRedirect = async (req, res) => {
   try {
-    const authRes = await discordAuth.code.getToken(req.originalUrl);
+    const authRes = await discordOAuth2.code.getToken(req.originalUrl);
+
     const user = await getUserInfo(authRes.accessToken);
     const deltaUser = await User.findOne(
       {
@@ -49,6 +50,11 @@ const oauthRedirect = async (req, res) => {
     logger.error(error);
     return res.sendStatus(500);
   }
+};
+
+export const oauthBotRedirect = async (req, res) => {
+  // redirect to bot added successfully page
+  res.json({ data: 'Bot added to server successfully!' });
 };
 
 export default oauthRedirect;

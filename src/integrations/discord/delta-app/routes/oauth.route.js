@@ -1,12 +1,13 @@
 import Express from 'express';
 import { discordOAuth2, discordBotOAuth2 } from '../client';
-import oauth2Route from '../handlers/oauth.handler';
+import oauth2Route, { oauthBotRedirect } from '../handlers/oauth.handler';
 import authenticate from '../../../../controllers/auth/auth.controller';
 import { allowSuperAdminOnly } from '../../../../controllers/auth/roles.controller';
 
 const router = Express.Router();
 
 router.get('/redirect', oauth2Route);
+router.get('/bot-redirect', oauthBotRedirect);
 
 // Private Routes.
 router.use(authenticate);

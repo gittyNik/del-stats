@@ -3,13 +3,14 @@ import compression from 'compression';
 import oauth2Route from './routes/oauth.route';
 import { botConfig } from './config';
 import client from './client';
+import logger from '../../../util/logger';
 
 const router = Express.Router();
 
-client.login(botConfig);
+client.login(botConfig.token);
 
 client.on('ready', () => {
-  console.log(`bot client Logged in as ${client.user.tag}!`);
+  logger.info(`Bot client Logged in as ${client.user.tag}!`);
 });
 
 client.on('message', msg => {
@@ -34,6 +35,6 @@ router.use(Express.urlencoded({
   extended: false,
 }));
 
-router.use('/OAuth', oauth2Route);
+router.use('/oauth', oauth2Route);
 
 export default router;
