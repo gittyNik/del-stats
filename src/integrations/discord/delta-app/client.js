@@ -15,9 +15,13 @@ export const discordOAuth2 = ({ state, prompt = 'concent' }) => new ClientOAuth2
   },
 }));
 
-export const discordBotOAuth2 = new ClientOAuth2(config({
+export const discordBotOAuth2 = ({ state, prompt = 'concent' }) => new ClientOAuth2(config({
   scopes: [SCOPES.BOT],
   redirectUri: 'http://localhost:3000/integrations/discord/delta/oauth/bot-redirect',
+  state,
+  query: {
+    prompt,
+  },
 }));
 
 export default client;

@@ -1,10 +1,18 @@
 import jwt from 'jsonwebtoken';
 import logger from '../../../../util/logger';
 import { getUserInfo, addDiscordSocialConnection, hasDiscordSocialConnection } from '../controllers/user.controller';
-import { discordOAuth2 } from '../client';
+import { discordOAuth2, discordBotOAuth2 } from '../client';
 import { User } from '../../../../models/user';
 import { HttpBadRequest } from '../../../../util/errors';
 import { createState, retrieveState } from '../utils';
+
+export const inviteBot = async (req, res) => {
+  const deltaToken = req.headers.authorization.split(' ').pop();
+  const state = await createState({ deltaToken, prompt: 'concent' });
+
+  let uri = discordBotOAuth2({ state, prompt: 'concent' }).code.getUri();
+  return res.redirect(uri);
+};
 
 export const joinDiscord = async (req, res) => {
   const { id } = req.jwtData.user;
