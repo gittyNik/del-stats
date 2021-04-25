@@ -1,13 +1,28 @@
-function generateRandomState() {
-  let randomString = '';
-  const randomNumber = Math.floor(Math.random() * 10);
+import crypto from 'crypto';
+import cache from '../../../../cache';
 
-  for (let i = 0; i < 20 + randomNumber; i++) {
-    randomString += String.fromCharCode(33 + Math.floor(Math.random() * 94));
-  }
-
-  return randomString;
+async function randomString(size = 9) {
+  return crypto
+    .randomBytes(size)
+    .toString('hex')
+    .slice(0, size);
 }
+
+export const createState = async (value) => {
+  const key = await randomString();
+  await cache.set(key, JSON.stringify(value));
+  return key;
+};
+
+export const retrieveState = async ({ key }) => {
+  const string = await cache.get(key);
+  const data = JSON.parse(string);
+  return data;
+};
+
+export const removeState = (key) => {
+  cache.add(key);
+};
 
 function base64URLEncode(str) {
   return str.toString('base64')
@@ -23,5 +38,3 @@ function sha256(buffer) {
 }
 
 export const challenge = base64URLEncode(sha256(verifier));
-
-export default generateRandomState;

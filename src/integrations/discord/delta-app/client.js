@@ -6,14 +6,18 @@ import { config, SCOPES } from './config';
 
 const client = new Discord.Client();
 
-export const discordOAuth2 = new ClientOAuth2(config(
-  [SCOPES.EMAIL, SCOPES.IDENTIFY, SCOPES.CONNECTIONS],
-  'http://localhost:3000/integrations/discord/delta/oauth/redirect',
-));
+export const discordOAuth2 = ({ state, prompt = 'concent' }) => new ClientOAuth2(config({
+  scopes: [SCOPES.EMAIL, SCOPES.IDENTIFY, SCOPES.CONNECTIONS],
+  redirectUri: 'http://localhost:3000/integrations/discord/delta/oauth/redirect',
+  state,
+  query: {
+    prompt,
+  },
+}));
 
-export const discordBotOAuth2 = new ClientOAuth2(config(
-  [SCOPES.BOT],
-  'http://localhost:3000/integrations/discord/delta/oauth/bot-redirect',
-));
+export const discordBotOAuth2 = new ClientOAuth2(config({
+  scopes: [SCOPES.BOT],
+  redirectUri: 'http://localhost:3000/integrations/discord/delta/oauth/bot-redirect',
+}));
 
 export default client;
