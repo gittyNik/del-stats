@@ -1,6 +1,5 @@
 import Express from 'express';
-import { discordBotOAuth2 } from '../client';
-import oauth2Route, { oauthBotRedirect, joinDiscord } from '../handlers/oauth.handler';
+import oauth2Route, { oauthBotRedirect, joinDiscord, inviteBot } from '../handlers/oauth.handler';
 
 import authenticate from '../../../../controllers/auth/auth.controller';
 import { allowSuperAdminOnly } from '../../../../controllers/auth/roles.controller';
@@ -30,10 +29,7 @@ router.use(allowSuperAdminOnly);
 // router.post('/notify-learners', notifyLearnersInChannel);
 
 // invite bot to server using OAuth2
-router.get('/invite-bot', (req, res) => {
-  let uri = discordBotOAuth2.code.getUri();
-  res.redirect(uri);
-});
+router.get('/invite-bot', inviteBot);
 
 // invite user to discord,
 router.get('/join', joinDiscord);
