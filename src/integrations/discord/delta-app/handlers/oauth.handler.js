@@ -1,10 +1,12 @@
 import jwt from 'jsonwebtoken';
 import logger from '../../../../util/logger';
-import { getUserInfo, addDiscordSocialConnection, hasDiscordSocialConnection } from '../controllers/user.controller';
-import { discordOAuth2, discordBotOAuth2 } from '../client';
+import { getUser, addDiscordSocialConnection, hasDiscordSocialConnection } from '../controllers/user.controller';
+import { discordOAuth2, discordBotOAuth2 } from '../controllers/oauth.controller';
+import discordBot from '../client';
+
 import { User } from '../../../../models/user';
 import { HttpBadRequest } from '../../../../util/errors';
-import { createState, retrieveState } from '../utils';
+import { createState, retrieveState, removeState } from '../utils';
 
 export const inviteBot = async (req, res) => {
   const deltaToken = req.headers.authorization.split(' ').pop();
@@ -51,14 +53,18 @@ const oauthRedirect = async (req, res) => {
     );
 
     if (deltaUser === null) {
-      throw new HttpBadRequest('Bad Request! Messed up JWT or State!');
+      await removeState({ key: stateKey });
+      throw new HttpBadRequest('Bad Request! Messed up JWT! Couldn\'t find user in delta');
     }
 
     // get discord user token to do stuff on their behalf
     const authRes = await discordOAuth2({ state: stateKey }).code.getToken(req.originalUrl);
-    const user = await getUserInfo(authRes.accessToken);
+    const user = await getUser(authRes.accessToken);
+    await discordBot.guild.available({});
 
     if (stateData.prompt === 'none') {
+      await removeState({ key: stateKey });
+
       return res.json({
         message: 'oauth success',
         type: 'success',
@@ -73,7 +79,11 @@ const oauthRedirect = async (req, res) => {
       // user has first time clicked join
       await addDiscordSocialConnection(deltaUser, user);
 
+      // add user to server
+
       // give role
+
+      await removeState({ key: stateKey });
 
       return res.json({
         message: 'oauth success',

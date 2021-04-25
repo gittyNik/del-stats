@@ -4,7 +4,7 @@ import { SocialConnection, PROVIDERS } from '../../../../models/social_connectio
 
 // eslint-disable-next-line import/prefer-default-export
 // GET/users/@me
-export const getUserInfo = (access_token) => axios.get(`${process.env.DISCORD_BASE_API_URL}/users/@me`,
+export const getUser = (access_token) => axios.get(`${process.env.DISCORD_BASE_API_URL}/users/@me`,
   { headers: { Authorization: `Bearer ${access_token}` } });
 
 export const hasDiscordSocialConnection = async ({ user_id }) => {

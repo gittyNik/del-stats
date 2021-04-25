@@ -1,5 +1,4 @@
-// import client from '../client';
+import client from '../client';
 
-// export const addBotToserver = () => {
-
-// };
+// eslint-disable-next-line import/prefer-default-export
+export const createServer = async (name, { channels, icon, roles }) => client.guilds.create(name, { channels, icon, roles });

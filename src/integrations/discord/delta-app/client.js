@@ -1,27 +1,14 @@
-import ClientOAuth2 from 'client-oauth2';
 import Discord from 'discord.js';
-import { config, SCOPES } from './config';
-
+import { botConfig } from './config';
+import logger from '../../../util/logger';
 // eslint-disable-next-line import/prefer-default-export
 
 const client = new Discord.Client();
 
-export const discordOAuth2 = ({ state, prompt = 'concent' }) => new ClientOAuth2(config({
-  scopes: [SCOPES.EMAIL, SCOPES.IDENTIFY, SCOPES.CONNECTIONS],
-  redirectUri: 'http://localhost:3000/integrations/discord/delta/oauth/redirect',
-  state,
-  query: {
-    prompt,
-  },
-}));
+client.login(botConfig.token);
 
-export const discordBotOAuth2 = ({ state, prompt = 'concent' }) => new ClientOAuth2(config({
-  scopes: [SCOPES.BOT],
-  redirectUri: 'http://localhost:3000/integrations/discord/delta/oauth/bot-redirect',
-  state,
-  query: {
-    prompt,
-  },
-}));
+client.on('ready', () => {
+  logger.info(`Bot client Logged in as ${client.user.tag}!`);
+});
 
 export default client;

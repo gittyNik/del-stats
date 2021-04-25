@@ -10,7 +10,7 @@ async function randomString(size = 9) {
 
 export const createState = async (value) => {
   const key = await randomString();
-  await cache.set(key, JSON.stringify(value));
+  await cache.set(key, JSON.stringify(value), 'ex', 1 * 60 * 10); // 10 minutes
   return key;
 };
 
@@ -20,9 +20,7 @@ export const retrieveState = async ({ key }) => {
   return data;
 };
 
-export const removeState = (key) => {
-  cache.add(key);
-};
+export const removeState = ({ key }) => cache.del(key);
 
 function base64URLEncode(str) {
   return str.toString('base64')
