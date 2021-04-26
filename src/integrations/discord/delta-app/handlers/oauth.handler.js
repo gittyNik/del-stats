@@ -95,6 +95,7 @@ const oauthRedirect = async (req, res) => {
       });
     }
 
+    await removeState({ key: stateKey });
     throw new HttpBadRequest('Bad Request! Messed up JWT or State!');
 
     // Refresh the current users access token.

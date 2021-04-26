@@ -1,17 +1,16 @@
 import Express from 'express';
 import compression from 'compression';
-import oauth2Route from './routes/oauth.route';
+
 import client from './client';
+import routes from './routes';
 
 const router = Express.Router();
 
 client.on('message', msg => {
   if (msg.content === 'ping') {
-    msg.reply('pong');
+    msg.reply('pong 🏓');
   }
 });
-
-router.get('/', (req, res) => res.send({ data: 'hello' }));
 
 // router.use('/action-endpoint', event);
 // router.use('/interactive-endpoint', interaction);
@@ -27,6 +26,6 @@ router.use(Express.urlencoded({
   extended: false,
 }));
 
-router.use('/oauth', oauth2Route);
+router.use('/', routes);
 
 export default router;
