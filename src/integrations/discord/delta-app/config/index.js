@@ -23,3 +23,8 @@ export const config = ({
 export const botConfig = Object.freeze({
   token: process.env.DISCORD_BOT_TOKEN,
 });
+
+export const OAuthRedirects = Object.freeze({
+  discordOAuth2: process.env.DISCORD_OAUTH2_REDIRECT,
+  discordBotOAuth2: process.env.DISCORD_BOT_OAUTH2_REDIRECT,
+});

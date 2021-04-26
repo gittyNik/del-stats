@@ -1,9 +1,9 @@
 import ClientOAuth2 from 'client-oauth2';
-import { config, SCOPES } from '../config';
+import { config, SCOPES, OAuthRedirects } from '../config';
 
 export const discordOAuth2 = ({ state, prompt = 'concent' }) => new ClientOAuth2(config({
   scopes: [SCOPES.EMAIL, SCOPES.IDENTIFY, SCOPES.CONNECTIONS],
-  redirectUri: 'http://localhost:3000/integrations/discord/delta/oauth/redirect',
+  redirectUri: OAuthRedirects.discordOAuth2,
   state,
   query: {
     prompt,
@@ -12,7 +12,7 @@ export const discordOAuth2 = ({ state, prompt = 'concent' }) => new ClientOAuth2
 
 export const discordBotOAuth2 = ({ state, prompt = 'concent' }) => new ClientOAuth2(config({
   scopes: [SCOPES.BOT],
-  redirectUri: 'http://localhost:3000/integrations/discord/delta/oauth/bot-redirect',
+  redirectUri: OAuthRedirects.discordOAuth2,
   state,
   query: {
     prompt,

@@ -1,14 +1,17 @@
 import Express from 'express';
 import compression from 'compression';
 
-import client from './client';
+import client from './src/client';
 import routes from './routes';
 
 const router = Express.Router();
 
+// not dm, server message
 client.on('message', msg => {
   if (msg.content === 'ping') {
     msg.reply('pong 🏓');
+  } if (msg.channel.type === 'dm') {
+    msg.author.send('You are DMing me now!');
   }
 });
 
