@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import logger from '../../../../util/logger';
 import { getUser, addDiscordSocialConnection, hasDiscordSocialConnection } from '../controllers/user.controller';
 import { discordOAuth2, discordBotOAuth2 } from '../controllers/oauth.controller';
-import discordBot from '../client';
+import discordBot from '../src/client';
 
 import { User } from '../../../../models/user';
 import { HttpBadRequest } from '../../../../util/errors';

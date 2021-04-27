@@ -7,7 +7,7 @@ export const SCOPES = Object.freeze({
   BOT: 'bot',
 });
 
-export const config = ({
+export const oAuthConfig = ({
   scopes, redirectUri, query, state,
 }) => Object.freeze({
   clientId: process.env.DISCORD_CLIENT_ID,
@@ -28,3 +28,7 @@ export const OAuthRedirects = Object.freeze({
   discordOAuth2: process.env.DISCORD_OAUTH2_REDIRECT,
   discordBotOAuth2: process.env.DISCORD_BOT_OAUTH2_REDIRECT,
 });
+
+export default {
+  DISCORD_BASE_API_URL: process.env.DISCORD_BASE_API_URL,
+};

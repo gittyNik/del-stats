@@ -1,4 +1,6 @@
 /* eslint-disable import/prefer-default-export */
+// https://github.com/discordjs/discord.js/blob/stable/src/util/Constants.js#L552
+
 export const OAUTH_SCOPES = [
   'identify',
   'email',

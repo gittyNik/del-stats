@@ -22,6 +22,8 @@ export const retrieveState = async ({ key }) => {
 
 export const removeState = ({ key }) => cache.del(key);
 
+export const delay = (msec) => new Promise((resolve) => setTimeout(resolve, msec));
+
 function base64URLEncode(str) {
   return str.toString('base64')
     .replace(/\+/g, '-')

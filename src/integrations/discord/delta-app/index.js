@@ -3,16 +3,27 @@ import compression from 'compression';
 
 import client from './src/client';
 import routes from './routes';
+import { delay } from './utils';
 
 const router = Express.Router();
 
-// not dm, server message
-client.on('message', msg => {
-  if (msg.content === 'ping') {
-    msg.reply('pong 🏓');
-  } if (msg.channel.type === 'dm') {
-    msg.author.send('You are DMing me now!');
+// dm & server both message
+client.on('message', async msg => {
+  await delay(1000);
+
+  try {
+    if (msg.content === 'ping') {
+      await msg.reply('pong 🏓');
+    } if (msg.channel.type === 'dm') {
+      await msg.author.send('You are DMing me now!');
+    }
+  } catch (err) {
+    console.error('message listener error', err);
   }
+});
+
+process.on('unhandledRejection', error => {
+  console.error('didn\'t catchUnhandled promise rejection:', error);
 });
 
 // router.use('/action-endpoint', event);

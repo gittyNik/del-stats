@@ -11,6 +11,10 @@ router.get('/bot-redirect', oauthBotRedirect);
 
 // Private Routes.
 router.use(authenticate);
+
+// invite user to discord,
+router.get('/join', joinDiscord);
+
 router.use(allowSuperAdminOnly);
 
 /*
@@ -30,8 +34,5 @@ router.use(allowSuperAdminOnly);
 
 // invite bot to server using OAuth2
 router.get('/invite-bot', inviteBot);
-
-// invite user to discord,
-router.get('/join', joinDiscord);
 
 export default router;
