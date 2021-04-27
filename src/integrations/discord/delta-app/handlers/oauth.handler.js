@@ -2,11 +2,12 @@ import jwt from 'jsonwebtoken';
 import logger from '../../../../util/logger';
 import { getUser, addDiscordSocialConnection, hasDiscordSocialConnection } from '../controllers/user.controller';
 import { discordOAuth2, discordBotOAuth2 } from '../controllers/oauth.controller';
-import discordBot from '../src/client';
-
+import { addGuildMember } from '../controllers/guild.controller';
+// import discordBot from '../client';
 import { User } from '../../../../models/user';
 import { HttpBadRequest } from '../../../../util/errors';
 import { createState, retrieveState, removeState } from '../utils';
+import { botConfig } from '../config';
 
 export const inviteBot = async (req, res) => {
   const deltaToken = req.headers.authorization.split(' ').pop();
@@ -60,7 +61,7 @@ const oauthRedirect = async (req, res) => {
     // get discord user token to do stuff on their behalf
     const authRes = await discordOAuth2({ state: stateKey }).code.getToken(req.originalUrl);
     const user = await getUser(authRes.accessToken);
-    await discordBot.guild.available({});
+    // await discordBot.guild.available({});
 
     if (stateData.prompt === 'none') {
       await removeState({ key: stateKey });
@@ -80,8 +81,15 @@ const oauthRedirect = async (req, res) => {
       await addDiscordSocialConnection(deltaUser, user);
 
       // add user to server
+      // @TO-DO detect which server(s) to add a user to, program type, soal admin
+      // right now we will be using const guild id from env
 
-      // give role
+      const result = await addGuildMember({
+        discord_user_access_token: authRes.accessToken,
+        discord_bot_access_token: botConfig.token,
+        user_id: user.data.id,
+        guild_id: process.env.DISCORD_GUILD_ID,
+      });
 
       await removeState({ key: stateKey });
 
@@ -89,6 +97,7 @@ const oauthRedirect = async (req, res) => {
         message: 'oauth success',
         type: 'success',
         data: {
+          result: result.data,
           token: authRes.accessToken,
           user: user.data,
         },

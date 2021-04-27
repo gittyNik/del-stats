@@ -1,7 +1,7 @@
 import Express from 'express';
 import compression from 'compression';
 
-import client from './src/client';
+import client from './client';
 import routes from './routes';
 import { delay } from './utils';
 

@@ -1,8 +1,9 @@
 import ClientOAuth2 from 'client-oauth2';
-import { oAuthConfig, SCOPES, OAuthRedirects } from '../config';
+import { OAUTH_SCOPES } from '../config/constants';
+import { oAuthConfig, OAuthRedirects } from '../config';
 
 export const discordOAuth2 = ({ state, prompt = 'concent' }) => new ClientOAuth2(oAuthConfig({
-  scopes: [SCOPES.EMAIL, SCOPES.IDENTIFY, SCOPES.CONNECTIONS],
+  scopes: [OAUTH_SCOPES.EMAIL, OAUTH_SCOPES.IDENTIFY, OAUTH_SCOPES.CONNECTIONS, OAUTH_SCOPES.GUILDS_JOIN],
   redirectUri: OAuthRedirects.discordOAuth2,
   state,
   query: {
@@ -11,7 +12,7 @@ export const discordOAuth2 = ({ state, prompt = 'concent' }) => new ClientOAuth2
 }));
 
 export const discordBotOAuth2 = ({ state, prompt = 'concent' }) => new ClientOAuth2(oAuthConfig({
-  scopes: [SCOPES.BOT],
+  scopes: [OAUTH_SCOPES.BOT],
   redirectUri: OAuthRedirects.discordOAuth2,
   state,
   query: {

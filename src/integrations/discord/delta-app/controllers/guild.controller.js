@@ -1,7 +1,11 @@
 import Discord from 'discord.js';
 import axios from 'axios';
-import client from '../src/client';
 import config from '../config';
+
+/* eslint-disable import/prefer-default-export */
+import client from '../client';
+
+export const getGuildClient = async ({ guildID }) => client.guilds.get(guildID);
 
 // https://discord.com/developers/docs/resources/guild
 
@@ -16,17 +20,7 @@ export const createInvite = async () => {
   return inviteUrl;
 };
 
-export const addServerMember = async ({ user, options }) => {
-  const guildClient = new Discord.Guild(client);
-  const response = await guildClient.addMember(user, options);
-
-  return response;
-};
-
-export const getGuildClient = async ({ guildID }) => client.guilds.get(guildID);
-
 const { DISCORD_BASE_API_URL } = config;
-
 // Get Guild Member
 
 export const getGuildMemberById = ({ access_token, guild_id, user_id }) => axios.get(`${DISCORD_BASE_API_URL}/guilds/${guild_id}/members/${user_id}`,
@@ -45,8 +39,19 @@ export const getGuildsofUser = (access_token) => axios.get(`${process.env.DISCOR
 
 // Add Guild Member
 // PUT/guilds/{guild.id}/members/{user.id}
-export const addGuildMember = ({ access_token, guild_id, user_id }) => axios.put(`${DISCORD_BASE_API_URL}/guilds/${guild_id}/members/${user_id}`,
-  { headers: { Authorization: `Bearer ${access_token}` } });
+export const addGuildMember = ({
+  discord_user_access_token,
+  discord_bot_access_token,
+  guild_id,
+  user_id,
+}) => axios.put(`${DISCORD_BASE_API_URL}/guilds/${guild_id}/members/${user_id}`, {
+  access_token: discord_user_access_token,
+}, {
+  headers: {
+    Authorization: `Bot ${discord_bot_access_token}`,
+    'Content-Type': 'application/json',
+  },
+});
 
 // Remove Guild Member
 // DELETE/guilds/{guild.id}/members/{user.id}

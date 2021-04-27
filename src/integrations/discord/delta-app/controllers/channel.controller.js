@@ -3,19 +3,27 @@
 // Add/remove/kick/ban member Channel
 
 // import client from '../client';
+
+// create cohort channels;
+
+/* eslint-disable import/prefer-default-export */
+// import Discord, { GuildCreateChannelOptions } from 'discord.js';
 import { getGuildClient } from './guild.controller';
 
-// @TO-DO create const of all channel types = 'catagories'
-export const getAllChannelTypes = async ({ guildID }) => {
-  const guild = getGuildClient(guildID);
-  const channelTypes = guild.channels.map((channel) => channel.type);
-  // res.send();
-  return { channelTypes };
+// Create a new channel with permission overwrites
+
+export const createChannel = async ({ guild_id, name, options }) => {
+  const guild = await getGuildClient(guild_id);
+  return guild.channels.create(name, {
+    type: options.type,
+    permissionOverwrites: [
+
+    ],
+  });
 };
 
 export const getChannelsByType = async ({ guildID, channelType }) => {
   const guild = getGuildClient(guildID);
   const channels = guild.channels.filter((channel) => channel.type === channelType);
-  // res.send();
   return { categories: channels.keyArray() };
 };
