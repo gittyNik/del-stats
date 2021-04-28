@@ -6,8 +6,9 @@ const request_status = [
   'accepted',
   'rejected',
   'retained',
+  'pending',
 ];
-const CohortBreakoutAppliedCatalyst = db.define('cohort_breakout_applied_catalyst', {
+const CohortBreakoutAppliedCatalyst = db.define('cohort_breakout_applied_catalysts', {
   id: {
     allowNull: false,
     primaryKey: true,
