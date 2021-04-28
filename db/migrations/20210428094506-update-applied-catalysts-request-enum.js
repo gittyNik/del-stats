@@ -1,9 +1,7 @@
-
 const request_status = [
-  'applied',
-  'accepted',
-  'rejected',
   'internal',
+  'external-pending',
+  'external-selected',
 ];
 
 module.exports = {

@@ -66,10 +66,9 @@ export const BREAKOUT_TYPE = [
 ];
 
 const request_status = [
-  'applied',
-  'accepted',
-  'rejected',
   'internal',
+  'external-pending',
+  'external-selected',
 ];
 
 export const CohortBreakout = db.define('cohort_breakouts', {
