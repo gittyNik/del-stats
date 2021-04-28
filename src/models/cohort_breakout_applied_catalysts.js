@@ -17,18 +17,20 @@ export const CohortBreakoutAppliedCatalyst = db.define('cohort_breakout_applied_
   applied_catalyst_id: {
     type: Sequelize.UUID,
   },
-},
-// {
-//   tableName: 'cohort_breakout_applied_catalysts',
-//   createdAt: 'created_at',
-//   updatedAt: 'updated_at',
-//   timestamps: true,
-// }
-);
+}, {
+  tableName: 'cohort_breakout_applied_catalysts',
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  deletedAt: 'deteled_at',
+  paranoid: true,
+  timestamps: true,
+});
 
-export const createBreakoutAppliedCatalystRelation = (cohort_breakout_id,
-  applied_catalysts_id) => CohortBreakoutAppliedCatalyst.create({
-  id: uuid(),
+export const createBreakoutAppliedCatalystRelation = ({
+  id, cohort_breakout_id,
+  applied_catalysts_id,
+}) => CohortBreakoutAppliedCatalyst.create({
+  id: id || uuid(),
   cohort_breakout_id,
   applied_catalysts_id,
   // created_at: new Date(),

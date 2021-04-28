@@ -4,6 +4,8 @@ import { MockInterviewSlots } from './mock_interview_slots';
 import { CohortBreakout } from './cohort_breakout';
 import { changeTimezone } from './breakout_template';
 import { LearnerBreakout } from './learner_breakout';
+import { createBreakoutAppliedCatalystRelation } from './cohort_breakout_applied_catalysts';
+import { addRequestedCatalystsStatus } from './requested_catalysts_status';
 import { User } from './user';
 
 const WEEK_VALUES = {
@@ -124,3 +126,38 @@ export const getAppliedCatalystDetailsByStatus = ({
     },
     include: [{ model: User, attributes: ['name'], as: 'RequestedByCatalysts' }],
   });
+
+export const createRequestForCatalyst = ({ cohort_breakout_id, catalyst_id }) => {
+  let request_id = uuid();
+  return Promise.all([
+    CohortBreakout.update({
+      catalyst_request_status: 'external-pending',
+    }, {
+      where: {
+        id: cohort_breakout_id,
+      },
+      raw: true,
+    }),
+    createBreakoutAppliedCatalystRelation({ id: request_id, cohort_breakout_id, applied_catalysts_id: catalyst_id }),
+  ]);
+};
+
+export const updateRequestStatus = ({
+  user_id, cohort_breakout_id, catalyst_id,
+}) => CohortBreakout.findOne({
+  where: {
+    id: cohort_breakout_id,
+  },
+  raw: true,
+})
+  .then(data => data.updated_by_user)
+  .then(updated_by_user => updated_by_user.push(user_id))
+  .then(updated_by_user => CohortBreakout.update({
+    catalyst_request_status: 'external-selected',
+    catalyst_id,
+    updated_by_user,
+  }, {
+    where: {
+      id: cohort_breakout_id,
+    },
+  }));

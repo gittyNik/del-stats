@@ -25,6 +25,13 @@ module.exports = {
       updated_by: {
         type: Sequelize.ARRAY(Sequelize.UUID),
       },
+    }, {
+      tableName: 'cohort_breakout_applied_catalysts',
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
+      deletedAt: 'deleted_at',
+      paranoid: true,
+      timestamps: true,
     });
   },
   down: async (queryInterface) => {
