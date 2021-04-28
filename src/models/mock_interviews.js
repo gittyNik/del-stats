@@ -5,7 +5,6 @@ import { CohortBreakout } from './cohort_breakout';
 import { changeTimezone } from './breakout_template';
 import { LearnerBreakout } from './learner_breakout';
 import { createBreakoutAppliedCatalystRelation } from './cohort_breakout_applied_catalysts';
-import { addRequestedCatalystsStatus } from './requested_catalysts_status';
 import { User } from './user';
 
 const WEEK_VALUES = {
