@@ -138,4 +138,6 @@ export const updateSlotById = ({
   where: {
     id,
   },
+  raw: true,
+  returning: true,
 });
