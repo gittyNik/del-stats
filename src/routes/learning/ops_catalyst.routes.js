@@ -9,10 +9,12 @@ import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, SUPERADMIN, CATALYST, EDUCATOR, REVIEWER,
+  ADMIN, SUPERADMIN, CATALYST, EDUCATOR, OPERATIONS,
 } = USER_ROLES;
 
 const router = Express.Router();
+
+router.use(allowMultipleRoles([SUPERADMIN, ADMIN, OPERATIONS, EDUCATOR]));
 
 /**
  * @api {get} /learning/ops/catalyst/request/:status Get requests by status
@@ -32,8 +34,9 @@ router.get('/request/:status', getRequestsByStatusApi);
  * @apiName GetBreakouts
  * @apiGroup Breakouts
  */
-router.patch('/request/:status', updateRequestsStatusApi);
+router.patch('/request', updateRequestsStatusApi);
 
+router.use(allowMultipleRoles([SUPERADMIN, ADMIN, OPERATIONS, CATALYST, EDUCATOR]));
 /**
  * @api {get} /learning/ops/catalyst/request/:status Get requests by status
  * breakouts for cohort breakout

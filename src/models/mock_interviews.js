@@ -123,7 +123,7 @@ export const getAppliedCatalystDetailsByStatus = ({
     where: {
       catalyst_request_status: status,
     },
-    include: [{ model: User, attributes: ['name'], as: 'RequestedByCatalysts' }],
+    include: [{ model: User, attributes: ['id', 'name'], as: 'RequestedByCatalysts' }],
   });
 
 export const createRequestForCatalyst = ({ cohort_breakout_id, catalyst_id }) => {
@@ -137,7 +137,7 @@ export const createRequestForCatalyst = ({ cohort_breakout_id, catalyst_id }) =>
       },
       raw: true,
     }),
-    createBreakoutAppliedCatalystRelation({ id: request_id, cohort_breakout_id, applied_catalysts_id: catalyst_id }),
+    createBreakoutAppliedCatalystRelation({ id: request_id, cohort_breakout_id, applied_catalyst_id: catalyst_id }),
   ]);
 };
 
@@ -150,13 +150,17 @@ export const updateRequestStatus = ({
   raw: true,
 })
   .then(data => data.updated_by_user)
-  .then(updated_by_user => updated_by_user.push(user_id))
-  .then(updated_by_user => CohortBreakout.update({
-    catalyst_request_status: 'external-selected',
-    catalyst_id,
-    updated_by_user,
-  }, {
-    where: {
-      id: cohort_breakout_id,
-    },
-  }));
+  .then(updated_by_user => {
+    updated_by_user = updated_by_user ? [...updated_by_user, user_id] : [user_id];
+    return CohortBreakout.update({
+      catalyst_request_status: 'external-selected',
+      catalyst_id,
+      updated_by_user,
+    }, {
+      where: {
+        id: cohort_breakout_id,
+      },
+      raw: true,
+      returning: true,
+    });
+  });

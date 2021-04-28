@@ -1,9 +1,3 @@
-const request_status = [
-  'accepted',
-  'rejected',
-  'retained',
-];
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('cohort_breakout_applied_catalysts', {
@@ -19,19 +13,13 @@ module.exports = {
       applied_catalyst_id: {
         type: Sequelize.UUID,
       },
-      status: {
-        type: Sequelize.ENUM(...request_status),
+      created_at: {
+        type: Sequelize.DATE,
       },
-      updated_by: {
-        type: Sequelize.ARRAY(Sequelize.UUID),
+      updated_at: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('NOW()'),
       },
-    }, {
-      tableName: 'cohort_breakout_applied_catalysts',
-      createdAt: 'created_at',
-      updatedAt: 'updated_at',
-      deletedAt: 'deleted_at',
-      paranoid: true,
-      timestamps: true,
     });
   },
   down: async (queryInterface) => {
