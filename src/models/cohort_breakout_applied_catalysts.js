@@ -4,12 +4,6 @@ import db from '../database';
 import { CohortBreakout } from './cohort_breakout';
 import { User } from './user';
 
-const request_status = [
-  'accepted',
-  'rejected',
-  'retained',
-  'pending',
-];
 export const CohortBreakoutAppliedCatalyst = db.define('cohort_breakout_applied_catalysts', {
   id: {
     allowNull: false,
@@ -22,12 +16,6 @@ export const CohortBreakoutAppliedCatalyst = db.define('cohort_breakout_applied_
   },
   applied_catalyst_id: {
     type: Sequelize.UUID,
-  },
-  status: {
-    type: Sequelize.ENUM(...request_status),
-  },
-  updated_by: {
-    type: Sequelize.ARRAY(Sequelize.UUID),
   },
 },
 {
@@ -44,14 +32,3 @@ export const createBreakoutAppliedCatalystRelation = (cohort_breakout_id,
   applied_catalysts_id,
   // created_at: new Date(),
 });
-
-export const getAppliedCatalystDetailsByStatus = ({
-  status,
-}) => CohortBreakoutAppliedCatalyst
-  .findAll({
-    where: {
-      status,
-    },
-    include: [{ model: CohortBreakout, as: 'CohortBreakouts' },
-      { model: User, as: 'RequestedByCatalysts' }],
-  });

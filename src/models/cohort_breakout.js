@@ -125,8 +125,8 @@ export const CohortBreakout = db.define('cohort_breakouts', {
     type: Sequelize.DATE,
   },
   catalyst_request_status: {
-      type: Sequelize.ENUM(...request_status),
-      defaultValue: 'internal',
+    type: Sequelize.ENUM(...request_status),
+    defaultValue: 'internal',
   },
 });
 

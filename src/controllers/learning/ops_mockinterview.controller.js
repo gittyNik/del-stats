@@ -1,7 +1,6 @@
 // import Sequelize from 'sequelize';
 import { slotData, deleteSlotById, updateSlotById } from '../../models/mock_interview_slots';
-import { createMockInterviewsForMultipleCohort_afterCapstone } from '../../models/mock_interviews';
-import { getAppliedCatalystDetailsByStatus } from '../../models/cohort_breakout_applied_catalysts';
+import { createMockInterviewsForMultipleCohort_afterCapstone, getAppliedCatalystDetailsByStatus } from '../../models/mock_interviews';
 import logger from '../../util/logger';
 
 export const createMockInterviewsSlotsApi = (req, res) => {

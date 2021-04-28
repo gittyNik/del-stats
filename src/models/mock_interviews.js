@@ -4,6 +4,7 @@ import { MockInterviewSlots } from './mock_interview_slots';
 import { CohortBreakout } from './cohort_breakout';
 import { changeTimezone } from './breakout_template';
 import { LearnerBreakout } from './learner_breakout';
+import { User } from './user';
 
 const WEEK_VALUES = {
   monday: 1,
@@ -114,3 +115,12 @@ export const getAllMockInterviews_afterCapstone = () => CohortBreakout.findAll({
   },
 });
 
+export const getAppliedCatalystDetailsByStatus = ({
+  status,
+}) => CohortBreakout
+  .findAll({
+    where: {
+      catalyst_request_status: status,
+    },
+    include: [{ model: User, as: 'RequestedByCatalysts' }],
+  });
