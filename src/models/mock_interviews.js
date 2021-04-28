@@ -15,7 +15,7 @@ const WEEK_VALUES = {
   sunday: 7,
 };
 
-const createMockInterviewsForCohort_afterCapstone = ({
+export const createMockInterviewsForCohort_afterCapstone = ({
   cohort_id, start_date, learners_exclude, program,
 }) => Cohort.findOne({
   where: {
@@ -99,7 +99,7 @@ const createMockInterviewsForCohort_afterCapstone = ({
         .bulkCreate(learner_breakouts));
   });
 
-const createMockInterviewsForMultipleCohort_afterCapstone = ({
+export const createMockInterviewsForMultipleCohort_afterCapstone = ({
   cohorts,
   start_date,
   learners_exclude = null,
@@ -108,14 +108,9 @@ const createMockInterviewsForMultipleCohort_afterCapstone = ({
   cohort_id, start_date, learners_exclude, program,
 })));
 
-const getAllMockInterviews_afterCapstone = () => CohortBreakout.findAll({
+export const getAllMockInterviews_afterCapstone = () => CohortBreakout.findAll({
   where: {
     type: 'mockinterview-aftercapstone',
   },
 });
 
-export {
-  createMockInterviewsForCohort_afterCapstone,
-  createMockInterviewsForMultipleCohort_afterCapstone,
-  getAllMockInterviews_afterCapstone,
-};

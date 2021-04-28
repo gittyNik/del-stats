@@ -1,6 +1,8 @@
 import Sequelize from 'sequelize';
 import { v4 as uuid } from 'uuid';
 import db from '../database';
+import { CohortBreakout } from './cohort_breakout';
+import { User } from './user';
 
 const request_status = [
   'accepted',
@@ -8,7 +10,7 @@ const request_status = [
   'retained',
   'pending',
 ];
-const CohortBreakoutAppliedCatalyst = db.define('cohort_breakout_applied_catalysts', {
+export const CohortBreakoutAppliedCatalyst = db.define('cohort_breakout_applied_catalysts', {
   id: {
     allowNull: false,
     primaryKey: true,
@@ -35,7 +37,7 @@ const CohortBreakoutAppliedCatalyst = db.define('cohort_breakout_applied_catalys
   timestamps: true,
 });
 
-const createBreakoutAppliedCatalystRelation = (cohort_breakout_id,
+export const createBreakoutAppliedCatalystRelation = (cohort_breakout_id,
   applied_catalysts_id) => CohortBreakoutAppliedCatalyst.create({
   id: uuid(),
   cohort_breakout_id,
@@ -43,7 +45,13 @@ const createBreakoutAppliedCatalystRelation = (cohort_breakout_id,
   // created_at: new Date(),
 });
 
-export {
-  CohortBreakoutAppliedCatalyst,
-  createBreakoutAppliedCatalystRelation,
-};
+export const getAppliedCatalystDetailsByStatus = ({
+  status,
+}) => CohortBreakoutAppliedCatalyst
+  .findAll({
+    where: {
+      status,
+    },
+    include: [{ model: CohortBreakout, as: 'CohortBreakouts' },
+      { model: User, as: 'RequestedByCatalysts' }],
+  });

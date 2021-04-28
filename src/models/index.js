@@ -183,7 +183,7 @@ Application.belongsTo(PaymentDetails, { as: 'ApplicationPayment', foreignKey: 'p
 // Cohort.hasMany(User, { foreignKey: '' });
 // User.belongsTo(Cohort);
 
-// Many to many relation between LearnerInterviews and User through LearnerRecruiter table
+// Many to many relation between CohortBreakout and User through CohortBreakoutAppliedCatalyst table
 User.belongsToMany(CohortBreakout, {
   through: CohortBreakoutAppliedCatalyst,
   foreignKey: 'applied_catalyst_id',

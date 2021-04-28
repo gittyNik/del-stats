@@ -1,6 +1,7 @@
 // import Sequelize from 'sequelize';
 import { slotData, deleteSlotById, updateSlotById } from '../../models/mock_interview_slots';
 import { createMockInterviewsForMultipleCohort_afterCapstone } from '../../models/mock_interviews';
+import { getAppliedCatalystDetailsByStatus } from '../../models/cohort_breakout_applied_catalysts';
 import logger from '../../util/logger';
 
 export const createMockInterviewsSlotsApi = (req, res) => {
@@ -60,6 +61,20 @@ export const deleteMockInterviewsSlotsByIdApi = (req, res) => {
     .then(data => res.status(201).send({
       data,
       message: 'Mock Interviews slot successfully deleted',
+      type: 'success',
+    }))
+    .catch(err => {
+      logger.error(err);
+      return res.status(500);
+    });
+};
+
+export const getRequestsByStatusApi = (req, res) => {
+  const { status } = req.params;
+  getAppliedCatalystDetailsByStatus({ status })
+    .then(data => res.status(201).send({
+      data,
+      message: 'Fetching successfull',
       type: 'success',
     }))
     .catch(err => {
