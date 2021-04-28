@@ -1,8 +1,8 @@
 import Sequelize from 'sequelize';
 import { v4 as uuid } from 'uuid';
 import db from '../database';
-import { CohortBreakout } from './cohort_breakout';
-import { User } from './user';
+// import { CohortBreakout } from './cohort_breakout';
+// import { User } from './user';
 
 export const CohortBreakoutAppliedCatalyst = db.define('cohort_breakout_applied_catalysts', {
   id: {
