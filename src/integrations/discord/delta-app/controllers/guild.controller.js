@@ -5,7 +5,7 @@ import config from '../config';
 /* eslint-disable import/prefer-default-export */
 import client from '../client';
 
-export const getGuildClient = async ({ guildID }) => client.guilds.get(guildID);
+export const getGuildClient = async ({ guildID }) => client.guilds.cache.get(guildID);
 
 // https://discord.com/developers/docs/resources/guild
 

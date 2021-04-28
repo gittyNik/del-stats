@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 // CRUD Channels (text/voice/stage) (public, private, role (permissions))
 // Add/remove/kick/ban member Channel
-
+import { getLiveCohortsBreakouts } from '../../../../controllers/learning/breakout.controller';
 // import client from '../client';
 
 // create cohort channels;
@@ -14,16 +14,20 @@ import { getGuildClient } from './guild.controller';
 
 export const createChannel = async ({ guild_id, name, options }) => {
   const guild = await getGuildClient(guild_id);
-  return guild.channels.create(name, {
-    type: options.type,
-    permissionOverwrites: [
-
-    ],
-  });
+  return guild;
 };
+
+// .channels.create(name, {
+//   type: options.type,
+//   permissionOverwrites: [
+
+//   ],
+// });
 
 export const getChannelsByType = async ({ guildID, channelType }) => {
   const guild = getGuildClient(guildID);
   const channels = guild.channels.filter((channel) => channel.type === channelType);
   return { categories: channels.keyArray() };
 };
+
+export const createCohortChannels = async () => createChannel(getLiveCohortsBreakouts());

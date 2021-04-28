@@ -7,8 +7,4 @@ const client = new Discord.Client();
 
 client.login(botConfig.token);
 
-client.on('ready', () => {
-  logger.info(`Bot client Logged in as ${client.user.tag}!`);
-});
-
 export default client;

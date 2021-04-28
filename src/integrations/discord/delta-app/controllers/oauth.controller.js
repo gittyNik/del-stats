@@ -13,9 +13,10 @@ export const discordOAuth2 = ({ state, prompt = 'concent' }) => new ClientOAuth2
 
 export const discordBotOAuth2 = ({ state, prompt = 'concent' }) => new ClientOAuth2(oAuthConfig({
   scopes: [OAUTH_SCOPES.BOT],
-  redirectUri: OAuthRedirects.discordOAuth2,
+  redirectUri: OAuthRedirects.discordBotOAuth2,
   state,
   query: {
     prompt,
+    permissions: 8,
   },
 }));
