@@ -65,6 +65,12 @@ export const BREAKOUT_TYPE = [
   'mockinterview-aftercapstone',
 ];
 
+const request_status = [
+  'internal',
+  'external-pending',
+  'external-selected',
+];
+
 export const CohortBreakout = db.define('cohort_breakouts', {
   id: {
     type: Sequelize.UUID,
@@ -116,6 +122,10 @@ export const CohortBreakout = db.define('cohort_breakouts', {
   },
   time_started: {
     type: Sequelize.DATE,
+  },
+  catalyst_request_status: {
+    type: Sequelize.ENUM(...request_status),
+    defaultValue: 'internal',
   },
 });
 

@@ -183,18 +183,18 @@ Application.belongsTo(PaymentDetails, { as: 'ApplicationPayment', foreignKey: 'p
 // Cohort.hasMany(User, { foreignKey: '' });
 // User.belongsTo(Cohort);
 
-// Many to many relation between LearnerInterviews and User through LearnerRecruiter table
+// Many to many relation between CohortBreakout and User through CohortBreakoutAppliedCatalyst table
 User.belongsToMany(CohortBreakout, {
+  as: 'Catalysts',
   through: CohortBreakoutAppliedCatalyst,
   foreignKey: 'applied_catalyst_id',
   // otherKey: 'learner_interview_id',
-  as: 'CohortBreakouts',
 });
 CohortBreakout.belongsToMany(User, {
+  as: 'RequestedByCatalysts',
   through: CohortBreakoutAppliedCatalyst,
   // otherKey: 'learner_interview_id',
   foreignKey: 'cohort_breakout_id',
-  as: 'RequestedByCatalysts',
 });
 
 export default {
