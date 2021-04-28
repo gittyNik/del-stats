@@ -122,5 +122,5 @@ export const getAppliedCatalystDetailsByStatus = ({
     where: {
       catalyst_request_status: status,
     },
-    include: [{ model: User, as: 'RequestedByCatalysts' }],
+    include: [{ model: User, attributes: ['name'], as: 'RequestedByCatalysts' }],
   });
