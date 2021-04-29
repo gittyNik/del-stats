@@ -2,11 +2,12 @@ import Express from 'express';
 import compression from 'compression';
 
 import logger from '../../../util/logger';
-
-import client from './client';
 import routes from './routes';
 import { delay } from './utils';
+import client from './client';
+
 // import { serverSetup } from './controllers/guild.controller';
+import { welcomeMember } from './controllers/bot.controller';
 
 const router = Express.Router();
 
@@ -19,6 +20,8 @@ client.on('ready', async () => {
 client.on('rateLimit', async msg => {
   console.log('hi', msg);
 });
+
+client.on('guildMemberAdd', welcomeMember);
 
 // dm & server both message
 client.on('message', async msg => {

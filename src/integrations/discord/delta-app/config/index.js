@@ -87,3 +87,7 @@ export const SETUP_CHANNELS = [{
     }],
   },
 }];
+
+export const WELCOME_MESSAGES = [
+  'welcome here!', 'I hope you got pizza for us 🍕',
+];
