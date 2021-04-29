@@ -61,29 +61,29 @@ export const SETUP_CHANNELS = [{
   data: {
     public: [{
       category: 'Info',
-      channels: ['announcements', 'code of conduct', 'feedback'],
+      channels: ['announcements 📢', 'code of conduct 🚨', 'feedback 🧪'],
     }, {
-      category: 'Typein\'',
-      channels: ['welcome',
-        'watercooler', 'get-help',
-        'look-what-I-found', 'show-off-what-you-built', 'learning-resources',
-        'mind-over-flow'],
+      category: 'Typein\' ⌨',
+      channels: ['welcome 👋',
+        'watercooler 🌊', 'get-help 🆘',
+        'look-what-I-found 📂', 'show-off-what-you-built 🚀', 'learning-resources 📚',
+        'mind-overflow 🧠'],
     }],
     private: [{
-      category: 'SOAL Team',
-      channels: ['announcements', 'random'],
+      category: 'SOAL Team 👾',
+      channels: ['discuss 🏳', 'moderation-logs ☢'],
     }],
   },
 }, {
   type: 'voice',
   data: {
     private: [{
-      category: 'SOAL Team',
+      category: 'SOAL Team Voice 🗣',
       channels: ['conference-room'],
     }],
     public: [{
-      category: 'Listenin\'',
-      channels: ['conference-room-1', 'conference-room-2', 'music-room', 'focus-forest'],
+      category: 'Listenin\' 🔊',
+      channels: ['conference-room-1', 'conference-room-2', 'music-room 🎼', 'focus-forest 🌳'],
     }],
   },
 }];
