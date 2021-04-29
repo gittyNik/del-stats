@@ -123,7 +123,7 @@ export const deleteSlotById = ({ id }) => MockInterviewSlots.destroy({
   },
 });
 
-const fetchDayDetails = (day) => weekDays.filter(d => d.day === day);
+const fetchDayDetails = (day) => weekDays.filter(d => d.day.toLowerCase() === day.toLowerCase());
 
 export const updateSlotById = ({
   id, cohort_duration, mock_interview_day, time_scheduled, slot_status,
@@ -132,8 +132,8 @@ export const updateSlotById = ({
   mock_interview_day,
   time_scheduled,
   status: slot_status,
-  slot_order: fetchDayDetails(mock_interview_day).slot,
-  week: fetchDayDetails(mock_interview_day).week,
+  slot_order: fetchDayDetails(mock_interview_day)[0].slot,
+  week: fetchDayDetails(mock_interview_day)[0].week,
 }, {
   where: {
     id,
