@@ -2,11 +2,12 @@
 
 import { getGuild } from './guild.controller';
 
-export const findRole = ({ guild_id, name }) => {
+export const findRole = async ({ guild_id, name }) => {
   // if no role is passed then find all roles
-  const guild = getGuild({ guild_id });
+  const guild = await getGuild({ guild_id });
   if (name) {
-    return guild.roles.cache.filter(role => role.name === name);
+    const role = await guild.roles.cache.filter(ro => ro.name === name);
+    return role;
   }
   return guild.roles.cache.find(role => role);
 };
@@ -51,7 +52,11 @@ export const deleteRole = async ({ guild_id, name }) => {
 export const addRoleToUser = async ({ guild_id, role_name, user_id }) => {
   const guild = await getGuild({ guild_id });
   const role = await findRole({ guild_id, name: role_name });
-  const user = await guild.members.cache.find(member => member.id === user_id);
+  const user = await guild.members.fetch(user_id);
+
+  if (!user && !role && !guild) {
+    throw new Error('User not in server!');
+  }
 
   return user.roles.add(role);
 };

@@ -57,7 +57,7 @@ const oauthRedirect = async (req, res) => {
       { raw: true },
     );
 
-    if (deltaUser === null) {
+    if (!deltaUser) {
       await removeState({ key: stateKey });
       throw new HttpBadRequest('Bad Request! Messed up JWT! Couldn\'t find user in delta');
     }
@@ -65,10 +65,21 @@ const oauthRedirect = async (req, res) => {
     // get discord user token to do stuff on their behalf
     const authRes = await discordOAuth2({ state: stateKey }).code.getToken(req.originalUrl);
     const user = await getUser(authRes.accessToken);
+    const guild_id = process.env.DISCORD_GUILD_ID;
     // await discordBot.guild.available({});
 
     if (stateData.prompt === 'none') {
       await removeState({ key: stateKey });
+
+      // can remove this
+      // const result = await addGuildMember({
+      //   discord_user_access_token: authRes.accessToken,
+      //   discord_bot_access_token: botConfig.token,
+      //   user_id: user.data.id,
+      //   guild_id,
+      // });
+
+      await addRoleToUser({ guild_id, role_name: SETUP_ROLES[0].name, user_id: user.id });
 
       return res.json({
         message: 'oauth success',
@@ -76,6 +87,7 @@ const oauthRedirect = async (req, res) => {
         data: {
           token: authRes.accessToken,
           user: user.data,
+          deltaUser,
         },
       });
     }
@@ -86,7 +98,6 @@ const oauthRedirect = async (req, res) => {
 
       // @TO-DO detect which server(s) to add a user to, program type, soal admin
       // right now we will be using const guild id from env
-      const guild_id = process.env.DISCORD_GUILD_ID;
 
       const result = await addGuildMember({
         discord_user_access_token: authRes.accessToken,
@@ -124,6 +135,7 @@ const oauthRedirect = async (req, res) => {
           result: result.data,
           token: authRes.accessToken,
           user: user.data,
+          deltaUser,
         },
       });
     }
