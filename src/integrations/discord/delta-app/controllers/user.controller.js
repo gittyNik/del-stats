@@ -4,8 +4,12 @@ import { SocialConnection, PROVIDERS } from '../../../../models/social_connectio
 
 // eslint-disable-next-line import/prefer-default-export
 // GET/users/@me
-export const getUser = (access_token) => axios.get(`${process.env.DISCORD_BASE_API_URL}/users/@me`,
-  { headers: { Authorization: `Bearer ${access_token}` } });
+export const getUser = async (access_token) => {
+  const response = await axios.get(`${process.env.DISCORD_BASE_API_URL}/users/@me`,
+    { headers: { Authorization: `Bearer ${access_token}` } });
+
+  return response.data;
+};
 
 export const hasDiscordSocialConnection = async ({ user_id }) => {
   if (user_id) {
@@ -21,13 +25,13 @@ export const hasDiscordSocialConnection = async ({ user_id }) => {
   throw Error('user_id is malformed!');
 };
 
-export const addDiscordSocialConnection = (deltaUser, user) => SocialConnection.create({
+export const addDiscordSocialConnection = (deltaUserId, user, authRes) => SocialConnection.create({
   id: uuid(),
-  user_id: deltaUser.id,
+  user_id: deltaUserId,
   provider: PROVIDERS.DISCORD,
   username: `${user.username}#${user.discriminator}`,
   email: user.email,
-  profile: user.data,
-  access_token: user.accessToken,
-  expiry: user.expires,
+  profile: user,
+  access_token: authRes.refreshToken,
+  expiry: authRes.expires,
 });

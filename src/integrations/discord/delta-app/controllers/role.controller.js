@@ -6,7 +6,7 @@ export const findRole = async ({ guild_id, name }) => {
   // if no role is passed then find all roles
   const guild = await getGuild({ guild_id });
   if (name) {
-    const role = await guild.roles.cache.filter(ro => ro.name === name);
+    const role = await guild.roles.cache.find(ro => ro.name === name);
     return role;
   }
   return guild.roles.cache.find(role => role);
@@ -58,5 +58,8 @@ export const addRoleToUser = async ({ guild_id, role_name, user_id }) => {
     throw new Error('User not in server!');
   }
 
-  return user.roles.add(role);
+  console.log(user);
+
+  const newUser = await await user.roles.add(role.id);
+  return newUser;
 };

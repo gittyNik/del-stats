@@ -4,9 +4,10 @@ import { getUser, addDiscordSocialConnection, hasDiscordSocialConnection } from 
 import { discordOAuth2, discordBotOAuth2 } from '../controllers/oauth.controller';
 import { addGuildMember } from '../controllers/guild.controller';
 import { addRoleToUser, findRole } from '../controllers/role.controller';
+
 // import discordBot from '../client';
 import { User, USER_ROLES } from '../../../../models/user';
-import { getCohortFromLearnerId } from '../../../../models/cohort';
+import { Cohort, getCohortIdFromLearnerId } from '../../../../models/cohort';
 import { HttpBadRequest } from '../../../../util/errors';
 import {
   createState, retrieveState, removeState, getCohortFormattedId,
@@ -65,28 +66,20 @@ const oauthRedirect = async (req, res) => {
     // get discord user token to do stuff on their behalf
     const authRes = await discordOAuth2({ state: stateKey }).code.getToken(req.originalUrl);
     const user = await getUser(authRes.accessToken);
+
+    // @TO-DO detect which server(s) to add a user to, program type, soal admin
+    // right now we will be using const guild id from env
     const guild_id = process.env.DISCORD_GUILD_ID;
-    // await discordBot.guild.available({});
 
     if (stateData.prompt === 'none') {
       await removeState({ key: stateKey });
-
-      // can remove this
-      // const result = await addGuildMember({
-      //   discord_user_access_token: authRes.accessToken,
-      //   discord_bot_access_token: botConfig.token,
-      //   user_id: user.data.id,
-      //   guild_id,
-      // });
-
-      await addRoleToUser({ guild_id, role_name: SETUP_ROLES[0].name, user_id: user.id });
 
       return res.json({
         message: 'oauth success',
         type: 'success',
         data: {
           token: authRes.accessToken,
-          user: user.data,
+          user,
           deltaUser,
         },
       });
@@ -94,31 +87,34 @@ const oauthRedirect = async (req, res) => {
 
     if (stateData.prompt === 'concent') {
       // user has first time clicked join
-      await addDiscordSocialConnection(deltaUser, user);
-
-      // @TO-DO detect which server(s) to add a user to, program type, soal admin
-      // right now we will be using const guild id from env
+      await addDiscordSocialConnection(deltaUser.id, user, authRes);
 
       const result = await addGuildMember({
         discord_user_access_token: authRes.accessToken,
         discord_bot_access_token: botConfig.token,
-        user_id: user.data.id,
+        user_id: user.id,
         guild_id,
       });
 
       // give role by Bot
 
-      const cohort = getCohortFromLearnerId(deltaJwtData.userId);
-      const cohortChannelName = await getCohortFormattedId([{ cohort, program_type: cohort.program_id }]);
-
-      const cohortRole = await findRole({ guild_id, name: cohortChannelName });
-
-      if (deltaUser.roles.include(USER_ROLES.LEARNER)) {
+      if (deltaUser.roles.includes(USER_ROLES.LEARNER)) {
         // assign cohort role, assign sailor role
+        const cohortId = await getCohortIdFromLearnerId(deltaUser.id);
+        const cohort = Cohort.findOne({
+          where: {
+            id: cohortId,
+          },
+        },
+        { raw: true });
+        const cohortChannelName = getCohortFormattedId([{ cohort, program_type: cohort.program_id }]);
+
+        const cohortRole = await findRole({ guild_id, name: cohortChannelName });
+
         await addRoleToUser({ guild_id, role_name: cohortRole.name, user_id: user.id });
         await addRoleToUser({ guild_id, role_name: SETUP_ROLES[2].name, user_id: user.id });
-      } else if (!deltaUser.roles.include([USER_ROLES.CAREER_SERVICES, USER_ROLES.RECRUITER,
-        USER_ROLES.REVIEWER, USER_ROLES.GUEST, USER_ROLES.CATALYST])) {
+      } else if (!deltaUser.roles.some(us => [USER_ROLES.CAREER_SERVICES, USER_ROLES.RECRUITER,
+        USER_ROLES.REVIEWER, USER_ROLES.GUEST, USER_ROLES.CATALYST].includes(us))) {
         // assign captain role
         await addRoleToUser({ guild_id, role_name: SETUP_ROLES[0].name, user_id: user.id });
       } else {
@@ -134,7 +130,7 @@ const oauthRedirect = async (req, res) => {
         data: {
           result: result.data,
           token: authRes.accessToken,
-          user: user.data,
+          user,
           deltaUser,
         },
       });
