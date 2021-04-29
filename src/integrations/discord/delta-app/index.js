@@ -6,13 +6,13 @@ import logger from '../../../util/logger';
 import client from './client';
 import routes from './routes';
 import { delay } from './utils';
-import { serverSetup } from './controllers/guild.controller';
+// import { serverSetup } from './controllers/guild.controller';
 
 const router = Express.Router();
 
 client.on('ready', async () => {
   logger.info(`Bot client Logged in as ${client.user.tag}!`);
-  serverSetup({ guild_id: process.env.DISCORD_GUILD_ID, program_type: 'tep' });
+  // serverSetup({ guild_id: process.env.DISCORD_GUILD_ID, program_type: 'tep' });
 });
 
 client.on('rateLimit', async msg => {
