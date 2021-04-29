@@ -4,7 +4,7 @@ import { Promise } from 'core-js';
 import config, {
   SAILOR_PERMISSIONS, SETUP_ROLES, SETUP_CHANNELS, PIRATE_PERMISSIONS, CAPTAIN_PERMISSIONS,
 } from '../config';
-import { ROLE_PERMISSIONS } from '../config/constants';
+// import { ROLE_PERMISSIONS } from '../config/constants';
 import client from '../client';
 import { getCohortFormattedId } from '../utils';
 import { getLiveCohorts } from '../../../../models/cohort';
@@ -21,8 +21,9 @@ export const serverSetup = async ({ guild_id, program_type = 'tep' }) => {
   const data = await getLiveCohorts();
   const cohortNameIds = getCohortFormattedId({ data, program_type });
 
-  // const guild = await getGuild({ guild_id });
+  const guild = await getGuild({ guild_id });
 
+  // uncomment to delete all channels and roles first
   // await guild.channels.cache.forEach(channel => channel.delete());
   // await guild.roles.cache.forEach(role => role.delete());
 
@@ -57,45 +58,45 @@ export const serverSetup = async ({ guild_id, program_type = 'tep' }) => {
   const pirate = await findRole({ guild_id, name: SETUP_ROLES[1].name });
   // const sailor = await findRole({ guild_id, name: SETUP_ROLES[2].name });
 
-  const guild = getGuild({ guild_id });
-
-  // // create setup channels
+  // create setup channels
   SETUP_CHANNELS.map(ch => {
     ch.data.public.map(c => guild.channels.create(c.category, { type: 'category' }).then(
-      cat => Promise.all(
-        c.channels.map(e => guild.channels.create(e, {
-          type: ch.type,
-          permissionOverwrites: [{
-            id: everyoneRole.id,
-            allow: SAILOR_PERMISSIONS,
-          }],
-        }).then(
-          channel => channel.setParent(cat.id),
-        )),
-      ),
+      async cat => {
+        await Promise.all(
+          c.channels.map(e => guild.channels.create(e, {
+            type: ch.type,
+            parent: cat,
+            permissionOverwrites: [{
+              id: everyoneRole.id,
+              allow: SAILOR_PERMISSIONS,
+            }],
+          })),
+        );
+      },
     ));
 
     ch.data.private.map(pc => guild.channels.create(pc.category, { type: 'category' }).then(
-      cat => Promise.all(
-        pc.channels.map(e => guild.channels.create(e, {
-          type: ch.type,
-          permissionOverwrites: [{
-            id: captain.id,
-            allow: CAPTAIN_PERMISSIONS,
-          },
-          {
-            id: pirate.id,
-            allow: PIRATE_PERMISSIONS,
-          },
-          {
-            id: everyoneRole.id,
-            deny: [ROLE_PERMISSIONS.VIEW_CHANNEL],
-          },
-          ],
-        }).then(
-          channel => channel.setParent(cat.id),
-        )),
-      ),
+      async cat => {
+        await Promise.all(
+          pc.channels.map(async e => {
+            const allRolesExcept = await guild.roles.cache.filter(role => role.name !== SETUP_ROLES[0].name || role.name !== SETUP_ROLES[1].name);
+            const denyPermissionOverwrites = allRolesExcept.map(role => ({ id: role.id, deny: ['VIEW_CHANNEL'] }));
+
+            const allowPermissionOverwrites = [
+              { id: captain.id, allow: CAPTAIN_PERMISSIONS },
+              { id: pirate.id, allow: PIRATE_PERMISSIONS },
+            ];
+
+            const permissionOverwrites = _.concat(denyPermissionOverwrites, allowPermissionOverwrites);
+
+            return guild.channels.create(e, {
+              type: ch.type,
+              permissionOverwrites,
+              parent: cat,
+            });
+          }),
+        );
+      },
     ));
   });
 
@@ -112,7 +113,7 @@ export const serverSetup = async ({ guild_id, program_type = 'tep' }) => {
           const denyPermissionOverwrites = allRolesExceptCurrentCohort.map(role => ({ id: role.id, deny: ['VIEW_CHANNEL'] }));
 
           const allowPermissionOverwrites = [
-            { id: captain.id, allow: [ROLE_PERMISSIONS.ADMINISTRATOR] },
+            { id: captain.id, allow: CAPTAIN_PERMISSIONS },
             { id: pirate.id, allow: PIRATE_PERMISSIONS },
             { id: cohortRole.id, allow: SAILOR_PERMISSIONS },
           ];

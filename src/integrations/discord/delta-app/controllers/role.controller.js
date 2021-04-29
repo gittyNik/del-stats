@@ -13,7 +13,7 @@ export const findRole = async ({ guild_id, name }) => {
 };
 
 // constants role permissions
-export const createRole = ({
+export const createRole = async ({
   data, reason, guild_id,
 }) => {
   const {
@@ -26,7 +26,7 @@ export const createRole = ({
     throw new Error('Please pass name and permission!');
   }
 
-  const guild = getGuild({ guild_id });
+  const guild = await getGuild({ guild_id });
   return guild.roles.create({
     data: {
       name,

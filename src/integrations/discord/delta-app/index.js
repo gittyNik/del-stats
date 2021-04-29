@@ -12,6 +12,7 @@ const router = Express.Router();
 
 client.on('ready', async () => {
   logger.info(`Bot client Logged in as ${client.user.tag}!`);
+
   // serverSetup({ guild_id: process.env.DISCORD_GUILD_ID, program_type: 'tep' });
 });
 
