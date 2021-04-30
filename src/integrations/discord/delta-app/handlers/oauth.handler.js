@@ -1,18 +1,10 @@
-import jwt from 'jsonwebtoken';
 import logger from '../../../../util/logger';
-import { getUser, addDiscordSocialConnection, hasDiscordSocialConnection } from '../controllers/user.controller';
-import { discordOAuth2, discordBotOAuth2 } from '../controllers/oauth.controller';
-import { addGuildMember } from '../controllers/guild.controller';
-import { addRoleToUser, findRole } from '../controllers/role.controller';
+import { hasDiscordSocialConnection } from '../controllers/user.controller';
+import { discordOAuth2, discordBotOAuth2, oauthRedirect } from '../controllers/oauth.controller';
 
-// import discordBot from '../client';
-import { User, USER_ROLES } from '../../../../models/user';
-import { Cohort, getCohortIdFromLearnerId } from '../../../../models/cohort';
-import { HttpBadRequest } from '../../../../util/errors';
 import {
-  createState, retrieveState, removeState, getCohortFormattedId,
+  createState,
 } from '../utils';
-import { botConfig, SETUP_ROLES } from '../config';
 
 export const inviteBot = async (req, res) => {
   const deltaToken = req.headers.authorization.split(' ').pop();
@@ -39,105 +31,14 @@ export const joinDiscord = async (req, res) => {
   return res.redirect(uri);
 };
 
-const oauthRedirect = async (req, res) => {
+export const oauthRedirectAPI = async (req, res) => {
   try {
     const stateKey = req.query.state;
-    const stateData = await retrieveState({ key: stateKey });
+    const { originalUrl } = req;
 
-    if (!stateData || !stateData.deltaToken) {
-      throw new HttpBadRequest('Invalid stateData! retrieveState');
-    }
+    const data = await oauthRedirect({ stateKey, originalUrl });
 
-    const deltaJwtData = await jwt.verify(stateData.deltaToken, process.env.JWT_SECRET);
-    const deltaUser = await User.findOne(
-      {
-        where: {
-          id: deltaJwtData.userId,
-        },
-      },
-      { raw: true },
-    );
-
-    if (!deltaUser) {
-      await removeState({ key: stateKey });
-      throw new HttpBadRequest('Bad Request! Messed up JWT! Couldn\'t find user in delta');
-    }
-
-    // get discord user token to do stuff on their behalf
-    const authRes = await discordOAuth2({ state: stateKey }).code.getToken(req.originalUrl);
-    const user = await getUser(authRes.accessToken);
-
-    // @TO-DO detect which server(s) to add a user to, program type, soal admin
-    // right now we will be using const guild id from env
-    const guild_id = process.env.DISCORD_GUILD_ID;
-
-    if (stateData.prompt === 'none') {
-      await removeState({ key: stateKey });
-
-      return res.json({
-        message: 'oauth success',
-        type: 'success',
-        data: {
-          token: authRes.accessToken,
-          user,
-          deltaUser,
-        },
-      });
-    }
-
-    if (stateData.prompt === 'concent') {
-      // user has first time clicked join
-      await addDiscordSocialConnection(deltaUser.id, user, authRes);
-
-      const result = await addGuildMember({
-        discord_user_access_token: authRes.accessToken,
-        discord_bot_access_token: botConfig.token,
-        user_id: user.id,
-        guild_id,
-      });
-
-      // give role by Bot
-
-      if (deltaUser.roles.includes(USER_ROLES.LEARNER)) {
-        // assign cohort role, assign sailor role
-        const cohortId = await getCohortIdFromLearnerId(deltaUser.id);
-        const cohort = Cohort.findOne({
-          where: {
-            id: cohortId,
-          },
-        },
-        { raw: true });
-        const cohortChannelName = getCohortFormattedId([{ cohort, program_type: cohort.program_id }]);
-
-        const cohortRole = await findRole({ guild_id, name: cohortChannelName });
-
-        await addRoleToUser({ guild_id, role_name: cohortRole.name, user_id: user.id });
-        await addRoleToUser({ guild_id, role_name: SETUP_ROLES[2].name, user_id: user.id });
-      } else if (!deltaUser.roles.some(us => [USER_ROLES.CAREER_SERVICES, USER_ROLES.RECRUITER,
-        USER_ROLES.REVIEWER, USER_ROLES.GUEST, USER_ROLES.CATALYST].includes(us))) {
-        // assign captain role
-        await addRoleToUser({ guild_id, role_name: SETUP_ROLES[0].name, user_id: user.id });
-      } else {
-        // assign pirate role
-        await addRoleToUser({ guild_id, role_name: SETUP_ROLES[1].name, user_id: user.id });
-      }
-
-      await removeState({ key: stateKey });
-
-      return res.json({
-        message: 'oauth success',
-        type: 'success',
-        data: {
-          result: result.data,
-          token: authRes.accessToken,
-          user,
-          deltaUser,
-        },
-      });
-    }
-
-    await removeState({ key: stateKey });
-    throw new HttpBadRequest('Bad Request! Messed up JWT or State!');
+    return res.json(data);
   } catch (error) {
     logger.error(error);
 

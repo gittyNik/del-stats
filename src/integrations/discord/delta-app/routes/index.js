@@ -1,8 +1,9 @@
 import Express from 'express';
 import moment from 'moment';
-import { getLiveCohorts } from '../../../../models/cohort';
-import { createChannel } from '../controllers/channel.controller';
+// import { getLiveCohorts } from '../../../../models/cohort';
+// import { createChannel } from '../controllers/channel.controller';
 import oauth2Route from './oauth.route';
+import guildRoute from './guild.route';
 
 const router = Express.Router();
 
@@ -13,12 +14,13 @@ export const getCohortFormattedId = ({ data, program_type }) => data.filter(
 );
 
 router.get('/', async (req, res) => {
-  const data = await getLiveCohorts();
-  const reqData = getCohortFormattedId({ data, program_type: 'tep' });
-  const ayy = await createChannel({ guild_id: process.env.DISCORD_GUILD_ID, name: 'name', options: { type: 'text' } });
-  return res.send({ ayy });
+  // const data = await getLiveCohorts();
+  // const reqData = getCohortFormattedId({ data, program_type: 'tep' });
+  // const ayy = await createChannel({ guild_id: process.env.DISCORD_GUILD_ID, name: 'name', options: { type: 'text' } });
+  // return res.send({ ayy });
 });
 
 router.use('/oauth', oauth2Route);
+router.use('/guild', guildRoute);
 
 export default router;

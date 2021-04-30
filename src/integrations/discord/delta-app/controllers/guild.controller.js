@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { Promise } from 'core-js';
 import config, {
   SAILOR_PERMISSIONS, SETUP_ROLES, SETUP_CHANNELS, PIRATE_PERMISSIONS, CAPTAIN_PERMISSIONS,
+  GUILD_IDS_BY_PROGRAM,
 } from '../config';
 // import { ROLE_PERMISSIONS } from '../config/constants';
 import client from '../client';
@@ -12,15 +13,18 @@ import { createRole, findRole } from './role.controller';
 
 export const getGuild = async ({ guild_id }) => client.guilds.fetch(guild_id);
 
+export const getGuildIdFromProgram = async ({ program_id }) => GUILD_IDS_BY_PROGRAM.find(el => el.PROGRAM_ID === program_id);
+
 // https://discord.com/developers/docs/resources/guild
 
 // create server, get Invite
 // Add/remove/kick/ban member Server
 
-export const serverSetup = async ({ guild_id, program_type = 'tep' }) => {
+export const serverSetup = async ({ program_id }) => {
   const data = await getLiveCohorts();
-  const cohortNameIds = getCohortFormattedId({ data, program_type });
+  const cohortNameIds = getCohortFormattedId({ data, program_id });
 
+  const guild_id = getGuildIdFromProgram({ program_id });
   const guild = await getGuild({ guild_id });
 
   // uncomment to delete all channels and roles first
@@ -130,7 +134,7 @@ export const serverSetup = async ({ guild_id, program_type = 'tep' }) => {
     },
   );
 
-  return 'Executed';
+  return 'Setup Server Successful!';
 };
 
 export const createInvite = async ({ guild_id }) => {

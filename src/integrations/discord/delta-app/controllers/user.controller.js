@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { v4 as uuid } from 'uuid';
+import Sequelize from 'sequelize';
 import { SocialConnection, PROVIDERS } from '../../../../models/social_connection';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -26,7 +26,7 @@ export const hasDiscordSocialConnection = async ({ user_id }) => {
 };
 
 export const addDiscordSocialConnection = (deltaUserId, user, authRes) => SocialConnection.create({
-  id: uuid(),
+  id: user.id,
   user_id: deltaUserId,
   provider: PROVIDERS.DISCORD,
   username: `${user.username}#${user.discriminator}`,
@@ -35,3 +35,12 @@ export const addDiscordSocialConnection = (deltaUserId, user, authRes) => Social
   access_token: authRes.refreshToken,
   expiry: authRes.expires,
 });
+
+// getSlackIdsForUsersInSPE
+export const getDiscordUserIdsByDeltaUserIds = ({ user_ids }) => SocialConnection.findAll({
+  where: {
+    id: {
+      [Sequelize.Op.in]: user_ids,
+    },
+  },
+}).then(data => data.filter(el => el.id));

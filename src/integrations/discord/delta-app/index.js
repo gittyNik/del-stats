@@ -13,8 +13,9 @@ const router = Express.Router();
 
 client.on('ready', async () => {
   logger.info(`Bot client Logged in as ${client.user.tag}!`);
-
-  // serverSetup({ guild_id: process.env.DISCORD_GUILD_ID, program_type: 'tep' });
+  // const data = await getTodaysCohortBreakouts();
+  console.log('data');
+  // serverSetup({ guild_id: process.env.DISCORD_TEP_GUILD_ID, program_type: 'tep' });
 });
 
 client.on('rateLimit', async msg => {
