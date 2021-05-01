@@ -8,12 +8,26 @@ import config, {
 // import { ROLE_PERMISSIONS } from '../config/constants';
 import client from '../client';
 import { getCohortFormattedId } from '../utils';
-import { getLiveCohorts } from '../../../../models/cohort';
+import {
+  getLiveCohorts, Cohort,
+} from '../../../../models/cohort';
 import { createRole, findRole } from './role.controller';
 
 export const getGuild = async ({ guild_id }) => client.guilds.fetch(guild_id);
 
 export const getGuildIdFromProgram = async ({ program_id }) => GUILD_IDS_BY_PROGRAM.find(el => el.PROGRAM_ID === program_id);
+
+export const getGuildIdFromCohort = async ({ cohort_id }) => {
+  const cohort = Cohort.findOne({
+    where: {
+      id: cohort_id,
+    },
+  },
+  { raw: true });
+  const guild_id = getGuildIdFromProgram({ program_id: cohort.program_id });
+
+  return guild_id;
+};
 
 // https://discord.com/developers/docs/resources/guild
 

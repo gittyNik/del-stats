@@ -37,6 +37,7 @@ import {
   showCompletedBreakoutOnSlack, postOverlappingBreakouts,
 } from '../integrations/slack/team-app/controllers/milestone.controller';
 import { postAttendaceInCohortChannel } from '../integrations/slack/delta-app/controllers/web.controller';
+import { postAttendaceInCohortChannel as postAttendaceInCohortDiscordChannel } from '../integrations/discord/delta-app/controllers/bot.controller';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 import { createEvent, deleteEvent, updateEvent } from '../integrations/calendar/calendar.model';
 import logger from '../util/logger';
@@ -315,7 +316,9 @@ export const markBreakoutFinished = (
   ]))
   .then(async (data) => {
     const slackResponse = await postAttendaceInCohortChannel(cohort_breakout_id);
+    const discordResponse = await postAttendaceInCohortDiscordChannel(cohort_breakout_id);
     data.slackNotify = (slackResponse.ok) ? 'Notified on Slack' : slackResponse.error;
+    data.discordNotify = discordResponse;
     return data;
   });
 

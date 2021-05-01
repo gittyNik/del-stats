@@ -4,6 +4,7 @@ import {
   checkBalance,
 } from './controllers/auth/otp.controller';
 import { postTodaysBreakouts } from './integrations/slack/delta-app/controllers/web.controller';
+import { postTodaysBreakouts as postTodaysBreakoutsDiscord } from './integrations/discord/delta-app/controllers/bot.controller';
 import {
   postOverlappingBreakouts, sendMessageToSlackChannel,
 } from './integrations/slack/team-app/controllers/milestone.controller';
@@ -26,7 +27,9 @@ cron.schedule('0 10 * * *', async () => {
       // overlapStartDay is only a number used to handle multiple messages on channel
       await cache.setex('BREAKOUTS', 3600, 'STARTED');
       const payload = await getTodaysCohortBreakouts();
-      const res = await postTodaysBreakouts(payload);
+      let res;
+      res.slack = await postTodaysBreakouts(payload);
+      res.discord = await postTodaysBreakoutsDiscord(payload);
       logger.info({
         text: 'Todays breakouts posted on SPE',
         data: res,

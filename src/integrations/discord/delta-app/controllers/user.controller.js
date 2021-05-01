@@ -37,10 +37,22 @@ export const addDiscordSocialConnection = (deltaUserId, user, authRes) => Social
 });
 
 // getSlackIdsForUsersInSPE
-export const getDiscordUserIdsByDeltaUserIds = ({ user_ids }) => SocialConnection.findAll({
-  where: {
-    id: {
-      [Sequelize.Op.in]: user_ids,
+export const getDiscordUserIdsByDeltaUserIds = ({ user_ids }) => {
+  if (user_ids.length === 1) {
+    return SocialConnection.findOne({
+      where: {
+        id: {
+          [Sequelize.Op.in]: user_ids,
+        },
+      },
+    }).then(data => data.id);
+  }
+
+  return SocialConnection.findAll({
+    where: {
+      id: {
+        [Sequelize.Op.in]: user_ids,
+      },
     },
-  },
-}).then(data => data.filter(el => el.id));
+  }).then(data => data.filter(el => el.id));
+};

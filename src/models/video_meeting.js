@@ -18,6 +18,9 @@ import {
   notifyAttendanceLearnerInChannel,
 } from '../integrations/slack/delta-app/controllers/web.controller';
 import {
+  notifyAttendanceLearnerInChannel as notifyAttendanceLearnerInDiscordChannel,
+} from '../integrations/discord/delta-app/controllers/bot.controller';
+import {
   getLearnerAttendanceForBreakout,
 } from '../controllers/learning/learner_breakout.controller';
 import logger from '../util/logger';
@@ -299,6 +302,7 @@ export const learnerAttendance = async ({
           });
           if (mark_attendance && isPartOfCohort) {
             notifyAttendanceLearnerInChannel(cohort_breakout_id, user_email, inTime);
+            notifyAttendanceLearnerInDiscordChannel(cohort_breakout_id, userConnection.user_id, inTime);
           }
         } catch (err) {
           logger.error(`Error while sending message to learner: ${err}`);

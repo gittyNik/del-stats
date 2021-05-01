@@ -1,15 +1,18 @@
+/* eslint-disable no-await-in-loop */
 import Discord from 'discord.js';
 import client from '../client';
-import CohortBreakout, { getCohortBreakoutById } from '../../../../models/cohort_breakout';
-import { findChannelByName, getChannelForCohort } from './channel.controller';
+import { getCohortBreakoutById } from '../../../../models/cohort_breakout';
+import { getChannelForCohort } from './channel.controller';
 import { getDiscordUserIdsByDeltaUserIds } from './user.controller';
-import { getSlackIdsForUsersInSPE } from '../../../../models/slack_channels';
-import { Cohort, getCohortIdFromLearnerId, getLearnersFromCohorts } from '../../../../models/cohort';
-import { SETUP_CHANNELS, WELCOME_MESSAGES } from '../config';
+import { getGuildIdFromCohort } from './guild.controller';
+import { findRole } from './role.controller';
+import { getCohortIdFromLearnerId, getLearnersFromCohorts } from '../../../../models/cohort';
+import {
+  SETUP_CHANNELS, WELCOME_MESSAGES, REVIEW_TEMPLATE, LEARNER_REVIEW_TEMPLATE, ASSESSMENT_TEMPLATE,
+  BREAKOUT_TEMPLATE, LEARNER_BREAKOUT_TEMPLATE, QUESTIONAIRE_TEMPLATE, ATTENDANCE_TEMPLATE, SETUP_ROLES,
+} from '../config';
 import { getLearnerBreakoutsForACohortBreakout } from '../../../../models/learner_breakout';
 import logger from '../../../../util/logger';
-
-// eslint-disable-next-line import/prefer-default-export
 
 export const sendMessage = ({ channelId, msg }) => client.channels.get(channelId).send(msg);
 
@@ -21,6 +24,90 @@ export const welcomeMember = async ({ member }) => {
   if (!channel) throw new Error('Invalid Channel! welcomeMember');
 
   return channel.send(`${member} ${WELCOME_MESSAGES[Math.floor(Math.random() * WELCOME_MESSAGES.length)]}`);
+};
+
+export const notifyAttendanceLearnerInChannel = async (
+  cohort_breakout_id,
+  user_id,
+  attendedTime,
+) => {
+  try {
+    const cohortBreakout = await getCohortBreakoutById(cohort_breakout_id);
+    const {
+      cohort_id, details,
+    } = cohortBreakout;
+
+    let discordUserId = await getDiscordUserIdsByDeltaUserIds({ user_ids: [user_id] });
+
+    let text = ATTENDANCE_TEMPLATE(discordUserId, details.topics, attendedTime);
+    const channel = await getChannelForCohort({ cohort_id });
+    const updatedText = (cohort_id) ? `${text}` : text;
+
+    channel.send(updatedText);
+    return true;
+  } catch (err) {
+    logger.error(`Error while sending attendance status to slack: ${err}`);
+    return false;
+  }
+};
+
+export const notifyLearnersInChannel = async (req, res) => {
+  let {
+    learner_id, text, cohort_id, type, team_number,
+  } = req.body;
+
+  let discordUserId;
+  try {
+    if (learner_id) {
+      discordUserId = await getDiscordUserIdsByDeltaUserIds({ user_ids: [learner_id] });
+    }
+    if (typeof cohort_id === 'undefined') {
+      cohort_id = await getCohortIdFromLearnerId(learner_id);
+    }
+    const channel = await getChannelForCohort({ cohort_id });
+    // logger.info(channel.id);
+    if (!text) {
+      switch (type) {
+        case 'reviews':
+          if ((learner_id) && (discordUserId)) {
+            text = LEARNER_REVIEW_TEMPLATE(discordUserId);
+            break;
+          }
+          text = REVIEW_TEMPLATE(team_number);
+          break;
+        case 'assessment':
+          text = ASSESSMENT_TEMPLATE(discordUserId);
+          break;
+        case 'lecture':
+          text = (learner_id) ? LEARNER_BREAKOUT_TEMPLATE(discordUserId) : BREAKOUT_TEMPLATE;
+          break;
+        case 'question_hour':
+          text = QUESTIONAIRE_TEMPLATE;
+          break;
+        // no default
+      }
+    }
+
+    const guild_id = await getGuildIdFromCohort({ cohort_id });
+    const sailor = await findRole({ guild_id, name: SETUP_ROLES[2].name });
+
+    const updatedText = (req.body.cohort_id) ? `${sailor} ${text}` : text;
+
+    const post_res = await channel.send(updatedText);
+    return res.status(200).json({
+      text: 'Message posted on the channel',
+      data: {
+        channel: post_res.channel,
+        ts: post_res.ts,
+        message: post_res.message,
+      },
+    });
+  } catch (err) {
+    logger.error(err);
+    return res.status(500).json({
+      text: 'Failed to notify on the Discord channel',
+    });
+  }
 };
 
 export const postAttendaceInCohortChannel = async ({ cohort_breakout_id }) => {
@@ -74,8 +161,8 @@ export const postAttendaceInCohortChannel = async ({ cohort_breakout_id }) => {
       .setTitle(title)
       .setURL('https://delta.soal.io/')
       .addFields([
-        { name: '***PRESENT***:', value: `${discordIdsOfAttendedLearners.map(l => `>>><@${l}>`).join('\n')}` },
-        { name: '***ABSENT***:', value: `${discordIdsOfAbsentLearners.map(l => `>>><@${l}>`).join('\n')}` },
+        { name: '***PRESENT***:', value: `${discordIdsOfAttendedLearners.map(l => `>>><@${l}>`).join('\n')}`, inline: true },
+        { name: '***ABSENT***:', value: `${discordIdsOfAbsentLearners.map(l => `>>><@${l}>`).join('\n')}`, inline: true },
       ])
       .setTimestamp()
       .setFooter('If any above Learner has been marked incorrectly, let us know!');
@@ -91,76 +178,69 @@ export const postAttendaceInCohortChannel = async ({ cohort_breakout_id }) => {
 
 export const postTodaysBreakouts = async (todaysBreakouts) => {
   console.log(todaysBreakouts);
-  // const postOnChannel = async (channelId, textBody) => {
-  //   const today = new Date();
-  //   const startWith = `<!channel> Sessions scheduled for today, i.e., *${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}*`;
-  //   // find channel and send message
-  //   const channel;
+  const postOnChannel = async ({ channel, breakout_text }) => {
+    const today = new Date();
+    const startWith = '<!channel> Sessions scheduled for today, ';
 
-  //   const embed = new Discord.MessageEmbed()
-  //     .setColor('#0099ff')
-  //     .setTitle(startWith)
-  //     .setURL('https://delta.soal.io/')
-  //     .addFields([
-  //       { name: 'Regular field title', value: 'Some value here' },
-  //       { name: '\u200B', value: '\u200B' },
-  //       { name: 'Inline field title', value: 'Some value here', inline: true },
-  //       { name: 'Inline field title', value: 'Some value here', inline: true },
-  //     ])
-  //     .setTimestamp()
-  //     .setFooter('Any changes to the above will be updated only on Delta Web - please keep an eye out.', 'https://coursereport-s3-production.global.ssl.fastly.net/uploads/school/logo/450/original/SOAL_SYMBOL-05.png');
+    const embed = new Discord.MessageEmbed()
+      .setColor('#0099ff')
+      .setTitle(startWith)
+      .setURL('https://delta.soal.io/')
+      .addFields([
+        { name: `i.e., *${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}*`, value: breakout_text },
+        { name: '\u200B', value: '\u200B' },
+      ])
+      .setTimestamp()
+      .setFooter('Any changes to the above will be updated only on Delta Web - please keep an eye out.', 'https://coursereport-s3-production.global.ssl.fastly.net/uploads/school/logo/450/original/SOAL_SYMBOL-05.png');
 
-  //   const text = textBody;
+    try {
+      const discordResponse = await channel.send(embed);
+      return discordResponse;
+    } catch (err) {
+      logger.error(err);
+      logger.error(`Failed to post on discord channel ${channel.id} and breakout text: ${breakout_text}`);
+      return false;
+    }
+  };
 
-  //   const message = '';
+  let data = [];
+  // eslint-disable-next-line no-restricted-syntax
+  for (const [cohort_id, breakout_types] of Object.entries(todaysBreakouts)) {
+    const channel = await getChannelForCohort({ cohort_id });
+    let breakout_text = '';
+    // let b_type;
+    let b_topic;
 
-  //   try {
-  //     const discordResponse = await channel.send(embed);
-  //     return discordResponse;
-  //   } catch (err) {
-  //     logger.error(err);
-  //     logger.error(`Failed to post on discord channel ${channelId} and breakout text: ${textBody}`);
-  //     return false;
-  //   }
-  // };
+    // eslint-disable-next-line no-restricted-syntax
+    for (const [type, breakouts] of Object.entries(breakout_types)) {
+      switch (type) {
+        case 'lecture':
+          // b_type = (breakout.details.type === 'tep') ? 'Tech Breakouts' : 'MindCasts';
+          b_topic = breakouts.map(b => b.topics).join('\n');
+          breakout_text += `${b_topic}`;
+          break;
+        case 'reviews':
+          // b_type = 'Reviews';
+          b_topic = `${breakouts.map(b => b.topics).join('\n')}`;
+          breakout_text += b_topic;
+          break;
+        case 'assessment':
+          b_topic = `${breakouts.map(b => b.topics).join('\n')}`;
+          breakout_text += b_topic;
+          break;
+        // no default
+      }
+    }
+    try {
+      // eslint-disable-next-line no-await-in-loop
 
-  // let data = [];
-  // // eslint-disable-next-line no-restricted-syntax
-  // for (const [cohort_id, breakout_types] of Object.entries(todaysBreakouts)) {
-  //   const channelId = await getChannelIdForCohort(cohort_id);
-  //   let breakout_text = '';
-  //   // let b_type;
-  //   let b_topic;
-
-  //   // eslint-disable-next-line no-restricted-syntax
-  //   for (const [type, breakouts] of Object.entries(breakout_types)) {
-  //     switch (type) {
-  //       case 'lecture':
-  //         // b_type = (breakout.details.type === 'tep') ? 'Tech Breakouts' : 'MindCasts';
-  //         b_topic = breakouts.map(b => b.topics).join('\n');
-  //         breakout_text += `${b_topic}`;
-  //         break;
-  //       case 'reviews':
-  //         // b_type = 'Reviews';
-  //         b_topic = `${breakouts.map(b => b.topics).join('\n')}`;
-  //         breakout_text += b_topic;
-  //         break;
-  //       case 'assessment':
-  //         b_topic = `${breakouts.map(b => b.topics).join('\n')}`;
-  //         breakout_text += b_topic;
-  //         break;
-  //       // no default
-  //     }
-  //   }
-  //   try {
-  //     // eslint-disable-next-line no-await-in-loop
-  //     const res = await postOnChannel(channelId, breakout_text);
-  //     data.push(res);
-  //   } catch (err) {
-  //     data.push({
-  //       text: 'failed to postOnChannel',
-  //     });
-  //   }
-  // }
+      const res = await postOnChannel({ channel, breakout_text });
+      data.push(res);
+    } catch (err) {
+      data.push({
+        text: 'failed to postOnChannel',
+      });
+    }
+  }
   return true;
 };
