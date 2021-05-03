@@ -25,7 +25,10 @@ export const getAllAssessmentsAPI = (req, res) => {
     .then((data) => {
       res.json(data);
     })
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 export const getAssessmentsByStatusAPI = (req, res) => {
@@ -34,7 +37,10 @@ export const getAssessmentsByStatusAPI = (req, res) => {
     .then((data) => {
       res.json(data);
     })
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 // Get assessments for a user
@@ -44,7 +50,10 @@ export const getAssessmentsByUserIdAPI = (req, res) => {
     .then((data) => {
       res.json(data);
     })
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 // Get assessments for a user and Team user for that user
@@ -54,7 +63,10 @@ export const getUserAndTeamAssessmentsAPI = (req, res) => {
     .then((data) => {
       res.json(data);
     })
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 export const getAssessmentsByIdAPI = (req, res) => {
@@ -63,7 +75,10 @@ export const getAssessmentsByIdAPI = (req, res) => {
     .then((data) => {
       res.json(data);
     })
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 export const getAssessmentsByTeamAPI = (req, res) => {
@@ -72,7 +87,10 @@ export const getAssessmentsByTeamAPI = (req, res) => {
     .then((data) => {
       res.json(data);
     })
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 export const createAssessment = (req, res) => {
@@ -101,7 +119,10 @@ export const createAssessment = (req, res) => {
     .then((data) => {
       res.json(data);
     })
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 export const addAssessmentsForTeamAPI = (req, res) => {
@@ -122,17 +143,25 @@ export const addAssessmentsForTeamAPI = (req, res) => {
     .then((data) => {
       res.json(data);
     })
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 export const updateStatusForTeamAPI = (req, res) => {
   const { status } = req.body;
   const { id } = req.params;
   updateStatusForTeam(id, status)
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((err) => res.status(500).send(err));
+    .then((data) => res.status(201).json({
+      message: 'Updated assessment slots',
+      data: data[1],
+      type: 'success',
+    }))
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 export const createAssessmentScheduleAPI = (req, res) => {
@@ -152,12 +181,10 @@ export const createAssessmentScheduleAPI = (req, res) => {
     phase,
     excluded_learners,
   )
-    .then((data) => {
-      res.json(data);
-    })
+    .then((data) => res.json(data))
     .catch((err) => {
       logger.error(err);
-      res.status(500).send(err);
+      return res.status(500);
     });
 };
 
@@ -167,10 +194,15 @@ export const updateAssessmentForLearnerAPI = (req, res) => {
   const { learner_id, id } = req.params;
 
   updateAssessment(assessment_feedback, learner_id, id, learner_feedback)
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((err) => res.status(500).send(err));
+    .then((data) => res.status(200).send({
+      message: 'Updated Assessment slot',
+      data: data[1],
+      type: 'success',
+    }))
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
+    });
 };
 
 export const getAssessmentPhasesAPI = (req, res) => {
@@ -183,9 +215,9 @@ export const getAssessmentPhasesAPI = (req, res) => {
       data: phases,
       type: 'success',
     }))
-    .catch((e) => {
-      logger.error(e);
-      return res.status(500).send(e);
+    .catch((err) => {
+      logger.error(err);
+      return res.status(500);
     });
 };
 

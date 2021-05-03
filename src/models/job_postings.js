@@ -149,6 +149,9 @@ export const getAllJobPostings = ({
       ],
       offset,
       limit,
+      order: [
+        ['updated_at', 'DESC'],
+      ],
     },
   );
 };
