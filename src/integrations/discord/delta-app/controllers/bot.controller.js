@@ -10,9 +10,17 @@ import { getCohortIdFromLearnerId, getLearnersFromCohorts } from '../../../../mo
 import {
   SETUP_CHANNELS, WELCOME_MESSAGES, REVIEW_TEMPLATE, LEARNER_REVIEW_TEMPLATE, ASSESSMENT_TEMPLATE,
   BREAKOUT_TEMPLATE, LEARNER_BREAKOUT_TEMPLATE, QUESTIONAIRE_TEMPLATE, ATTENDANCE_TEMPLATE, SETUP_ROLES,
+  ASSESSMENT_MESSAGE_TEMPLATE,
 } from '../config';
 import { getLearnerBreakoutsForACohortBreakout } from '../../../../models/learner_breakout';
 import logger from '../../../../util/logger';
+import {
+  getRubricsByMilestone,
+} from '../../../../models/rubrics';
+import {
+  getWeekDay,
+} from '../../../../util/utility';
+import { getChannelIdForCohort } from '../../../../models/slack_channels';
 
 export const sendMessage = ({ channelId, msg }) => client.channels.get(channelId).send(msg);
 
@@ -24,6 +32,33 @@ export const welcomeMember = async ({ member }) => {
   if (!channel) throw new Error('Invalid Channel! welcomeMember');
 
   return channel.send(`${member} ${WELCOME_MESSAGES[Math.floor(Math.random() * WELCOME_MESSAGES.length)]}`);
+};
+
+export const sendAssessmentMessage = async (program, date, phase, cohort_id) => {
+  let dateObject = new Date(date);
+  const currentDay = getWeekDay(dateObject);
+  const type = phase.includes('Core') ? 'core-phase' : 'focus-phase';
+  const topicsForAssessments = await getRubricsByMilestone({ program, type });
+  let topicsString;
+  if (type === 'core-phase') {
+    let topicArray = topicsForAssessments.map(topics => topics.rubric_name);
+    topicsString = topicArray.join('\n- ');
+  } else {
+    let frontendTopics = [];
+    let backendTopics = [];
+    topicsForAssessments.map(topics => {
+      if (topics.path === 'frontend') {
+        frontendTopics.push(topics.rubric_name);
+      } else {
+        backendTopics.push(topics.rubric_name);
+      }
+    });
+    topicsString = `Frontend Topics: \n- ${frontendTopics.join('\n- ')}\n Backend Topics \n\n- ${backendTopics.join('\n- ')}`;
+  }
+  let text = ASSESSMENT_MESSAGE_TEMPLATE(phase, date, currentDay, topicsString);
+
+  const channel_id = await getChannelIdForCohort(cohort_id);
+  return postMessage({ channel: channel_id, text });
 };
 
 export const notifyAttendanceLearnerInChannel = async (
@@ -39,7 +74,7 @@ export const notifyAttendanceLearnerInChannel = async (
 
     let discordUserId = await getDiscordUserIdsByDeltaUserIds({ user_ids: [user_id] });
 
-    let text = ATTENDANCE_TEMPLATE(discordUserId, details.topics, attendedTime);
+    let text = ATTENDANCE_TEMPLATE(discordUserId[0], details.topics, attendedTime);
     const channel = await getChannelForCohort({ cohort_id });
     const updatedText = (cohort_id) ? `${text}` : text;
 
@@ -70,16 +105,16 @@ export const notifyLearnersInChannel = async (req, res) => {
       switch (type) {
         case 'reviews':
           if ((learner_id) && (discordUserId)) {
-            text = LEARNER_REVIEW_TEMPLATE(discordUserId);
+            text = LEARNER_REVIEW_TEMPLATE(discordUserId[0]);
             break;
           }
           text = REVIEW_TEMPLATE(team_number);
           break;
         case 'assessment':
-          text = ASSESSMENT_TEMPLATE(discordUserId);
+          text = ASSESSMENT_TEMPLATE(discordUserId[0]);
           break;
         case 'lecture':
-          text = (learner_id) ? LEARNER_BREAKOUT_TEMPLATE(discordUserId) : BREAKOUT_TEMPLATE;
+          text = (learner_id) ? LEARNER_BREAKOUT_TEMPLATE(discordUserId[0]) : BREAKOUT_TEMPLATE;
           break;
         case 'question_hour':
           text = QUESTIONAIRE_TEMPLATE;
@@ -110,14 +145,14 @@ export const notifyLearnersInChannel = async (req, res) => {
   }
 };
 
-export const postAttendaceInCohortChannel = async ({ cohort_breakout_id }) => {
+export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
   logger.info('Posting Attendance');
   try {
     const cohortBreakout = await getCohortBreakoutById(cohort_breakout_id);
     const {
       type, cohort_id, catalyst_id, details,
     } = cohortBreakout;
-    const cohortDiscordChannel = await getChannelForCohort(cohort_id);
+    const cohortDiscordChannel = await getChannelForCohort({ cohort_id });
 
     const learner_breakouts = await getLearnerBreakoutsForACohortBreakout(cohort_breakout_id);
     const cohortLearners = await getLearnersFromCohorts([cohort_id])
@@ -144,10 +179,11 @@ export const postAttendaceInCohortChannel = async ({ cohort_breakout_id }) => {
 
     let discordIdsOfAttendedLearners = await getDiscordUserIdsByDeltaUserIds({ user_ids: attendedLearners });
     let discordIdsOfAbsentLearners = await getDiscordUserIdsByDeltaUserIds({ user_ids: absentLearners });
+
     let title;
 
     if (type === 'lecture') {
-      const discordIdOfCatalyst = await getDiscordUserIdsByDeltaUserIds([catalyst_id]);
+      const discordIdOfCatalyst = await getDiscordUserIdsByDeltaUserIds({ user_ids: [catalyst_id] });
       title = `Attendance record for *<@${discordIdOfCatalyst}>*'s breakout on \n${details.topics}`;
     } if (type === 'reviews') {
       title = `Attendance of ${details.topics}`;
@@ -161,13 +197,13 @@ export const postAttendaceInCohortChannel = async ({ cohort_breakout_id }) => {
       .setTitle(title)
       .setURL('https://delta.soal.io/')
       .addFields([
-        { name: '***PRESENT***:', value: `${discordIdsOfAttendedLearners.map(l => `>>><@${l}>`).join('\n')}`, inline: true },
-        { name: '***ABSENT***:', value: `${discordIdsOfAbsentLearners.map(l => `>>><@${l}>`).join('\n')}`, inline: true },
+        { name: '***PRESENT***:', value: `${discordIdsOfAttendedLearners.map(l => `>>><@${l}>`).join('\n')} `, inline: true },
+        { name: '***ABSENT***:', value: `${discordIdsOfAbsentLearners.map(l => `>>><@${l}>`).join('\n')} `, inline: true },
       ])
       .setTimestamp()
       .setFooter('If any above Learner has been marked incorrectly, let us know!');
 
-    const discordMessageResponse = cohortDiscordChannel.send(embed);
+    const discordMessageResponse = await cohortDiscordChannel.send(embed);
 
     return discordMessageResponse;
   } catch (err) {
@@ -177,18 +213,17 @@ export const postAttendaceInCohortChannel = async ({ cohort_breakout_id }) => {
 };
 
 export const postTodaysBreakouts = async (todaysBreakouts) => {
-  console.log(todaysBreakouts);
   const postOnChannel = async ({ channel, breakout_text }) => {
     const today = new Date();
-    const startWith = '<!channel> Sessions scheduled for today, ';
+    const startWith = `Sessions scheduled for today i.e., **${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}**`;
 
     const embed = new Discord.MessageEmbed()
       .setColor('#0099ff')
       .setTitle(startWith)
       .setURL('https://delta.soal.io/')
       .addFields([
-        { name: `i.e., *${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}*`, value: breakout_text },
-        { name: '\u200B', value: '\u200B' },
+        { name: 'Topics', value: breakout_text },
+        { name: '\u200B', value: `${channel.toString()}` },
       ])
       .setTimestamp()
       .setFooter('Any changes to the above will be updated only on Delta Web - please keep an eye out.', 'https://coursereport-s3-production.global.ssl.fastly.net/uploads/school/logo/450/original/SOAL_SYMBOL-05.png');

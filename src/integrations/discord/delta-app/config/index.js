@@ -99,6 +99,22 @@ export const BREAKOUT_TEMPLATE = 'It\'s time to get your thinking hats on! Pleas
 export const LEARNER_BREAKOUT_TEMPLATE = (learner) => `Catalyst is reminding <@${learner}> to join the breakout. Please join from Delta`;
 export const QUESTIONAIRE_TEMPLATE = 'The Question Hour is upon us. Please join the session from DELTA and ask away!';
 export const ATTENDANCE_TEMPLATE = (learner, topics, timeMinutes) => `<@${learner}> Looks like you have been in the breakout on ${topics} for only ${timeMinutes} minutes.`;
+export const ASSESSMENT_MESSAGE_TEMPLATE = (phase, date, currentDay, topicsString) => `Hello, @channel!
+Your ${phase} Reflection Week begins on ${date}.
+In this week, from ${currentDay}, ${date} for one week, you will get time to reflect on your growth so far.
+~ *What will happen in this week?*
+${phase} Assessments. You will be participating in 1-on-1 review calls, and receiving feedback on your learning progress thus far.
+~ *What to expect in the Assessment?*
+An external reviewer will be asking some questions related to the Milestones covered in the ${phase}. You may also be asked to write code for some of these topics:\n\n${topicsString}
+~ *What happens after the Assessment?*
+At the end this week, you will receive your Assessment feedback. Based on this feedback, some of you may be asked to join a new cohort and spend more time working on your ${phase} milestones. Because everyone learns at their own pace, needing more time isn’t a bad thing. This is not a punishment.
+~ To make the most of this week, here’s what we suggest you do before, and even after, your assessment:
+Revisit MS Review feedback for each milestone of the ${phase}. Evaluate whether or not you were able to implement the MS Review feedback in the next MS. Did you find it helpful?
+Practice! Practice! Practice! Reading code is helpful, but what’s even better is writing it. Go back to your MiniMS, attempt more, revisit the ones you have already attempted and try improving upon them.
+Pick a MS you feel you could have built better and try building it on your own.
+Please add your queries, if any, to this thread, and we’ll get to addressing them.
+~ Note: There will be no BreakOuts or Mindcasts scheduled for you this week.
+You may see some on DELTA but they will soon be rescheduled and moved to next week. You will have access to your catalysts/educators to get guidance on anything you may be stuck with.`;
 
 export const GUILD_IDS_BY_PROGRAM = [{
   PROGRAM_ID: 'tep',

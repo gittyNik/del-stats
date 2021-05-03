@@ -34,20 +34,21 @@ export const getChannelsByType = async ({ guildID, channelType }) => {
 };
 
 export const findChannelByName = async ({ guild_id, channel_name }) => {
-  const guild = await getGuild(guild_id);
+  const guild = await getGuild({ guild_id });
   return guild.channels.cache.find(ch => ch.name === channel_name);
 };
 
 export const getChannelForCohort = async ({ cohort_id }) => {
-  const cohort = Cohort.findOne({
+  const cohort = await Cohort.findOne({
     where: {
       id: cohort_id,
     },
   },
   { raw: true });
-  const cohortChannelName = getCohortFormattedId([{ cohort, program_type: cohort.program_id }]);
+
+  const cohortChannelName = getCohortFormattedId({ data: [cohort], program_type: cohort.program_id });
   const guild_id = getGuildIdFromProgram({ program_id: cohort.program_id });
-  const cohortChannel = await findChannelByName({ guild_id, name: cohortChannelName });
+  const cohortChannel = await findChannelByName({ guild_id, channel_name: cohortChannelName[0] });
 
   return cohortChannel;
 };

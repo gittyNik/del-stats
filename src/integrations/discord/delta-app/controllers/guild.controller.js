@@ -15,7 +15,7 @@ import { createRole, findRole } from './role.controller';
 
 export const getGuild = async ({ guild_id }) => client.guilds.fetch(guild_id);
 
-export const getGuildIdFromProgram = async ({ program_id }) => GUILD_IDS_BY_PROGRAM.find(el => el.PROGRAM_ID === program_id);
+export const getGuildIdFromProgram = ({ program_id }) => GUILD_IDS_BY_PROGRAM.find(el => el.PROGRAM_ID === program_id).GUILD_ID;
 
 export const getGuildIdFromCohort = async ({ cohort_id }) => {
   const cohort = Cohort.findOne({

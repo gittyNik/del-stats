@@ -8,7 +8,7 @@ import { addGuildMember } from './guild.controller';
 import { addRoleToUser, findRole } from './role.controller';
 import { getUser, addDiscordSocialConnection } from './user.controller';
 import {
-  createState, retrieveState, removeState, getCohortFormattedId,
+  retrieveState, removeState, getCohortFormattedId,
 } from '../utils';
 
 // import discordBot from '../client';
@@ -16,7 +16,7 @@ import { User, USER_ROLES } from '../../../../models/user';
 import { Cohort, getCohortIdFromLearnerId } from '../../../../models/cohort';
 import { HttpBadRequest } from '../../../../util/errors';
 
-export const discordOAuth2 = ({ state, prompt = 'concent' }) => new ClientOAuth2(oAuthConfig({
+export const discordOAuth2 = ({ state, prompt = 'consent' }) => new ClientOAuth2(oAuthConfig({
   scopes: [OAUTH_SCOPES.EMAIL, OAUTH_SCOPES.IDENTIFY, OAUTH_SCOPES.CONNECTIONS, OAUTH_SCOPES.GUILDS_JOIN],
   redirectUri: OAuthRedirects.discordOAuth2,
   state,
@@ -25,7 +25,7 @@ export const discordOAuth2 = ({ state, prompt = 'concent' }) => new ClientOAuth2
   },
 }));
 
-export const discordBotOAuth2 = ({ state, prompt = 'concent' }) => new ClientOAuth2(oAuthConfig({
+export const discordBotOAuth2 = ({ state, prompt = 'consent' }) => new ClientOAuth2(oAuthConfig({
   scopes: [OAUTH_SCOPES.BOT],
   redirectUri: OAuthRedirects.discordBotOAuth2,
   state,
@@ -79,7 +79,7 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
     };
   }
 
-  if (stateData.prompt === 'concent') {
+  if (stateData.prompt === 'consent') {
     // user has first time clicked join
     await addDiscordSocialConnection(deltaUser.id, user, authRes);
 

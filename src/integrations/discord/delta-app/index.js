@@ -5,16 +5,14 @@ import logger from '../../../util/logger';
 import routes from './routes';
 import { delay } from './utils';
 import client from './client';
+import { welcomeMember } from './controllers/bot.controller';
 
 // import { serverSetup } from './controllers/guild.controller';
-import { welcomeMember } from './controllers/bot.controller';
 
 const router = Express.Router();
 
 client.on('ready', async () => {
   logger.info(`Bot client Logged in as ${client.user.tag}!`);
-  // const data = await getTodaysCohortBreakouts();
-  console.log('data');
   // serverSetup({ guild_id: process.env.DISCORD_TEP_GUILD_ID, program_type: 'tep' });
 });
 
