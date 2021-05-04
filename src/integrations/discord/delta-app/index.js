@@ -17,7 +17,7 @@ client.on('ready', async () => {
 });
 
 client.on('rateLimit', async msg => {
-  console.log('hi', msg);
+  logger.info(`Bot client ${client.user.tag}! Got Rate limited!`);
 });
 
 client.on('guildMemberAdd', welcomeMember);
@@ -40,10 +40,6 @@ client.on('message', async msg => {
 process.on('unhandledRejection', error => {
   console.error('didn\'t catchUnhandled promise rejection:', error);
 });
-
-// router.use('/action-endpoint', event);
-// router.use('/interactive-endpoint', interaction);
-// router.use('/command-endpoint', command);
 
 // Apply body Parser
 router.use(compression());
