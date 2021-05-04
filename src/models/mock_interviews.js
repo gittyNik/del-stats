@@ -123,7 +123,14 @@ export const getAppliedCatalystDetailsByStatus = ({
     where: {
       catalyst_request_status: status,
     },
-    include: [{ model: User, attributes: ['id', 'name'], as: 'RequestedByCatalysts' }],
+    include: [{
+      model: User,
+      attributes: ['id', 'name'],
+      as: 'RequestedByCatalysts',
+      through: {
+        attributes: [],
+      },
+    }],
   });
 
 export const createRequestForCatalyst = ({ cohort_breakout_id, catalyst_id }) => {

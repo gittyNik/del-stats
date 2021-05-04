@@ -14,6 +14,17 @@ const {
 
 const router = Express.Router();
 
+router.use(allowMultipleRoles([SUPERADMIN, ADMIN, OPERATIONS, CATALYST, EDUCATOR]));
+/**
+ * @api {get} /learning/ops/catalyst/request/:status Get requests by status
+ * breakouts for cohort breakout
+ * @apiDescription get all requests
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName GetBreakouts
+ * @apiGroup Breakouts
+ */
+router.post('/request', createRequestsApi);
+
 router.use(allowMultipleRoles([SUPERADMIN, ADMIN, OPERATIONS, EDUCATOR]));
 
 /**
@@ -35,16 +46,5 @@ router.get('/request/:status', getRequestsByStatusApi);
  * @apiGroup Breakouts
  */
 router.patch('/request', updateRequestsStatusApi);
-
-router.use(allowMultipleRoles([SUPERADMIN, ADMIN, OPERATIONS, CATALYST, EDUCATOR]));
-/**
- * @api {get} /learning/ops/catalyst/request/:status Get requests by status
- * breakouts for cohort breakout
- * @apiDescription get all requests
- * @apiHeader {String} authorization JWT Token.
- * @apiName GetBreakouts
- * @apiGroup Breakouts
- */
-router.post('/request', createRequestsApi);
 
 export default router;
