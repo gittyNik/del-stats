@@ -1,6 +1,5 @@
 import Sequelize from 'sequelize';
 import db from '../database';
-import { User } from './user';
 import logger from '../util/logger';
 
 export const PROVIDERS = Object.freeze({

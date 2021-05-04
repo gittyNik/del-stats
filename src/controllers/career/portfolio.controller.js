@@ -12,6 +12,9 @@ import { SocialConnection } from '../../models/social_connection';
 import {
   addProfilePicture,
 } from '../../models/user';
+import {
+  updateOrCreate,
+} from '../../models/index';
 import logger from '../../util/logger';
 
 export const getAllPortfoliosAPI = (req, res) => {
@@ -195,11 +198,12 @@ export const createPortfolioAPI = async (req, res) => {
   }
 
   try {
-    let socialConnections = social_connections.map(connection => {
+    await Promise.all(social_connections.map(async (connection) => {
       connection.created_at = Sequelize.literal('NOW()');
+      connection.user_id = learner_id;
+      await updateOrCreate(SocialConnection, { provider: connection.provider, user_id: learner_id }, connection);
       return connection;
-    });
-    await SocialConnection.bulkCreate(socialConnections);
+    }));
   } catch (err1) {
     logger.warn('Error in creating social connections');
   }
@@ -289,11 +293,12 @@ export const updatePortfolio = async (req, res) => {
   }
 
   try {
-    let socialConnections = social_connections.map(connection => {
+    await Promise.all(social_connections.map(async (connection) => {
       connection.created_at = Sequelize.literal('NOW()');
+      connection.user_id = learner_id;
+      await updateOrCreate(SocialConnection, { provider: connection.provider, user_id: learner_id }, connection);
       return connection;
-    });
-    await SocialConnection.bulkCreate(socialConnections);
+    }));
   } catch (err1) {
     logger.warn('Error in creating social connections');
   }
