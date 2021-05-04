@@ -99,7 +99,7 @@ export const BREAKOUT_TEMPLATE = 'It\'s time to get your thinking hats on! Pleas
 export const LEARNER_BREAKOUT_TEMPLATE = (learner) => `Catalyst is reminding <@${learner}> to join the breakout. Please join from Delta`;
 export const QUESTIONAIRE_TEMPLATE = 'The Question Hour is upon us. Please join the session from DELTA and ask away!';
 export const ATTENDANCE_TEMPLATE = (learner, topics, timeMinutes) => `<@${learner}> Looks like you have been in the breakout on ${topics} for only ${timeMinutes} minutes.`;
-export const ASSESSMENT_MESSAGE_TEMPLATE = (phase, date, currentDay, topicsString) => `Hello, @channel!
+export const ASSESSMENT_MESSAGE_TEMPLATE = (channel, phase, date, currentDay, topicsString) => `Hello, ${channel.toString()}!
 Your ${phase} Reflection Week begins on ${date}.
 In this week, from ${currentDay}, ${date} for one week, you will get time to reflect on your growth so far.
 ~ *What will happen in this week?*

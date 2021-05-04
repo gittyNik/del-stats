@@ -20,7 +20,6 @@ import {
 import {
   getWeekDay,
 } from '../../../../util/utility';
-import { getChannelIdForCohort } from '../../../../models/slack_channels';
 
 export const sendMessage = ({ channelId, msg }) => client.channels.get(channelId).send(msg);
 
@@ -55,10 +54,10 @@ export const sendAssessmentMessage = async (program, date, phase, cohort_id) => 
     });
     topicsString = `Frontend Topics: \n- ${frontendTopics.join('\n- ')}\n Backend Topics \n\n- ${backendTopics.join('\n- ')}`;
   }
-  let text = ASSESSMENT_MESSAGE_TEMPLATE(phase, date, currentDay, topicsString);
+  const channel = await getChannelForCohort({ cohort_id });
+  let text = ASSESSMENT_MESSAGE_TEMPLATE(channel, phase, date, currentDay, topicsString);
 
-  const channel_id = await getChannelIdForCohort(cohort_id);
-  return postMessage({ channel: channel_id, text });
+  return channel.send(text);
 };
 
 export const notifyAttendanceLearnerInChannel = async (
