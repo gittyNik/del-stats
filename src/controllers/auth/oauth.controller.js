@@ -261,6 +261,9 @@ export const signinWithGithub = (req, res) => {
       });
     })
     .catch((err) => {
+      if ('response' in err) {
+        logger.error(err.response);
+      }
       if (err.status === 401) {
         res.status(401).send(err.response.text);
       } else if (err === 'NO_EMAIL') {
