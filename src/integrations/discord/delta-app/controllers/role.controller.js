@@ -58,8 +58,6 @@ export const addRoleToUser = async ({ guild_id, role_name, user_id }) => {
     throw new Error('User not in server!');
   }
 
-  console.log(user);
-
   const newUser = await await user.roles.add(role.id);
   return newUser;
 };

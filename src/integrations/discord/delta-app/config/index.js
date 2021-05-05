@@ -65,9 +65,8 @@ export const SETUP_CHANNELS = [{
     }, {
       category: 'Typein\' ⌨',
       channels: ['welcome 👋',
-        'watercooler 🌊', 'get-help 🆘',
         'look-what-I-found 📂', 'show-off-what-you-built 🚀', 'learning-resources 📚',
-        'mind-overflow 🧠'],
+        'mind-overflow 🧠', 'get-help 🆘', 'watercooler 🌊'],
     }],
     private: [{
       category: 'SOAL Team 👾',
@@ -120,3 +119,6 @@ export const GUILD_IDS_BY_PROGRAM = [{
   PROGRAM_ID: 'tep',
   GUILD_ID: process.env.DISCORD_TEP_GUILD_ID,
 }];
+
+// discord bot for focus forest or voice broadcast, only yt urls for now
+export const VOICE_URLS = ['https://www.youtube.com/watch?v=XxP8kxUn5bc', 'https://www.youtube.com/watch?v=R0NME9W3cR4'];

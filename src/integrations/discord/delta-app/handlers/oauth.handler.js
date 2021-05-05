@@ -8,9 +8,9 @@ import {
 
 export const inviteBot = async (req, res) => {
   const deltaToken = req.headers.authorization.split(' ').pop();
-  const state = await createState({ deltaToken, prompt: 'concent' });
+  const state = await createState({ deltaToken, prompt: 'consent' });
 
-  let uri = discordBotOAuth2({ state, prompt: 'concent' }).code.getUri();
+  let uri = discordBotOAuth2({ state, prompt: 'consent' }).code.getUri();
   return res.redirect(uri);
 };
 
@@ -25,9 +25,9 @@ export const joinDiscord = async (req, res) => {
     return res.redirect(uri);
   }
 
-  const state = await createState({ deltaToken, prompt: 'concent' });
+  const state = await createState({ deltaToken, prompt: 'consent' });
 
-  let uri = discordOAuth2({ state, prompt: 'concent' }).code.getUri();
+  let uri = discordOAuth2({ state, prompt: 'consent' }).code.getUri();
   return res.redirect(uri);
 };
 

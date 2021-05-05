@@ -63,7 +63,7 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
 
   // @TO-DO detect which server(s) to add a user to, program type, soal admin
   // right now we will be using const guild id from env
-  const guild_id = process.env.DISCORD_GUILD_ID;
+  const guild_id = process.env.DISCORD_TEP_GUILD_ID;
 
   if (stateData.prompt === 'none') {
     await removeState({ key: stateKey });
@@ -131,5 +131,5 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
   }
 
   await removeState({ key: stateKey });
-  throw new HttpBadRequest('Bad Request! Messed up JWT or State!');
+  throw new HttpBadRequest('Bad Request! Messed up State!');
 };

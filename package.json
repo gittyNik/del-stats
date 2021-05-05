@@ -55,6 +55,7 @@
     "@babel/preset-env": "^7.12.13",
     "@babel/register": "^7.12.13",
     "@babel/runtime": "^7.12.13",
+    "@discordjs/opus": "^0.5.0",
     "@octokit/plugin-retry": "^3.0.7",
     "@octokit/rest": "^18.1.0",
     "@slack/events-api": "^3.0.0",
@@ -104,7 +105,8 @@
     "superagent": "^6.1.0",
     "twitter": "^1.7.1",
     "uuid": "^8.3.2",
-    "watson-developer-cloud": "^3.5.3"
+    "watson-developer-cloud": "^3.5.3",
+    "ytdl-core-discord": "^1.3.0"
   },
   "devDependencies": {
     "@babel/node": "^7.12.13",

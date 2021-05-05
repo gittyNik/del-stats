@@ -1,11 +1,11 @@
 import Express from 'express';
 import compression from 'compression';
-
 import logger from '../../../util/logger';
 import routes from './routes';
 import { delay } from './utils';
 import client from './client';
 import { welcomeMember } from './controllers/bot.controller';
+import { focusForest } from './controllers/voice.controller';
 
 // import { serverSetup } from './controllers/guild.controller';
 
@@ -16,7 +16,7 @@ client.on('ready', async () => {
   // serverSetup({ guild_id: process.env.DISCORD_TEP_GUILD_ID, program_type: 'tep' });
 });
 
-client.on('rateLimit', async msg => {
+client.on('rateLimit', async () => {
   logger.info(`Bot client ${client.user.tag}! Got Rate limited!`);
 });
 
@@ -37,9 +37,7 @@ client.on('message', async msg => {
   }
 });
 
-process.on('unhandledRejection', error => {
-  console.error('didn\'t catchUnhandled promise rejection:', error);
-});
+client.on('voiceStateUpdate', focusForest);
 
 // Apply body Parser
 router.use(compression());

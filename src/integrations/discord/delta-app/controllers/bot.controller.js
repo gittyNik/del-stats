@@ -29,8 +29,9 @@ export const deleteMessage = ({ message, reaction }) => message.delete(reaction)
 export const welcomeMember = async ({ member }) => {
   const channel = await member.guild.channels.cache.filter(ch => ch.name === SETUP_CHANNELS[0].data.public[1].channels[0]);
   if (!channel) throw new Error('Invalid Channel! welcomeMember');
+  await channel.send(`${member} ${WELCOME_MESSAGES[Math.floor(Math.random() * WELCOME_MESSAGES.length)]}`);
 
-  return channel.send(`${member} ${WELCOME_MESSAGES[Math.floor(Math.random() * WELCOME_MESSAGES.length)]}`);
+  return true;
 };
 
 export const sendAssessmentMessage = async (program, date, phase, cohort_id) => {
