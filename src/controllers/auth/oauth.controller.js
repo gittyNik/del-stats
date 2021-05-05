@@ -35,6 +35,7 @@ const getGithubAccessToken = async (code) => {
 
   return request
     .post('https://github.com/login/oauth/access_token')
+    .set('User-Agent', process.env.GITHUB_APP_NAME)
     .send(params)
     .then((tokenResponse) => ({
       githubToken: tokenResponse.text,
