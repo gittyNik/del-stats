@@ -43,23 +43,33 @@ const getGithubAccessToken = async (code) => {
     }));
 };
 
-const fetchProfileFromGithub = ({ githubToken, expiry }) =>
-// TODO: reject if expired
+const fetchProfileFromGithub = ({ githubToken, expiry }) => {
+  // TODO: reject if expired
+  let accessRegex = /access_token=(\S+?)&/g;
+  let access_token;
+
+  let user_access_token = accessRegex.exec(githubToken);
+  if (user_access_token[1] != null) {
+    access_token = user_access_token[1];
+  }
 
   // fetching profile details from github
-  request
-    .get(`https://api.github.com/user?${githubToken}`)
+  return request
+    .get('https://api.github.com/user')
+    .set('authorization', `token ${access_token}`)
     .set('User-Agent', process.env.GITHUB_APP_NAME)
     .then(async (profileResponse) => {
       const profile = profileResponse.body;
       // fetching all emails from github
       const emailResponse = await request
-        .get(`https://api.github.com/user/emails?${githubToken}`)
+        .get('https://api.github.com/user/emails')
+        .set('authorization', `token ${access_token}`)
         .set('User-Agent', process.env.GITHUB_APP_NAME);
       profile.emails = emailResponse.body.map(o => o.email);
       console.debug(`User emails for Github Signin: ${profile.emails}`);
       return { profile, githubToken, expiry };
     });
+};
 
 // fetch profile and add it to social_connections
 const addGithubProfile = ({
@@ -262,7 +272,7 @@ export const signinWithGithub = (req, res) => {
     })
     .catch((err) => {
       if ('response' in err) {
-        logger.error(err.response);
+        logger.error(err.response.text);
       }
       if (err.status === 401) {
         res.status(401).send(err.response.text);
