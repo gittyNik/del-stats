@@ -11,6 +11,9 @@ import {
   getUserAndTeamAssessments,
   updateAssessment,
 } from '../../models/assessment';
+import {
+  sendAssessmentMessage,
+} from '../../integrations/slack/delta-app/controllers/web.controller';
 import { getAssessmentPhases } from '../../models/topic';
 import { getAssessmentCohorts } from '../../models/cohort_milestone';
 import logger from '../../util/logger';
@@ -204,4 +207,40 @@ export const getAssessmentCohortsAPI = async (req, res) => {
       type: 'failure',
     });
   }
+};
+
+export const autoCreateAssessments = async (program, duration) => {
+  let firstScheduledDate;
+  // Get Topic ids and Milestones for Assessments
+  let assessmentPhases = await getAssessmentPhases(program, duration);
+  // Get Cohorts who have assessments in next week
+  await Promise.all(assessmentPhases.map(async eachAssessment => {
+    const assesmentCohorts = await getAssessmentCohorts(
+      eachAssessment.milestone_id, duration, program,
+    );
+    let assessmentForCohort = assesmentCohorts.map(eachCohort => eachCohort.cohort_id);
+    let review_dates = assesmentCohorts.map(eachCohort => eachCohort.review_scheduled);
+
+    if (assessmentForCohort) {
+      if (firstScheduledDate === undefined) {
+        [firstScheduledDate] = review_dates;
+        if (firstScheduledDate) {
+          const year = firstScheduledDate.getFullYear();
+          const month = `${firstScheduledDate.getMonth() + 1}`.padStart(2, '0');
+          const day = `${firstScheduledDate.getDate()}`.padStart(2, '0');
+          const assessment_start = [year, month, day].join('-');
+          assessmentForCohort.map(eachCohort => sendAssessmentMessage(program, assessment_start, eachAssessment.title, eachCohort));
+          logger.info(`Scheduling assessment on ${assessment_start} for Cohort: ${assessmentForCohort}`);
+          firstScheduledDate = await createAssessmentSchedule(
+            program,
+            duration,
+            assessmentForCohort,
+            assessment_start,
+            eachAssessment.id,
+          );
+        }
+      }
+    }
+  }));
+  return true;
 };

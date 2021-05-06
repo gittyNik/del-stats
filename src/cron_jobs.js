@@ -16,6 +16,9 @@ import {
 import {
   createReviewSchedule,
 } from './models/reviews';
+import {
+  autoCreateAssessments,
+} from './controllers/learning/assessment.controller';
 import logger from './util/logger';
 import 'dotenv/config';
 
@@ -44,7 +47,7 @@ cron.schedule('0 10 * * *', async () => {
 });
 
 // Every Thursday run cron at 8pm to schedule reviews
-cron.schedule('0 8 * * 3', async () => {
+cron.schedule('0 9 * * 4', async () => {
   if (process.env.NODE_ENV === 'production') {
     const alreadyStarted = await cache.get('REVIEWS');
     if (alreadyStarted === null) {
@@ -63,8 +66,28 @@ cron.schedule('0 8 * * 3', async () => {
   timezone: 'Asia/Kolkata',
 });
 
+// Every Thursday run cron at 8pm to schedule reviews
+cron.schedule('0 8 * * 4', async () => {
+  if (process.env.NODE_ENV === 'production') {
+    const alreadyStarted = await cache.get('ASSESSMENTS');
+    if (alreadyStarted === null) {
+      // overlapStartDay is only a number used to handle multiple messages on channel
+      await cache.setex('ASSESSMENTS', 3600, 'STARTED');
+      await autoCreateAssessments('tep', 16);
+      logger.info('Reviews have been scheduled for Full-time');
+      await autoCreateAssessments('tep', 26);
+      logger.info('Reviews have been scheduled for Part-time');
+    }
+  } else {
+    logger.info('TIME FOR DAILY SLACK REMINDERS');
+  }
+}, {
+  scheduled: true,
+  timezone: 'Asia/Kolkata',
+});
+
 // Send conflicting breakouts
-cron.schedule('0 9 * * *', async () => {
+cron.schedule('30 8 * * *', async () => {
   if (process.env.NODE_ENV === 'production') {
     const overlapStartDay = process.env.OVERLAP_START_DATE;
     let startDate = parseInt(overlapStartDay, 10);

@@ -145,8 +145,8 @@ export const getEducators = (req, res) => {
   User.findAll({
     attributes: ['name', 'id', 'picture'],
     where: {
-      role: {
-        [Sequelize.Op.in]: [CATALYST, EDUCATOR, ADMIN, SUPERADMIN, REVIEWER],
+      roles: {
+        [Sequelize.Op.overlap]: [CATALYST, EDUCATOR, ADMIN, SUPERADMIN, REVIEWER],
       },
     },
     order: [
@@ -167,7 +167,9 @@ export const getUsersByRole = (req, res) => {
   const { role } = req.params;
   User.findAll({
     where: {
-      role,
+      roles: {
+        [Sequelize.Op.overlap]: [role],
+      },
     },
   })
     .then((data) => {

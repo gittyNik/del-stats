@@ -31,7 +31,9 @@ export const getRubricsByMilestoneAPI = (req, res) => {
     program, type, id, rubric_for, path,
   } = req.query;
 
-  getRubricsByMilestone(id, program, type, rubric_for, path).then((data) => { res.json(data); })
+  getRubricsByMilestone({
+    id, program, type, rubric_for, path,
+  }).then((data) => { res.json(data); })
     .catch(err => res.status(500).send(err));
 };
 

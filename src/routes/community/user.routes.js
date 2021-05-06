@@ -12,12 +12,12 @@ import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, CATALYST, EDUCATOR, REVIEWER,
+  ADMIN, EDUCATOR, REVIEWER,
 } = USER_ROLES;
 
 const router = express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER]));
+router.use(allowMultipleRoles([ADMIN, EDUCATOR, REVIEWER]));
 
 router.post('/', updateUserStatus);
 
