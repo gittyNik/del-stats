@@ -16,11 +16,12 @@ export const focusForest = async (oldMember, newMember) => {
     voiceChannel.join()
       .then(async connection => connection.play(await ytdl(_.sample(VOICE_URLS)), { type: 'opus' }))
       .catch(console.error);
-  } else if (!(oldMember.channel.members.size - 1) && oldUserChannel === voiceChannel.id) {
+  } else if (oldMember && oldMember.channel && oldMember.channel.members
+    && !(oldMember.channel.members.size - 1) && oldUserChannel === voiceChannel.id) {
     setTimeout(() => { // if 1 (you), wait five minutes
       if (!(oldMember.channel.members.size - 1)) { // if there's still 1 member,
         oldMember.channel.leave();
-      } // leave
-    }, 300000);
+      }
+    }, 60000); // leave in 1 minute
   }
 };

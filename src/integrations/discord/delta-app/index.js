@@ -30,7 +30,8 @@ client.on('message', async msg => {
     if (msg.content === 'ping') {
       await msg.reply('pong 🏓');
     } if (msg.channel.type === 'dm') {
-      await msg.author.send('You are DMing me now!');
+      await delay(1000);
+      await msg.reply('You are DMing me now!');
     }
   } catch (err) {
     console.error('message listener error', err);
@@ -52,3 +53,7 @@ router.use(Express.urlencoded({
 router.use('/', routes);
 
 export default router;
+
+process.on('unhandledRejection', error => {
+  console.error('didn\'t catchUnhandled promise rejection DISCORD:', error);
+});
