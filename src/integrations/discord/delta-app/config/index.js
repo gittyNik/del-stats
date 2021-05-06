@@ -118,6 +118,9 @@ You may see some on DELTA but they will soon be rescheduled and moved to next we
 export const GUILD_IDS_BY_PROGRAM = [{
   PROGRAM_ID: 'tep',
   GUILD_ID: process.env.DISCORD_TEP_GUILD_ID,
+}, {
+  PROGRAM_ID: 'design',
+  GUILD_ID: process.env.DISCORD_TEP_GUILD_ID,
 }];
 
 // discord bot for focus forest or voice broadcast, only yt urls for now

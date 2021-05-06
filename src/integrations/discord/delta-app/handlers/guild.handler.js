@@ -8,7 +8,7 @@ export const getGuild = async (req, res) => {
 };
 
 export const serverSetupAPI = async (req, res) => {
-  const { program_id } = req.body;
+  const { program_id } = req.query;
 
   try {
     const data = await serverSetup({ program_id });
