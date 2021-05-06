@@ -14,6 +14,9 @@ import {
 import {
   sendAssessmentMessage,
 } from '../../integrations/slack/delta-app/controllers/web.controller';
+import {
+  sendAssessmentMessage as sendAssessmentMessageToDiscord,
+} from '../../integrations/discord/delta-app/controllers/bot.controller';
 import { getAssessmentPhases } from '../../models/topic';
 import { getAssessmentCohorts } from '../../models/cohort_milestone';
 import logger from '../../util/logger';
@@ -229,7 +232,10 @@ export const autoCreateAssessments = async (program, duration) => {
           const month = `${firstScheduledDate.getMonth() + 1}`.padStart(2, '0');
           const day = `${firstScheduledDate.getDate()}`.padStart(2, '0');
           const assessment_start = [year, month, day].join('-');
-          assessmentForCohort.map(eachCohort => sendAssessmentMessage(program, assessment_start, eachAssessment.title, eachCohort));
+          assessmentForCohort.map(eachCohort => {
+            sendAssessmentMessage(program, assessment_start, eachAssessment.title, eachCohort);
+            sendAssessmentMessageToDiscord(program, assessment_start, eachAssessment.title, eachCohort);
+          });
           logger.info(`Scheduling assessment on ${assessment_start} for Cohort: ${assessmentForCohort}`);
           firstScheduledDate = await createAssessmentSchedule(
             program,

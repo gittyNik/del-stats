@@ -296,6 +296,7 @@ export const postTodaysBreakouts = async (todaysBreakouts) => {
   let data = [];
   // eslint-disable-next-line no-restricted-syntax
   for (const [cohort_id, breakout_types] of Object.entries(todaysBreakouts)) {
+    // eslint-disable-next-line no-await-in-loop
     const channelId = await getChannelIdForCohort(cohort_id);
     let breakout_text = '';
     // let b_type;
