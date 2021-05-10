@@ -177,13 +177,23 @@ const createCohortRolesAndChannels = async (guild_id, program_id) => {
     })),
   );
 
+  const programRole = await findRole({ guild_id, name: PROGRAM_NAMES.find(nm => nm.id === program_id).name });
+
   // create cohort channels
-  await guild.channels.create(`${PROGRAM_NAMES.find(name => program_id === name.id).sf} cohorts 🏡`, { type: 'category' }).then(
+  await guild.channels.create(`${PROGRAM_NAMES.find(name => program_id === name.id).sf} cohorts 🏡`, {
+    type: 'category',
+    permissionOverwrites: [
+      { id: captain.id, allow: CAPTAIN_PERMISSIONS },
+      { id: pirate.id, allow: PIRATE_PERMISSIONS },
+      { id: programRole.id, allow: SAILOR_PERMISSIONS },
+      { id: everyoneRole.id, deny: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
+    ],
+  }).then(
     async categoryChannel => {
       await Promise.all(
         cohortNameIds.map(async e => {
           const allRolesExceptCurrentCohort = await guild.roles.cache.filter(role => (role.name !== e && cohortNameIds.includes(role.name))
-               || role.name === '@everyone');
+               || role.name === '@everyone' || role.id !== programRole.id);
 
           const cohortRole = await findRole({ guild_id, name: e });
 
@@ -193,6 +203,7 @@ const createCohortRolesAndChannels = async (guild_id, program_id) => {
             { id: captain.id, allow: CAPTAIN_PERMISSIONS },
             { id: pirate.id, allow: PIRATE_PERMISSIONS },
             { id: cohortRole.id, allow: SAILOR_PERMISSIONS },
+            { id: programRole.id, allow: SAILOR_PERMISSIONS },
           ];
 
           const permissionOverwrites = _.concat(denyPermissionOverwrites, allowPermissionOverwrites);
