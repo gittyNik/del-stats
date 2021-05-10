@@ -5,7 +5,8 @@
     "jest": true
   },
   "extends": [
-    "airbnb-base"
+    "airbnb-base",
+    "plugin:unicorn/recommended"
   ],
   "globals": {
     "Atomics": "readonly",
@@ -25,7 +26,23 @@
     "no-param-reassign": 0,
     "prefer-promise-reject-errors": 0,
     "import/no-cycle": 0,
-    "array-callback-return": 0
+    "array-callback-return": 0,
+    "no-loop-func": 0,
+    "unicorn/prefer-optional-catch-binding": 0,
+    "unicorn/no-null": 0,
+    "unicorn/no-array-for-each": 0,
+    "unicorn/prevent-abbreviations": [
+      "error",
+      {
+        "replacements": {
+          "req": false,
+          "res": false,
+          "cmd": {
+            "command": true
+          }
+        }
+      }
+    ]
   },
   "overrides": [
     {

@@ -1,28 +1,32 @@
+/* eslint-disable no-restricted-syntax */
+/* linter complains:
+ * iterators/generators require regenerator-runtime, which is too
+ * heavyweight for this guide to allow them. Separately, loops should be
+ * avoided in favor of array iterations
+ */
+
 import axios from 'axios';
-import _ from 'lodash';
-import { Promise } from 'core-js';
 import config, {
-  SAILOR_PERMISSIONS, SETUP_ROLES, SETUP_CHANNELS, PIRATE_PERMISSIONS, CAPTAIN_PERMISSIONS,
-  GUILD_IDS_BY_PROGRAM, PROGRAM_NAMES,
+  SETUP_CHANNELS,
+  GUILD_IDS_BY_PROGRAM,
 } from '../config';
 // import { ROLE_PERMISSIONS } from '../config/constants';
 import client from '../client';
-import { getCohortFormattedId } from '../utils';
 import {
-  getLiveCohortsByProgramId, Cohort,
+  Cohort,
 } from '../../../../models/cohort';
-import { createRole, findRole } from './role.controller';
+import { createSetupRolesAndChannels, createProgramRoles, createCohortRolesAndChannels } from './setup.controller';
 
 export const getGuild = async ({ guild_id }) => client.guilds.fetch(guild_id);
 
 export const getGuildIdsFromProgramIds = ({ program_ids }) => {
   if (program_ids.length === 1) {
     // single program id, single guild id
-    return [GUILD_IDS_BY_PROGRAM.find(el => el.PROGRAM_ID === program_ids).GUILD_ID];
+    return [GUILD_IDS_BY_PROGRAM.find(element => element.PROGRAM_ID === program_ids).GUILD_ID];
   }
   if (program_ids.length > 1) {
     // multiple program id
-    const guild_ids = new Array(new Set(GUILD_IDS_BY_PROGRAM.filter(el => program_ids.includes(el.PROGRAM_ID)).map(el => el.GUILD_ID)));
+    const guild_ids = [...(new Set(GUILD_IDS_BY_PROGRAM.filter(element => program_ids.includes(element.PROGRAM_ID)).map(element => element.GUILD_ID)))];
 
     // single guild id
     if (guild_ids.length === 1) {
@@ -40,10 +44,10 @@ export const getGuildIdsFromProgramIds = ({ program_ids }) => {
   throw new Error('Check GUILD_IDS_BY_PROGRAM in config! or program_ids is empty');
 };
 
-export const getGuildIdFromProgram = ({ program_id }) => GUILD_IDS_BY_PROGRAM.find(el => el.PROGRAM_ID === program_id).GUILD_ID;
+export const getGuildIdFromProgram = ({ program_id }) => GUILD_IDS_BY_PROGRAM.find(element => element.PROGRAM_ID === program_id).GUILD_ID;
 
 export const getGuildIdFromCohort = async ({ cohort_id }) => {
-  const cohort = Cohort.findOne({
+  const cohort = await Cohort.findOne({
     where: {
       id: cohort_id,
     },
@@ -59,168 +63,6 @@ export const getGuildIdFromCohort = async ({ cohort_id }) => {
 // create server, get Invite
 // Add/remove/kick/ban member Server
 
-const createSetupRolesAndChannels = async (guild_id) => {
-  const guild = await getGuild({ guild_id });
-
-  let everyoneRole = await findRole({ guild_id, name: '@everyone' });
-  let captain = await findRole({ guild_id, name: SETUP_ROLES[0].name });
-  let pirate = await findRole({ guild_id, name: SETUP_ROLES[1].name });
-
-  if (everyoneRole || captain || pirate) {
-    throw new Error('Setup Role(s) Already Exist!');
-  }
-
-  // create setup roles
-  await Promise.all(
-    SETUP_ROLES.map(e => createRole({
-      data: {
-        name: e.name,
-        color: e.color,
-        permissions: e.role,
-      },
-      reason: 'General Setup Role',
-      guild_id,
-    })),
-  );
-
-  everyoneRole = await findRole({ guild_id, name: '@everyone' });
-  captain = await findRole({ guild_id, name: SETUP_ROLES[0].name });
-  pirate = await findRole({ guild_id, name: SETUP_ROLES[1].name });
-
-  // create setup channels
-  SETUP_CHANNELS.map(async ch => {
-    ch.data.public.map(c => guild.channels.create(c.category, { type: 'category' }).then(
-      async cat => {
-        await Promise.all(
-          c.channels.map(e => guild.channels.create(e, {
-            type: ch.type,
-            parent: cat,
-            permissionOverwrites: [{
-              id: everyoneRole.id,
-              allow: SAILOR_PERMISSIONS,
-            }],
-          })),
-        );
-      },
-    ));
-
-    ch.data.private.map(pc => guild.channels.create(pc.category, { type: 'category' }).then(
-      async cat => {
-        await Promise.all(
-          pc.channels.map(async e => {
-            const allRolesExcept = await guild.roles.cache.filter(role => role.name !== SETUP_ROLES[0].name || role.name !== SETUP_ROLES[1].name);
-            const denyPermissionOverwrites = allRolesExcept.map(role => ({ id: role.id, deny: ['VIEW_CHANNEL'] }));
-
-            const allowPermissionOverwrites = [
-              { id: captain.id, allow: CAPTAIN_PERMISSIONS },
-              { id: pirate.id, allow: PIRATE_PERMISSIONS },
-            ];
-
-            const permissionOverwrites = _.concat(denyPermissionOverwrites, allowPermissionOverwrites);
-
-            return guild.channels.create(e, {
-              type: ch.type,
-              permissionOverwrites,
-              parent: cat,
-            });
-          }),
-        );
-      },
-    ));
-  });
-
-  return 'Setup Roles & Channels Successful!';
-};
-
-const createProgramRoles = async (guild_id, program_ids) => {
-  // create setup roles
-  await Promise.all(
-    program_ids.map(e => createRole({
-      data: {
-        name: PROGRAM_NAMES.find(nm => nm.id === e).name,
-        color: Math.floor(Math.random() * 16777215).toString(16),
-        permissions: SAILOR_PERMISSIONS,
-      },
-      reason: 'Setup Program Role',
-      guild_id,
-    })),
-  );
-
-  return 'Added Program Roles';
-};
-
-const createCohortRolesAndChannels = async (guild_id, program_id) => {
-  const guild = await getGuild({ guild_id });
-
-  const data = await getLiveCohortsByProgramId(program_id);
-  const cohortNameIds = getCohortFormattedId({ data, program_id });
-
-  const everyoneRole = await findRole({ guild_id, name: '@everyone' });
-  const captain = await findRole({ guild_id, name: SETUP_ROLES[0].name });
-  const pirate = await findRole({ guild_id, name: SETUP_ROLES[1].name });
-
-  if (!everyoneRole || !captain || !pirate) {
-    // Will only run successfully if the SETUP Roles exist in the server
-    throw new Error('Setup Roles not found');
-  }
-
-  // create cohort roles
-  await Promise.all(
-    cohortNameIds.map(e => createRole({
-      data: {
-        name: e,
-        color: 'BLURPLE',
-        permissions: SAILOR_PERMISSIONS,
-      },
-      reason: 'cohort role for server setup',
-      guild_id,
-    })),
-  );
-
-  const programRole = await findRole({ guild_id, name: PROGRAM_NAMES.find(nm => nm.id === program_id).name });
-
-  // create cohort channels
-  await guild.channels.create(`${PROGRAM_NAMES.find(name => program_id === name.id).sf} cohorts 🏡`, {
-    type: 'category',
-    permissionOverwrites: [
-      { id: captain.id, allow: CAPTAIN_PERMISSIONS },
-      { id: pirate.id, allow: PIRATE_PERMISSIONS },
-      { id: programRole.id, allow: SAILOR_PERMISSIONS },
-      { id: everyoneRole.id, deny: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
-    ],
-  }).then(
-    async categoryChannel => {
-      await Promise.all(
-        cohortNameIds.map(async e => {
-          const allRolesExceptCurrentCohort = await guild.roles.cache.filter(role => (role.name !== e && cohortNameIds.includes(role.name))
-               || role.name === '@everyone' || role.id !== programRole.id);
-
-          const cohortRole = await findRole({ guild_id, name: e });
-
-          const denyPermissionOverwrites = allRolesExceptCurrentCohort.map(role => ({ id: role.id, deny: ['VIEW_CHANNEL'] }));
-
-          const allowPermissionOverwrites = [
-            { id: captain.id, allow: CAPTAIN_PERMISSIONS },
-            { id: pirate.id, allow: PIRATE_PERMISSIONS },
-            { id: cohortRole.id, allow: SAILOR_PERMISSIONS },
-            { id: programRole.id, allow: SAILOR_PERMISSIONS },
-          ];
-
-          const permissionOverwrites = _.concat(denyPermissionOverwrites, allowPermissionOverwrites);
-
-          return guild.channels.create(e, {
-            type: 'text',
-            parent: categoryChannel,
-            permissionOverwrites,
-          });
-        }),
-      );
-    },
-  );
-
-  return `Cohort Setup for ${program_id} in Server ${guild} Successful!`;
-};
-
 export const serverSetup = async ({ program_ids }) => {
   const guild_ids = getGuildIdsFromProgramIds({ program_ids });
 
@@ -233,17 +75,17 @@ export const serverSetup = async ({ program_ids }) => {
 
     await createSetupRolesAndChannels(guild_ids);
     createProgramRoles(guild_ids, program_ids);
-    program_ids.forEach(program_id => createCohortRolesAndChannels(guild_ids, program_id));
+    for (const program_id of program_ids) createCohortRolesAndChannels(guild_ids, program_id);
 
     //
   } else if (
     ((Array.isArray(guild_ids) && Array.isArray(program_ids)) && guild_ids.length === program_ids.length)) {
     // Multiple discord Servers for multiple Programs
 
-    for (let i = 0; i < guild_ids.length; i++) {
-      createSetupRolesAndChannels(guild_ids[i]);
-      createProgramRoles(guild_ids[i], [program_ids[i]]);
-      createCohortRolesAndChannels(guild_ids[i], program_ids[i]);
+    for (const [index, guild_id] of guild_ids.entries()) {
+      createSetupRolesAndChannels(guild_id);
+      createProgramRoles(guild_id, [program_ids[index]]);
+      createCohortRolesAndChannels(guild_id, program_ids[index]);
     }
 
     //
@@ -255,7 +97,7 @@ export const serverSetup = async ({ program_ids }) => {
 };
 
 export const createInvite = async ({ guild_id }) => {
-  const guild = getGuild({ guild_id });
+  const guild = await getGuild({ guild_id });
   const welcome_channel = await guild.channels.cache.find(ch => ch.name === SETUP_CHANNELS[0].data.public[1].channels[0]);
   const inviteUrl = await welcome_channel.createInvite({ maxAge: 0, unique: true, reason: 'create Invite controller called!' });
 

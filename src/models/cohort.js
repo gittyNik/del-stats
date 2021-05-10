@@ -6,7 +6,7 @@ import {
   User, USER_ROLES, changeUserRole, addUserStatus,
   removeUserStatus,
 } from './user';
-import db from '../database';
+import database from '../database';
 import {
   createCohortMilestones, CohortMilestone,
   getLiveCohortMilestone,
@@ -32,6 +32,8 @@ import {
 } from './slack_channels';
 import {
   moveLearnerToNewDiscordChannel,
+  removeLearnerFromDiscordServer,
+  addLearnersToCohortDiscordChannel,
 } from '../integrations/discord/delta-app/controllers/channel.controller';
 import { removeLearnerFromGithubTeam } from '../integrations/github/controllers/teams.controller';
 import logger from '../util/logger';
@@ -53,7 +55,7 @@ const COHORT_TYPE = [
   'remote',
 ];
 
-export const Cohort = db.define('cohorts', {
+export const Cohort = database.define('cohorts', {
   id: {
     type: Sequelize.UUID,
     primaryKey: true,
@@ -107,7 +109,7 @@ export const updateCohortById = async ({
       const context = 'Cohort status update';
       sendMessageToSlackChannel(message, context, process.env.SLACK_LEARNER_AFFAIRS);
     }
-  } catch (err) {
+  } catch (error) {
     console.warn('Failed to send slack message');
   }
   return Cohort.update({
@@ -194,9 +196,9 @@ export const getFutureCohorts = () => {
 
 export const addLearnerPaths = (learners) => learners.map(learner => {
   if (learner.status) {
-    if (learner.status.indexOf('frontend') > -1) {
+    if (learner.status.includes('frontend')) {
       learner.path = 'Frontend';
-    } else if (learner.status.indexOf('backend') > -1) {
+    } else if (learner.status.includes('backend')) {
       learner.path = 'Backend';
     } else {
       learner.path = 'N/A';
@@ -260,7 +262,7 @@ export const updateCohortLearners = (id) => Application.findAll({
   where: { cohort_joining: id, status: 'joined' },
 }).then((applications) => {
   const learners = applications.map((a) => a.user_id);
-  return db
+  return database
     .transaction((transaction) => Promise.all([
       Cohort.update(
         { learners },
@@ -310,8 +312,8 @@ export const beginCohortWithId = (cohort_id) => Promise.all([
     cohort.milestones = milestones;
     return cohort;
   })
-  .catch((err) => {
-    logger.error(err);
+  .catch((error) => {
+    logger.error(error);
     return null;
   });
 
@@ -333,8 +335,8 @@ export const beginParallelCohorts = (cohort_ids) => Promise.all(
       cohort.milestones = milestones;
       return cohort;
     })
-    .catch((err) => {
-      logger.error(err);
+    .catch((error) => {
+      logger.error(error);
       return null;
     })),
 );
@@ -471,37 +473,52 @@ export const addLearnerStatus = async (
     cohortDuration = duration === 16 ? 'FT' : 'PT';
   }
 
-  if (status === 'moved') {
-    status_reason = `Moved from current cohort: ${cohort_name} ${cohortDuration} ${cohort_year} ${program} to future cohort: ${futureCohortName}`;
-  } else if (status === 'staged') {
-    status_reason = `Learner staged from ${cohort_name} ${cohortDuration} ${cohort_year} ${program}. Milestone: ${milestone_name}`;
-  } else if (status === 'removed') {
-    try {
-      await removeUserStatus(
-        user_id, 'staged', 'Added to Cohort',
-        updated_by_id, updated_by_name,
-        milestone_id, milestone_name,
-        cohort_id, cohort_name,
-      );
-    } catch (err) {
-      console.warn(`Unable to remove user's : ${user_id} status: staged`);
+  // eslint-disable-next-line default-case
+  switch (status) {
+    case 'moved': {
+      status_reason = `Moved from current cohort: ${cohort_name} ${cohortDuration} ${cohort_year} ${program} to future cohort: ${futureCohortName}`;
+
+      break;
     }
-    if ((cohort_name !== null) || (cohort_name !== undefined)) {
-      status_reason = `Learner removed from cohort: ${cohort_name} ${cohortDuration} ${cohort_year} ${program}. Milestone: ${milestone_name}`;
+    case 'staged': {
+      status_reason = `Learner staged from ${cohort_name} ${cohortDuration} ${cohort_year} ${program}. Milestone: ${milestone_name}`;
+
+      break;
     }
-    status_reason = 'Learner removed. Learner was staged previously';
-  } else if (status === 'added-to-cohort') {
-    try {
-      await removeUserStatus(
-        user_id, 'staged', 'Added to Cohort',
-        updated_by_id, updated_by_name,
-        milestone_id, milestone_name,
-        cohort_id, cohort_name,
-      );
-    } catch (err) {
-      console.warn(`Unable to remove user's status: ${user_id} status: staged`);
+    case 'removed': {
+      try {
+        await removeUserStatus(
+          user_id, 'staged', 'Added to Cohort',
+          updated_by_id, updated_by_name,
+          milestone_id, milestone_name,
+          cohort_id, cohort_name,
+        );
+      } catch (error) {
+        console.warn(`Unable to remove user's : ${user_id} status: staged`);
+      }
+      if ((cohort_name !== null) || (cohort_name !== undefined)) {
+        status_reason = `Learner removed from cohort: ${cohort_name} ${cohortDuration} ${cohort_year} ${program}. Milestone: ${milestone_name}`;
+      }
+      status_reason = 'Learner removed. Learner was staged previously';
+
+      break;
     }
-    status_reason = `Learner added to cohort: ${cohort_name} ${cohortDuration} ${cohort_year} ${program}`;
+    case 'added-to-cohort': {
+      try {
+        await removeUserStatus(
+          user_id, 'staged', 'Added to Cohort',
+          updated_by_id, updated_by_name,
+          milestone_id, milestone_name,
+          cohort_id, cohort_name,
+        );
+      } catch (error) {
+        console.warn(`Unable to remove user's status: ${user_id} status: staged`);
+      }
+      status_reason = `Learner added to cohort: ${cohort_name} ${cohortDuration} ${cohort_year} ${program}`;
+
+      break;
+    }
+  // No default
   }
 
   return addUserStatus({
@@ -575,9 +592,10 @@ export const removeLearner = async ({
     });
     try {
       const slackResponse = await removeLearnerFromSlackChannel(learner_id, current_cohort_id);
-      data.push(slackResponse);
+      const discordResponse = await removeLearnerFromDiscordServer(learner_id, current_cohort_id);
+      data.push(slackResponse, discordResponse);
       return data;
-    } catch (err) {
+    } catch (error) {
       data.push('Failed to remove learner from slack');
       return data;
     }
@@ -607,7 +625,8 @@ export const addLearner = async ({
   ]));
   try {
     await addLearnersToCohortChannel(cohort_id, learners);
-  } catch (err) {
+    await addLearnersToCohortDiscordChannel({ cohort_id, learners });
+  } catch (error) {
     logger.info('Unable to add learner to slack');
   }
   return data;
@@ -632,10 +651,10 @@ export const learnerDetails = async ({ cohort_ids, attributes }) => {
     })),
   );
 
-  const result = cohorts.map((cohort, i) => ({
+  const result = cohorts.map((cohort, index) => ({
     id: cohort.id,
     name: cohort.name,
-    learners: learners[i],
+    learners: learners[index],
   }));
 
   return result;

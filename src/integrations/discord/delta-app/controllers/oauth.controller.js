@@ -2,18 +2,19 @@ import ClientOAuth2 from 'client-oauth2';
 import jwt from 'jsonwebtoken';
 import { OAUTH_SCOPES } from '../config/constants';
 import {
-  oAuthConfig, OAuthRedirects, botConfig, SETUP_ROLES, PROGRAM_NAMES,
+  oAuthConfig, OAuthRedirects, botConfig, SETUP_ROLES,
 } from '../config';
 import { addGuildMember } from './guild.controller';
-import { addRoleToUser, findRole } from './role.controller';
+import { addLearnerToCohortDiscordChannel } from './channel.controller';
+import { addRoleToUser } from './role.controller';
 import { getUser, addDiscordSocialConnection } from './user.controller';
 import {
-  retrieveState, removeState, getCohortFormattedId,
+  retrieveState, removeState,
 } from '../utils';
 
 // import discordBot from '../client';
 import { User, USER_ROLES } from '../../../../models/user';
-import { Cohort, getCohortIdFromLearnerId } from '../../../../models/cohort';
+import { getCohortIdFromLearnerId } from '../../../../models/cohort';
 import { HttpBadRequest } from '../../../../util/errors';
 
 export const discordOAuth2 = ({ state, prompt = 'consent' }) => new ClientOAuth2(oAuthConfig({
@@ -58,8 +59,8 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
   }
 
   // get discord user token to do stuff on their behalf
-  const authRes = await discordOAuth2({ state: stateKey }).code.getToken(originalUrl);
-  const user = await getUser(authRes.accessToken);
+  const authResponse = await discordOAuth2({ state: stateKey }).code.getToken(originalUrl);
+  const user = await getUser(authResponse.accessToken);
 
   // @TO-DO detect which server(s) to add a user to, program type, soal admin
   // right now we will be using const guild id from env
@@ -72,7 +73,7 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
       message: 'oauth success',
       type: 'success',
       data: {
-        token: authRes.accessToken,
+        token: authResponse.accessToken,
         user,
         deltaUser,
       },
@@ -81,10 +82,10 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
 
   if (stateData.prompt === 'consent') {
     // user has first time clicked join
-    await addDiscordSocialConnection(deltaUser.id, user, authRes);
+    await addDiscordSocialConnection(deltaUser.id, user, authResponse);
 
     const result = await addGuildMember({
-      discord_user_access_token: authRes.accessToken,
+      discord_user_access_token: authResponse.accessToken,
       discord_bot_access_token: botConfig.token,
       user_id: user.id,
       guild_id,
@@ -94,21 +95,11 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
 
     if (deltaUser.roles.includes(USER_ROLES.LEARNER)) {
       // assign cohort role, assign sailor role
-      const cohortId = await getCohortIdFromLearnerId(deltaUser.id);
-      const cohort = Cohort.findOne({
-        where: {
-          id: cohortId,
-        },
-      },
-      { raw: true });
-      const cohortChannelName = getCohortFormattedId([{ cohort, program_type: cohort.program_id }]);
 
-      const cohortRole = await findRole({ guild_id, name: cohortChannelName });
-      const programRole = await findRole({ guild_id, name: PROGRAM_NAMES.find(nm => nm.id === cohort.program_id).name });
+      const cohort_id = await getCohortIdFromLearnerId(deltaUser.id);
 
-      await addRoleToUser({ guild_id, role_name: cohortRole.name, user_id: user.id });
-      await addRoleToUser({ guild_id, role_name: cohortRole.name, user_id: user.id });
-      await addRoleToUser({ guild_id, role_name: programRole.name, user_id: user.id });
+      await addRoleToUser({ guild_id, role_name: SETUP_ROLES[2].name, user_id: user.id });
+      await addLearnerToCohortDiscordChannel({ cohort_id, learner: deltaUser.id });
     } else if (!deltaUser.roles.some(us => [USER_ROLES.CAREER_SERVICES, USER_ROLES.RECRUITER,
       USER_ROLES.REVIEWER, USER_ROLES.GUEST, USER_ROLES.CATALYST].includes(us))) {
       // assign captain role
@@ -128,7 +119,7 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
       type: 'success',
       data: {
         result: result.data,
-        token: authRes.accessToken,
+        token: authResponse.accessToken,
         user,
         deltaUser,
       },

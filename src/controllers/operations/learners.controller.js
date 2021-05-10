@@ -7,6 +7,7 @@ import { removeLearnerBreakouts } from '../../models/learner_breakout';
 import { currentTeamOfLearner, removeLearnerFromMSTeam } from '../../models/team';
 import { createApplication } from '../../models/application';
 import { createUser, USER_ROLES } from '../../models/user';
+import { stageLearnerFromDiscordChannel } from '../../integrations/discord/delta-app/controllers/channel.controller';
 
 export const removeLearnerFromTeam = async (learner_id, cohort_id) => {
   let current_team_id = await currentTeamOfLearner(learner_id, cohort_id);
@@ -28,6 +29,7 @@ export const onLeaveController = async (req, res) => {
     let allOp = await Promise.all([
       removeLearnerFromCohort(learner_id, cohort_id),
       removeLearnerBreakouts(learner_id, cohort_id),
+      stageLearnerFromDiscordChannel({ learner_id, cohort_id }),
     ]).then(async ([cohort, breakout]) => {
       await addLearnerStatus({
         user_id: learner_id,
@@ -44,9 +46,9 @@ export const onLeaveController = async (req, res) => {
       return [cohort, breakout, team];
     });
     res.json({ data: allOp });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send(err);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(error);
   }
 };
 
@@ -63,7 +65,7 @@ export const addLearnerForDesign = async (req, res) => {
     let application = await createApplication(user.id, cohort_applied_id, cohort_joining_id, 'archieved', is_isa, is_job_guarantee);
     let cohort = await addLearnerToCohort(user.id, cohort_joining_id);
     res.json({ data: { user, application, cohort } });
-  } catch (err) {
-    res.status(500).send(err);
+  } catch (error) {
+    res.status(500).send(error);
   }
 };
