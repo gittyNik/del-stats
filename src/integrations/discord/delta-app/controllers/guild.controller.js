@@ -137,7 +137,7 @@ const createProgramRoles = async (guild_id, program_ids) => {
   await Promise.all(
     program_ids.map(e => createRole({
       data: {
-        name: e,
+        name: PROGRAM_NAMES.find(nm => nm.id === e).name,
         color: Math.floor(Math.random() * 16777215).toString(16),
         permissions: SAILOR_PERMISSIONS,
       },
