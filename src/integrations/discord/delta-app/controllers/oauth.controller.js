@@ -2,7 +2,7 @@ import ClientOAuth2 from 'client-oauth2';
 import jwt from 'jsonwebtoken';
 import { OAUTH_SCOPES } from '../config/constants';
 import {
-  oAuthConfig, OAuthRedirects, botConfig, SETUP_ROLES,
+  oAuthConfig, OAuthRedirects, botConfig, SETUP_ROLES, PROGRAM_NAMES,
 } from '../config';
 import { addGuildMember } from './guild.controller';
 import { addRoleToUser, findRole } from './role.controller';
@@ -104,15 +104,20 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
       const cohortChannelName = getCohortFormattedId([{ cohort, program_type: cohort.program_id }]);
 
       const cohortRole = await findRole({ guild_id, name: cohortChannelName });
+      const programRole = await findRole({ guild_id, name: PROGRAM_NAMES.find(nm => nm.id === cohort.program_id).name });
 
       await addRoleToUser({ guild_id, role_name: cohortRole.name, user_id: user.id });
-      await addRoleToUser({ guild_id, role_name: SETUP_ROLES[2].name, user_id: user.id });
+      await addRoleToUser({ guild_id, role_name: cohortRole.name, user_id: user.id });
+      await addRoleToUser({ guild_id, role_name: programRole.name, user_id: user.id });
     } else if (!deltaUser.roles.some(us => [USER_ROLES.CAREER_SERVICES, USER_ROLES.RECRUITER,
       USER_ROLES.REVIEWER, USER_ROLES.GUEST, USER_ROLES.CATALYST].includes(us))) {
       // assign captain role
       await addRoleToUser({ guild_id, role_name: SETUP_ROLES[0].name, user_id: user.id });
     } else {
-      // assign pirate role
+      // assign pirate role, assign program role
+      // @TO-DO associate catalysts and educators with their program role
+      // const programRole = await findRole({ guild_id, name: PROGRAM_NAMES.find(nm => nm.id === cohort.program_id).name });
+      // await addRoleToUser({ guild_id, role_name: programRole.name, user_id: user.id });
       await addRoleToUser({ guild_id, role_name: SETUP_ROLES[1].name, user_id: user.id });
     }
 

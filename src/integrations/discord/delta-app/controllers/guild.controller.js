@@ -231,6 +231,7 @@ export const serverSetup = async ({ program_ids }) => {
 
     for (let i = 0; i < guild_ids.length; i++) {
       createSetupRolesAndChannels(guild_ids[i]);
+      createProgramRoles(guild_ids[i], [program_ids[i]]);
       createCohortRolesAndChannels(guild_ids[i], program_ids[i]);
     }
 
