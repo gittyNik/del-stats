@@ -61,3 +61,16 @@ export const addRoleToUser = async ({ guild_id, role_name, user_id }) => {
   const newUser = await await user.roles.add(role.id);
   return newUser;
 };
+
+export const removeRoleFromUser = async ({ guild_id, role_name, user_id }) => {
+  const guild = await getGuild({ guild_id });
+  const role = await findRole({ guild_id, name: role_name });
+  const user = await guild.members.fetch(user_id);
+
+  if (!user && !role && !guild) {
+    throw new Error('User not in server!');
+  }
+
+  const newUser = await await user.roles.add(role.id);
+  return newUser;
+};

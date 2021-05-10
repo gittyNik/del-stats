@@ -30,6 +30,9 @@ import {
   removeLearnerFromSlackChannel,
   moveLearnerToNewSlackChannel, addLearnersToCohortChannel,
 } from './slack_channels';
+import {
+  moveLearnerToNewDiscordChannel,
+} from '../integrations/discord/delta-app/controllers/channel.controller';
 import { removeLearnerFromGithubTeam } from '../integrations/github/controllers/teams.controller';
 import logger from '../util/logger';
 import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
@@ -536,6 +539,7 @@ export const moveLearnertoDifferentCohort = async (
   removeLearnerBreakouts(learner_id, current_cohort_id),
   createLearnerBreakouts(learner_id, future_cohort_id),
   moveLearnerToNewSlackChannel(learner_id, current_cohort_id, future_cohort_id),
+  moveLearnerToNewDiscordChannel({ learner_id, current_cohort_id, future_cohort_id }),
   addLearnerStatus({
     user_id: learner_id,
     updated_by_id,
