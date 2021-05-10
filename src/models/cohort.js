@@ -636,3 +636,13 @@ export const learnerDetails = async ({ cohort_ids, attributes }) => {
 
   return result;
 };
+
+export const getLiveCohortsByProgramId = (program_id) => Cohort.findAll({
+  where: {
+    learners: Sequelize.literal('learners<>\'{}\''),
+    status: 'live',
+    program_id,
+  },
+  order: [['start_date', 'DESC']],
+  raw: true,
+});

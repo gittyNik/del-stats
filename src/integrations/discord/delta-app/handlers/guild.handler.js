@@ -8,10 +8,10 @@ export const getGuild = async (req, res) => {
 };
 
 export const serverSetupAPI = async (req, res) => {
-  const { program_id } = req.query;
+  const { program_ids } = req.query;
 
   try {
-    const data = await serverSetup({ program_id });
+    const data = await serverSetup({ program_ids });
     return res.json({ type: 'success', message: data });
   } catch (err) {
     logger.error(err);

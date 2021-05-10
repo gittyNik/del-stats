@@ -3,17 +3,42 @@ import _ from 'lodash';
 import { Promise } from 'core-js';
 import config, {
   SAILOR_PERMISSIONS, SETUP_ROLES, SETUP_CHANNELS, PIRATE_PERMISSIONS, CAPTAIN_PERMISSIONS,
-  GUILD_IDS_BY_PROGRAM,
+  GUILD_IDS_BY_PROGRAM, PROGRAM_NAMES,
 } from '../config';
 // import { ROLE_PERMISSIONS } from '../config/constants';
 import client from '../client';
 import { getCohortFormattedId } from '../utils';
 import {
-  getLiveCohorts, Cohort,
+  getLiveCohortsByProgramId, Cohort,
 } from '../../../../models/cohort';
 import { createRole, findRole } from './role.controller';
 
 export const getGuild = async ({ guild_id }) => client.guilds.fetch(guild_id);
+
+export const getGuildIdsFromProgramIds = ({ program_ids }) => {
+  if (program_ids.length === 1) {
+    // single program id, single guild id
+    return [GUILD_IDS_BY_PROGRAM.find(el => el.PROGRAM_ID === program_ids).GUILD_ID];
+  }
+  if (program_ids.length > 1) {
+    // multiple program id
+    const guild_ids = new Array(new Set(GUILD_IDS_BY_PROGRAM.filter(el => program_ids.includes(el.PROGRAM_ID)).map(el => el.GUILD_ID)));
+
+    // single guild id
+    if (guild_ids.length === 1) {
+      return guild_ids[0];
+    }
+
+    // multiple guild ids
+    if (guild_ids.length === program_ids.length) {
+      return guild_ids;
+    }
+
+    throw new Error('multiple program id with multiple guild ids with mismatched length isn\'t supported for  GUILD_IDS_BY_PROGRAM in config!');
+  }
+
+  throw new Error('Check GUILD_IDS_BY_PROGRAM in config! or program_ids is empty');
+};
 
 export const getGuildIdFromProgram = ({ program_id }) => GUILD_IDS_BY_PROGRAM.find(el => el.PROGRAM_ID === program_id).GUILD_ID;
 
@@ -34,16 +59,16 @@ export const getGuildIdFromCohort = async ({ cohort_id }) => {
 // create server, get Invite
 // Add/remove/kick/ban member Server
 
-export const serverSetup = async ({ program_id }) => {
-  const data = await getLiveCohorts();
-  const cohortNameIds = getCohortFormattedId({ data, program_id });
-
-  const guild_id = getGuildIdFromProgram({ program_id });
+const createSetupRolesAndChannels = async (guild_id) => {
   const guild = await getGuild({ guild_id });
 
-  // uncomment to delete all channels and roles first
-  // await guild.channels.cache.forEach(channel => channel.delete());
-  // await guild.roles.cache.forEach(role => role.delete());
+  let everyoneRole = await findRole({ guild_id, name: '@everyone' });
+  let captain = await findRole({ guild_id, name: SETUP_ROLES[0].name });
+  let pirate = await findRole({ guild_id, name: SETUP_ROLES[1].name });
+
+  if (everyoneRole || captain || pirate) {
+    throw new Error('Setup Role(s) Already Exist!');
+  }
 
   // create setup roles
   await Promise.all(
@@ -58,26 +83,12 @@ export const serverSetup = async ({ program_id }) => {
     })),
   );
 
-  // create cohort roles
-  await Promise.all(
-    cohortNameIds.map(e => createRole({
-      data: {
-        name: e,
-        color: 'BLURPLE',
-        permissions: SAILOR_PERMISSIONS,
-      },
-      reason: 'cohort role for server setup',
-      guild_id,
-    })),
-  );
-
-  const everyoneRole = await findRole({ guild_id, name: '@everyone' });
-  const captain = await findRole({ guild_id, name: SETUP_ROLES[0].name });
-  const pirate = await findRole({ guild_id, name: SETUP_ROLES[1].name });
-  // const sailor = await findRole({ guild_id, name: SETUP_ROLES[2].name });
+  everyoneRole = await findRole({ guild_id, name: '@everyone' });
+  captain = await findRole({ guild_id, name: SETUP_ROLES[0].name });
+  pirate = await findRole({ guild_id, name: SETUP_ROLES[1].name });
 
   // create setup channels
-  SETUP_CHANNELS.map(ch => {
+  SETUP_CHANNELS.map(async ch => {
     ch.data.public.map(c => guild.channels.create(c.category, { type: 'category' }).then(
       async cat => {
         await Promise.all(
@@ -118,8 +129,56 @@ export const serverSetup = async ({ program_id }) => {
     ));
   });
 
+  return 'Setup Roles & Channels Successful!';
+};
+
+const createProgramRoles = async (guild_id, program_ids) => {
+  // create setup roles
+  await Promise.all(
+    program_ids.map(e => createRole({
+      data: {
+        name: e,
+        color: Math.floor(Math.random() * 16777215).toString(16),
+        permissions: SAILOR_PERMISSIONS,
+      },
+      reason: 'Setup Program Role',
+      guild_id,
+    })),
+  );
+
+  return 'Added Program Roles';
+};
+
+const createCohortRolesAndChannels = async (guild_id, program_id) => {
+  const guild = await getGuild({ guild_id });
+
+  const data = await getLiveCohortsByProgramId(program_id);
+  const cohortNameIds = getCohortFormattedId({ data, program_id });
+
+  const everyoneRole = await findRole({ guild_id, name: '@everyone' });
+  const captain = await findRole({ guild_id, name: SETUP_ROLES[0].name });
+  const pirate = await findRole({ guild_id, name: SETUP_ROLES[1].name });
+
+  if (!everyoneRole || !captain || !pirate) {
+    // Will only run successfully if the SETUP Roles exist in the server
+    throw new Error('Setup Roles not found');
+  }
+
+  // create cohort roles
+  await Promise.all(
+    cohortNameIds.map(e => createRole({
+      data: {
+        name: e,
+        color: 'BLURPLE',
+        permissions: SAILOR_PERMISSIONS,
+      },
+      reason: 'cohort role for server setup',
+      guild_id,
+    })),
+  );
+
   // create cohort channels
-  await guild.channels.create('cohorts 🏡', { type: 'category' }).then(
+  await guild.channels.create(`${PROGRAM_NAMES.find(name => program_id === name.id).sf} cohorts 🏡`, { type: 'category' }).then(
     async categoryChannel => {
       await Promise.all(
         cohortNameIds.map(async e => {
@@ -147,6 +206,38 @@ export const serverSetup = async ({ program_id }) => {
       );
     },
   );
+
+  return `Cohort Setup for ${program_id} in Server ${guild} Successful!`;
+};
+
+export const serverSetup = async ({ program_ids }) => {
+  const guild_ids = getGuildIdsFromProgramIds({ program_ids });
+
+  // uncomment to delete all channels and roles first
+  // await guild.channels.cache.forEach(channel => channel.delete());
+  // await guild.roles.cache.forEach(role => role.delete());
+
+  if ((typeof guild_ids === 'string' || guild_ids instanceof String) && Array.isArray(program_ids)) {
+    // single discord server for multiple Programs
+
+    await createSetupRolesAndChannels(guild_ids);
+    createProgramRoles(guild_ids, program_ids);
+    program_ids.forEach(program_id => createCohortRolesAndChannels(guild_ids, program_id));
+
+    //
+  } else if (
+    ((Array.isArray(guild_ids) && Array.isArray(program_ids)) && guild_ids.length === program_ids.length)) {
+    // Multiple discord Servers for multiple Programs
+
+    for (let i = 0; i < guild_ids.length; i++) {
+      createSetupRolesAndChannels(guild_ids[i]);
+      createCohortRolesAndChannels(guild_ids[i], program_ids[i]);
+    }
+
+    //
+  } else {
+    throw new Error('Multiple Servers for Single Program or Guild_IDs for ProgramIDs Mismatch in length!');
+  }
 
   return 'Setup Server Successful!';
 };

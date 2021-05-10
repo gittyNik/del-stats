@@ -115,12 +115,24 @@ Please add your queries, if any, to this thread, and we’ll get to addressing t
 ~ Note: There will be no BreakOuts or Mindcasts scheduled for you this week.
 You may see some on DELTA but they will soon be rescheduled and moved to next week. You will have access to your catalysts/educators to get guidance on anything you may be stuck with.`;
 
+// either multiple ids for multiple Programs
+// or single id for single program id
 export const GUILD_IDS_BY_PROGRAM = [{
   PROGRAM_ID: 'tep',
   GUILD_ID: process.env.DISCORD_TEP_GUILD_ID,
 }, {
   PROGRAM_ID: 'design',
   GUILD_ID: process.env.DISCORD_TEP_GUILD_ID,
+}];
+
+export const PROGRAM_NAMES = [{
+  name: 'Product Engineering',
+  id: 'tep',
+  sf: 'PE',
+}, {
+  name: 'Product Designing',
+  id: 'design',
+  sf: 'PD',
 }];
 
 // discord bot for focus forest or voice broadcast, only yt urls for now
