@@ -14,7 +14,7 @@ export const teamNameFormat = (cohort_name, program_id, location, start_date, du
   start_date,
 ).getFullYear()}`;
 
-export const removeMemberFromTeam = (name, githubUsername) => octokit.teams.removeMembershipInOrg({
+export const removeMemberFromTeam = (name, githubUsername) => octokit.teams.removeMembershipForUserInOrg({
   org,
   team_slug: name,
   username: githubUsername,
@@ -22,7 +22,7 @@ export const removeMemberFromTeam = (name, githubUsername) => octokit.teams.remo
 
 // Adds new member to team, has to be organisation
 // assigns role = "member" by default
-export const addMemberToTeam = (name, githubUsername, role = 'member') => octokit.teams.addOrUpdateMembershipInOrg({
+export const addMemberToTeam = (name, githubUsername, role = 'member') => octokit.teams.addOrUpdateMembershipForUserInOrg({
   org,
   team_slug: name,
   username: githubUsername,
@@ -55,7 +55,7 @@ const getAllTeamMembers = async (team) => getNumberOfPages('teamMembers', team).
 // Checks if a github user is part of team or not
 export const isTeamMember = async (team, login) => {
   try {
-    return octokit.teams.getMembershipInOrg({
+    return octokit.teams.getMembershipForUserInOrg({
       org,
       team_slug: team,
       username: login,

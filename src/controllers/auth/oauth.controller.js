@@ -17,6 +17,7 @@ import {
 } from '../../integrations/github/controllers';
 import { urlGoogle, getTokensFromCode } from '../../util/calendar-util';
 import { createCalendarEventsForLearner } from '../../models/learner_breakout';
+import { HttpBadRequest } from '../../util/errors';
 import logger from '../../util/logger';
 
 dotenv.config();
@@ -49,7 +50,12 @@ const fetchProfileFromGithub = ({ githubToken, expiry }) => {
   let access_token;
 
   let user_access_token = accessRegex.exec(githubToken);
+  if (user_access_token.length < 2) {
+    logger.debug(`value: ${githubToken}`);
+    throw new HttpBadRequest('Access Token is incorrect');
+  }
   if (user_access_token[1] != null) {
+    // eslint-disable-next-line prefer-destructuring
     access_token = user_access_token[1];
   }
 
