@@ -251,7 +251,7 @@ export const autoCreateAssessments = async (program, duration) => {
       eachAssessment.milestone_id, duration, program,
     );
     let assessmentForCohort = assesmentCohorts.map(eachCohort => eachCohort.cohort_id);
-    let review_dates = assesmentCohorts.map(eachCohort => eachCohort.review_scheduled);
+    let review_dates = assesmentCohorts.map(eachCohort => eachCohort.release_time);
 
     if (assessmentForCohort) {
       if (firstScheduledDate === undefined) {
