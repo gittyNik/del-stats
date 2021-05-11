@@ -143,7 +143,7 @@ const populateTopics = async (breakouts) => {
       breakout.topics = [{ title: breakout.details.topics }];
     }
     if (breakout['breakout_template.topic_id'] !== null) {
-      breakout.breakout_template.topic_id.map(breakTopic => {
+      breakout['breakout_template.topic_id'].map(breakTopic => {
         let topicIndex = allTopicsIds.indexOf(breakTopic);
         breakoutTopics.push(allTopics[topicIndex]);
         return allTopics[topicIndex];
@@ -194,14 +194,6 @@ export const getLiveCohortsBreakouts = (req, res) => {
             attributes: ['name', 'role'],
             as: 'catalyst',
           },
-          {
-            model: User,
-            attributes: ['id', 'name'],
-            as: 'RequestedByCatalysts',
-            through: {
-              attributes: [],
-            },
-          },
           Cohort,
           BreakoutTemplate,
           {
@@ -210,17 +202,8 @@ export const getLiveCohortsBreakouts = (req, res) => {
             include: [Milestone],
           },
         ],
+        raw: true,
       })
-        .then(data => {
-          data = data.map(dt => {
-            dt = dt.dataValues;
-            dt.catalyst = dt.catalyst.dataValues;
-            dt.cohort = dt.cohort.dataValues;
-            dt.breakout_template = dt.breakout_template.dataValues;
-            return dt;
-          });
-          return data;
-        })
         .then(populateTopics)
         .then((data) => res.json({
           text: 'Live cohort breakouts',
