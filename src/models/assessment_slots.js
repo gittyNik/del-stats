@@ -159,7 +159,7 @@ export const updateAssessmentSlots = async (id, assessment_day,
     week,
     assessment_duration,
     slot_order,
-  }, { where: { id } });
+  }, { where: { id }, returning: true });
 };
 
 export const deleteAssessmentSlot = async (id) => {

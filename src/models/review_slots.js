@@ -140,7 +140,7 @@ export const updateReviewSlots = async (id, review_day,
     week,
     review_duration,
     slot_order,
-  }, { where: { id } });
+  }, { where: { id }, returning: true });
 };
 
 export const deleteReviewSlot = async (id) => {
