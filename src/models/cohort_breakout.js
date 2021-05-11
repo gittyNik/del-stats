@@ -205,7 +205,7 @@ export const markZoomAttendance = (cohort_breakout_details, mark_attendance = tr
     console.error(`Error in auto marking attendance: ${err}`);
     // console.warn('Meeting missing Zoom url');
     // console.warn(cohort_breakout_details);
-    throw HttpBadRequest('Meeting missing Zoom url');
+    throw new HttpBadRequest('Meeting missing Zoom url');
   }
   return markAttendanceFromZoom(meetingId, catalyst_id,
     cohort_breakout_id, mark_attendance);
