@@ -2,6 +2,7 @@ import axios from 'axios';
 import Sequelize from 'sequelize';
 import { v4 as uuid } from 'uuid';
 import { SocialConnection, PROVIDERS } from '../../../../models/social_connection';
+import client from '../client';
 
 // eslint-disable-next-line import/prefer-default-export
 // GET/users/@me
@@ -23,7 +24,7 @@ export const hasDiscordSocialConnection = async ({ user_id }) => {
     return socialConnection !== null;
   }
 
-  throw Error('user_id is malformed!');
+  throw new Error('user_id is malformed!');
 };
 
 export const addDiscordSocialConnection = (deltaUserId, user, authRes) => SocialConnection.create({
@@ -44,4 +45,6 @@ export const getDiscordUserIdsByDeltaUserIds = ({ user_ids }) => SocialConnectio
     },
     provider: 'discord',
   },
-}).then(data => data.map(el => el.profile.id));
+}).then(data => data.map(element => element.profile.id));
+
+export const getBotUserId = () => client.user.id;

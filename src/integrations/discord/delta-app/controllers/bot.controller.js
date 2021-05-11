@@ -80,8 +80,8 @@ export const notifyAttendanceLearnerInChannel = async (
 
     channel.send(updatedText);
     return true;
-  } catch (err) {
-    logger.error(`Error while sending attendance status to slack: ${err}`);
+  } catch (error) {
+    logger.error(`Error while sending attendance status to slack: ${error}`);
     return false;
   }
 };
@@ -126,7 +126,7 @@ export const notifyLearnersInChannel = async (req, res) => {
     const guild_id = await getGuildIdFromCohort({ cohort_id });
     const sailor = await findRole({ guild_id, name: SETUP_ROLES[2].name });
 
-    const updatedText = (req.body.cohort_id) ? `${sailor} ${text}` : text;
+    const updatedText = (cohort_id) ? `${sailor} ${text}` : text;
 
     const post_res = await channel.send(updatedText);
     return res.status(200).json({
@@ -137,8 +137,8 @@ export const notifyLearnersInChannel = async (req, res) => {
         message: post_res.message,
       },
     });
-  } catch (err) {
-    logger.error(err);
+  } catch (error) {
+    logger.error(error);
     return res.status(500).json({
       text: 'Failed to notify on the Discord channel',
     });
@@ -206,38 +206,38 @@ export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
     const discordMessageResponse = await cohortDiscordChannel.send(embed);
 
     return discordMessageResponse;
-  } catch (err) {
-    logger.error(err);
+  } catch (error) {
+    logger.error(error);
+    return false;
+  }
+};
+
+const postOnChannel = async ({ channel, breakout_text }) => {
+  const today = new Date();
+  const startWith = `Sessions scheduled for today i.e., **${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}**`;
+
+  const embed = new Discord.MessageEmbed()
+    .setColor('#0099ff')
+    .setTitle(startWith)
+    .setURL('https://delta.soal.io/')
+    .addFields([
+      { name: 'Topics', value: breakout_text },
+      { name: '\u200B', value: `${channel.toString()}` },
+    ])
+    .setTimestamp()
+    .setFooter('Any changes to the above will be updated only on Delta Web - please keep an eye out.', 'https://coursereport-s3-production.global.ssl.fastly.net/uploads/school/logo/450/original/SOAL_SYMBOL-05.png');
+
+  try {
+    const discordResponse = await channel.send(embed);
+    return discordResponse;
+  } catch (error) {
+    logger.error(error);
+    logger.error(`Failed to post on discord channel ${channel.id} and breakout text: ${breakout_text}`);
     return false;
   }
 };
 
 export const postTodaysBreakouts = async (todaysBreakouts) => {
-  const postOnChannel = async ({ channel, breakout_text }) => {
-    const today = new Date();
-    const startWith = `Sessions scheduled for today i.e., **${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}**`;
-
-    const embed = new Discord.MessageEmbed()
-      .setColor('#0099ff')
-      .setTitle(startWith)
-      .setURL('https://delta.soal.io/')
-      .addFields([
-        { name: 'Topics', value: breakout_text },
-        { name: '\u200B', value: `${channel.toString()}` },
-      ])
-      .setTimestamp()
-      .setFooter('Any changes to the above will be updated only on Delta Web - please keep an eye out.', 'https://coursereport-s3-production.global.ssl.fastly.net/uploads/school/logo/450/original/SOAL_SYMBOL-05.png');
-
-    try {
-      const discordResponse = await channel.send(embed);
-      return discordResponse;
-    } catch (err) {
-      logger.error(err);
-      logger.error(`Failed to post on discord channel ${channel.id} and breakout text: ${breakout_text}`);
-      return false;
-    }
-  };
-
   let data = [];
   // eslint-disable-next-line no-restricted-syntax
   for (const [cohort_id, breakout_types] of Object.entries(todaysBreakouts)) {
@@ -271,7 +271,7 @@ export const postTodaysBreakouts = async (todaysBreakouts) => {
 
       const res = await postOnChannel({ channel, breakout_text });
       data.push(res);
-    } catch (err) {
+    } catch (error) {
       data.push({
         text: 'failed to postOnChannel',
       });

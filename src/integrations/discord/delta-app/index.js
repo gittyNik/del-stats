@@ -23,18 +23,18 @@ client.on('rateLimit', async () => {
 client.on('guildMemberAdd', welcomeMember);
 
 // dm & server both message
-client.on('message', async msg => {
+client.on('message', async message => {
   await delay(1000);
 
   try {
-    if (msg.content === 'ping') {
-      await msg.reply('pong 🏓');
-    } if (msg.channel.type === 'dm') {
+    if (message.content === 'ping') {
+      await message.reply('pong 🏓');
+    } if (message.channel.type === 'dm') {
       await delay(1000);
-      await msg.reply('You are DMing me now!');
+      await message.reply('You are DMing me now!');
     }
-  } catch (err) {
-    console.error('message listener error', err);
+  } catch (error) {
+    console.error('message listener error', error);
   }
 });
 
