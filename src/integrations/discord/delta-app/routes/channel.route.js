@@ -17,3 +17,5 @@ router.use(allowSuperAdminOnly);
  * @apiParam {String[]} emailList email list of all learners yet to join
  */
 router.post('/createCohortChannel', createChannelForCohortAPI);
+
+export default router;
