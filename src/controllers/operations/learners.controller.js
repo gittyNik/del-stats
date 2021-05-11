@@ -7,6 +7,7 @@ import { removeLearnerBreakouts } from '../../models/learner_breakout';
 import { currentTeamOfLearner, removeLearnerFromMSTeam } from '../../models/team';
 import { createApplication } from '../../models/application';
 import { createUser, USER_ROLES } from '../../models/user';
+import logger from '../../util/logger';
 
 export const removeLearnerFromTeam = async (learner_id, cohort_id) => {
   let current_team_id = await currentTeamOfLearner(learner_id, cohort_id);
@@ -45,8 +46,8 @@ export const onLeaveController = async (req, res) => {
     });
     res.json({ data: allOp });
   } catch (err) {
-    console.error(err);
-    res.status(500).send(err);
+    logger.console.error('Unable to delete learner: ', err);
+    res.status(500);
   }
 };
 

@@ -146,7 +146,7 @@ export const removeLearnerBreakouts = async (learner_id, current_cohort_id) => {
       },
     },
   );
-
+  logger.info('Deleting Learner reviews and assessments');
   // Delete Reviews with Zero Learners assigned
   await db.query('delete from cohort_breakouts where id in (select c.id from cohort_breakouts as c left join learner_breakouts as l on l.cohort_breakout_id=c.id where l.cohort_breakout_id is null and c.type=:type and c.time_scheduled>:time_scheduled and c.cohort_id=:current_cohort_id);',
     {

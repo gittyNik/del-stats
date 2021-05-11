@@ -50,7 +50,7 @@ const fetchProfileFromGithub = ({ githubToken, expiry }) => {
   let access_token;
 
   let user_access_token = accessRegex.exec(githubToken);
-  if (user_access_token.length < 2) {
+  if ((user_access_token === null) || (user_access_token.length < 2)) {
     logger.debug(`value: ${githubToken}`);
     throw new HttpBadRequest('Access Token is incorrect');
   }
@@ -377,6 +377,7 @@ export const handleGoogleCallback = async (req, res) => {
   try {
     if (code) {
       const data = await getTokensFromCode(code);
+      logger.debug('Email for Auth ', data.profile.email);
       const user = await getUserFromEmails([data.profile.email])
         .then((user0) => user0.toJSON())
         .catch((err) => {
