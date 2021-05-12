@@ -7,11 +7,16 @@ import {
 } from '../utils';
 
 export const inviteBot = async (req, res) => {
-  const deltaToken = req.headers.authorization.split(' ').pop();
-  const state = await createState({ deltaToken, prompt: 'consent' });
+  try {
+    const deltaToken = req.headers.authorization.split(' ').pop();
+    const state = await createState({ deltaToken, prompt: 'consent' });
 
-  let uri = discordBotOAuth2({ state, prompt: 'consent' }).code.getUri();
-  return res.redirect(uri);
+    let uri = discordBotOAuth2({ state, prompt: 'consent' }).code.getUri();
+    return res.send({ location: uri });
+  } catch (error) {
+    logger.error(error);
+    return res.status(error.statusCode ? error.statusCode : 500).json({ type: 'failure', message: error.message });
+  }
 };
 
 export const joinDiscord = async (req, res) => {
@@ -22,13 +27,13 @@ export const joinDiscord = async (req, res) => {
     const state = await createState({ deltaToken, prompt: 'none' });
 
     let uri = discordOAuth2({ state, prompt: 'none' }).code.getUri();
-    return res.redirect(uri);
+    return res.send({ location: uri });
   }
 
   const state = await createState({ deltaToken, prompt: 'consent' });
 
   let uri = discordOAuth2({ state, prompt: 'consent' }).code.getUri();
-  return res.redirect(uri);
+  return res.send({ location: uri });
 };
 
 export const oauthRedirectAPI = async (req, res) => {
