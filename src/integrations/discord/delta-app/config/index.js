@@ -136,4 +136,4 @@ export const PROGRAM_NAMES = [{
 }];
 
 // discord bot for focus forest or voice broadcast, only yt urls for now
-export const VOICE_URLS = ['https://www.youtube.com/watch?v=XxP8kxUn5bc', 'https://www.youtube.com/watch?v=R0NME9W3cR4'];
+export const VOICE_URLS = ['https://www.youtube.com/watch?v=XxP8kxUn5bc', 'https://www.youtube.com/watch?v=R0NME9W3cR4', 'https://www.youtube.com/watch?v=q33Ns5uG3yU'];

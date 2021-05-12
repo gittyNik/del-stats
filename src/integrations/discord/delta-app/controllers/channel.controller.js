@@ -70,7 +70,7 @@ export const moveLearnerToNewDiscordChannel = async ({ learner_id, current_cohor
     const currentCohortRole = await findRole({ guild_id, name: currentCohortChannelName });
     const futureCohortRole = await findRole({ guild_id, name: futureCohortChannelName });
 
-    const discordUser = await (await guild).members.fetch(discordUserIds[0]);
+    const discordUser = await guild.members.fetch(discordUserIds[0]);
 
     await discordUser.roles.remove(currentCohortRole);
     await discordUser.roles.add(futureCohortRole);
@@ -89,7 +89,7 @@ export const removeLearnerFromDiscordServer = async ({ learner_id, current_cohor
     const guild_id = GUILD_IDS_BY_PROGRAM.find(index => current_cohort_id.program_id === index.PROGRAM_ID).GUILD_ID;
     const guild = await getGuild({ guild_id });
 
-    const discordUser = await (await guild).members.fetch(discordUserIds[0]);
+    const discordUser = await guild.members.fetch(discordUserIds[0]);
 
     const response = await discordUser.kick('removeLearnerFromDiscordChannel Delta_API');
 
@@ -111,7 +111,7 @@ export const stageLearnerFromDiscordChannel = async ({ learner_id, cohort_id }) 
     const guild_id = GUILD_IDS_BY_PROGRAM.find(index => cohort.program_id === index.PROGRAM_ID).GUILD_ID;
     const guild = await getGuild({ guild_id });
 
-    const discordUser = await (await guild).members.fetch(discordUserIds[0]);
+    const discordUser = await guild.members.fetch(discordUserIds[0]);
 
     const currentCohortChannelName = getCohortFormattedId([{ data: [cohort], program_type: cohort.program_id }]);
 
@@ -133,7 +133,7 @@ export const addLearnerToCohortDiscordChannel = async ({ cohort_id, learner }) =
     const guild_id = GUILD_IDS_BY_PROGRAM.find(index => cohort_id.program_id === index.PROGRAM_ID).GUILD_ID;
     const guild = await getGuild({ guild_id });
 
-    const user = await (await guild).members.fetch(discordUserIds[0]);
+    const user = await guild.members.fetch(discordUserIds[0]);
 
     const cohort = await Cohort.findOne({
       where: {

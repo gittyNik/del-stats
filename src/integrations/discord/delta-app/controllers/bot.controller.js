@@ -4,11 +4,11 @@ import client from '../client';
 import { getCohortBreakoutById } from '../../../../models/cohort_breakout';
 import { getChannelForCohort } from './channel.controller';
 import { getDiscordUserIdsByDeltaUserIds } from './user.controller';
-import { getGuildIdFromCohort } from './guild.controller';
+import { getGuildIdFromCohort, getGuild } from './guild.controller';
 import { findRole } from './role.controller';
 import { getCohortIdFromLearnerId, getLearnersFromCohorts } from '../../../../models/cohort';
 import {
-  SETUP_CHANNELS, WELCOME_MESSAGES, REVIEW_TEMPLATE, LEARNER_REVIEW_TEMPLATE, ASSESSMENT_TEMPLATE,
+  WELCOME_MESSAGES, REVIEW_TEMPLATE, LEARNER_REVIEW_TEMPLATE, ASSESSMENT_TEMPLATE,
   BREAKOUT_TEMPLATE, LEARNER_BREAKOUT_TEMPLATE, QUESTIONAIRE_TEMPLATE, ATTENDANCE_TEMPLATE, SETUP_ROLES,
   ASSESSMENT_MESSAGE_TEMPLATE,
 } from '../config';
@@ -27,7 +27,10 @@ export const sendReact = ({ message, reaction }) => message.react(reaction);
 export const deleteMessage = ({ message, reaction }) => message.delete(reaction);
 
 export const welcomeMember = async ({ member }) => {
-  const channel = await member.guild.channels.cache.filter(ch => ch.name === SETUP_CHANNELS[0].data.public[1].channels[0]);
+  const guild = await getGuild({ guild_id: member.guild.id });
+
+  const channel = await guild.channels.cache.find(ch => ch.name.includes('welcome'));
+
   if (!channel) throw new Error('Invalid Channel! welcomeMember');
   await channel.send(`${member} ${WELCOME_MESSAGES[Math.floor(Math.random() * WELCOME_MESSAGES.length)]}`);
 
