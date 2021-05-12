@@ -66,7 +66,7 @@ export const updateReviewSlotsAPI = (req, res) => {
     time_scheduled, reviewer, week,
     review_duration, slot_order).then((data) => res.status(200).json({
     message: 'Review slot updated',
-    data: data[1],
+    data,
     type: 'success',
   }))
     .catch(err => {

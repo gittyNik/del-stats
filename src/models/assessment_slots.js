@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import db from '../database';
-import { User } from './user';
+import { User, getUserName } from './user';
 import { Topic } from './topic';
 import cache from '../cache';
 import logger from '../util/logger';
@@ -152,14 +152,25 @@ export const updateAssessmentSlots = async (id, assessment_day,
   } catch (err) {
     logger.warn('Cannot find key in Redis');
   }
-  return AssessmentSlots.update({
+
+  let assessmentSlots;
+  let assessment_slots = await AssessmentSlots.update({
     assessment_day,
     time_scheduled,
     reviewer,
     week,
     assessment_duration,
     slot_order,
-  }, { where: { id }, returning: true });
+  }, { where: { id }, returning: true, plain: true });
+  try {
+    assessmentSlots = assessment_slots[1].toJSON();
+    let user_id = assessmentSlots.reviewer;
+    let userDetails = await getUserName(user_id);
+    assessmentSlots['user.reviewer'] = userDetails.name;
+  } catch (err) {
+    logger.error('Unable to fetch reviewer');
+  }
+  return assessmentSlots;
 };
 
 export const deleteAssessmentSlot = async (id) => {

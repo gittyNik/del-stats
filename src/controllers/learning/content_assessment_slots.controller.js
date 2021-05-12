@@ -66,7 +66,7 @@ export const updateAssessmentSlotsAPI = (req, res) => {
     time_scheduled, reviewer, week,
     assessment_duration, slot_order).then((data) => res.status(200).json({
     message: 'Updated assessment slots',
-    data: data[1],
+    data,
     type: 'success',
   }))
     .catch((err) => {
