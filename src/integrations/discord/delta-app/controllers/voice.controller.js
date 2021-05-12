@@ -35,7 +35,8 @@ export const focusForest = async (oldMember, newMember) => {
         .catch(console.error);
     }
   } else if (oldMember && oldMember.channel && oldMember.channel.members
-    && !(oldMember.channel.members.size - 1) && oldUserChannel === voiceChannel.id) {
+    && !(oldMember.channel.members.size - 1) && oldUserChannel === voiceChannel.id
+    && discordBotUser.voice.channel) {
     setTimeout(() => { // if 1 (you), wait five minutes
       if (!(oldMember.channel.members.size - 1)) { // if there's still 1 member,
         oldMember.channel.leave();
