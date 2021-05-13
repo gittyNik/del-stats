@@ -12,7 +12,7 @@ export const inviteBot = async (req, res) => {
     const state = await createState({ deltaToken, prompt: 'consent' });
 
     let uri = discordBotOAuth2({ state, prompt: 'consent' }).code.getUri();
-    return res.send({ location: uri });
+    return res.redirect(uri);
   } catch (error) {
     logger.error(error);
     return res.status(error.statusCode ? error.statusCode : 500).json({ type: 'failure', message: error.message });
@@ -20,28 +20,32 @@ export const inviteBot = async (req, res) => {
 };
 
 export const joinDiscord = async (req, res) => {
-  const { id } = req.jwtData.user;
-  const deltaToken = req.headers.authorization.split(' ').pop();
+  try {
+    const { id } = req.jwtData.user;
+    const deltaToken = req.headers.authorization.split(' ').pop();
 
-  if (await hasDiscordSocialConnection({ user_id: id })) {
-    const state = await createState({ deltaToken, prompt: 'none' });
+    if (await hasDiscordSocialConnection({ user_id: id })) {
+      const state = await createState({ deltaToken, prompt: 'none' });
 
-    let uri = discordOAuth2({ state, prompt: 'none' }).code.getUri();
+      let uri = discordOAuth2({ state, prompt: 'none' }).code.getUri();
+      // return res.redirect(uri);
+      return res.send({ location: uri });
+    }
+
+    const state = await createState({ deltaToken, prompt: 'consent' });
+
+    let uri = discordOAuth2({ state, prompt: 'consent' }).code.getUri();
+    // return res.redirect(uri);
     return res.send({ location: uri });
+  } catch (error) {
+    return res.sendStatus(500);
   }
-
-  const state = await createState({ deltaToken, prompt: 'consent' });
-
-  let uri = discordOAuth2({ state, prompt: 'consent' }).code.getUri();
-  return res.send({ location: uri });
 };
 
 export const oauthRedirectAPI = async (req, res) => {
   try {
-    const stateKey = req.query.state;
-    const { originalUrl } = req;
-
-    const data = await oauthRedirect({ stateKey, originalUrl });
+    const { state, originalUrl } = req.query;
+    const data = await oauthRedirect({ stateKey: state, originalUrl });
 
     return res.json(data);
   } catch (error) {

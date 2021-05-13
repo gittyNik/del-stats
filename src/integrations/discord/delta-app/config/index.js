@@ -27,8 +27,8 @@ export const botConfig = Object.freeze({
 });
 
 export const OAuthRedirects = Object.freeze({
-  discordOAuth2: process.env.DISCORD_OAUTH2_REDIRECT,
-  discordBotOAuth2: process.env.DISCORD_BOT_OAUTH2_REDIRECT,
+  discordOAuth2: process.env.BASE_PATH + process.env.DISCORD_OAUTH2_REDIRECT,
+  discordBotOAuth2: process.env.BASE_PATH + process.env.DISCORD_BOT_OAUTH2_REDIRECT,
 });
 
 export default {
