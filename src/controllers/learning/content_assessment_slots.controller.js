@@ -58,13 +58,20 @@ export const createAssessmentSlotsAPI = (req, res) => {
 export const updateAssessmentSlotsAPI = (req, res) => {
   const {
     assessment_day, time_scheduled, reviewer, week, assessment_duration,
-    slot_order,
+    slot_order, cohort_duration,
   } = req.body;
   const { id } = req.params;
 
-  updateAssessmentSlots(id, assessment_day,
-    time_scheduled, reviewer, week,
-    assessment_duration, slot_order).then((data) => res.status(200).json({
+  updateAssessmentSlots({
+    id,
+    assessment_day,
+    time_scheduled,
+    reviewer,
+    week,
+    assessment_duration,
+    slot_order,
+    cohort_duration,
+  }).then((data) => res.status(200).json({
     message: 'Updated assessment slots',
     data,
     type: 'success',

@@ -144,9 +144,11 @@ export const createAssessmentSlots = async (cohort_duration, program,
   );
 };
 
-export const updateAssessmentSlots = async (id, assessment_day,
+export const updateAssessmentSlots = async ({
+  id, assessment_day,
   time_scheduled, reviewer, week, assessment_duration,
-  slot_order) => {
+  slot_order, cohort_duration,
+}) => {
   try {
     await cache.del('ASSESSMENT_SLOTS');
   } catch (err) {
@@ -161,6 +163,7 @@ export const updateAssessmentSlots = async (id, assessment_day,
     week,
     assessment_duration,
     slot_order,
+    cohort_duration,
   }, { where: { id }, returning: true, plain: true });
   try {
     assessmentSlots = assessment_slots[1].toJSON();

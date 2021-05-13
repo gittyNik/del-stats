@@ -58,13 +58,20 @@ export const createReviewSlotsAPI = (req, res) => {
 export const updateReviewSlotsAPI = (req, res) => {
   const {
     review_day, time_scheduled, reviewer, week, review_duration,
-    slot_order,
+    slot_order, cohort_duration,
   } = req.body;
   const { id } = req.params;
 
-  updateReviewSlots(id, review_day,
-    time_scheduled, reviewer, week,
-    review_duration, slot_order).then((data) => res.status(200).json({
+  updateReviewSlots({
+    id,
+    review_day,
+    time_scheduled,
+    reviewer,
+    week,
+    review_duration,
+    slot_order,
+    cohort_duration,
+  }).then((data) => res.status(200).json({
     message: 'Review slot updated',
     data,
     type: 'success',

@@ -125,9 +125,11 @@ export const createReviewSlots = async (cohort_duration, program,
   );
 };
 
-export const updateReviewSlots = async (id, review_day,
+export const updateReviewSlots = async ({
+  id, review_day,
   time_scheduled, reviewer, week, review_duration,
-  slot_order) => {
+  slot_order, cohort_duration,
+}) => {
   try {
     await cache.del('REVIEW_SLOTS');
   } catch (err) {
@@ -140,6 +142,7 @@ export const updateReviewSlots = async (id, review_day,
     week,
     review_duration,
     slot_order,
+    cohort_duration,
   }, { where: { id }, returning: true, plain: true });
 
   let reviewSlots;
