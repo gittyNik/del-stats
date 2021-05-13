@@ -194,6 +194,14 @@ export const getLiveCohortsBreakouts = (req, res) => {
             attributes: ['name', 'role'],
             as: 'catalyst',
           },
+          {
+            model: User,
+            attributes: ['id', 'name'],
+            as: 'RequestedByCatalysts',
+            through: {
+              attributes: [],
+            },
+          },
           Cohort,
           BreakoutTemplate,
           {
