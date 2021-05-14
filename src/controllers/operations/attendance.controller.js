@@ -33,7 +33,7 @@ export const lastNBreakoutsForLearner = async (learner_id, number, type = 'lectu
       required: false,
     },
   ],
-  order: Sequelize.literal('cohort_breakout.time_scheduled DESC'),
+  order: Sequelize.literal('time_scheduled DESC'),
   limit: number,
   raw: true,
 });
