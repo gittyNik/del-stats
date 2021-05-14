@@ -8,15 +8,11 @@ import { welcomeMember } from './controllers/bot.controller';
 import { focusForest } from './controllers/voice.controller';
 import { setPresence } from './controllers/presence.controller';
 
-// import { serverSetup } from './controllers/guild.controller';
-
 const router = Express.Router();
 
 client.on('ready', async () => {
   logger.info(`Bot client Logged in as ${client.user.tag}!`);
   await setPresence(client.user, client);
-
-  // serverSetup({ guild_id: process.env.DISCORD_TEP_GUILD_ID, program_type: 'tep' });
 });
 
 client.on('rateLimit', async () => {

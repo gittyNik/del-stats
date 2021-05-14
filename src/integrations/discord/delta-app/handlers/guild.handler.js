@@ -8,13 +8,13 @@ export const getGuild = async (req, res) => {
 };
 
 export const serverSetupAPI = async (req, res) => {
-  const { program_ids } = req.query;
+  const { program_ids } = req.body;
 
   try {
     const data = await serverSetup({ program_ids });
     return res.json({ type: 'success', message: data });
-  } catch (err) {
-    logger.error(err);
+  } catch (error) {
+    logger.error(error);
     return res.sendStatus(500);
   }
 };

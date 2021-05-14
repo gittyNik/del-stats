@@ -22,7 +22,7 @@ export const getGuild = async ({ guild_id }) => client.guilds.fetch(guild_id);
 export const getGuildIdsFromProgramIds = ({ program_ids }) => {
   if (program_ids.length === 1) {
     // single program id, single guild id
-    return [GUILD_IDS_BY_PROGRAM.find(element => element.PROGRAM_ID === program_ids).GUILD_ID];
+    return [GUILD_IDS_BY_PROGRAM.find(element => element.PROGRAM_ID === program_ids[0]).GUILD_ID];
   }
   if (program_ids.length > 1) {
     // multiple program id
@@ -63,12 +63,14 @@ export const getGuildIdFromCohort = async ({ cohort_id }) => {
 // create server, get Invite
 // Add/remove/kick/ban member Server
 
-export const serverSetup = async ({ program_ids }) => {
+export const serverSetup = async ({ program_ids, cleanFirst }) => {
   const guild_ids = getGuildIdsFromProgramIds({ program_ids });
 
-  // uncomment to delete all channels and roles first
+  // if (cleanFirst // delete all channels and roles first
+  // && Array.isArray(guild_ids)) {
   // await guild.channels.cache.forEach(channel => channel.delete());
   // await guild.roles.cache.forEach(role => role.delete());
+  // }
 
   if ((typeof guild_ids === 'string' || guild_ids instanceof String) && Array.isArray(program_ids)) {
     // single discord server for multiple Programs
@@ -76,8 +78,6 @@ export const serverSetup = async ({ program_ids }) => {
     await createSetupRolesAndChannels(guild_ids);
     createProgramRoles(guild_ids, program_ids);
     for (const program_id of program_ids) createCohortRolesAndChannels(guild_ids, program_id);
-
-    //
   } else if (
     ((Array.isArray(guild_ids) && Array.isArray(program_ids)) && guild_ids.length === program_ids.length)) {
     // Multiple discord Servers for multiple Programs
@@ -87,8 +87,6 @@ export const serverSetup = async ({ program_ids }) => {
       createProgramRoles(guild_id, [program_ids[index]]);
       createCohortRolesAndChannels(guild_id, program_ids[index]);
     }
-
-    //
   } else {
     throw new Error('Multiple Servers for Single Program or Guild_IDs for ProgramIDs Mismatch in length!');
   }

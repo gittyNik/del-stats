@@ -7,6 +7,6 @@ const router = Express.Router();
 
 router.use(authenticate);
 
-router.get('/serverSetup', serverSetupAPI);
+router.post('/serverSetup', serverSetupAPI);
 
 export default router;

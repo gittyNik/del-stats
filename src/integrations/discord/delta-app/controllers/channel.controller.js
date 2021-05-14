@@ -127,32 +127,29 @@ export const stageLearnerFromDiscordChannel = async ({ learner_id, cohort_id }) 
 
 // add single learner to cohort
 export const addLearnerToCohortDiscordChannel = async ({ cohort_id, learner }) => {
-  try {
-    let discordUserIds = await getDiscordUserIdsByDeltaUserIds({ user_ids: [learner] });
+  let discordUserIds = await getDiscordUserIdsByDeltaUserIds({ user_ids: [learner] });
 
-    const guild_id = GUILD_IDS_BY_PROGRAM.find(index => cohort_id.program_id === index.PROGRAM_ID).GUILD_ID;
-    const guild = await getGuild({ guild_id });
-
-    const user = await guild.members.fetch(discordUserIds[0]);
-
-    const cohort = await Cohort.findOne({
-      where: {
-        id: cohort_id,
-      },
+  const cohort = await Cohort.findOne({
+    where: {
+      id: cohort_id,
     },
-    { raw: true });
-    const cohortChannelName = getCohortFormattedId([{ cohort, program_type: cohort.program_id }]);
+  },
+  { raw: true });
 
-    const cohortRole = await findRole({ guild_id, name: cohortChannelName });
-    const programRole = await findRole({ guild_id, name: PROGRAM_NAMES.find(nm => nm.id === cohort.program_id).name });
+  const guild_id = GUILD_IDS_BY_PROGRAM.find(index => cohort.program_id === index.PROGRAM_ID).GUILD_ID;
+  const guild = await getGuild({ guild_id });
 
-    return Promise.all([
-      addRoleToUser({ guild_id, role_name: cohortRole.name, user_id: user.id }),
-      addRoleToUser({ guild_id, role_name: programRole.name, user_id: user.id }),
-    ]);
-  } catch (error) {
-    throw new Error(error);
-  }
+  const user = await guild.members.fetch(discordUserIds[0]);
+
+  const cohortChannelName = getCohortFormattedId({ data: [cohort], program_type: cohort.program_id });
+
+  const cohortRole = await findRole({ guild_id, name: cohortChannelName });
+  const programRole = await findRole({ guild_id, name: PROGRAM_NAMES.find(nm => nm.id === cohort.program_id).name });
+
+  return Promise.all([
+    addRoleToUser({ guild_id, role_name: cohortRole.name, user_id: user.id }),
+    addRoleToUser({ guild_id, role_name: programRole.name, user_id: user.id }),
+  ]);
 };
 
 export const addLearnersToCohortDiscordChannel = async ({ cohort_id, learners }) => {
