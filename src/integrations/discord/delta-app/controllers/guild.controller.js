@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 /* linter complains:
  * iterators/generators require regenerator-runtime, which is too
@@ -16,6 +17,7 @@ import {
   Cohort,
 } from '../../../../models/cohort';
 import { createSetupRolesAndChannels, createProgramRoles, createCohortRolesAndChannels } from './setup.controller';
+import { delay } from '../utils';
 
 export const getGuild = async ({ guild_id }) => client.guilds.fetch(guild_id);
 
@@ -58,6 +60,21 @@ export const getGuildIdFromCohort = async ({ cohort_id }) => {
   return guild_id;
 };
 
+export const cleanGuild = async ({ guild_id }) => {
+  const guild = await getGuild({ guild_id });
+
+  // delete all channels and roles
+
+  return Promise.all([
+    guild.channels.cache.map(channel => channel.delete()),
+    guild.roles.cache.map(role => {
+      if (role.name !== '@everyone' && role.editable) {
+        role.delete();
+      }
+    }),
+  ].map(Promise.all.bind(Promise)));
+};
+
 // https://discord.com/developers/docs/resources/guild
 
 // create server, get Invite
@@ -66,26 +83,32 @@ export const getGuildIdFromCohort = async ({ cohort_id }) => {
 export const serverSetup = async ({ program_ids, cleanFirst }) => {
   const guild_ids = getGuildIdsFromProgramIds({ program_ids });
 
-  // if (cleanFirst // delete all channels and roles first
-  // && Array.isArray(guild_ids)) {
-  // await guild.channels.cache.forEach(channel => channel.delete());
-  // await guild.roles.cache.forEach(role => role.delete());
-  // }
-
   if ((typeof guild_ids === 'string' || guild_ids instanceof String) && Array.isArray(program_ids)) {
     // single discord server for multiple Programs
 
+    if (cleanFirst) {
+      // delete all channels and roles first
+      await cleanGuild({ guild_id: guild_ids });
+    }
+
     await createSetupRolesAndChannels(guild_ids);
-    createProgramRoles(guild_ids, program_ids);
-    for (const program_id of program_ids) createCohortRolesAndChannels(guild_ids, program_id);
+    await createProgramRoles(guild_ids, program_ids);
+    await Promise.all(program_ids.map(program_id => createCohortRolesAndChannels(guild_ids, program_id)));
   } else if (
     ((Array.isArray(guild_ids) && Array.isArray(program_ids)) && guild_ids.length === program_ids.length)) {
     // Multiple discord Servers for multiple Programs
+    // single discord server for single program
 
     for (const [index, guild_id] of guild_ids.entries()) {
-      createSetupRolesAndChannels(guild_id);
-      createProgramRoles(guild_id, [program_ids[index]]);
-      createCohortRolesAndChannels(guild_id, program_ids[index]);
+      if (cleanFirst) {
+        // delete all channels and roles first
+        await cleanGuild({ guild_id });
+        await delay(5000);
+      }
+
+      await createSetupRolesAndChannels(guild_id);
+      await createProgramRoles(guild_id, [program_ids[index]]);
+      await createCohortRolesAndChannels(guild_id, program_ids[index]);
     }
   } else {
     throw new Error('Multiple Servers for Single Program or Guild_IDs for ProgramIDs Mismatch in length!');

@@ -54,5 +54,5 @@ router.use('/', routes);
 export default router;
 
 process.on('unhandledRejection', error => {
-  console.error('didn\'t catchUnhandled promise rejection DISCORD:', error);
+  console.error('didn\'t catchUnhandled promise rejection DISCORD:', error.message);
 });

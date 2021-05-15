@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import _ from 'lodash';
 import moment from 'moment';
 import cache from '../../../../cache';
+import { PROGRAM_NAMES } from '../config';
 
 async function randomString(size = 9) {
   return crypto
@@ -27,8 +28,8 @@ export const removeState = ({ key }) => cache.del(`dsc${key}`);
 
 export const delay = (msec) => new Promise((resolve) => setTimeout(resolve, msec));
 
-function base64URLEncode(str) {
-  return str.toString('base64')
+function base64URLEncode(string) {
+  return string.toString('base64')
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=/g, '');
@@ -42,10 +43,8 @@ function sha256(buffer) {
 
 export const challenge = base64URLEncode(sha256(verifier));
 
-export const mirrorKeyArray = (arr) => _.zipObject(_.map(arr, (ele) => ele.toUpperCase().replaceAll('.', '_')), arr);
+export const mirrorKeyArray = (array) => _.zipObject(_.map(array, (ele) => ele.toUpperCase().replaceAll('.', '_')), array);
 
-export const getCohortFormattedId = ({ data, program_type }) => data.filter(
-  e => e.program_id === program_type,
-).map(
-  e => String(`${e.name}-${e.type}-${e.duration === 26 ? 'ft' : ''}${e.duration === 16 ? 'pt' : ''}-${moment(e.start_date).format('MMM')}-${moment(e.start_date).format('YY')}`).toLowerCase(),
+export const getCohortFormattedId = ({ data }) => data.map(
+  cohort => String(`${cohort.name}-${cohort.duration === 26 ? 'ft' : ''}${cohort.duration === 16 ? 'pt' : ''}-${cohort.type}-${moment(cohort.start_date).format('MMM')}-${moment(cohort.start_date).format('YY')}-${PROGRAM_NAMES.find(program => program.id === cohort.program_id).sf}`).toLowerCase(),
 );

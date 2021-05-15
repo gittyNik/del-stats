@@ -17,7 +17,7 @@ export const createSetupRolesAndChannels = async (guild_id) => {
   let captain = await findRole({ guild_id, name: SETUP_ROLES[0].name });
   let pirate = await findRole({ guild_id, name: SETUP_ROLES[1].name });
 
-  if (everyoneRole || captain || pirate) {
+  if (captain || pirate) {
     throw new Error('Setup Role(s) Already Exist!');
   }
 
@@ -34,7 +34,6 @@ export const createSetupRolesAndChannels = async (guild_id) => {
     })),
   );
 
-  everyoneRole = await findRole({ guild_id, name: '@everyone' });
   captain = await findRole({ guild_id, name: SETUP_ROLES[0].name });
   pirate = await findRole({ guild_id, name: SETUP_ROLES[1].name });
 
@@ -105,7 +104,7 @@ export const createCohortRolesAndChannels = async (guild_id, program_id) => {
   const guild = await getGuild({ guild_id });
 
   const data = await getLiveCohortsByProgramId(program_id);
-  const cohortNameIds = getCohortFormattedId({ data, program_id });
+  const cohortNameIds = getCohortFormattedId({ data });
 
   const everyoneRole = await findRole({ guild_id, name: '@everyone' });
   const captain = await findRole({ guild_id, name: SETUP_ROLES[0].name });
