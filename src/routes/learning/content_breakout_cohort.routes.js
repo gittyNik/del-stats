@@ -7,12 +7,12 @@ import { allowMultipleRoles, allowAdminsOnly } from '../../controllers/auth/role
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, CATALYST, EDUCATOR, REVIEWER,
+  ADMIN, CATALYST, EDUCATOR, REVIEWER, OPERATIONS,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER, OPERATIONS]));
 
 /**
  * @api {get} /learning/content/breakouts/cohort Get all Content Breakouts
