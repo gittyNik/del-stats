@@ -627,7 +627,7 @@ export const addLearner = async ({
     await addLearnersToCohortChannel(cohort_id, learners);
     await addLearnersToCohortDiscordChannel({ cohort_id, learners });
   } catch (error) {
-    logger.info('Unable to add learner to slack');
+    logger.info('Unable to add learner to slack or discord');
   }
   return data;
 };

@@ -51,9 +51,9 @@ export const CAPTAIN_PERMISSIONS = [
 ];
 
 export const SETUP_ROLES = [
-  { name: 'Captain', role: CAPTAIN_PERMISSIONS, color: 'GREEN' },
-  { name: 'Pirate', role: PIRATE_PERMISSIONS, color: 'LUMINOUS_VIVID_PINK' },
-  { name: 'Sailor', role: SAILOR_PERMISSIONS, color: 'AQUA' },
+  { name: 'Captain', role: CAPTAIN_PERMISSIONS, color: '#F8C300' },
+  { name: 'Pirate', role: PIRATE_PERMISSIONS, color: '#FD0061' },
+  { name: 'Sailor', role: SAILOR_PERMISSIONS, color: '#00D166' },
 ];
 
 export const SETUP_CHANNELS = [{

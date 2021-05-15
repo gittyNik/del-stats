@@ -67,8 +67,8 @@ export const moveLearnerToNewDiscordChannel = async ({ learner_id, current_cohor
     const currentCohortChannelName = getCohortFormattedId({ data: [currentCohort] });
     const futureCohortChannelName = getCohortFormattedId({ data: [futureCohort] });
 
-    const currentCohortRole = await findRole({ guild_id, name: currentCohortChannelName });
-    const futureCohortRole = await findRole({ guild_id, name: futureCohortChannelName });
+    const currentCohortRole = await findRole({ guild_id, name: currentCohortChannelName[0] });
+    const futureCohortRole = await findRole({ guild_id, name: futureCohortChannelName[0] });
 
     const discordUser = await guild.members.fetch(discordUserIds[0]);
 
@@ -115,7 +115,7 @@ export const stageLearnerFromDiscordChannel = async ({ learner_id, cohort_id }) 
 
     const currentCohortChannelName = getCohortFormattedId({ data: [cohort] });
 
-    const currentCohortRole = await findRole({ guild_id, name: currentCohortChannelName });
+    const currentCohortRole = await findRole({ guild_id, name: currentCohortChannelName[0] });
     const programRole = await findRole({ guild_id, name: PROGRAM_NAMES.find(nm => nm.id === cohort.program_id).name });
 
     await discordUser.roles.remove(currentCohortRole);
@@ -143,7 +143,7 @@ export const addLearnerToCohortDiscordChannel = async ({ cohort_id, learner }) =
 
   const cohortChannelName = getCohortFormattedId({ data: [cohort] });
 
-  const cohortRole = await findRole({ guild_id, name: cohortChannelName });
+  const cohortRole = await findRole({ guild_id, name: cohortChannelName[0] });
   const programRole = await findRole({ guild_id, name: PROGRAM_NAMES.find(nm => nm.id === cohort.program_id).name });
 
   return Promise.all([
@@ -154,11 +154,7 @@ export const addLearnerToCohortDiscordChannel = async ({ cohort_id, learner }) =
 
 export const addLearnersToCohortDiscordChannel = async ({ cohort_id, learners }) => {
   try {
-    await learners.forEach(async learner => {
-      await addLearnerToCohortDiscordChannel(cohort_id, learner);
-
-      return 'Added learner to discord channel! addLearnersToCohortDiscordChannel';
-    });
+    await Promise.all(learners.map(learner => addLearnerToCohortDiscordChannel(cohort_id, learner)));
   } catch (error) {
     throw new Error(error);
   }
@@ -174,17 +170,15 @@ export const createChannelForCohort = async ({ cohort_id }) => {
     const cohortNameIds = getCohortFormattedId({ data: [cohort] });
 
     // create cohort roles
-    await Promise.all(
-      cohortNameIds.map(element => createRole({
-        data: {
-          name: element,
-          color: 'BLURPLE',
-          permissions: SAILOR_PERMISSIONS,
-        },
-        reason: 'cohort role for create channel cohort API',
-        guild_id,
-      })),
-    );
+    await createRole({
+      data: {
+        name: cohortNameIds[0],
+        color: 'BLURPLE',
+        permissions: SAILOR_PERMISSIONS,
+      },
+      reason: 'cohort role for create channel cohort API',
+      guild_id,
+    });
 
     // find category and add create new channel with role permissions
     const categoryChannel = await findChannelByName({ guild_id, channel_name: `${PROGRAM_NAMES.find(name => cohort.program_id === name.id).sf} cohorts 🏡` });
