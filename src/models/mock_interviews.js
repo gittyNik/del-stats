@@ -2,9 +2,12 @@ import { v4 as uuid } from 'uuid';
 import { Cohort } from './cohort';
 import { MockInterviewSlots } from './mock_interview_slots';
 import { CohortBreakout } from './cohort_breakout';
-import { changeTimezone } from './breakout_template';
+import { changeTimezone, BreakoutTemplate } from './breakout_template';
 import { LearnerBreakout } from './learner_breakout';
 import { createBreakoutAppliedCatalystRelation } from './cohort_breakout_applied_catalysts';
+import { Topic } from './topic';
+import { Milestone } from './milestone';
+import { populateTopics } from '../controllers/learning/breakout.controller';
 import { User } from './user';
 
 const WEEK_VALUES = {
@@ -39,6 +42,14 @@ export const createMockInterviewsForCohort_afterCapstone = ({
       learners,
       slots,
     })))
+  .then(({ learners, slots }) => Promise.all(learners.map(learner_id => User.findOne({
+    where: {
+      id: learner_id,
+    },
+    attributes: ['name'],
+    raw: true,
+  })))
+    .then(data => ({ learners: data, slots })))
   .then(({ learners, slots }) => {
     let cohort_breakouts = [];
     let cohort_breakouts_2 = [];
@@ -85,15 +96,20 @@ export const createMockInterviewsForCohort_afterCapstone = ({
 
     cohort_breakouts = [...cohort_breakouts, ...cohort_breakouts_2];
     if (learners_exclude) {
-      learners = learners.filter(learner_id => !learners_exclude.includes(learner_id));
+      learners = learners.filter(learner => !learners_exclude.includes(learner.id));
     }
     cohort_breakouts.splice(learners.length);
-    learners.map((learner_id, index) => {
+    learners.map((learner, index) => {
       learner_breakouts.push({
         id: uuid(),
         cohort_breakout_id: cohort_breakouts[index].id,
-        learner_id,
+        learner_id: learner.id,
+
       });
+      cohort_breakouts[index].details = {
+        learner_id: learner.id,
+        learner_name: learner.name,
+      };
     });
     return CohortBreakout
       .bulkCreate(cohort_breakouts)
@@ -123,15 +139,31 @@ export const getAppliedCatalystDetailsByStatus = ({
     where: {
       catalyst_request_status: status,
     },
-    include: [{
-      model: User,
-      attributes: ['id', 'name'],
-      as: 'RequestedByCatalysts',
-      through: {
-        attributes: [],
+    include: [
+      {
+        model: User,
+        attributes: ['name', 'role'],
+        as: 'catalyst',
       },
-    }],
-  });
+      {
+        model: User,
+        attributes: ['id', 'name'],
+        as: 'RequestedByCatalysts',
+        through: {
+          attributes: [],
+        },
+      },
+      Cohort,
+      BreakoutTemplate,
+      {
+        model: Topic,
+        attributes: [],
+        include: [Milestone],
+      },
+    ],
+    raw: true,
+  })
+  .then(populateTopics);
 
 export const createRequestForCatalyst = ({ cohort_breakout_id, catalyst_id }) => {
   let request_id = uuid();
