@@ -582,6 +582,7 @@ function* calculateReleaseTime(
   const ASSESSMENT_MILESTONES = [
     'b6202bb4-41dd-4f7e-8a0f-003c4b3909bb',
     'a1855024-6caa-478d-8093-5af69219229e',
+    '4a39a84b-b874-4ff8-b90c-c0c76883d4ad',
   ];
   const CAPSTONE_MILESTONES = [
     'e1384e68-ae92-4049-98ef-bba7aae0bf4a',
@@ -607,8 +608,8 @@ function* calculateReleaseTime(
     start.setDate(
       cohort_start.getDate() + ((1 + 7 - cohort_start.getDay()) % 7),
     );
-    // Calculate Tuesday 23:59:59
-    end = new Date(+start + DAY_MSEC * 1.99999);
+    // Calculate Monday 23:59:59
+    end = new Date(+start + DAY_MSEC * 0.99999);
   }
 
   while (pending--) {
