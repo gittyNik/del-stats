@@ -34,7 +34,7 @@ import {
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, CATALYST, EDUCATOR,
+  ADMIN, CATALYST, EDUCATOR, OPERATIONS,
   REVIEWER,
 } = USER_ROLES;
 
@@ -105,7 +105,7 @@ router.get('/user/:id', getCohortByLearnerId);
  */
 router.get('/milestone/:id', createCohortMilestoneLearnerBreakouts);
 
-router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER]));
+router.use(allowMultipleRoles([ADMIN, CATALYST, EDUCATOR, REVIEWER, OPERATIONS]));
 
 /**
  * @api {post} /cohorts/addLearner Add learner to a new cohort
