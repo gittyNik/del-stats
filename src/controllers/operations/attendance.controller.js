@@ -38,6 +38,30 @@ export const lastNBreakoutsForLearner = async (learner_id, number, type = 'lectu
   raw: true,
 });
 
+export const lastSessionsAttended = async (learner_id, number) => LearnerBreakout.findAll({
+  where: {
+    learner_id,
+    attendance: true,
+    '$cohort_breakout.time_scheduled$': { [lte]: Sequelize.literal('NOW()') },
+  },
+  attributes: ['cohort_breakout_id', 'learner_id', 'attendance', 'cohort_breakout.time_scheduled', 'cohort_breakout.cohort_id'],
+  include: [
+    {
+      model: CohortBreakout,
+      include: [{
+        model: Cohort,
+        attributes: ['name', 'duration', 'start_date'],
+      },
+      ],
+      attributes: [],
+      required: false,
+    },
+  ],
+  order: Sequelize.literal('time_scheduled DESC'),
+  limit: number,
+  raw: true,
+});
+
 export const getLearnersStatus = (
   learner_id, type, limit,
 ) => LearnerBreakout.findAll({
@@ -238,6 +262,7 @@ export const getAllLearnerAttendance = async ({
       'user.phone',
       'user.status',
       'user.email',
+      'user.role',
       // Groupby can't compare json. Parse it to jsonb[]
       Sequelize.cast(Sequelize.col('user.status_reason'), 'jsonb[]'),
       'cohort_breakout.cohort_id',
@@ -266,7 +291,7 @@ export const getAllLearnerAttendance = async ({
     ],
     group: ['attendance', 'learner_id', 'user.name', 'user.email',
       'cohort_breakout.cohort_id', 'cohort_breakout.type',
-      'user.phone', 'user.status', Sequelize.cast(Sequelize.col('user.status_reason'), 'jsonb[]'),
+      'user.phone', 'user.status', 'user.role', Sequelize.cast(Sequelize.col('user.status_reason'), 'jsonb[]'),
     ],
     raw: true,
     order: Sequelize.literal('learner_id, attendance_count DESC'),
@@ -288,6 +313,7 @@ export const getAllLearnerAttendance = async ({
       lecture: await lastNBreakoutsForLearner(key, 5, 'lecture'),
       review: await lastNBreakoutsForLearner(key, 5, 'reviews'),
       assessment: await lastNBreakoutsForLearner(key, 5, 'assessment'),
+      last_sessions_attended: await lastSessionsAttended(key, 2),
     },
   })));
   return {
@@ -322,6 +348,69 @@ export const getAttendanceForCohorts = (req, res) => {
     });
 };
 
+const attendanceFormat = (attendanceData) => {
+  let allLearnerInformation = attendanceData.map(eachLearner => {
+    let learnerExcelInformation = {
+      learner_id: eachLearner.learner_id,
+      name: eachLearner.attendance[0].name,
+      email: eachLearner.attendance[0].email,
+      phone: eachLearner.attendance[0].phone,
+    };
+    let lecturesAttended;
+    let lecturesAbsent;
+    let lastBreakoutAttended;
+    let lastLastBreakoutAttended;
+    eachLearner.attendance.map(session => {
+      if (session.type === 'lecture') {
+        if (session.attendance) {
+          lecturesAttended = session.attendance_count;
+        } else {
+          lecturesAbsent = session.attendance_count;
+        }
+      }
+    });
+    let cohortName;
+    let cohortDuration;
+    let lastCohortName;
+    let lastCohortDuration;
+    let cohortStartYear;
+    let lastcohortStartYear;
+    try {
+      lastBreakoutAttended = eachLearner.last_five_breakouts.last_sessions_attended[0].time_scheduled;
+      lastLastBreakoutAttended = eachLearner.last_five_breakouts.last_sessions_attended[1].time_scheduled;
+      lastCohortName = eachLearner.last_five_breakouts.last_sessions_attended[0]['cohort_breakout.cohort.name'];
+      let cohort_duration = eachLearner.last_five_breakouts.last_sessions_attended[0]['cohort_breakout.cohort.duration'];
+      lastCohortDuration = cohort_duration === 16 ? 'Full Time' : 'Part Time';
+      lastcohortStartYear = eachLearner.last_five_breakouts.last_sessions_attended[0]['cohort_breakout.cohort.start_date'].getFullYear();
+    } catch (err) {
+      logger.warn('No Breakout Present');
+    }
+    if (('currentCohort' in eachLearner) && (eachLearner.currentCohort)) {
+      cohortName = eachLearner.currentCohort.name;
+      cohortDuration = eachLearner.currentCohort.duration === 16 ? 'Full Time' : 'Part Time';
+      cohortStartYear = eachLearner.currentCohort.start_date.getFullYear();
+    } else if (eachLearner.status.indexOf('graduated') > -1) {
+      cohortName = lastCohortName;
+      cohortDuration = lastCohortDuration;
+      cohortStartYear = lastcohortStartYear;
+    } else {
+      cohortName = 'No Cohort';
+      cohortDuration = 'No Cohort';
+      cohortStartYear = 'No Cohort';
+    }
+    learnerExcelInformation.currentCohort = cohortName;
+    learnerExcelInformation.cohortDuration = cohortDuration;
+    learnerExcelInformation.cohortStartDate = cohortStartYear;
+    learnerExcelInformation.lecturesAttended = lecturesAttended;
+    learnerExcelInformation.lecturesAbsent = lecturesAbsent;
+    learnerExcelInformation.lastBreakoutAttended = lastBreakoutAttended;
+    learnerExcelInformation.lastBreakoutAttended = lastLastBreakoutAttended;
+    learnerExcelInformation.status = eachLearner.status;
+    return learnerExcelInformation;
+  });
+  return allLearnerInformation;
+};
+
 export const getAttendanceForLearners = (req, res) => {
   let {
     page, limit, order, filters, download,
@@ -345,8 +434,9 @@ export const getAttendanceForLearners = (req, res) => {
     .then((data) => {
       if (download) {
         const fileName = `attendance_${new Date().toISOString().split('T')[0]}.csv`;
+        let attendanceData = attendanceFormat(data.attendance);
         return downloadResource({
-          res, fileName, data: data.attendance, flat: true,
+          res, fileName, data: attendanceData, flat: false,
         });
       }
       return res.json({
