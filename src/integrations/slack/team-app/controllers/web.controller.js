@@ -10,20 +10,20 @@ const { SLACK_TEAM_BOT_TOKEN } = process.env;
 const web = new WebClient(SLACK_TEAM_BOT_TOKEN);
 
 const CATALYST_NOTIFICATION_TEMPLATE = ({
-  catalyst_name,
+  catalyst,
   cohort,
   topic,
   time_scheduled,
-  updatedBy_name,
-}) => `The Breakout on ${topic}scheduled on ${time_scheduled} for cohort ${cohort.cohort_name} ${cohort.format} ${cohort.city} is assigned to ${catalyst_name} by ${updatedBy_name}.`;
+  slackLoggedInUserId,
+}) => `The Breakout on *${topic}* scheduled on *${time_scheduled}* for cohort *${cohort.cohort_name} ${cohort.format} ${cohort.city}* is assigned to <@${catalyst.slackCatalystId}> by <@${slackLoggedInUserId}>.`;
 
 export const notifyCatalyst = (req, res) => {
   let {
-    catalyst_name,
+    catalyst_email,
     cohort_breakout_id,
     topics,
   } = req.body;
-  let updatedBy_name = req.jwtData.user.name;
+  let updatedBy_email = req.jwtData.user.email;
   topics = topics.split('\n');
   let topicsStr = '';
   topics.map((topic, index) => {
@@ -36,7 +36,11 @@ export const notifyCatalyst = (req, res) => {
     include: [Cohort],
     raw: true,
   })
-    .then(data => {
+    .then(async data => {
+      let slackUserResponse = await web.users.lookupByEmail({ email: catalyst_email });
+      let slackLoggedInUserResponse = await web.users.lookupByEmail({ email: updatedBy_email });
+      let slackCatalystId = slackUserResponse.user.id;
+      let slackLoggedInUserId = slackLoggedInUserResponse.user.id;
       let cohort_name = data['cohort.name'];
       let city = data['cohort.location'];
       let format = data['cohort.duration'] > 16 ? 'Full-time' : 'Part-time';
@@ -45,7 +49,9 @@ export const notifyCatalyst = (req, res) => {
       const fromTime = momentTime.format('h:mm A');
       let time_scheduled = `${fullDate}, ${fromTime}`;
       let notificationStr = CATALYST_NOTIFICATION_TEMPLATE({
-        catalyst_name,
+        catalyst: {
+          slackCatalystId,
+        },
         cohort: {
           cohort_name,
           city,
@@ -53,12 +59,13 @@ export const notifyCatalyst = (req, res) => {
         },
         topic: topicsStr,
         time_scheduled,
-        updatedBy_name,
+        slackLoggedInUserId,
       });
       return notificationStr;
     })
     .then(async (str) => {
       console.log('!!!!!!!!!!!!!!!', str);
+      
       await web.chat.postMessage({
         channel: process.env.SLACK_PE_CATALYSTS,
         text: str,
