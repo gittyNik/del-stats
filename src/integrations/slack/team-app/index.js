@@ -9,7 +9,7 @@ const router = Express.Router();
 
 router.use('/action-endpoint', eventController);
 router.use('/interactive-endpoint', interactionController);
-router.use('/team/web', webRouter);
+router.use('/web', webRouter);
 // router.use('/command-endpoint', commandController);
 // router.use('/options-endpoint', optionsController);
 
