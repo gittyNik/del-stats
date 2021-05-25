@@ -115,7 +115,7 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
     await removeState({ key: stateKey });
 
     return {
-      message: 'oauth success',
+      message: 'you were added to Discord 🎉',
       type: 'success',
       data: {
         result: result.data,

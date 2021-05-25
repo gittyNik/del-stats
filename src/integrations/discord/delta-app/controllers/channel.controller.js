@@ -16,6 +16,7 @@ import {
   SAILOR_PERMISSIONS, SETUP_ROLES, PIRATE_PERMISSIONS, CAPTAIN_PERMISSIONS,
   GUILD_IDS_BY_PROGRAM, PROGRAM_NAMES,
 } from '../config';
+import logger from '../../../../util/logger';
 
 // Create a new channel with permission overwrites
 
@@ -95,7 +96,7 @@ export const removeLearnerFromDiscordServer = async ({ learner_id, current_cohor
 
     return response;
   } catch (error) {
-    console.log('Bot unable to kick the member');
+    logger.log('Bot unable to kick the member');
     throw new Error(error);
   }
 };
