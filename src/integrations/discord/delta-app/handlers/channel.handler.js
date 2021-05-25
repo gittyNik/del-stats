@@ -1,12 +1,17 @@
 /* eslint-disable import/prefer-default-export */
 
+import logger from '../../../../util/logger';
 import { createChannelForCohort } from '../controllers/channel.controller';
 
 export const createChannelForCohortAPI = async (req, res) => {
-  // const { cohort_id, emailList } = req.body;
-  const { cohort_id } = req.body;
+  try { // const { cohort_id, emailList } = req.body;
+    const { cohort_id } = req.body;
 
-  const message = createChannelForCohort({ cohort_id });
+    const message = await createChannelForCohort({ cohort_id });
 
-  res.json({ type: 'success', message });
+    return res.json({ type: 'success', message });
+  } catch (error) {
+    logger.error(error);
+    return res.sendStatus(500);
+  }
 };

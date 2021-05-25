@@ -81,8 +81,7 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
   }
 
   if (stateData.prompt === 'consent') {
-    // user has first time clicked join
-    await addDiscordSocialConnection(deltaUser.id, user, authResponse);
+    // add user to discord
 
     const result = await addGuildMember({
       discord_user_access_token: authResponse.accessToken,
@@ -113,6 +112,9 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
     }
 
     await removeState({ key: stateKey });
+
+    // add the respective social connection
+    await addDiscordSocialConnection(deltaUser.id, user, authResponse);
 
     return {
       message: 'you were added to Discord 🎉',

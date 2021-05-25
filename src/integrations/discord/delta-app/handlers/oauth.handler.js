@@ -38,6 +38,7 @@ export const joinDiscord = async (req, res) => {
     // return res.redirect(uri);
     return res.send({ location: uri });
   } catch (error) {
+    logger.error(error);
     return res.sendStatus(500);
   }
 };
@@ -49,8 +50,6 @@ export const oauthRedirectAPI = async (req, res) => {
 
     return res.json(data);
   } catch (error) {
-    logger.error(error);
-
     if (error.name === 'TokenExpiredError') {
       res.sendStatus(400).json({ message: 'JwtToken in the OAuth state expired! Try Joining again!', type: 'failure' });
     }
@@ -68,13 +67,18 @@ export const oauthRedirectAPI = async (req, res) => {
     }
 
     logger.error(error);
-    return res.status(500);
+    return res.sendStatus(500);
   }
 };
 
 export const oauthBotRedirect = async (req, res) => {
-  // redirect to bot added successfully page
-  res.json({ data: 'Bot added to server successfully!' });
+  try {
+    // redirect to bot added successfully page
+    return res.json({ data: 'Bot added to server successfully!' });
+  } catch (error) {
+    logger.error(error);
+    return res.sendStatus(500);
+  }
 };
 
 export default oauthRedirect;

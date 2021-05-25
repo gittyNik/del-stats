@@ -1,11 +1,7 @@
+/* eslint-disable import/prefer-default-export */
 import logger from '../../../../util/logger';
 import { serverSetup } from '../controllers/guild.controller';
 // import { addGuildMember } from '../controllers/guild.controller';
-// eslint-disable-next-line import/prefer-default-export
-export const getGuild = async (req, res) => {
-  logger.info();
-  return res.json({ message: 'under construction' });
-};
 
 export const serverSetupAPI = async (req, res) => {
   const { program_ids, cleanFirst } = req.body;
