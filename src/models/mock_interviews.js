@@ -46,7 +46,7 @@ export const createMockInterviewsForCohort_afterCapstone = ({
     where: {
       id: learner_id,
     },
-    attributes: ['name'],
+    attributes: ['id', 'name'],
     raw: true,
   })))
     .then(data => ({ learners: data, slots })))
