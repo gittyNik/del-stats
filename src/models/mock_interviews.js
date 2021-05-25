@@ -147,7 +147,7 @@ export const getAppliedCatalystDetailsByStatus = ({
       },
       {
         model: User,
-        attributes: ['id', 'name'],
+        attributes: ['id', 'name', 'email'],
         as: 'RequestedByCatalysts',
         through: {
           attributes: ['created_at'],
