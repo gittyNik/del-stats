@@ -15,7 +15,7 @@ const CATALYST_NOTIFICATION_TEMPLATE = ({
   topic,
   time_scheduled,
   slackLoggedInUserId,
-}) => `The Breakout on *${topic}* scheduled on *${time_scheduled}* for cohort *${cohort.cohort_name} ${cohort.format} ${cohort.city}* is assigned to <@${catalyst.slackCatalystId}> by <@${slackLoggedInUserId}>.`;
+}) => (topic === '' ? `The Breakout scheduled on *${time_scheduled}* for cohort *${cohort.cohort_name} ${cohort.format} ${cohort.city}* is assigned to <@${catalyst.slackCatalystId}> by <@${slackLoggedInUserId}>.` : `The Breakout on *${topic}* scheduled on *${time_scheduled}* for cohort *${cohort.cohort_name} ${cohort.format} ${cohort.city}* is assigned to <@${catalyst.slackCatalystId}> by <@${slackLoggedInUserId}>.`);
 
 export const notifyCatalyst = (req, res) => {
   let {
@@ -23,12 +23,16 @@ export const notifyCatalyst = (req, res) => {
     cohort_breakout_id,
     topics,
   } = req.body;
-  let updatedBy_email = req.jwtData.user.email;
-  topics = topics.split('\n');
+
   let topicsStr = '';
-  topics.map((topic, index) => {
-    topicsStr = ((index === 0) ? `${topic}` : `${topicsStr}, ${topic}`);
-  });
+  let updatedBy_email = req.jwtData.user.email;
+  if (topics) {
+    topics = topics.split('\n');
+    topics.map((topic, index) => {
+      topicsStr = ((index === 0) ? `${topic}` : `${topicsStr}, ${topic}`);
+    });
+  }
+
   CohortBreakout.findOne({
     where: {
       id: cohort_breakout_id,
