@@ -232,7 +232,7 @@ export const updateRequestStatus = ({
           },
           include: [{
             model: User,
-            attributes: ['name', 'role'],
+            attributes: ['name', 'role', 'email'],
             as: 'catalyst',
           }],
         // raw: true,

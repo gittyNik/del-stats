@@ -24,6 +24,9 @@ export const notifyCatalyst = (req, res) => {
     topics,
   } = req.body;
   let updatedBy_email = req.jwtData.user.email;
+  console.log('##############', catalyst_email,
+    cohort_breakout_id,
+    topics, updatedBy_email);
   topics = topics.split('\n');
   let topicsStr = '';
   topics.map((topic, index) => {
@@ -65,7 +68,7 @@ export const notifyCatalyst = (req, res) => {
     })
     .then(async (str) => {
       console.log('!!!!!!!!!!!!!!!', str);
-      
+
       await web.chat.postMessage({
         channel: process.env.SLACK_PE_CATALYSTS,
         text: str,
