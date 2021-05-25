@@ -1,9 +1,13 @@
 import moment from 'moment';
+import { WebClient } from '@slack/web-api';
 import { Cohort } from '../../../../models/cohort';
 import { CohortBreakout } from '../../../../models/cohort_breakout';
-import { postMessage } from '../../delta-app/utility/chat';
-
 import logger from '../../../../util/logger';
+
+const { SLACK_TEAM_BOT_TOKEN } = process.env;
+
+// Initialize
+const web = new WebClient(SLACK_TEAM_BOT_TOKEN);
 
 const CATALYST_NOTIFICATION_TEMPLATE = ({
   catalyst_name,
@@ -55,7 +59,7 @@ export const notifyCatalyst = (req, res) => {
     })
     .then(async (str) => {
       console.log('!!!!!!!!!!!!!!!', str);
-      await postMessage({
+      await web.chat.postMessage({
         channel: process.env.SLACK_PE_CATALYSTS,
         text: str,
       });
