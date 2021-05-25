@@ -1,5 +1,5 @@
 import Express from 'express';
-import { sendMessage, notifyLearnersInChannel, notifyCatalyst } from '../controllers/web.controller';
+import { sendMessage, notifyLearnersInChannel } from '../controllers/web.controller';
 import authenticate from '../../../../controllers/auth/auth.controller';
 
 const router = Express.Router();
@@ -23,7 +23,5 @@ router.use(authenticate);
  * @apiParam {Number} team_number Team number for review
  * */
 router.post('/notify-learners', notifyLearnersInChannel);
-
-router.post('/notify-catalyst-assignment', notifyCatalyst);
 
 export default router;
