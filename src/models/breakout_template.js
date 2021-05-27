@@ -97,6 +97,14 @@ export const BreakoutTemplate = db.define('breakout_templates', {
     type: Sequelize.ENUM(...TEMPLATE_TYPE),
     defaultValue: 'scheduled',
   },
+  catalyst_breakout: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: false,
+  },
+  assign_primary_catalyst: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: false,
+  },
 });
 
 export const getReleaseTimeFromTopic = (topic_id, cohort_id) => Topic.findByPk(topic_id, {
@@ -334,6 +342,8 @@ export const createBreakoutTemplate = async ({
   program_id,
   user,
   status,
+  catalyst_breakout,
+  assign_primary_catalyst,
 }) => {
   try {
     await cache.del('BREAKOUT_TEMPLATES');
@@ -361,6 +371,8 @@ export const createBreakoutTemplate = async ({
         date: new Date(),
       }],
       status,
+      catalyst_breakout,
+      assign_primary_catalyst,
     },
   );
 };
@@ -381,6 +393,8 @@ export const updateBreakoutTemplate = ({
   cohort_duration,
   program_id,
   status,
+  catalyst_breakout,
+  assign_primary_catalyst,
 }) => BreakoutTemplate.findOne({
   where: {
     id,
@@ -423,6 +437,8 @@ export const updateBreakoutTemplate = ({
       cohort_duration,
       program_id,
       status,
+      catalyst_breakout,
+      assign_primary_catalyst,
     }, {
       where: {
         id,
