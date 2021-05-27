@@ -150,7 +150,7 @@ export const getAppliedCatalystDetailsByStatus = ({
         attributes: ['id', 'name'],
         as: 'RequestedByCatalysts',
         through: {
-          attributes: [],
+          attributes: ['created_at'],
         },
       },
       Cohort,
@@ -163,21 +163,45 @@ export const getAppliedCatalystDetailsByStatus = ({
     ],
     raw: true,
   })
-  .then(populateTopics);
+  .then(populateTopics)
+  .then(data => {
+    data = data.map(bundle => {
+      bundle['RequestedByCatalysts.created_at'] = bundle['RequestedByCatalysts.cohort_breakout_applied_catalysts.created_'];
+      delete bundle['RequestedByCatalysts.cohort_breakout_applied_catalysts.created_'];
+      delete bundle['RequestedByCatalysts.cohort_breakout_applied_catalysts.id'];
+      return bundle;
+    });
+    return data;
+  });
 
 export const createRequestForCatalyst = ({ cohort_breakout_id, catalyst_id }) => {
   let request_id = uuid();
-  return Promise.all([
-    CohortBreakout.update({
+  return createBreakoutAppliedCatalystRelation({
+    id: request_id, cohort_breakout_id, applied_catalyst_id: catalyst_id,
+  })
+    .then(() => CohortBreakout.update({
       catalyst_request_status: 'external-pending',
     }, {
       where: {
         id: cohort_breakout_id,
       },
       raw: true,
-    }),
-    createBreakoutAppliedCatalystRelation({ id: request_id, cohort_breakout_id, applied_catalyst_id: catalyst_id }),
-  ]);
+    }))
+    .then(() => CohortBreakout
+      .findOne({
+        where: {
+          id: cohort_breakout_id,
+        },
+        include: [{
+          model: User,
+          attributes: ['id', 'name'],
+          as: 'RequestedByCatalysts',
+          through: {
+            attributes: [],
+          },
+        }],
+        // raw: true,
+      }));
 };
 
 export const updateRequestStatus = ({
@@ -200,6 +224,17 @@ export const updateRequestStatus = ({
         id: cohort_breakout_id,
       },
       raw: true,
-      returning: true,
-    });
+    })
+      .then(() => CohortBreakout
+        .findOne({
+          where: {
+            id: cohort_breakout_id,
+          },
+          include: [{
+            model: User,
+            attributes: ['name', 'role'],
+            as: 'catalyst',
+          }],
+        // raw: true,
+        }));
   });
