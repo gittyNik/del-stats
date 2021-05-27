@@ -3,7 +3,6 @@ import { octokit, org } from './git.auth.controller';
 import {
   isTeamMember,
   addMemberToTeam,
-  getTeamIdByName,
 } from './teams.controller';
 import { getNumberOfPages } from './pagination.controller';
 
@@ -72,12 +71,13 @@ export const sendInvitesToNewMembers = async (
       return addMemberToTeam(teamName, githubUsername);
     }
   }
-  console.log('Added to Organization');
-  // send org invite
-  const teamId = await getTeamIdByName(teamName);
-  let team_ids = [];
-  team_ids.push(teamId);
-  return sendGithubInvites(githubEmailId, team_ids);
+  return {};
+  // console.log('Added to Organization');
+  // // send org invite
+  // const teamId = await getTeamIdByName(teamName);
+  // let team_ids = [];
+  // team_ids.push(teamId);
+  // return sendGithubInvites(githubEmailId, team_ids);
   // add in queue: JOB: check if invitation is accepted, add in team
   // if invitation is not accepted, sms reminder, set JOB
 };
