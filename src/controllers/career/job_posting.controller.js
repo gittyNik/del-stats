@@ -17,7 +17,7 @@ export const getAllJobPostingsAPI = (req, res) => {
   getAllJobPostings({
     limit, offset, status, company_id,
   })
-    .then(data => res.status(201).json({
+    .then(data => res.status(200).json({
       message: 'Job Postings fetched',
       data,
       type: 'success',
@@ -35,7 +35,7 @@ export const getJobPostingsByStatusAPI = (req, res) => {
     offset = limit * (page - 1);
   }
   getJobPostingsByStatus({ status, limit, offset })
-    .then(data => res.status(201).json({
+    .then(data => res.status(200).json({
       message: 'Job Postings fetched',
       data,
       type: 'success',
@@ -51,7 +51,7 @@ export const getJobPostingById = (req, res) => {
   const { assignment, job_details } = req.query;
   const { role } = req.jwtData.user;
   getJobPostingFromId(id, role, assignment, job_details)
-    .then(data => res.status(201).json({
+    .then(data => res.status(200).json({
       message: 'Job Posting fetched',
       data,
       type: 'success',
@@ -74,7 +74,7 @@ export const getJobPostingsByCompanyAPI = (req, res) => {
   getJobPostingsByCompany({
     company_id, status, limit, offset,
   })
-    .then(data => res.status(201).json({
+    .then(data => res.status(200).json({
       message: 'Job Postings fetched',
       data,
       type: 'success',

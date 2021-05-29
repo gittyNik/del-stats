@@ -46,7 +46,7 @@ export const createMockInterviewsForCohort_afterCapstone = ({
     where: {
       id: learner_id,
     },
-    attributes: ['name'],
+    attributes: ['id', 'name'],
     raw: true,
   })))
     .then(data => ({ learners: data, slots })))
@@ -147,7 +147,7 @@ export const getAppliedCatalystDetailsByStatus = ({
       },
       {
         model: User,
-        attributes: ['id', 'name'],
+        attributes: ['id', 'name', 'email'],
         as: 'RequestedByCatalysts',
         through: {
           attributes: ['created_at'],
@@ -232,7 +232,7 @@ export const updateRequestStatus = ({
           },
           include: [{
             model: User,
-            attributes: ['name', 'role'],
+            attributes: ['name', 'role', 'email'],
             as: 'catalyst',
           }],
         // raw: true,

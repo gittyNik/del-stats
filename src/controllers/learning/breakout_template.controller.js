@@ -39,6 +39,8 @@ export const createBreakoutTemplateAPI = (req, res) => {
     cohort_duration,
     program_id,
     status,
+    catalyst_breakout,
+    assign_primary_catalyst,
   } = req.body;
   const { user } = req.jwtData;
 
@@ -58,6 +60,8 @@ export const createBreakoutTemplateAPI = (req, res) => {
       program_id,
       user,
       status,
+      catalyst_breakout,
+      assign_primary_catalyst,
     },
   ).then((data) => {
     res.status(201).json({
@@ -87,6 +91,8 @@ export const updateBreakoutTemplateAPI = (req, res) => {
     cohort_duration,
     program_id,
     status,
+    catalyst_breakout,
+    assign_primary_catalyst,
   } = req.body;
   const { id } = req.params;
   const { user } = req.jwtData;
@@ -108,6 +114,8 @@ export const updateBreakoutTemplateAPI = (req, res) => {
       cohort_duration,
       program_id,
       status,
+      catalyst_breakout,
+      assign_primary_catalyst,
     },
   ).then((data) => {
     res.status(200).json({

@@ -33,36 +33,43 @@ export const type_upload = {
     bucketName: AWS_BREAKOUTS_BUCKET_NAME,
     basePath: AWS_BREAKOUTS_BASE_PATH,
     cdn: VIDEO_CDN,
+    publicUrl: false,
   },
   agreement: {
     bucketName: AWS_AGREEMENTS_BUCKET_NAME,
     basePath: AWS_AGREEMENTS_BASE_PATH,
     cdn: AGREEMENTS_CDN,
+    publicUrl: false,
   },
   emailer: {
     bucketName: AWS_BUCKET_NAME,
     basePath: AWS_BASE_PATH,
     cdn: TEMPLATES_CDN,
+    publicUrl: false,
   },
   document: {
     bucketName: AWS_DOCUMENT_BUCKET,
     basePath: AWS_DOCUMENT_BASE_PATH,
     cdn: AGREEMENTS_CDN,
+    publicUrl: false,
   },
   resume: {
     bucketName: AWS_RESUME_BUCKET_NAME,
     basePath: AWS_RESUME_BASE_PATH,
     cdn: LEARNER_CDN,
+    publicUrl: false,
   },
   company_logo: {
     bucketName: AWS_COMPANY_BUCKET_NAME,
     basePath: AWS_COMPANY_LOGO_BASE_PATH,
     cdn: HIRING_COMPANIES_CDN,
+    publicUrl: true,
   },
   profile_picture: {
     bucketName: AWS_LEARNER_PROFILE_BUCKET,
     basePath: AWS_LEARNER_PROFILE_BASE_PATH,
     cdn: LEARNER_CDN,
+    publicUrl: false,
   },
 };
 
@@ -79,8 +86,9 @@ export const getAWSSignedUrl = (unSignedUrl) => {
   return signedUrl;
 };
 
-export const getResourceUrl = (cdn, base_path) => {
+export const getResourceUrl = (cdn, base_path, publicUrl) => {
   let cdn_url = cdn + base_path;
+  if (publicUrl) return cdn_url;
   let url = getAWSSignedUrl(cdn_url);
   return url;
 };
@@ -144,9 +152,11 @@ export const signedViewUrl = async (
   }
 };
 
+export const sendPathDetails = (type) => type_upload[type];
+
 export const getViewUrlS3 = async (fileName, type) => {
   try {
-    let { cdn, basePath } = type_upload[type];
+    let { cdn, basePath, publicUrl } = type_upload[type];
     let filePath;
     if ((fileName.indexOf(basePath) === 0) || (fileName.indexOf(basePath) === 1)) {
       if (fileName.indexOf(basePath) === 1) {
@@ -156,7 +166,7 @@ export const getViewUrlS3 = async (fileName, type) => {
     } else {
       filePath = `${basePath}/${fileName}`;
     }
-    let response = await getResourceUrl(cdn, filePath);
+    let response = await getResourceUrl(cdn, filePath, publicUrl);
     return response;
   } catch (err) {
     logger.error(err);

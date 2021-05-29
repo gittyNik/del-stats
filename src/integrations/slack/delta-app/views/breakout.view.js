@@ -30,5 +30,5 @@ export const composeCatalystBreakoutMessage = (user, cohort, breakout, topics) =
     type: 'divider',
   },
   ],
-  channel: 'delta-slack-messages-testing',
+  channel: 'breakouts',
 });
