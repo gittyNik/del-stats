@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import _ from 'lodash';
 import db from '../database';
-import { getViewUrlS3 } from '../util/file-fetcher';
+import { sendPathDetails } from '../util/file-fetcher';
 import { USER_ROLES } from './user';
 
 const {
@@ -12,6 +12,8 @@ const STATUS = [
   'active',
   'removed',
 ];
+
+const { cdn, basePath } = sendPathDetails('company_logo');
 
 export const CompanyProfile = db.define('company_profiles', {
   id: {
@@ -65,7 +67,7 @@ export const getCompanyProfileFromRecruiterId = (id, role) => CompanyProfile.fin
   raw: true,
 }).then(async (companyProfile) => {
   if (companyProfile) {
-    let logo = await getViewUrlS3(companyProfile.logo, 'company_logo');
+    let logo = `${cdn}${basePath}/${companyProfile.logo}`;
     companyProfile.logo = logo;
   }
   if ((companyProfile) && (role === LEARNER)) {
@@ -87,9 +89,10 @@ export const getCompanyProfileFromId = (id, role) => CompanyProfile.findOne({
     id,
   },
   raw: true,
-}).then(async (companyProfile) => {
+}).then((companyProfile) => {
   if (companyProfile.logo) {
-    let logo = await getViewUrlS3(companyProfile.logo, 'company_logo');
+    // let logo = await getViewUrlS3(companyProfile.logo, 'company_logo');
+    let logo = `${cdn}${basePath}/${companyProfile.logo}`;
     companyProfile.logo = logo;
   }
   if ((companyProfile) && (role === LEARNER)) {
@@ -113,6 +116,7 @@ export const getAllCompanyProfiles = (
 ) => CompanyProfile.findAndCountAll(
   {
     where: { status },
+    // attributes: ['company_profiles.*', [Sequelize.fn('concat', cdn, basePath, '/', Sequelize.col('logo')), 'logoUrl']],
     offset,
     limit,
   },

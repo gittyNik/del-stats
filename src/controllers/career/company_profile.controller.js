@@ -14,7 +14,7 @@ export const getAllCompanyProfilesAPI = (req, res) => {
     offset = limit * (page - 1);
   }
   getAllCompanyProfiles(limit, offset, status)
-    .then(data => res.status(201).json({
+    .then(data => res.status(200).json({
       message: 'Company Profiles fetched',
       data,
       type: 'success',
@@ -29,7 +29,7 @@ export const getCompanyProfileFromIdAPI = (req, res) => {
   const { id } = req.params;
   const { role } = req.jwtData.user;
   getCompanyProfileFromId(id, role)
-    .then(data => res.status(201).json({
+    .then(data => res.status(200).json({
       message: 'Company Profile fetched',
       data,
       type: 'success',
@@ -43,7 +43,7 @@ export const getCompanyProfileFromIdAPI = (req, res) => {
 export const getCompanyProfileFromRecruiterIdAPI = (req, res) => {
   const { id, role } = req.jwtData.user;
   getCompanyProfileFromRecruiterId(id, role)
-    .then(data => res.status(201).json({
+    .then(data => res.status(200).json({
       message: 'Company Profile fetched',
       data,
       type: 'success',
