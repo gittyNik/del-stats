@@ -9,10 +9,10 @@ export const findRole = async ({ guild_id, name }) => {
     const guild = await getGuild({ guild_id });
     if (name) {
       const role = await guild.roles.cache.find(ro => ro.name === name);
-      if (!role || !role.name) {
-        throw new Error('no role found with name found!');
+      if (role && role.name) {
+        return role;
       }
-      return role;
+      throw new Error('no role found with name found!');
     }
     return guild.roles.cache.find(role => role);
   } catch (error) {

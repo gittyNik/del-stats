@@ -90,6 +90,7 @@ export const serverSetup = async ({ program_ids, cleanFirst }) => {
     if (cleanFirst) {
       // delete all channels and roles first
       await cleanGuild({ guild_id: guild_ids });
+      await delay(5000);
     }
 
     await createSetupRolesAndChannels(guild_ids);
