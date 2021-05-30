@@ -46,5 +46,5 @@ export const challenge = base64URLEncode(sha256(verifier));
 export const mirrorKeyArray = (array) => _.zipObject(_.map(array, (ele) => ele.toUpperCase().replaceAll('.', '_')), array);
 
 export const getCohortFormattedId = ({ data }) => data.map(
-  cohort => String(`${cohort.name}-${cohort.duration === 16 ? 'ft' : (cohort.duration === 26 ? 'pt' : '')}${cohort.type}-${moment(cohort.start_date).format('MMM')}-${moment(cohort.start_date).format('YY')}-${PROGRAM_NAMES.find(program => program.id === cohort.program_id).sf}`).toLowerCase(),
+  cohort => String(`${cohort.name}-${cohort.duration === 16 ? 'ft' : (cohort.duration === 26 ? 'pt' : '')}-${cohort.type}-${moment(cohort.start_date).format('MMM')}-${moment(cohort.start_date).format('YY')}-${PROGRAM_NAMES.find(program => program.id === cohort.program_id).sf}`).toLowerCase(),
 );
