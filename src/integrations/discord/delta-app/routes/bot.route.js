@@ -1,14 +1,16 @@
 import Express from 'express';
-import { sendMessage, notifyLearnersInChannel } from '../controllers/bot.controller';
+import { notifyLearnersInChannel } from '../controllers/bot.controller';
 import authenticate from '../../../../controllers/auth/auth.controller';
+import { sendMessageAPI } from '../handlers/bot.handler';
 
 const router = Express.Router();
-
-router.post('/send-message', sendMessage);
 
 // Private Routes.
 
 router.use(authenticate);
+
+router.post('/send-message', sendMessageAPI);
+
 /*
  * @api {post} /integrations/discord/delta/bot/notify-learners  Notify learners in discord
  * @apiDescription Notify learner to join the breakout or review or assessment or QH
