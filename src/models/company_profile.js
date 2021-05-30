@@ -116,7 +116,7 @@ export const getAllCompanyProfiles = (
 ) => CompanyProfile.findAndCountAll(
   {
     where: { status },
-    // attributes: ['company_profiles.*', [Sequelize.fn('concat', cdn, basePath, '/', Sequelize.col('logo')), 'logoUrl']],
+    attributes: ['*', [Sequelize.fn('concat', cdn, basePath, '/', Sequelize.col('logo')), 'logo']],
     offset,
     limit,
   },
