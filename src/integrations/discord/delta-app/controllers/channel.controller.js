@@ -127,8 +127,10 @@ export const stageLearnerFromDiscordChannel = async ({ learner_id, cohort_id }) 
 };
 
 // add single learner to cohort
-export const addLearnerToCohortDiscordChannel = async ({ cohort_id, learner }) => {
-  let discordUserIds = await getDiscordUserIdsByDeltaUserIds({ user_ids: [learner] });
+export const addLearnerToCohortDiscordChannel = async ({ cohort_id, learner_id, discord_user_id }) => {
+  if (learner_id) {
+    discord_user_id = await getDiscordUserIdsByDeltaUserIds({ user_ids: [learner_id] });
+  }
 
   const cohort = await Cohort.findOne({
     where: {
@@ -137,15 +139,24 @@ export const addLearnerToCohortDiscordChannel = async ({ cohort_id, learner }) =
   },
   { raw: true });
 
-  const guild_id = GUILD_IDS_BY_PROGRAM.find(index => cohort.program_id === index.PROGRAM_ID).GUILD_ID;
+  const guild_id = getGuildIdFromProgram({ program_id: cohort.program_id });
+
   const guild = await getGuild({ guild_id });
 
-  const user = await guild.members.fetch(discordUserIds[0]);
+  const user = await guild.members.fetch(discord_user_id);
+
+  if (!user) {
+    throw new Error('user not in discord server');
+  }
 
   const cohortChannelName = getCohortFormattedId({ data: [cohort] });
 
   const cohortRole = await findRole({ guild_id, name: cohortChannelName[0] });
   const programRole = await findRole({ guild_id, name: PROGRAM_NAMES.find(nm => nm.id === cohort.program_id).name });
+
+  if (!cohortRole || !programRole) {
+    throw new Error('Cohort role or program role not found');
+  }
 
   return Promise.all([
     addRoleToUser({ guild_id, role_name: cohortRole.name, user_id: user.id }),

@@ -46,7 +46,13 @@ export const getGuildIdsFromProgramIds = ({ program_ids }) => {
   throw new Error('Check GUILD_IDS_BY_PROGRAM in config! or program_ids is empty');
 };
 
-export const getGuildIdFromProgram = ({ program_id }) => GUILD_IDS_BY_PROGRAM.find(element => element.PROGRAM_ID === program_id).GUILD_ID;
+export const getGuildIdFromProgram = ({ program_id }) => {
+  const guild_id = GUILD_IDS_BY_PROGRAM.find(element => element.PROGRAM_ID === program_id).GUILD_ID;
+  if (!guild_id) {
+    throw new Error(`Guild Id was not found for program id: ${program_id}`);
+  }
+  return guild_id;
+};
 
 export const getGuildIdFromCohort = async ({ cohort_id }) => {
   const cohort = await Cohort.findOne({
@@ -74,11 +80,6 @@ export const cleanGuild = async ({ guild_id }) => {
     }),
   ].map(Promise.all.bind(Promise)));
 };
-
-// https://discord.com/developers/docs/resources/guild
-
-// create server, get Invite
-// Add/remove/kick/ban member Server
 
 export const serverSetup = async ({ program_ids, cleanFirst }) => {
   const guild_ids = getGuildIdsFromProgramIds({ program_ids });

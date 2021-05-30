@@ -144,7 +144,7 @@ export const createCohortRolesAndChannels = async (guild_id, program_id) => {
       await Promise.all(
         cohortNameIds.map(async element => {
           const allRolesExceptCurrentCohort = await guild.roles.cache.filter(role => (role.name !== element && cohortNameIds.includes(role.name))
-                 || role.name === '@everyone' || role.id !== programRole.id);
+                 || role.name === '@everyone');
 
           const cohortRole = await findRole({ guild_id, name: element });
 
@@ -154,7 +154,6 @@ export const createCohortRolesAndChannels = async (guild_id, program_id) => {
             { id: captain.id, allow: CAPTAIN_PERMISSIONS },
             { id: pirate.id, allow: PIRATE_PERMISSIONS },
             { id: cohortRole.id, allow: SAILOR_PERMISSIONS },
-            { id: programRole.id, allow: SAILOR_PERMISSIONS },
           ];
 
           const permissionOverwrites = [...denyPermissionOverwrites, ...allowPermissionOverwrites];

@@ -62,10 +62,7 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
   const authResponse = await discordOAuth2({ state: stateKey }).code.getToken(originalUrl);
   const user = await getUser(authResponse.accessToken);
 
-  // @TO-DO detect which server(s) to add a user to, program type, soal admin
-  // right now we will be using const guild id from env
-  const guild_id = process.env.DISCORD_TEP_GUILD_ID;
-
+  // not user's first time
   if (stateData.prompt === 'none') {
     await removeState({ key: stateKey });
 
@@ -80,6 +77,11 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
     };
   }
 
+  // @TO-DO detect which server(s) to add a user to, program type, soal admin
+  // right now we will be using const guild id from env
+  const guild_id = process.env.DISCORD_TEP_GUILD_ID;
+
+  // user's first time
   if (stateData.prompt === 'consent') {
     // add user to discord
 
@@ -97,8 +99,8 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
 
       const cohort_id = await getCohortIdFromLearnerId(deltaUser.id);
 
-      await addRoleToUser({ guild_id, role_name: SETUP_ROLES[2].name, user_id: user.id });
-      await addLearnerToCohortDiscordChannel({ cohort_id, learner: deltaUser.id });
+      await addRoleToUser({ guild_id, role_name: SETUP_ROLES[2].name });
+      await addLearnerToCohortDiscordChannel({ cohort_id, discord_user_id: user.id });
     } else if (!deltaUser.roles.some(us => [USER_ROLES.CAREER_SERVICES, USER_ROLES.RECRUITER,
       USER_ROLES.REVIEWER, USER_ROLES.GUEST, USER_ROLES.CATALYST].includes(us))) {
       // assign captain role

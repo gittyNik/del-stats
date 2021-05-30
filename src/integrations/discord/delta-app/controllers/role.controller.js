@@ -1,15 +1,24 @@
 /* eslint-disable import/prefer-default-export */
 
+import logger from '../../../../util/logger';
 import { getGuild } from './guild.controller';
 
 export const findRole = async ({ guild_id, name }) => {
+  try {
   // if no role is passed then find all roles
-  const guild = await getGuild({ guild_id });
-  if (name) {
-    const role = await guild.roles.cache.find(ro => ro.name === name);
-    return role;
+    const guild = await getGuild({ guild_id });
+    if (name) {
+      const role = await guild.roles.cache.find(ro => ro.name === name);
+      if (!role || !role.name) {
+        throw new Error('no role found with name found!');
+      }
+      return role;
+    }
+    return guild.roles.cache.find(role => role);
+  } catch (error) {
+    logger.error(error);
+    return false;
   }
-  return guild.roles.cache.find(role => role);
 };
 
 // constants role permissions
