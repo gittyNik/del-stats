@@ -103,10 +103,17 @@ export const notifyLearnersInChannel = async (req, res) => {
     learner_id, text, cohort_id, type, team_number,
   } = req.body;
 
-  let discordUserId;
+  let discord_user_ids;
+  let discord_user_id;
   try {
     if (learner_id) {
-      discordUserId = await getDiscordUserIdsByDeltaUserIds({ user_ids: [learner_id] });
+      discord_user_ids = await getDiscordUserIdsByDeltaUserIds({ user_ids: [learner_id] });
+
+      if (discord_user_ids.length > 0) {
+        [discord_user_id] = discord_user_ids;
+      } else {
+        throw new Error("Couldn/'t find discord user id by learner id");
+      }
     }
     if (typeof cohort_id === 'undefined') {
       cohort_id = await getCohortIdFromLearnerId(learner_id);
@@ -116,17 +123,17 @@ export const notifyLearnersInChannel = async (req, res) => {
     if (!text) {
       switch (type) {
         case 'reviews':
-          if ((learner_id) && (discordUserId)) {
-            text = LEARNER_REVIEW_TEMPLATE(discordUserId[0]);
+          if ((learner_id) && (discord_user_id)) {
+            text = LEARNER_REVIEW_TEMPLATE(discord_user_id);
             break;
           }
           text = REVIEW_TEMPLATE(team_number);
           break;
         case 'assessment':
-          text = ASSESSMENT_TEMPLATE(discordUserId[0]);
+          text = ASSESSMENT_TEMPLATE(discord_user_id);
           break;
         case 'lecture':
-          text = (learner_id) ? LEARNER_BREAKOUT_TEMPLATE(discordUserId[0]) : BREAKOUT_TEMPLATE;
+          text = (learner_id) ? LEARNER_BREAKOUT_TEMPLATE(discord_user_id) : BREAKOUT_TEMPLATE;
           break;
         case 'question_hour':
           text = QUESTIONAIRE_TEMPLATE;
@@ -158,66 +165,80 @@ export const notifyLearnersInChannel = async (req, res) => {
 };
 
 export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
-  logger.info('Posting Attendance');
   try {
+    logger.info('Posting Attendance');
     const cohortBreakout = await getCohortBreakoutById(cohort_breakout_id);
     const {
       type, cohort_id, catalyst_id, details,
     } = cohortBreakout;
     const cohortDiscordChannel = await getChannelForCohort({ cohort_id });
 
-    const learner_breakouts = await getLearnerBreakoutsForACohortBreakout(cohort_breakout_id);
-    const cohortLearners = await getLearnersFromCohorts([cohort_id])
-      .then(data => JSON.stringify(data))
-      .then(_data => JSON.parse(_data)[0].learners);
+    if (cohortDiscordChannel) {
+      const learner_breakouts = await getLearnerBreakoutsForACohortBreakout(cohort_breakout_id);
+      const cohortLearners = await getLearnersFromCohorts([cohort_id])
+        .then(data => JSON.stringify(data))
+        .then(_data => JSON.parse(_data)[0].learners);
 
-    const attendedLearners = learner_breakouts
-      .filter(learner_breakout => {
-        const { learner_id, attendance } = learner_breakout;
-        if (cohortLearners.includes(learner_id) && attendance === true) {
-          return true;
-        }
-        return false;
-      }).map(lb => lb.learner_id);
+      const attendedLearners = learner_breakouts
+        .filter(learner_breakout => {
+          const { learner_id, attendance } = learner_breakout;
+          if (cohortLearners.includes(learner_id) && attendance === true) {
+            return true;
+          }
+          return false;
+        }).map(lb => lb.learner_id);
 
-    const absentLearners = learner_breakouts
-      .filter(learner_breakout => {
-        const { learner_id, attendance } = learner_breakout;
-        if (cohortLearners.includes(learner_id) && attendance === false) {
-          return true;
-        }
-        return false;
-      }).map(lb => lb.learner_id);
+      const absentLearners = learner_breakouts
+        .filter(learner_breakout => {
+          const { learner_id, attendance } = learner_breakout;
+          if (cohortLearners.includes(learner_id) && attendance === false) {
+            return true;
+          }
+          return false;
+        }).map(lb => lb.learner_id);
 
-    let discordIdsOfAttendedLearners = await getDiscordUserIdsByDeltaUserIds({ user_ids: attendedLearners });
-    let discordIdsOfAbsentLearners = await getDiscordUserIdsByDeltaUserIds({ user_ids: absentLearners });
+      let discordIdsOfAttendedLearners = await getDiscordUserIdsByDeltaUserIds({ user_ids: attendedLearners });
+      let discordIdsOfAbsentLearners = await getDiscordUserIdsByDeltaUserIds({ user_ids: absentLearners });
 
-    let title;
+      let title;
 
-    if (type === 'lecture') {
-      const discordIdOfCatalyst = await getDiscordUserIdsByDeltaUserIds({ user_ids: [catalyst_id] });
-      title = `Attendance record for *<@${discordIdOfCatalyst}>*'s breakout on \n${details.topics}`;
-    } if (type === 'reviews') {
-      title = `Attendance of ${details.topics}`;
+      if (type === 'lecture') {
+        const discordIdOfCatalyst = await getDiscordUserIdsByDeltaUserIds({ user_ids: [catalyst_id] });
+        title = `Attendance record for *<@${discordIdOfCatalyst}>*'s breakout on \n${details.topics}`;
+      } if (type === 'reviews') {
+        title = `Attendance of ${details.topics}`;
+      } if (type === 'assessment') {
+        title = `Attendance of ${details.topics}`;
+      }
+
+      const presentLearnersText = `${discordIdsOfAttendedLearners.map(l => `>>><@${l}>`).join('\n')} `;
+      const absentLearnersText = `${discordIdsOfAbsentLearners.map(l => `>>><@${l}>`).join('\n')} `;
+
+      let fields = [];
+
+      if (presentLearnersText !== '') {
+        fields.push(
+          { name: '***PRESENT***:', value: presentLearnersText, inline: true },
+        );
+      } if (absentLearnersText !== '') {
+        fields.push(
+          { name: '***ABSENT***:', value: absentLearnersText, inline: true },
+        );
+      }
+
+      const embed = new Discord.MessageEmbed()
+        .setColor('#0099ff')
+        .setTitle(title)
+        .setURL('https://delta.soal.io/')
+        .addFields(fields)
+        .setTimestamp()
+        .setFooter('If any above Learner has been marked incorrectly, let us know!');
+
+      const discordMessageResponse = await cohortDiscordChannel.send(embed);
+
+      return discordMessageResponse;
     }
-    if (type === 'assessment') {
-      title = `Attendance of ${details.topics}`;
-    }
-
-    const embed = new Discord.MessageEmbed()
-      .setColor('#0099ff')
-      .setTitle(title)
-      .setURL('https://delta.soal.io/')
-      .addFields([
-        { name: '***PRESENT***:', value: `${discordIdsOfAttendedLearners.map(l => `>>><@${l}>`).join('\n')} `, inline: true },
-        { name: '***ABSENT***:', value: `${discordIdsOfAbsentLearners.map(l => `>>><@${l}>`).join('\n')} `, inline: true },
-      ])
-      .setTimestamp()
-      .setFooter('If any above Learner has been marked incorrectly, let us know!');
-
-    const discordMessageResponse = await cohortDiscordChannel.send(embed);
-
-    return discordMessageResponse;
+    return false;
   } catch (error) {
     logger.error(error);
     return false;

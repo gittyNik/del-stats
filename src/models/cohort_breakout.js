@@ -318,11 +318,11 @@ export const markBreakoutFinished = async (
     name,
     cohort_breakout_id,
   );
-  const slackResponse = await postAttendaceInCohortChannel(cohort_breakout_id);
+  // const slackResponse = await postAttendaceInCohortChannel(cohort_breakout_id);
   const discordResponse = await postAttendaceInCohortDiscordChannel(cohort_breakout_id);
 
-  data.slackNotify = (slackResponse.ok) ? 'Notified on Slack' : slackResponse.error;
-  data.discordNotify = (discordResponse) ? 'Notified on Discord' : discordResponse;
+  // data.slackNotify = (slackResponse.ok) ? 'Notified on Slack' : slackResponse.error;
+  data = (discordResponse) ? 'Notified on Discord' : false;
   return data;
 };
 

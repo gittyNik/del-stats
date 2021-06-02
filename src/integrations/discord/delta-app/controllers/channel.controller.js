@@ -43,13 +43,18 @@ export const findChannelByName = async ({ guild_id, channel_name }) => {
 };
 
 export const getChannelForCohort = async ({ cohort_id }) => {
-  const cohort = await getCohortFromId(cohort_id);
+  try {
+    const cohort = await getCohortFromId(cohort_id);
 
-  const cohortChannelName = getCohortFormattedId({ data: [cohort] });
-  const guild_id = getGuildIdFromProgram({ program_id: cohort.program_id });
-  const cohortChannel = await findChannelByName({ guild_id, channel_name: cohortChannelName[0] });
+    const cohortChannelName = getCohortFormattedId({ data: [cohort] });
+    const guild_id = getGuildIdFromProgram({ program_id: cohort.program_id });
+    const cohortChannel = await findChannelByName({ guild_id, channel_name: cohortChannelName[0] });
 
-  return cohortChannel;
+    return cohortChannel;
+  } catch (err) {
+    logger.error(err);
+    return false;
+  }
 };
 
 export const moveLearnerToNewDiscordChannel = async ({ learner_id, current_cohort_id, future_cohort_id }) => {
