@@ -21,14 +21,11 @@ import logger from '../../../../util/logger';
 // Create a new channel with permission overwrites
 
 export const createChannel = async ({ guild_id, name, options }) => {
-  const { type, permissionOverwrites, parent } = options;
+  // const { type, permissionOverwrites, parent } = options;
+  const { type } = options;
   if (type && guild_id && name) {
     const guild = await getGuild({ guild_id });
-    return guild.channels.create(name, {
-      type,
-      parent,
-      permissionOverwrites,
-    });
+    return guild.channels.create(name, options);
   }
 
   throw new Error('Parameters invalid');
@@ -46,13 +43,18 @@ export const findChannelByName = async ({ guild_id, channel_name }) => {
 };
 
 export const getChannelForCohort = async ({ cohort_id }) => {
-  const cohort = await getCohortFromId(cohort_id);
+  try {
+    const cohort = await getCohortFromId(cohort_id);
 
-  const cohortChannelName = getCohortFormattedId({ data: [cohort] });
-  const guild_id = getGuildIdFromProgram({ program_id: cohort.program_id });
-  const cohortChannel = await findChannelByName({ guild_id, channel_name: cohortChannelName[0] });
+    const cohortChannelName = getCohortFormattedId({ data: [cohort] });
+    const guild_id = getGuildIdFromProgram({ program_id: cohort.program_id });
+    const cohortChannel = await findChannelByName({ guild_id, channel_name: cohortChannelName[0] });
 
-  return cohortChannel;
+    return cohortChannel;
+  } catch (err) {
+    logger.error(err);
+    return false;
+  }
 };
 
 export const moveLearnerToNewDiscordChannel = async ({ learner_id, current_cohort_id, future_cohort_id }) => {
@@ -60,7 +62,15 @@ export const moveLearnerToNewDiscordChannel = async ({ learner_id, current_cohor
     const currentCohort = await getCohortFromId(current_cohort_id);
     const futureCohort = await getCohortFromId(future_cohort_id);
 
-    let discordUserIds = await getDiscordUserIdsByDeltaUserIds({ user_ids: [learner_id] });
+    let discord_user_ids = await getDiscordUserIdsByDeltaUserIds({ user_ids: [learner_id] });
+
+    let discord_user_id;
+
+    if (discord_user_ids.length > 0) {
+      [discord_user_id] = discord_user_ids;
+    } else {
+      throw new Error("Couldn/'t find discord user id by learner id");
+    }
 
     const guild_id = GUILD_IDS_BY_PROGRAM.find(index => current_cohort_id.program_id === index.PROGRAM_ID).GUILD_ID;
     const guild = await getGuild({ guild_id });
@@ -71,7 +81,7 @@ export const moveLearnerToNewDiscordChannel = async ({ learner_id, current_cohor
     const currentCohortRole = await findRole({ guild_id, name: currentCohortChannelName[0] });
     const futureCohortRole = await findRole({ guild_id, name: futureCohortChannelName[0] });
 
-    const discordUser = await guild.members.fetch(discordUserIds[0]);
+    const discordUser = await guild.members.fetch(discord_user_id);
 
     await discordUser.roles.remove(currentCohortRole);
     await discordUser.roles.add(futureCohortRole);
@@ -85,12 +95,20 @@ export const removeLearnerFromDiscordServer = async ({ learner_id, current_cohor
 // removeLearner in cohort.js
 
   try {
-    let discordUserIds = await getDiscordUserIdsByDeltaUserIds({ user_ids: [learner_id] });
+    let discord_user_ids = await getDiscordUserIdsByDeltaUserIds({ user_ids: [learner_id] });
+
+    let discord_user_id;
+
+    if (discord_user_ids.length > 0) {
+      [discord_user_id] = discord_user_ids;
+    } else {
+      throw new Error("Couldn/'t find discord user id by learner id");
+    }
 
     const guild_id = GUILD_IDS_BY_PROGRAM.find(index => current_cohort_id.program_id === index.PROGRAM_ID).GUILD_ID;
     const guild = await getGuild({ guild_id });
 
-    const discordUser = await guild.members.fetch(discordUserIds[0]);
+    const discordUser = await guild.members.fetch(discord_user_id);
 
     const response = await discordUser.kick('removeLearnerFromDiscordChannel Delta_API');
 
@@ -107,12 +125,20 @@ export const stageLearnerFromDiscordChannel = async ({ learner_id, cohort_id }) 
 
   try {
     const cohort = await getCohortFromId(cohort_id);
-    let discordUserIds = await getDiscordUserIdsByDeltaUserIds({ user_ids: [learner_id] });
+    let discord_user_ids = await getDiscordUserIdsByDeltaUserIds({ user_ids: [learner_id] });
+
+    let discord_user_id;
+
+    if (discord_user_ids.length > 0) {
+      [discord_user_id] = discord_user_ids;
+    } else {
+      throw new Error("Couldn/'t find discord user id by learner id");
+    }
 
     const guild_id = GUILD_IDS_BY_PROGRAM.find(index => cohort.program_id === index.PROGRAM_ID).GUILD_ID;
     const guild = await getGuild({ guild_id });
 
-    const discordUser = await guild.members.fetch(discordUserIds[0]);
+    const discordUser = await guild.members.fetch(discord_user_id);
 
     const currentCohortChannelName = getCohortFormattedId({ data: [cohort] });
 
@@ -129,7 +155,13 @@ export const stageLearnerFromDiscordChannel = async ({ learner_id, cohort_id }) 
 // add single learner to cohort
 export const addLearnerToCohortDiscordChannel = async ({ cohort_id, learner_id, discord_user_id }) => {
   if (learner_id) {
-    discord_user_id = await getDiscordUserIdsByDeltaUserIds({ user_ids: [learner_id] });
+    let discord_user_ids = await getDiscordUserIdsByDeltaUserIds({ user_ids: [learner_id] });
+
+    if (discord_user_ids.length > 0) {
+      [discord_user_id] = discord_user_ids;
+    } else {
+      throw new Error("Couldn/'t find discord user id by learner id");
+    }
   }
 
   const cohort = await Cohort.findOne({
