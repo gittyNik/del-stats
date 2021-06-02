@@ -4,6 +4,7 @@ import {
   createMockInterviewsApi,
   updateMockInterviewsSlotsByIdApi,
   deleteMockInterviewsSlotsByIdApi,
+  createMockInterviewsRubricsApi,
 } from '../../controllers/learning/ops_mockinterview.controller';
 
 import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
@@ -17,7 +18,7 @@ const router = Express.Router();
 
 router.use(allowMultipleRoles([ADMIN, OPERATIONS]));
 /**
- * @api {get} /learning/ops/aftercapstone Get all mockinterviews
+ * @api {get} /learning/ops/mockinterviews/aftercapstone Get all mockinterviews
  * @apiDescription get all Breakouts attended by learnes
  * @apiHeader {String} authorization JWT Token.
  * @apiName GetBreakouts
@@ -26,7 +27,7 @@ router.use(allowMultipleRoles([ADMIN, OPERATIONS]));
 // router.get('/', getAllMockInterviewsApi);
 
 /**
- * @api {post} /learning/ops/aftercapstone create mockinterviews slots
+ * @api {post} /learning/ops/mockinterviews/aftercapstone create mockinterviews slots
  * @apiDescription Create Mock Interview Slots
  * @apiHeader {String} authorization JWT Token.
  * @apiName createMockInterview
@@ -35,7 +36,7 @@ router.use(allowMultipleRoles([ADMIN, OPERATIONS]));
 router.post('/', createMockInterviewsSlotsApi);
 
 /**
- * @api {patch} /learning/ops/aftercapstone/:id update mockinterviews slots
+ * @api {patch} /learning/ops/mockinterviews/aftercapstone/:id update mockinterviews slots
  * @apiDescription Create Mock Interview Slots
  * @apiHeader {String} authorization JWT Token.
  * @apiName createMockInterview
@@ -44,7 +45,7 @@ router.post('/', createMockInterviewsSlotsApi);
 router.patch('/:id', updateMockInterviewsSlotsByIdApi);
 
 /**
- * @api {delete} /learning/ops/aftercapstone/:id delete mockinterviews slots
+ * @api {delete} /learning/ops/mockinterviews/aftercapstone/:id delete mockinterviews slots
  * @apiDescription Create Mock Interview Slots
  * @apiHeader {String} authorization JWT Token.
  * @apiName createMockInterview
@@ -53,12 +54,21 @@ router.patch('/:id', updateMockInterviewsSlotsByIdApi);
 router.delete('/:id', deleteMockInterviewsSlotsByIdApi);
 
 /**
- * @api {post} /learning/ops/aftercapstone/slots/create create mockinterviews slots
+ * @api {post} /learning/ops/mockinterviews/aftercapstone/slots/create create mockinterviews slots
  * @apiDescription Create Mock Interview Slots
  * @apiHeader {String} authorization JWT Token.
  * @apiName createMockInterview
  * @apiGroup MockInterviews
  */
 router.post('/slots/create', createMockInterviewsApi);
+
+/**
+ * @api {post} /learning/ops/mockinterviews/aftercapstone/rubrics/create create mockinterviews rubrics
+ * @apiDescription Create Mock Interview rubrics
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName createMockInterview
+ * @apiGroup MockInterviews
+ */
+router.post('/rubrics/create', createMockInterviewsRubricsApi);
 
 export default router;
