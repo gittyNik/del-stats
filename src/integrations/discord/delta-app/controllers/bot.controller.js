@@ -199,8 +199,8 @@ export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
         title = `Attendance of ${details.topics}`;
       }
 
-      const presentLearnersText = `${discordIdsOfAttendedLearners.map(l => `>>><@${l}>`).join('\n')} `;
-      const absentLearnersText = `${discordIdsOfAbsentLearners.map(l => `>>><@${l}>`).join('\n')} `;
+      const presentLearnersText = `${discordIdsOfAttendedLearners.map(l => `<@${l}>`).join('\n')} `;
+      const absentLearnersText = `${discordIdsOfAbsentLearners.map(l => `<@${l}>`).join('\n')} `;
 
       let fields = [];
 

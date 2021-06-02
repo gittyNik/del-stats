@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Sequelize from 'sequelize';
 import { v4 as uuid } from 'uuid';
+import _ from 'lodash';
 import { SocialConnection, PROVIDERS } from '../../../../models/social_connection';
 import { getLimitedDetailsOfUser } from '../../../../models/user';
 import client from '../client';
@@ -58,15 +59,18 @@ export const getDiscordUserIdsByDeltaUserIdsOrEmails = ({ user_ids }) => SocialC
 }).then(async data => {
   let notPresent = user_ids;
 
-  let user_details = data.map(element => {
+  let user_discord_ids = data.map(element => {
     let index = notPresent.indexOf(element.user_id);
     if (index > -1) notPresent.splice(index, 1);
     return element.profile.id;
   });
+
   const userEmails = await Promise.all(notPresent.map(user_id => {
     let userDetails = getLimitedDetailsOfUser(user_id);
     return userDetails.email;
   }));
+
+  return _.concat(user_discord_ids, userEmails);
 });
 
 export const getBotUserId = () => client.user.id;
