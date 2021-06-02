@@ -65,10 +65,12 @@ export const getDiscordUserIdsByDeltaUserIdsOrEmails = ({ user_ids }) => SocialC
     return element.profile.id;
   });
 
-  const userEmails = await Promise.all(notPresent.map(user_id => {
-    let userDetails = getLimitedDetailsOfUser(user_id);
+  const userEmails = notPresent.map(async user_id => {
+    let userDetails = await getLimitedDetailsOfUser(user_id);
     return userDetails.email;
-  }));
+  });
+
+  console.log(userEmails);
 
   return _.concat(user_discord_ids, userEmails);
 });
