@@ -1,5 +1,6 @@
 import Discord from 'discord.js';
 import client from '../client';
+import { getTopicNameById } from '../../../../models/topic';
 import { getCohortBreakoutById } from '../../../../models/cohort_breakout';
 import { getChannelForCohort } from './channel.controller';
 import { getDiscordUserIdsByDeltaUserIdsOrEmails } from './user.controller';
@@ -156,6 +157,10 @@ export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
   try {
     logger.info('Posting Attendance');
     const cohortBreakout = await getCohortBreakoutById(cohort_breakout_id);
+    const topic_ids = cohortBreakout['breakout_template.topic_id'];
+
+    let topic_titles = await Promise.all(topic_ids.map(topic_id => getTopicNameById(topic_id)));
+    topic_titles = topic_titles.join('\n');
     const {
       type, cohort_id, catalyst_id, details,
     } = cohortBreakout;
@@ -192,7 +197,7 @@ export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
 
       if (type === 'lecture') {
         const discordIdOfCatalyst = await getDiscordUserIdsByDeltaUserIdsOrEmails({ user_ids: [catalyst_id] });
-        title = `Attendance record for *<@${discordIdOfCatalyst[0]}>*'s breakout on \n${details.topics}`;
+        title = `Attendance record for *<@${discordIdOfCatalyst[0]}>*'s breakout on \n${topic_titles}`;
       } if (type === 'reviews') {
         title = `Attendance of ${details.topics}`;
       } if (type === 'assessment') {
