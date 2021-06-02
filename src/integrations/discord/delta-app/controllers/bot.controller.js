@@ -7,6 +7,7 @@ import { getDiscordUserIdsByDeltaUserIds } from './user.controller';
 import { getGuildIdFromCohort, getGuild } from './guild.controller';
 import { findRole } from './role.controller';
 import { getCohortIdFromLearnerId, getLearnersFromCohorts } from '../../../../models/cohort';
+import { getLimitedDetailsOfUser } from '../../../../models/user';
 import {
   WELCOME_MESSAGES, REVIEW_TEMPLATE, LEARNER_REVIEW_TEMPLATE, ASSESSMENT_TEMPLATE,
   BREAKOUT_TEMPLATE, LEARNER_BREAKOUT_TEMPLATE, QUESTIONAIRE_TEMPLATE, ATTENDANCE_TEMPLATE, SETUP_ROLES,
@@ -77,7 +78,15 @@ export const notifyAttendanceLearnerInChannel = async (
 
     let discordUserId = await getDiscordUserIdsByDeltaUserIds({ user_ids: [user_id] });
 
-    let text = ATTENDANCE_TEMPLATE(discordUserId[0], details.topics, attendedTime);
+    let discordId;
+    if (discordUserId.length > 0) {
+      [discordId] = discordUserId;
+    } else {
+      let userEmail = await getLimitedDetailsOfUser(user_id);
+      discordId = userEmail.email;
+    }
+
+    let text = ATTENDANCE_TEMPLATE(discordId, details.topics, attendedTime);
     const channel = await getChannelForCohort({ cohort_id });
     const updatedText = (cohort_id) ? `${text}` : text;
 

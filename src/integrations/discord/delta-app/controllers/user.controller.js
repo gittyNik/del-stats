@@ -46,7 +46,7 @@ export const getDiscordUserIdsByDeltaUserIds = ({ user_ids }) => SocialConnectio
     provider: 'discord',
   },
 }).then(data => {
-  if ((!data || data.length < 0) && data.length !== user_ids.length) {
+  if ((!data || data.length <= 0) && data.length !== user_ids.length) {
     throw new Error('Guild Id was not found for user_id or user_ids');
   }
 
