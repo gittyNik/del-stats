@@ -2,6 +2,7 @@ import axios from 'axios';
 import Sequelize from 'sequelize';
 import { v4 as uuid } from 'uuid';
 import { SocialConnection, PROVIDERS } from '../../../../models/social_connection';
+import { getLimitedDetailsOfUser } from '../../../../models/user';
 import client from '../client';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -46,5 +47,21 @@ export const getDiscordUserIdsByDeltaUserIds = ({ user_ids }) => SocialConnectio
     provider: 'discord',
   },
 }).then(data => data.map(element => element.profile.id));
+
+export const getDiscordUserIdsByDeltaUserIdsOrEmails = ({ user_ids }) => SocialConnection.findAll({
+  where: {
+    user_id: {
+      [Sequelize.Op.in]: user_ids,
+    },
+    provider: 'discord',
+  },
+}).then(async data => {
+  if (data.length === 0) {
+    const userEmails = await Promise.all(user_ids.map(user_id => getLimitedDetailsOfUser(user_id)));
+    return userEmails;
+  }
+
+  return data.map(element => element.profile.id);
+});
 
 export const getBotUserId = () => client.user.id;

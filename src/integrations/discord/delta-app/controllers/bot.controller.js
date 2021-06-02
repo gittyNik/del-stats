@@ -2,11 +2,10 @@ import Discord from 'discord.js';
 import client from '../client';
 import { getCohortBreakoutById } from '../../../../models/cohort_breakout';
 import { getChannelForCohort } from './channel.controller';
-import { getDiscordUserIdsByDeltaUserIds } from './user.controller';
+import { getDiscordUserIdsByDeltaUserIdsOrEmails } from './user.controller';
 import { getGuildIdFromCohort, getGuild } from './guild.controller';
 import { findRole } from './role.controller';
 import { getCohortIdFromLearnerId, getLearnersFromCohorts } from '../../../../models/cohort';
-import { getLimitedDetailsOfUser } from '../../../../models/user';
 import {
   WELCOME_MESSAGES, REVIEW_TEMPLATE, LEARNER_REVIEW_TEMPLATE, ASSESSMENT_TEMPLATE,
   BREAKOUT_TEMPLATE, LEARNER_BREAKOUT_TEMPLATE, QUESTIONAIRE_TEMPLATE, ATTENDANCE_TEMPLATE, SETUP_ROLES,
@@ -75,15 +74,7 @@ export const notifyAttendanceLearnerInChannel = async (
       cohort_id, details,
     } = cohortBreakout;
 
-    let discordUserId = await getDiscordUserIdsByDeltaUserIds({ user_ids: [user_id] });
-
-    let discordId;
-    if (discordUserId.length > 0) {
-      [discordId] = discordUserId;
-    } else {
-      let userEmail = await getLimitedDetailsOfUser(user_id);
-      discordId = userEmail.email;
-    }
+    let discordId = await getDiscordUserIdsByDeltaUserIdsOrEmails({ user_ids: [user_id] });
 
     let text = ATTENDANCE_TEMPLATE(discordId, details.topics, attendedTime);
     const channel = await getChannelForCohort({ cohort_id });
@@ -106,19 +97,17 @@ export const notifyLearnersInChannel = async (req, res) => {
   let discord_user_id;
   try {
     if (learner_id) {
-      discord_user_ids = await getDiscordUserIdsByDeltaUserIds({ user_ids: [learner_id] });
+      discord_user_ids = await getDiscordUserIdsByDeltaUserIdsOrEmails({ user_ids: [learner_id] });
 
       if (discord_user_ids.length > 0) {
         [discord_user_id] = discord_user_ids;
-      } else {
-        throw new Error("Couldn/'t find discord user id by learner id");
       }
     }
     if (typeof cohort_id === 'undefined') {
       cohort_id = await getCohortIdFromLearnerId(learner_id);
     }
     const channel = await getChannelForCohort({ cohort_id });
-    // logger.info(channel.id);
+
     if (!text) {
       switch (type) {
         case 'reviews':
@@ -196,14 +185,14 @@ export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
           return false;
         }).map(lb => lb.learner_id);
 
-      let discordIdsOfAttendedLearners = await getDiscordUserIdsByDeltaUserIds({ user_ids: attendedLearners });
-      let discordIdsOfAbsentLearners = await getDiscordUserIdsByDeltaUserIds({ user_ids: absentLearners });
+      let discordIdsOfAttendedLearners = await getDiscordUserIdsByDeltaUserIdsOrEmails({ user_ids: attendedLearners });
+      let discordIdsOfAbsentLearners = await getDiscordUserIdsByDeltaUserIdsOrEmails({ user_ids: absentLearners });
 
       let title;
 
       if (type === 'lecture') {
-        const discordIdOfCatalyst = await getDiscordUserIdsByDeltaUserIds({ user_ids: [catalyst_id] });
-        title = `Attendance record for *<@${discordIdOfCatalyst}>*'s breakout on \n${details.topics}`;
+        const discordIdOfCatalyst = await getDiscordUserIdsByDeltaUserIdsOrEmails({ user_ids: [catalyst_id] });
+        title = `Attendance record for *<@${discordIdOfCatalyst[0]}>*'s breakout on \n${details.topics}`;
       } if (type === 'reviews') {
         title = `Attendance of ${details.topics}`;
       } if (type === 'assessment') {
