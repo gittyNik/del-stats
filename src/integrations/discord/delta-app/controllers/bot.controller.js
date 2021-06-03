@@ -10,7 +10,7 @@ import { getCohortIdFromLearnerId, getLearnersFromCohorts } from '../../../../mo
 import {
   WELCOME_MESSAGES, REVIEW_TEMPLATE, LEARNER_REVIEW_TEMPLATE, ASSESSMENT_TEMPLATE,
   BREAKOUT_TEMPLATE, LEARNER_BREAKOUT_TEMPLATE, QUESTIONAIRE_TEMPLATE, ATTENDANCE_TEMPLATE, SETUP_ROLES,
-  ASSESSMENT_MESSAGE_TEMPLATE,
+  ASSESSMENT_MESSAGE_TEMPLATE, EMBED_MESSAGE_LOGO, EMBED_MESSAGE_URL,
 } from '../config';
 import { getLearnerBreakoutsForACohortBreakout } from '../../../../models/learner_breakout';
 import logger from '../../../../util/logger';
@@ -61,7 +61,15 @@ export const sendAssessmentMessage = async (program, date, phase, cohort_id) => 
   const channel = await getChannelForCohort({ cohort_id });
   let text = ASSESSMENT_MESSAGE_TEMPLATE(channel, phase, date, currentDay, topicsString);
 
-  return channel.send(text);
+  const embed = new Discord.MessageEmbed()
+    .setColor('#0099ff')
+    .setTitle(text.title)
+    .setURL(EMBED_MESSAGE_URL)
+    .addFields(text.fields)
+    .setTimestamp()
+    .setFooter(text.footer, EMBED_MESSAGE_LOGO);
+
+  return channel.send(embed);
 };
 
 export const notifyAttendanceLearnerInChannel = async (
@@ -222,7 +230,7 @@ export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
       const embed = new Discord.MessageEmbed()
         .setColor('#0099ff')
         .setTitle(title)
-        .setURL('https://delta.soal.io/')
+        .setURL(EMBED_MESSAGE_URL)
         .addFields(fields)
         .setTimestamp()
         .setFooter('If any above Learner has been marked incorrectly, let us know!');
@@ -245,13 +253,13 @@ const postOnChannel = async ({ channel, breakout_text }) => {
   const embed = new Discord.MessageEmbed()
     .setColor('#0099ff')
     .setTitle(startWith)
-    .setURL('https://delta.soal.io/')
+    .setURL(EMBED_MESSAGE_URL)
     .addFields([
       { name: 'Topics', value: breakout_text },
       { name: '\u200B', value: `${channel.toString()}` },
     ])
     .setTimestamp()
-    .setFooter('Any changes to the above will be updated only on Delta Web - please keep an eye out.', 'https://coursereport-s3-production.global.ssl.fastly.net/uploads/school/logo/450/original/SOAL_SYMBOL-05.png');
+    .setFooter('Any changes to the above will be updated only on Delta Web - please keep an eye out.', EMBED_MESSAGE_LOGO);
 
   try {
     const discordResponse = await channel.send(embed);
