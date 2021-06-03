@@ -5,6 +5,7 @@ import {
   getAppliedCatalystDetailsByStatus,
   updateRequestStatus,
   createRequestForCatalyst,
+  mockInterviewRubrics_seed,
 } from '../../models/mock_interviews';
 import logger from '../../util/logger';
 
@@ -111,6 +112,19 @@ export const createRequestsApi = (req, res) => {
     .then(data => res.status(201).send({
       data,
       message: 'Request created successfully',
+      type: 'success',
+    }))
+    .catch(err => {
+      logger.error(err);
+      return res.status(500);
+    });
+};
+
+export const createMockInterviewsRubricsApi = (req, res) => {
+  mockInterviewRubrics_seed()
+    .then(data => res.status(201).send({
+      data,
+      message: 'Rubrics for mock interviews created successfully',
       type: 'success',
     }))
     .catch(err => {
