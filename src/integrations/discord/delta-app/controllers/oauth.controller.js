@@ -101,8 +101,8 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
 
       await addRoleToUser({ guild_id, role_name: SETUP_ROLES[2].name });
       await addLearnerToCohortDiscordChannel({ cohort_id, discord_user_id: user.id });
-    } else if (!deltaUser.roles.some(us => [USER_ROLES.CAREER_SERVICES, USER_ROLES.RECRUITER,
-      USER_ROLES.REVIEWER, USER_ROLES.GUEST, USER_ROLES.CATALYST].includes(us))) {
+    } else if (deltaUser.roles.some(us => [USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN,
+      USER_ROLES.OPERATIONS].includes(us))) {
       // assign captain role
       await addRoleToUser({ guild_id, role_name: SETUP_ROLES[0].name, user_id: user.id });
     } else {
