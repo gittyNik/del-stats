@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { Cohort } from '../../models/cohort';
 import { LearnerBreakout } from '../../models/learner_breakout';
 import { User } from '../../models/user';
-import { CohortBreakout } from '../../models/cohort_breakout';
+import { CohortBreakout, updateCohortBreakoutStatus } from '../../models/cohort_breakout';
 import { downloadResource } from '../../util/csv-saver';
 import logger from '../../util/logger';
 
@@ -447,5 +447,28 @@ export const getAttendanceForLearners = (req, res) => {
     .catch((err) => {
       logger.error(err);
       res.status(500);
+    });
+};
+
+export const updateCohortBreakoutStatusAPI = async (req, res) => {
+  const {
+    breakout_id, status, delete_breakouts,
+  } = req.body;
+
+  updateCohortBreakoutStatus(breakout_id, status, delete_breakouts)
+    .then((data) => res.json({
+      message: 'Updated Cohort Breakout Status',
+      data,
+      type: 'success',
+    }))
+    .catch((err) => {
+      if (err.name === 'HttpBadRequest') {
+        return res.status(err.statusCode).json({
+          message: err.message,
+          type: 'failure',
+        });
+      }
+      console.error(err);
+      return res.sendStatus(500);
     });
 };

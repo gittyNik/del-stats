@@ -2,6 +2,7 @@ import Express from 'express';
 import {
   getAttendanceForCohorts,
   getAttendanceForLearners,
+  updateCohortBreakoutStatusAPI,
 } from '../../controllers/operations/attendance.controller';
 import { USER_ROLES } from '../../models/user';
 import {
@@ -33,5 +34,14 @@ router.get('/', getAttendanceForCohorts);
  * @apiGroup Attendance
  */
 router.post('/', getAttendanceForLearners);
+
+/**
+ * @api {post} /operations/attendance/status Update Cohort Breakout Status
+ * @apiDescription update attendance for learners and change status
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UpdateAttendance
+ * @apiGroup Attendance
+ */
+router.post('/status', updateCohortBreakoutStatusAPI);
 
 export default router;
