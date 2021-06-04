@@ -56,7 +56,7 @@ export const sendAssessmentMessage = async (program, date, phase, cohort_id) => 
         backendTopics.push(topics.rubric_name);
       }
     });
-    topicsString = `Frontend Topics: \n- ${frontendTopics.join('\n- ')}\n Backend Topics \n\n- ${backendTopics.join('\n- ')}`;
+    topicsString = `Frontend Topics: \n- ${frontendTopics.join('\n- ')}\n\nBackend Topics \n\n- ${backendTopics.join('\n- ')}`;
   }
   const channel = await getChannelForCohort({ cohort_id });
   let text = ASSESSMENT_MESSAGE_TEMPLATE(channel, phase, date, currentDay, topicsString);

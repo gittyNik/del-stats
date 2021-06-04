@@ -22,12 +22,13 @@ import { delay } from '../utils';
 export const getGuild = async ({ guild_id }) => client.guilds.fetch(guild_id);
 
 export const getGuildIdsFromProgramIds = ({ program_ids }) => {
+  // single program id
   if (program_ids.length === 1) {
-    // single program id, single guild id
+    // single guild id
     return [GUILD_IDS_BY_PROGRAM.find(element => element.PROGRAM_ID === program_ids[0]).GUILD_ID];
   }
+  // multiple program id
   if (program_ids.length > 1) {
-    // multiple program id
     const guild_ids = [...(new Set(GUILD_IDS_BY_PROGRAM.filter(element => program_ids.includes(element.PROGRAM_ID)).map(element => element.GUILD_ID)))];
 
     // single guild id

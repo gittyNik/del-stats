@@ -5,6 +5,7 @@ import guildRoute from './guild.route';
 import botRoute from './bot.route';
 import channelRoute from './channel.route';
 import userRoute from './user.route';
+import roleRoute from './role.route';
 
 const router = Express.Router();
 
@@ -13,5 +14,6 @@ router.use('/guild', guildRoute);
 router.use('/bot', botRoute);
 router.use('/channel', channelRoute);
 router.use('/user', userRoute);
+router.use('/role', roleRoute);
 
 export default router;

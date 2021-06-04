@@ -1,7 +1,10 @@
 /* eslint-disable import/prefer-default-export */
 
+import { Cohort } from '../../../../models/cohort';
 import logger from '../../../../util/logger';
-import { getGuild } from './guild.controller';
+import { PROGRAM_NAMES, SAILOR_PERMISSIONS } from '../config';
+import { getCohortFormattedId } from '../utils';
+import { getGuild, getGuildIdsFromProgramIds } from './guild.controller';
 
 export const findRole = async ({ guild_id, name }) => {
   try {
@@ -82,4 +85,42 @@ export const removeRoleFromUser = async ({ guild_id, role_name, user_id }) => {
 
   const newUser = await user.roles.remove(role.id);
   return newUser;
+};
+
+export const createProgramRole = async ({ guild_id, program_id }) => {
+  const colors = '16_777_215';
+  // create setup roles
+  return createRole({
+    data: {
+      name: PROGRAM_NAMES.find(nm => nm.id === program_id).name,
+      color: Math.floor(Math.random() * Number(colors)).toString(16),
+      permissions: SAILOR_PERMISSIONS,
+    },
+    reason: 'Setup Program Role',
+    guild_id,
+  });
+};
+
+export const createCohortRole = async ({ cohort_id }) => {
+  const cohort = await Cohort.findOne({
+    where: {
+      id: cohort_id,
+    },
+  }, { raw: true });
+
+  const guild_ids = getGuildIdsFromProgramIds({ program_ids: [cohort.program.id] });
+  const cohortNameIds = getCohortFormattedId({ data: [cohort] });
+
+  // create cohort roles
+  await Promise.all(
+    cohortNameIds.map(element => createRole({
+      data: {
+        name: element,
+        color: 'BLURPLE',
+        permissions: SAILOR_PERMISSIONS,
+      },
+      reason: 'cohort role for server setup',
+      guild_id: guild_ids[0],
+    })),
+  );
 };

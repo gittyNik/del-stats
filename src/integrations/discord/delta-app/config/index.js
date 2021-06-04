@@ -99,12 +99,15 @@ export const LEARNER_BREAKOUT_TEMPLATE = (learner) => `Catalyst is reminding <@$
 export const QUESTIONAIRE_TEMPLATE = 'The Question Hour is upon us. Please join the session from DELTA and ask away!';
 export const ATTENDANCE_TEMPLATE = (learner, topics, timeMinutes) => `<@${learner}> Looks like you have been in the breakout on ${topics} for only ${timeMinutes} minutes.`;
 export const ASSESSMENT_MESSAGE_TEMPLATE = (channel, phase, date, currentDay, topicsString) => {
-  const title = `Hello, ${channel.toString()}!
-  Your ${phase} Reflection Week begins on ${date}.
-  In this week, from ${currentDay}, ${date} for one week, you will get time to reflect on your growth so far.
-  ~ *What will happen in this week?*`;
+  const title = `Your ${phase} Reflection Week begins on ${date}.`;
 
   const fields = [{
+    name: `Hello, ${channel.toString()}!`,
+    value: `In this week, from ${currentDay}, ${date} for one week, you will get time to reflect on your growth so far.`,
+  }, {
+    name: '~ *What will happen in this week?*',
+    value: `${phase} Assessments. You will be participating in 1-on-1 review calls, and receiving feedback on your learning progress thus far.`,
+  }, {
     name: 'What to expect in the Assessment',
     value: `An external reviewer will be asking some questions related to the Milestones covered in the ${phase}. \n You may also be asked to write code for some of these topics:\n\n${topicsString}`,
   }, {
