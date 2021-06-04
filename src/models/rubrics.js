@@ -6,6 +6,7 @@ const RUBRIC_TYPE = [
   'milestone',
   'core-phase',
   'focus-phase',
+  'mock-interview',
 ];
 
 const RUBRIC_FOR = [
@@ -60,6 +61,9 @@ export const Rubrics = db.define('rubrics', {
   },
   related_rubrics: {
     type: Sequelize.ARRAY(Sequelize.UUID),
+  },
+  collective_name: {
+    type: Sequelize.STRING,
   },
 });
 

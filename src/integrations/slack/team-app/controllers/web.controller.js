@@ -15,7 +15,7 @@ const CATALYST_NOTIFICATION_TEMPLATE = ({
   topic,
   time_scheduled,
   slackLoggedInUserId,
-}) => (topic === '' ? `The Breakout scheduled on *${time_scheduled}* for cohort *${cohort.cohort_name} ${cohort.format} ${cohort.city}* is assigned to <@${catalyst.slackCatalystId}> by <@${slackLoggedInUserId}>.` : `The Breakout on *${topic}* scheduled on *${time_scheduled}* for cohort *${cohort.cohort_name} ${cohort.format} ${cohort.city}* is assigned to <@${catalyst.slackCatalystId}> by <@${slackLoggedInUserId}>.`);
+}) => (topic === '' ? `<@${catalyst.slackCatalystId}> you have a BreakOut with *${cohort.cohort_name} ${cohort.format} ${cohort.city}* at *${time_scheduled}*. Please set a reminder for yourself. For any help/changes, reach out to <@${slackLoggedInUserId}>.` : `<@${catalyst.slackCatalystId}> you have a *${topic}* BreakOut with *${cohort.cohort_name} ${cohort.format} ${cohort.city}* at *${time_scheduled}*. Please set a reminder for yourself. For any help/changes, reach out to <@${slackLoggedInUserId}>.`);
 
 export const notifyCatalyst = (req, res) => {
   let {
@@ -82,4 +82,16 @@ export const notifyCatalyst = (req, res) => {
       logger.error(err);
       return res.status(500);
     });
+};
+
+export const notifyRequest = async (req, res) => {
+  await web.chat.postMessage({
+    channel: process.env.SLACK_PE_BREAKOUTS_SCHEDULING,
+    text: 'A catalyst has requested a BreakOut',
+  });
+  res.status(201).send({
+    data: '',
+    message: 'Notified successfully',
+    type: 'success',
+  });
 };

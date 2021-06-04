@@ -156,17 +156,19 @@ export const getCompletedReviewsForLearnerAPI = async (req, res) => {
   const { status } = req.body;
   try {
     const data = await getCompletedReviewsForLearner(email, status);
-    res.status(200).json({
+    return res.status(200).json({
       message: 'Reviews for a learner',
       type: 'success',
       data,
     });
   } catch (err) {
-    logger.error(err);
-    res.status(500).json({
-      message: 'Error while fetching reviews for learner',
-      type: 'failure',
-      err,
-    });
+    if (err.name === 'HttpBadRequest') {
+      return res.status(err.statusCode).json({
+        message: err.message,
+        type: 'failure',
+      });
+    }
+    console.error(err);
+    return res.sendStatus(500);
   }
 };
