@@ -252,10 +252,13 @@ export const signinWithGithub = (req, res) => {
         return getUserFromEmails(profileEmails);
       })
       .then(user => {
-        if (user === null || user.role === USER_ROLES.GUEST
-        // || user.roles.includes(USER_ROLES.GUEST)
-        ) {
+        if (user === null) {
           return Promise.reject('NO_EMAIL');
+        }
+        if ('role' in user && (user.role === USER_ROLES.GUEST)
+        // || (user.roles.includes(USER_ROLES.GUEST))
+        ) {
+          return Promise.reject('GUEST_USER');
         }
         if ('email' in user) { console.log(`User email: ${user.email}`); }
         return {
@@ -277,19 +280,23 @@ export const signinWithGithub = (req, res) => {
       });
     })
     .catch((err) => {
-      if ('response' in err) {
-        logger.error(err.response.text);
-      }
       if (err.status === 401) {
         res.status(401).send(err.response.text);
       } else if (err === 'NO_EMAIL') {
         // TODO: if the user is not found with emails,
         // save the profile details in session and ask for otp authentication
         res.status(404).send('No user found with email');
+      } else if (err === 'GUEST_USER') {
+        // TODO: if the user is not found with emails,
+        // save the profile details in session and ask for otp authentication
+        res.status(401).send('User is not authorized to this platform');
       } else {
         logger.error(`Sign in failed: ${err}`);
         logger.error(`Error details: ${err.stack}`);
         res.status(500).send('Authentication Failed');
+      }
+      if (((err !== 'NO_EMAIL') || (err !== 'GUEST_USER')) && ('response' in err)) {
+        logger.error(err.response.text);
       }
     });
 };
