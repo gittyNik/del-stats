@@ -109,7 +109,7 @@ export const createRequestsApi = (req, res) => {
   let user_id = req.jwtData.user.id;
   const { cohort_breakout_id } = req.body;
   createRequestForCatalyst({ cohort_breakout_id, catalyst_id: user_id })
-    .then(data => res.status(201).send({
+    .then(data => res.status(200).send({
       data,
       message: 'Request created successfully',
       type: 'success',

@@ -10,12 +10,12 @@ import {
 } from '../../controllers/auth/roles.controller';
 
 const {
-  ADMIN, SUPERADMIN, OPERATIONS, EDUCATOR,
+  ADMIN, OPERATIONS, EDUCATOR,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, SUPERADMIN, OPERATIONS, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, OPERATIONS, EDUCATOR]));
 
 /**
  * @api {get} /operations/attendance Get all attendance

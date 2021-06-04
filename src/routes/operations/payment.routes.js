@@ -10,7 +10,7 @@ import {
 } from '../../controllers/auth/roles.controller';
 
 const {
-  ADMIN, OPERATIONS, GUEST, LEARNER
+  ADMIN, OPERATIONS, GUEST, LEARNER,
 } = USER_ROLES;
 
 const router = Express.Router();

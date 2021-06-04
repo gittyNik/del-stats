@@ -1,8 +1,9 @@
-import express from "express";
-import { updateStatusEndpoint, 
-	updateRemarksEndpoint, 
-	updateInterviewDateEndpoint 
-} from "../controllers";
+import express from 'express';
+import {
+  updateStatusEndpoint,
+  updateRemarksEndpoint,
+  updateInterviewDateEndpoint,
+} from '../controllers';
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ const router = express.Router();
  * @apiName updateInterview
  * @apiGroup Interview Events
  */
-router.patch("/status", updateStatusEndpoint);
+router.patch('/status', updateStatusEndpoint);
 
 /**
  * @api {patch} /status Update remarks for a certain interview
@@ -22,7 +23,7 @@ router.patch("/status", updateStatusEndpoint);
  * @apiName updateInterview
  * @apiGroup Interview Events
  */
-router.patch("/remark", updateRemarksEndpoint);
+router.patch('/remark', updateRemarksEndpoint);
 
 /**
  * @api {patch} /status Update interview date for a certain interview
@@ -31,6 +32,6 @@ router.patch("/remark", updateRemarksEndpoint);
  * @apiName updateInterview
  * @apiGroup Interview Events
  */
-router.patch("/date", updateInterviewDateEndpoint);
+router.patch('/date', updateInterviewDateEndpoint);
 
 export default router;

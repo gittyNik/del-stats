@@ -1,7 +1,7 @@
 import Express from 'express';
 import {
   onLeaveController,
-  addLearnerForDesign
+  addLearnerForDesign,
 } from '../../controllers/operations/learners.controller';
 import { USER_ROLES } from '../../models/user';
 import {
@@ -9,12 +9,12 @@ import {
 } from '../../controllers/auth/roles.controller';
 
 const {
-  ADMIN, SUPERADMIN, OPERATIONS, EDUCATOR,
+  ADMIN, OPERATIONS, EDUCATOR,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([ADMIN, SUPERADMIN, OPERATIONS, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, OPERATIONS, EDUCATOR]));
 
 /**
  * @api {post} /learner/design Adds Learners to delta for design program
