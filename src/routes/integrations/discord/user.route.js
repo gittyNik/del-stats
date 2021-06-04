@@ -1,6 +1,6 @@
 import Express from 'express';
-import authenticate from '../../../../controllers/auth/auth.controller';
-import { createProgramRoleAPI } from '../handlers/role.handler';
+import authenticate from '../../../controllers/auth/auth.controller';
+import { hasDiscordSocialConnectionAPI } from '../../../integrations/discord/delta-app/handlers/user.handler';
 
 const router = Express.Router();
 
@@ -8,7 +8,7 @@ const router = Express.Router();
 router.use(authenticate);
 
 /**
- * @api {post} integrations/discord/delta/role/program Create a Discord Channel for a Cohort.
+ * @api {post} integrations/discord/delta/channel/createCohortChannel Create a Discord Channel for a Cohort.
  * @apiHeader {String} authorization JWT Token.
  * @apiName createCohortChannel
  * @apiGroup discord
@@ -16,6 +16,6 @@ router.use(authenticate);
  * @apiParam {String} cohort_id Id of the cohort
  * @apiParam {String[]} emailList email list of all learners yet to join
  */
-router.post('/program', createProgramRoleAPI);
+router.post('/hasDiscord', hasDiscordSocialConnectionAPI);
 
 export default router;

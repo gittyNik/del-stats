@@ -1,10 +1,10 @@
 import Express from 'express';
 import {
   oauthRedirectAPI, oauthBotRedirect, joinDiscord, inviteBot,
-} from '../handlers/oauth.handler';
+} from '../../../integrations/discord/delta-app/handlers/oauth.handler';
 
-import authenticate from '../../../../controllers/auth/auth.controller';
-import { allowSuperAdminOnly } from '../../../../controllers/auth/roles.controller';
+import authenticate from '../../../controllers/auth/auth.controller';
+import { allowSuperAdminOnly } from '../../../controllers/auth/roles.controller';
 
 const router = Express.Router();
 

@@ -1,7 +1,7 @@
 import Express from 'express';
-import { notifyLearnersInChannel } from '../controllers/bot.controller';
-import authenticate from '../../../../controllers/auth/auth.controller';
-import { sendMessageAPI } from '../handlers/bot.handler';
+import { notifyLearnersInChannel } from '../../../integrations/discord/delta-app/controllers/bot.controller';
+import authenticate from '../../../controllers/auth/auth.controller';
+import { sendMessageAPI } from '../../../integrations/discord/delta-app/handlers/bot.handler';
 
 const router = Express.Router();
 

@@ -1,11 +1,11 @@
 import Express from 'express';
-import authenticate from '../../../../controllers/auth/auth.controller';
-import { hasDiscordSocialConnectionAPI } from '../handlers/user.handler';
+import { allowSuperAdminOnly } from '../../../controllers/auth/roles.controller';
+import { createChannelForCohortAPI } from '../../../integrations/discord/delta-app/handlers/channel.handler';
 
 const router = Express.Router();
 
 // Restrict modifications for any applicant to the cohorts
-router.use(authenticate);
+router.use(allowSuperAdminOnly);
 
 /**
  * @api {post} integrations/discord/delta/channel/createCohortChannel Create a Discord Channel for a Cohort.
@@ -16,6 +16,6 @@ router.use(authenticate);
  * @apiParam {String} cohort_id Id of the cohort
  * @apiParam {String[]} emailList email list of all learners yet to join
  */
-router.post('/hasDiscord', hasDiscordSocialConnectionAPI);
+router.post('/createCohortChannel', createChannelForCohortAPI);
 
 export default router;
