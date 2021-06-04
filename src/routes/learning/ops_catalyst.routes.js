@@ -9,14 +9,14 @@ import { allowMultipleRoles } from '../../controllers/auth/roles.controller';
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, SUPERADMIN, CATALYST, EDUCATOR, OPERATIONS,
+  ADMIN, CATALYST, EDUCATOR, OPERATIONS,
 } = USER_ROLES;
 
 const router = Express.Router();
 
-router.use(allowMultipleRoles([SUPERADMIN, ADMIN, OPERATIONS, CATALYST, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, OPERATIONS, CATALYST, EDUCATOR]));
 /**
- * @api {get} /learning/ops/catalyst/request/:status Get requests by status
+ * @api {post} /learning/ops/catalyst/request/:status Get requests by status
  * breakouts for cohort breakout
  * @apiDescription get all requests
  * @apiHeader {String} authorization JWT Token.
@@ -25,7 +25,7 @@ router.use(allowMultipleRoles([SUPERADMIN, ADMIN, OPERATIONS, CATALYST, EDUCATOR
  */
 router.post('/request', createRequestsApi);
 
-router.use(allowMultipleRoles([SUPERADMIN, ADMIN, OPERATIONS, EDUCATOR]));
+router.use(allowMultipleRoles([ADMIN, OPERATIONS, EDUCATOR]));
 
 /**
  * @api {get} /learning/ops/catalyst/request/:status Get requests by status

@@ -7,7 +7,7 @@ import {
   toggleHelpful,
   toggleUnhelpful,
   deleteAlearnerFaq,
-  getAllFaqsByPlatformEndpoint
+  getAllFaqsByPlatformEndpoint,
 } from '../../controllers/learning/learner_faq.controller';
 import {
   allowMultipleRoles,
@@ -15,7 +15,7 @@ import {
 import { USER_ROLES } from '../../models/user';
 
 const {
-  ADMIN, SUPERADMIN, EDUCATOR
+  ADMIN, EDUCATOR,
 } = USER_ROLES;
 
 const router = Express.Router();
@@ -60,7 +60,7 @@ router.get('/helpful/:id', toggleHelpful);
  */
 router.get('/unhelpful/:id', toggleUnhelpful);
 
-router.use(allowMultipleRoles([ADMIN, EDUCATOR, SUPERADMIN]));
+router.use(allowMultipleRoles([ADMIN, EDUCATOR]));
 
 /**
  * @api {post} / Create a learner Faq
