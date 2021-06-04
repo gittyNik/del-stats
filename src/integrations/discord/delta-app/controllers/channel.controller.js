@@ -72,7 +72,7 @@ export const moveLearnerToNewDiscordChannel = async ({ learner_id, current_cohor
       throw new Error("Couldn/'t find discord user id by learner id");
     }
 
-    const guild_id = GUILD_IDS_BY_PROGRAM.find(index => current_cohort_id.program_id === index.PROGRAM_ID).GUILD_ID;
+    const guild_id = GUILD_IDS_BY_PROGRAM.find(index => currentCohort.program_id === index.PROGRAM_ID).GUILD_ID;
     const guild = await getGuild({ guild_id });
 
     const currentCohortChannelName = getCohortFormattedId({ data: [currentCohort] });
@@ -86,7 +86,8 @@ export const moveLearnerToNewDiscordChannel = async ({ learner_id, current_cohor
     await discordUser.roles.remove(currentCohortRole);
     await discordUser.roles.add(futureCohortRole);
   } catch (error) {
-    throw new Error(error);
+    // TODO: remove this when learners are all migrated to Discord
+    logger.warn('Error adding learner to Discord', error);
   }
 };
 
@@ -197,11 +198,7 @@ export const addLearnerToCohortDiscordChannel = async ({ cohort_id, learner_id, 
 };
 
 export const addLearnersToCohortDiscordChannel = async ({ cohort_id, learners }) => {
-  try {
-    await Promise.all(learners.map(learner => addLearnerToCohortDiscordChannel(cohort_id, learner)));
-  } catch (error) {
-    throw new Error(error);
-  }
+  await Promise.all(learners.map(learner => addLearnerToCohortDiscordChannel({ cohort_id, learner_id: learner })));
 };
 
 export const createChannelForCohort = async ({ cohort_id }) => {

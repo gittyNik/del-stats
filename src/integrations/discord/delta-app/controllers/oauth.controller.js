@@ -99,7 +99,7 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
 
       const cohort_id = await getCohortIdFromLearnerId(deltaUser.id);
 
-      await addRoleToUser({ guild_id, role_name: SETUP_ROLES[2].name });
+      await addRoleToUser({ guild_id, role_name: SETUP_ROLES[2].name, user_id: user.id });
       await addLearnerToCohortDiscordChannel({ cohort_id, discord_user_id: user.id });
     } else if (deltaUser.roles.some(us => [USER_ROLES.SUPERADMIN, USER_ROLES.ADMIN,
       USER_ROLES.OPERATIONS].includes(us))) {
