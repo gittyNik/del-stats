@@ -147,16 +147,14 @@ export const notifyLearnersInChannel = async (req, res) => {
     const post_res = await channel.send(updatedText);
     return res.status(200).json({
       text: 'Message posted on the channel',
-      data: {
-        channel: post_res.channel,
-        ts: post_res.ts,
-        message: post_res.message,
-      },
+      type: 'success',
+      data: post_res.channel.name,
     });
   } catch (error) {
     logger.error(error);
     return res.status(500).json({
       text: 'Failed to notify on the Discord channel',
+      type: 'failure',
     });
   }
 };
