@@ -17,12 +17,12 @@ const router = Express.Router();
 router.use(browserAccessControl);
 
 router.use('/slack', slackRouter);
-router.use('/discord', discordRouter);
 
 router.use(compression());
 router.use(Express.json({ limit: '20mb' }));
 router.use(Express.urlencoded({ limit: '20mb', extended: false }));
 
+router.use('/discord', discordRouter);
 router.use('/instamojo', instamojoRouter);
 router.use('/hubspot', hubspotRouter);
 router.use('/twitter', twitterRouter);

@@ -3,16 +3,12 @@ import {
   oauthRedirectAPI, oauthBotRedirect, joinDiscord, inviteBot,
 } from '../../../integrations/discord/delta-app/handlers/oauth.handler';
 
-import authenticate from '../../../controllers/auth/auth.controller';
 import { allowSuperAdminOnly } from '../../../controllers/auth/roles.controller';
 
 const router = Express.Router();
 
 router.get('/redirect', oauthRedirectAPI);
 router.get('/bot-redirect', oauthBotRedirect);
-
-// Private Routes.
-router.use(authenticate);
 
 // invite user to discord,
 router.get('/join', joinDiscord);

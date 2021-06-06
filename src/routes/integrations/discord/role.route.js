@@ -1,11 +1,7 @@
 import Express from 'express';
-import authenticate from '../../../controllers/auth/auth.controller';
 import { createProgramRoleAPI } from '../../../integrations/discord/delta-app/handlers/role.handler';
 
 const router = Express.Router();
-
-// Restrict modifications for any applicant to the cohorts
-router.use(authenticate);
 
 /**
  * @api {post} integrations/discord/delta/role/program Create a Discord Channel for a Cohort.

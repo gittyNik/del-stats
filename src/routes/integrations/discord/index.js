@@ -6,8 +6,12 @@ import botRoute from './bot.route';
 import channelRoute from './channel.route';
 import userRoute from './user.route';
 import roleRoute from './role.route';
+import authenticate from '../../../controllers/auth/auth.controller';
 
 const router = Express.Router();
+
+// Restrict modifications for any applicant to the cohorts
+router.use(authenticate);
 
 router.use('/delta/oauth', oauth2Route);
 router.use('/delta/guild', guildRoute);
