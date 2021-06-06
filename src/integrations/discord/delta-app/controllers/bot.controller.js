@@ -4,12 +4,11 @@ import { getTopicNameById } from '../../../../models/topic';
 import { getCohortBreakoutById } from '../../../../models/cohort_breakout';
 import { getChannelForCohort } from './channel.controller';
 import { getDiscordUserIdsByDeltaUserIdsOrEmails } from './user.controller';
-import { getGuildIdFromCohort, getGuild } from './guild.controller';
-import { findRole } from './role.controller';
+import { getGuild } from './guild.controller';
 import { getCohortIdFromLearnerId, getLearnersFromCohorts } from '../../../../models/cohort';
 import {
   WELCOME_MESSAGES, REVIEW_TEMPLATE, LEARNER_REVIEW_TEMPLATE, ASSESSMENT_TEMPLATE,
-  BREAKOUT_TEMPLATE, LEARNER_BREAKOUT_TEMPLATE, QUESTIONAIRE_TEMPLATE, ATTENDANCE_TEMPLATE, SETUP_ROLES,
+  BREAKOUT_TEMPLATE, LEARNER_BREAKOUT_TEMPLATE, QUESTIONAIRE_TEMPLATE, ATTENDANCE_TEMPLATE,
   ASSESSMENT_MESSAGE_TEMPLATE, EMBED_MESSAGE_LOGO, EMBED_MESSAGE_URL,
 } from '../config';
 import { getLearnerBreakoutsForACohortBreakout } from '../../../../models/learner_breakout';
@@ -130,7 +129,7 @@ export const notifyLearnersInChannel = async (req, res) => {
           text = ASSESSMENT_TEMPLATE(discord_user_id);
           break;
         case 'lecture':
-          text = (learner_id) ? LEARNER_BREAKOUT_TEMPLATE(discord_user_id) : BREAKOUT_TEMPLATE;
+          text = (learner_id) ? LEARNER_BREAKOUT_TEMPLATE(discord_user_id) : await BREAKOUT_TEMPLATE(cohort_id);
           break;
         case 'question_hour':
           text = QUESTIONAIRE_TEMPLATE;
@@ -139,12 +138,7 @@ export const notifyLearnersInChannel = async (req, res) => {
       }
     }
 
-    const guild_id = await getGuildIdFromCohort({ cohort_id });
-    const sailor = await findRole({ guild_id, name: SETUP_ROLES[2].name });
-
-    const updatedText = (cohort_id) ? `${sailor} ${text}` : text;
-
-    const post_res = await channel.send(updatedText);
+    const post_res = await channel.send(text);
     return res.status(200).json({
       text: 'Message posted on the channel',
       type: 'success',
