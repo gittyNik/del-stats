@@ -250,7 +250,7 @@ const postOnChannel = async ({ channel, breakout_text }) => {
       { name: 'Topics', value: breakout_text },
       { name: '\u200B', value: `${channel.toString()}` },
     ])
-    .setTimestamp()
+    .setTimestamp(new Date())
     .setFooter('Any changes to the above will be updated only on Delta Web - please keep an eye out.', EMBED_MESSAGE_LOGO);
 
   try {

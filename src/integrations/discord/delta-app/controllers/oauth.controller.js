@@ -17,18 +17,18 @@ import { User, USER_ROLES } from '../../../../models/user';
 import { getCohortIdFromLearnerId } from '../../../../models/cohort';
 import { HttpBadRequest } from '../../../../util/errors';
 
-export const discordOAuth2 = ({ state, prompt = 'consent' }) => new ClientOAuth2(oAuthConfig({
+export const discordOAuth2 = ({ state, prompt = 'consent', host }) => new ClientOAuth2(oAuthConfig({
   scopes: [OAUTH_SCOPES.EMAIL, OAUTH_SCOPES.IDENTIFY, OAUTH_SCOPES.CONNECTIONS, OAUTH_SCOPES.GUILDS_JOIN],
-  redirectUri: OAuthRedirects.discordOAuth2,
+  redirectUri: OAuthRedirects({ host }).discordOAuth2,
   state,
   query: {
     prompt,
   },
 }));
 
-export const discordBotOAuth2 = ({ state, prompt = 'consent' }) => new ClientOAuth2(oAuthConfig({
+export const discordBotOAuth2 = ({ state, prompt = 'consent', host }) => new ClientOAuth2(oAuthConfig({
   scopes: [OAUTH_SCOPES.BOT],
-  redirectUri: OAuthRedirects.discordBotOAuth2,
+  redirectUri: OAuthRedirects({ host }).discordBotOAuth2,
   state,
   query: {
     prompt,
@@ -36,7 +36,7 @@ export const discordBotOAuth2 = ({ state, prompt = 'consent' }) => new ClientOAu
   },
 }));
 
-export const oauthRedirect = async ({ stateKey, originalUrl }) => {
+export const oauthRedirect = async ({ stateKey, originalUrl, host }) => {
   const stateData = await retrieveState({ key: stateKey });
 
   if (!stateData || !stateData.deltaToken) {
@@ -59,7 +59,7 @@ export const oauthRedirect = async ({ stateKey, originalUrl }) => {
   }
 
   // get discord user token to do stuff on their behalf
-  const authResponse = await discordOAuth2({ state: stateKey }).code.getToken(originalUrl);
+  const authResponse = await discordOAuth2({ state: stateKey, original_url: host }).code.getToken(originalUrl);
   const user = await getUser(authResponse.accessToken);
 
   // not user's first time

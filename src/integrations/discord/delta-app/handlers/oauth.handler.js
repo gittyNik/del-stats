@@ -24,17 +24,19 @@ export const joinDiscord = async (req, res) => {
     const { id } = req.jwtData.user;
     const deltaToken = req.headers.authorization.split(' ').pop();
 
+    const host = req.hostname;
+
     if (await hasDiscordSocialConnection({ user_id: id })) {
       const state = await createState({ deltaToken, prompt: 'none' });
 
-      let uri = discordOAuth2({ state, prompt: 'none' }).code.getUri();
+      let uri = discordOAuth2({ state, prompt: 'none', host }).code.getUri();
       // return res.redirect(uri);
       return res.send({ location: uri });
     }
 
     const state = await createState({ deltaToken, prompt: 'consent' });
 
-    let uri = discordOAuth2({ state, prompt: 'consent' }).code.getUri();
+    let uri = discordOAuth2({ state, prompt: 'consent', host }).code.getUri();
     // return res.redirect(uri);
     return res.send({ location: uri });
   } catch (error) {
@@ -46,7 +48,8 @@ export const joinDiscord = async (req, res) => {
 export const oauthRedirectAPI = async (req, res) => {
   try {
     const { state, originalUrl } = req.query;
-    const data = await oauthRedirect({ stateKey: state, originalUrl });
+    const host = req.hostname;
+    const data = await oauthRedirect({ stateKey: state, originalUrl, host });
 
     return res.json(data);
   } catch (error) {
