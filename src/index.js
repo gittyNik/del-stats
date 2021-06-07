@@ -18,3 +18,8 @@ db.authenticate()
     });
   })
   .catch(err => logger.error('Database failure: Try running db migrations', err));
+
+// catch all unhandled promise rejections
+process.on('unhandledRejection', error => {
+  logger.error('didn\'t catch Unhandled promise rejection', error);
+});
