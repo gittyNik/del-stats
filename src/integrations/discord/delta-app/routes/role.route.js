@@ -1,5 +1,5 @@
 import Express from 'express';
-import { createProgramRoleAPI } from '../../../integrations/discord/delta-app/handlers/role.handler';
+import { createProgramRoleAPI } from '../handlers/role.handler';
 
 const router = Express.Router();
 

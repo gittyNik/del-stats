@@ -1,5 +1,5 @@
 import Express from 'express';
-import { hasDiscordSocialConnectionAPI } from '../../../integrations/discord/delta-app/handlers/user.handler';
+import { hasDiscordSocialConnectionAPI } from '../handlers/user.handler';
 
 const router = Express.Router();
 

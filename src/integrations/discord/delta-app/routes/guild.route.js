@@ -1,5 +1,5 @@
 import Express from 'express';
-import { serverSetupAPI } from '../../../integrations/discord/delta-app/handlers/guild.handler';
+import { serverSetupAPI } from '../handlers/guild.handler';
 
 const router = Express.Router();
 

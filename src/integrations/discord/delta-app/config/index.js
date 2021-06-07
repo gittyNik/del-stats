@@ -26,7 +26,7 @@ export const oAuthConfig = ({
   state,
 });
 
-export const botConfig = Object.freeze({
+export const botConfig = () => Object.freeze({
   token: process.env.DISCORD_BOT_TOKEN,
 });
 

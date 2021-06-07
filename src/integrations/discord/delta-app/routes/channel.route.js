@@ -1,6 +1,6 @@
 import Express from 'express';
-import { allowSuperAdminOnly } from '../../../controllers/auth/roles.controller';
-import { createChannelForCohortAPI } from '../../../integrations/discord/delta-app/handlers/channel.handler';
+import { allowSuperAdminOnly } from '../../../../controllers/auth/roles.controller';
+import { createChannelForCohortAPI } from '../handlers/channel.handler';
 
 const router = Express.Router();
 

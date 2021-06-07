@@ -1,7 +1,7 @@
 import Express from 'express';
 import compression from 'compression';
 import logger from '../../../util/logger';
-import routes from '../../../routes/integrations/discord';
+import routes from './routes';
 import { delay } from './utils';
 import client from './client';
 import { welcomeMember } from './controllers/bot.controller';
@@ -53,6 +53,7 @@ router.use('/', routes);
 
 export default router;
 
+// catch all unhandled promise rejections
 process.on('unhandledRejection', error => {
-  console.error('didn\'t catchUnhandled promise rejection', error.message);
+  logger.error('didn\'t catch Unhandled promise rejection', error);
 });
