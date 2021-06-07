@@ -1,7 +1,7 @@
 import Express from 'express';
 import compression from 'compression';
 import logger from '../../../util/logger';
-import routes from './routes';
+import routes from '../../../routes/integrations/discord';
 import { delay } from './utils';
 import client from './client';
 import { welcomeMember } from './controllers/bot.controller';
