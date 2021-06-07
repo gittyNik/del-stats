@@ -1,5 +1,9 @@
 // eslint-disable-next-line import/prefer-default-export
 
+import { getCohortFromId } from '../../../../models/cohort';
+import { getGuildIdFromProgram } from '../controllers/guild.controller';
+import { findRole } from '../controllers/role.controller';
+import { getCohortFormattedId } from '../utils';
 import { ROLE_PERMISSIONS } from './constants';
 
 export const SCOPES = Object.freeze({
@@ -94,7 +98,19 @@ export const WELCOME_MESSAGES = [
 export const REVIEW_TEMPLATE = (team_number) => `Team: ${team_number}, Reviewer is reminding you to join the review. Please join from DELTA`;
 export const LEARNER_REVIEW_TEMPLATE = (learner) => `<@${learner}> Reviewer is reminding you to join the review. Please join from DELTA`;
 export const ASSESSMENT_TEMPLATE = (learner) => `Psst! Looks like it's time for your Assessment, <@${learner}>. Please join from DELTA right away; your reviewer is waiting.`;
-export const BREAKOUT_TEMPLATE = 'It\'s time to get your thinking hats on! Please join the BreakOut from DELTA now';
+export const BREAKOUT_TEMPLATE = async (cohort_id) => {
+  const text = 'It\'s time to get your thinking hats on! Please join the BreakOut from DELTA now';
+
+  // find cohort role and mention them
+  const cohort = await getCohortFromId(cohort_id);
+  const cohortChannelName = getCohortFormattedId({ data: [cohort] });
+  const guild_id = getGuildIdFromProgram({ program_id: cohort.program_id });
+  const cohortChannel = await findRole({ guild_id, name: cohortChannelName[0] });
+
+  const updatedText = cohort_id ? `${cohortChannel} ${text}` : text;
+
+  return updatedText;
+};
 export const LEARNER_BREAKOUT_TEMPLATE = (learner) => `Catalyst is reminding <@${learner}> to join the breakout. Please join from Delta`;
 export const QUESTIONAIRE_TEMPLATE = 'The Question Hour is upon us. Please join the session from DELTA and ask away!';
 export const ATTENDANCE_TEMPLATE = (learner, topics, timeMinutes) => `<@${learner}> Looks like you have been in the breakout on ${topics} for only ${timeMinutes} minutes.`;
