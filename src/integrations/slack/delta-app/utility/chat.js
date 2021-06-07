@@ -20,9 +20,11 @@ export const postMessage = async ({
   }
 };
 
-export const postEphemeral = async ({
-  attachments, channel, text, user,
-}) => {
-  logger.info('example');
-  return true;
-};
+export default postMessage;
+
+// export const postEphemeral = async ({
+//   attachments, channel, text, user,
+// }) => {
+//   logger.info('example');
+//   return true;
+// };
