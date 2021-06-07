@@ -65,7 +65,7 @@ export const sendAssessmentMessage = async (program, date, phase, cohort_id) => 
     .setTitle(text.title)
     .setURL(EMBED_MESSAGE_URL)
     .addFields(text.fields)
-    .setTimestamp()
+    .setTimestamp(new Date())
     .setFooter(text.footer, EMBED_MESSAGE_LOGO);
 
   return channel.send(embed);
@@ -224,7 +224,7 @@ export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
         .setTitle(title)
         .setURL(EMBED_MESSAGE_URL)
         .addFields(fields)
-        .setTimestamp()
+        .setTimestamp(new Date())
         .setFooter('If any above Learner has been marked incorrectly, let us know!');
 
       const discordMessageResponse = await cohortDiscordChannel.send(embed);
@@ -240,7 +240,7 @@ export const postAttendaceInCohortChannel = async (cohort_breakout_id) => {
 
 const postOnChannel = async ({ channel, breakout_text }) => {
   const today = new Date();
-  const startWith = `Sessions scheduled for today i.e., **${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}**`;
+  const startWith = 'Sessions scheduled for today';
 
   const embed = new Discord.MessageEmbed()
     .setColor('#0099ff')
@@ -250,7 +250,7 @@ const postOnChannel = async ({ channel, breakout_text }) => {
       { name: 'Topics', value: breakout_text },
       { name: '\u200B', value: `${channel.toString()}` },
     ])
-    .setTimestamp(new Date())
+    .setTimestamp(today)
     .setFooter('Any changes to the above will be updated only on Delta Web - please keep an eye out.', EMBED_MESSAGE_LOGO);
 
   try {
