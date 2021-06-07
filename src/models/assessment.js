@@ -209,6 +209,7 @@ export const updateStatusForTeam = (milestone_team_id, status) => CohortBreakout
     type: 'assessment',
     [Sequelize.Op.and]: Sequelize.literal(`details->>'milestone_team_id'='${milestone_team_id}'`),
   },
+  returning: true,
 });
 
 export const calculateAssessmentTime = (assessmentDate, assessmentForTeam) => {

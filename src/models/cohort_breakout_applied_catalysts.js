@@ -1,13 +1,10 @@
 import Sequelize from 'sequelize';
 import { v4 as uuid } from 'uuid';
 import db from '../database';
+// import { CohortBreakout } from './cohort_breakout';
+// import { User } from './user';
 
-const request_status = [
-  'accepted',
-  'rejected',
-  'retained',
-];
-const CohortBreakoutAppliedCatalyst = db.define('cohort_breakout_applied_catalyst', {
+export const CohortBreakoutAppliedCatalyst = db.define('cohort_breakout_applied_catalysts', {
   id: {
     allowNull: false,
     primaryKey: true,
@@ -20,29 +17,21 @@ const CohortBreakoutAppliedCatalyst = db.define('cohort_breakout_applied_catalys
   applied_catalyst_id: {
     type: Sequelize.UUID,
   },
-  status: {
-    type: Sequelize.ENUM(...request_status),
+  created_at: {
+    type: Sequelize.DATE,
   },
-  updated_by: {
-    type: Sequelize.ARRAY(Sequelize.UUID),
+  updated_at: {
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.literal('NOW()'),
   },
-},
-{
-  tableName: 'cohort_breakout_applied_catalyst',
-  createdAt: 'created_at',
-  updatedAt: 'updated_at',
-  timestamps: true,
 });
 
-const createBreakoutAppliedCatalystRelation = (cohort_breakout_id,
-  applied_catalysts_id) => CohortBreakoutAppliedCatalyst.create({
-  id: uuid(),
+export const createBreakoutAppliedCatalystRelation = ({
+  id, cohort_breakout_id,
+  applied_catalyst_id,
+}) => CohortBreakoutAppliedCatalyst.create({
+  id: id || uuid(),
   cohort_breakout_id,
-  applied_catalysts_id,
-  // created_at: new Date(),
+  applied_catalyst_id,
+  created_at: new Date(),
 });
-
-export {
-  CohortBreakoutAppliedCatalyst,
-  createBreakoutAppliedCatalystRelation,
-};

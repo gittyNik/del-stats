@@ -7,7 +7,7 @@ const status = [
   'inactive',
 ];
 
-const MockInterviewSlots = db.define('mock_interview_slots', {
+export const MockInterviewSlots = db.define('mock_interview_slots', {
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
@@ -91,7 +91,7 @@ const weekDays = [
   },
 ];
 
-const slotData = (cohort_duration, program) => {
+export const slotData = (cohort_duration, program) => {
   let inithours = (cohort_duration >= 26) ? 19 : 7;
   let finalHours = 22;
   let data = [];
@@ -117,7 +117,27 @@ const slotData = (cohort_duration, program) => {
   return MockInterviewSlots.bulkCreate(data);
 };
 
-export {
-  slotData,
-  MockInterviewSlots,
-};
+export const deleteSlotById = ({ id }) => MockInterviewSlots.destroy({
+  where: {
+    id,
+  },
+});
+
+const fetchDayDetails = (day) => weekDays.filter(d => d.day.toLowerCase() === day.toLowerCase());
+
+export const updateSlotById = ({
+  id, cohort_duration, mock_interview_day, time_scheduled, slot_status,
+}) => MockInterviewSlots.update({
+  cohort_duration,
+  mock_interview_day,
+  time_scheduled,
+  status: slot_status,
+  slot_order: fetchDayDetails(mock_interview_day)[0].slot,
+  week: fetchDayDetails(mock_interview_day)[0].week,
+}, {
+  where: {
+    id,
+  },
+  raw: true,
+  returning: true,
+});

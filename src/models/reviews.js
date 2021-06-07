@@ -1,6 +1,5 @@
 import Sequelize from 'sequelize';
 import { v4 as uuid } from 'uuid';
-import { over } from 'lodash';
 import { CohortBreakout, BreakoutWithOptions, overlappingCatalystBreakout } from './cohort_breakout';
 import {
   getLiveMilestones, getCohortLiveMilestones, getPreviousCohortMilestone,
@@ -12,8 +11,9 @@ import { changeTimezone } from './breakout_template';
 import { getUserByEmail, User } from './user';
 import { Cohort, getCohortFromLearnerId } from './cohort';
 import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
-import Topic from './topic';
+import { Topic } from './topic';
 import logger from '../util/logger';
+import { HttpBadRequest } from '../util/errors';
 
 const GITHUB_BASE = process.env.GITHUB_TEAM_BASE;
 
@@ -132,63 +132,62 @@ export const getUserAndTeamReviews = (learner_id) => LearnerBreakout.findAll(
 );
 
 export const getCompletedReviewsForLearner = async (email, status = 'all') => {
-  try {
-    const user = await getUserByEmail(email);
-    const { id: learner_id } = user;
-    const currentCohort = await getCohortFromLearnerId(learner_id);
-    let whereObject;
-    if (status === 'all') {
-      whereObject = {
-        learner_id,
-      };
-    }
-    if (status === 'completed') {
-      whereObject = {
-        learner_id,
-        [Sequelize.Op.and]: Sequelize.literal("review_feedback->>'rubrics' IS NOT NULL"),
-      };
-    }
-    if (status === 'incomplete') {
-      whereObject = {
-        learner_id,
-        [Sequelize.Op.and]: Sequelize.literal("review_feedback->>'rubrics' IS NULL"),
-      };
-    }
-    const cohortBreakouts = await CohortBreakout.findAll({
-      where: {
-        type: {
-          [Sequelize.Op.in]: ['reviews', 'assessment'],
-        },
-        status: 'completed',
-      },
-      order: [['time_scheduled', 'ASC']],
-      attributes: ['id', 'details', 'type'],
-      include: [
-        {
-          model: LearnerBreakout,
-          where: whereObject,
-          attributes: ['id', 'learner_id', 'attendance', 'review_feedback'],
-          include: [
-            {
-              model: User,
-              attributes: ['name', 'status'],
-            },
-          ],
-        },
-        {
-          model: Cohort,
-          attributes: ['id', 'name', 'type', 'location', 'duration'],
-        },
-        {
-          model: Topic,
-          attributes: ['title'],
-        },
-      ],
-    });
-    return { user, reviews: cohortBreakouts, currentCohort };
-  } catch (err) {
-    throw new Error(err);
+  const user = await getUserByEmail(email);
+  if (user === null) {
+    throw HttpBadRequest('User email does not exist');
   }
+  const { id: learner_id } = user;
+  const currentCohort = await getCohortFromLearnerId(learner_id);
+  let whereObject;
+  if (status === 'all') {
+    whereObject = {
+      learner_id,
+    };
+  }
+  if (status === 'completed') {
+    whereObject = {
+      learner_id,
+      [Sequelize.Op.and]: Sequelize.literal("review_feedback->>'rubrics' IS NOT NULL"),
+    };
+  }
+  if (status === 'incomplete') {
+    whereObject = {
+      learner_id,
+      [Sequelize.Op.and]: Sequelize.literal("review_feedback->>'rubrics' IS NULL"),
+    };
+  }
+  const cohortBreakouts = await CohortBreakout.findAll({
+    where: {
+      type: {
+        [Sequelize.Op.in]: ['reviews', 'assessment'],
+      },
+      status: 'completed',
+    },
+    order: [['time_scheduled', 'ASC']],
+    attributes: ['id', 'details', 'type'],
+    include: [
+      {
+        model: LearnerBreakout,
+        where: whereObject,
+        attributes: ['id', 'learner_id', 'attendance', 'review_feedback'],
+        include: [
+          {
+            model: User,
+            attributes: ['name', 'status'],
+          },
+        ],
+      },
+      {
+        model: Cohort,
+        attributes: ['id', 'name', 'type', 'location', 'duration'],
+      },
+      {
+        model: Topic,
+        attributes: ['title'],
+      },
+    ],
+  });
+  return { user, reviews: cohortBreakouts, currentCohort };
 };
 
 export const updateTeamReview = (

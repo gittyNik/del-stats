@@ -2,7 +2,7 @@ import Sequelize from 'sequelize';
 import _ from 'lodash';
 import db from '../database';
 import { USER_ROLES } from './user';
-import { getViewUrlS3 } from '../util/file-fetcher';
+import { sendPathDetails } from '../util/file-fetcher';
 import { CompanyProfile } from './company_profile';
 import { Challenge } from './challenge';
 
@@ -19,6 +19,8 @@ const STATUS = [
 ];
 
 const JOB_TYPE = ['internship', 'fulltime', 'intern2hire'];
+
+const { cdn, basePath } = sendPathDetails('company_logo');
 
 export const JobPosting = db.define('job_postings', {
   id: {
@@ -105,7 +107,7 @@ export const getJobPostingFromId = (id, role,
     .then(async (jobPosting) => {
       if (jobPosting) {
         if (jobPosting.logo) {
-          let logo = await getViewUrlS3(jobPosting.logo, 'company_logo');
+          let logo = `${cdn}${basePath}/${jobPosting.logo}`;
           jobPosting.logo = logo;
         }
         if ((jobPosting) && (role === LEARNER)) {
@@ -130,7 +132,7 @@ export const getAllJobPostings = ({
   status,
   company_id,
 }) => {
-  limit = limit || 30;
+  limit = limit || 50;
   status = status || 'active';
   let whereObj = { status };
   if (company_id) {
@@ -141,7 +143,8 @@ export const getAllJobPostings = ({
       whereObj,
       include: [{
         model: CompanyProfile,
-        attributes: ['name', 'logo', 'website', 'level_of_candidates'],
+        attributes: ['name', [Sequelize.fn('concat', cdn, basePath, '/', Sequelize.col('logo')), 'logo'],
+          'website', 'level_of_candidates'],
       },
       {
         model: Challenge,
@@ -149,6 +152,9 @@ export const getAllJobPostings = ({
       ],
       offset,
       limit,
+      order: [
+        ['updated_at', 'DESC'],
+      ],
     },
   );
 };
@@ -160,7 +166,7 @@ export const getJobPostingsByStatus = (
     status,
   },
 ) => {
-  limit = limit || 30;
+  limit = limit || 50;
   status = status || 'active';
   let whereObj = { status };
   return JobPosting.findAndCountAll(
@@ -168,7 +174,7 @@ export const getJobPostingsByStatus = (
       where: whereObj,
       include: [{
         model: CompanyProfile,
-        attributes: ['name', 'logo'],
+        attributes: ['name', [Sequelize.fn('concat', cdn, basePath, '/', Sequelize.col('logo')), 'logoUrl']],
       }],
       offset,
       limit,
@@ -184,8 +190,9 @@ export const getJobPostingsByCompany = (
     offset,
   },
 ) => {
-  limit = limit || 30;
+  limit = limit || 50;
   status = status || 'active';
+  sendPathDetails();
   let whereObj = { status };
   if (company_id) {
     whereObj.company_id = company_id;
@@ -195,7 +202,7 @@ export const getJobPostingsByCompany = (
       where: whereObj,
       include: [{
         model: CompanyProfile,
-        attributes: ['name', 'logo'],
+        attributes: ['name', [Sequelize.fn('concat', cdn, basePath, '/', Sequelize.col('logo')), 'logo']],
       },
       {
         model: Challenge,

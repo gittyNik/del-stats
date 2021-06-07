@@ -155,7 +155,7 @@ export const updateRecordings = (
 export const getRecordingVideoUrl = (id) => BreakoutRecordings.findOne(
   { where: { id } },
 ).then(record => {
-  let url = getResourceUrl(process.env.VIDEO_CDN, record.recording_url);
+  let url = getResourceUrl(process.env.VIDEO_CDN, record.recording_url, false);
   record.dataValues.url = url;
   let videoViews = record.video_views + 1;
   updateRecordings(id, videoViews);

@@ -435,8 +435,12 @@ export const removeLearnerFromMSTeam = (user_id, team_id) => Team.findOne({
     return team;
   })
   .then(async team => {
-    let sc = await getGithubConnecionByUserId(user_id);
-    await removeCollaboratorFromRepository(sc.username, team.github_repo_link);
+    try {
+      let sc = await getGithubConnecionByUserId(user_id);
+      await removeCollaboratorFromRepository(sc.username, team.github_repo_link);
+    } catch (err) {
+      logger.warn(`User ${user_id} does not have a Social Connection`);
+    }
     if (team.learners.length === 0) {
       // Delete entry in Github stats if Zero commits and delete team later
       let deletedStats = await deleteLearnerTeams(team.id);

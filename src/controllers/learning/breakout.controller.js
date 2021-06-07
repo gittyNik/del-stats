@@ -131,7 +131,7 @@ export const getBreakouts = (req, res) => {
     });
 };
 
-const populateTopics = async (breakouts) => {
+export const populateTopics = async (breakouts) => {
   const allTopics = await Topic.findAll();
   let allTopicsIds = [];
   allTopics.map((eachTopic) => allTopicsIds.push(eachTopic.id));
@@ -184,7 +184,7 @@ export const getLiveCohortsBreakouts = (req, res) => {
       if (req.jwtData.user.role === USER_ROLES.REVIEWER) {
         where.type = { [Sequelize.Op.in]: ['reviews', 'assessment'] };
       } else if (req.jwtData.user.role === USER_ROLES.CATALYST) {
-        where.type = 'lecture';
+        where.type = { [Sequelize.Op.in]: ['lecture', 'mockinterview-aftercapstone'] };
       }
       return CohortBreakout.findAll({
         where,
@@ -193,6 +193,14 @@ export const getLiveCohortsBreakouts = (req, res) => {
             model: User,
             attributes: ['name', 'role'],
             as: 'catalyst',
+          },
+          {
+            model: User,
+            attributes: ['id', 'name'],
+            as: 'RequestedByCatalysts',
+            through: {
+              attributes: [],
+            },
           },
           Cohort,
           BreakoutTemplate,

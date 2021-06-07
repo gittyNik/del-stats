@@ -17,6 +17,7 @@ import {
 } from '../../integrations/github/controllers';
 import { urlGoogle, getTokensFromCode } from '../../util/calendar-util';
 import { createCalendarEventsForLearner } from '../../models/learner_breakout';
+import { HttpBadRequest } from '../../util/errors';
 import logger from '../../util/logger';
 
 dotenv.config();
@@ -35,6 +36,7 @@ const getGithubAccessToken = async (code) => {
 
   return request
     .post('https://github.com/login/oauth/access_token')
+    .set('User-Agent', process.env.GITHUB_APP_NAME)
     .send(params)
     .then((tokenResponse) => ({
       githubToken: tokenResponse.text,
@@ -42,23 +44,38 @@ const getGithubAccessToken = async (code) => {
     }));
 };
 
-const fetchProfileFromGithub = ({ githubToken, expiry }) =>
-// TODO: reject if expired
+const fetchProfileFromGithub = ({ githubToken, expiry }) => {
+  // TODO: reject if expired
+  let accessRegex = /access_token=(\S+?)&/g;
+  let access_token;
+
+  let user_access_token = accessRegex.exec(githubToken);
+  if ((user_access_token === null) || (user_access_token.length < 2)) {
+    logger.debug(`value: ${githubToken}`);
+    throw new HttpBadRequest('Access Token is incorrect');
+  }
+  if (user_access_token[1] != null) {
+    // eslint-disable-next-line prefer-destructuring
+    access_token = user_access_token[1];
+  }
 
   // fetching profile details from github
-  request
-    .get(`https://api.github.com/user?${githubToken}`)
+  return request
+    .get('https://api.github.com/user')
+    .set('authorization', `token ${access_token}`)
     .set('User-Agent', process.env.GITHUB_APP_NAME)
     .then(async (profileResponse) => {
       const profile = profileResponse.body;
       // fetching all emails from github
       const emailResponse = await request
-        .get(`https://api.github.com/user/emails?${githubToken}`)
+        .get('https://api.github.com/user/emails')
+        .set('authorization', `token ${access_token}`)
         .set('User-Agent', process.env.GITHUB_APP_NAME);
       profile.emails = emailResponse.body.map(o => o.email);
       console.debug(`User emails for Github Signin: ${profile.emails}`);
       return { profile, githubToken, expiry };
     });
+};
 
 // fetch profile and add it to social_connections
 const addGithubProfile = ({
@@ -235,10 +252,13 @@ export const signinWithGithub = (req, res) => {
         return getUserFromEmails(profileEmails);
       })
       .then(user => {
-        if (user === null || user.role === USER_ROLES.GUEST
-        // || user.roles.includes(USER_ROLES.GUEST)
-        ) {
+        if (user === null) {
           return Promise.reject('NO_EMAIL');
+        }
+        if ('role' in user && (user.role === USER_ROLES.GUEST)
+        // || (user.roles.includes(USER_ROLES.GUEST))
+        ) {
+          return Promise.reject('GUEST_USER');
         }
         if ('email' in user) { console.log(`User email: ${user.email}`); }
         return {
@@ -266,10 +286,17 @@ export const signinWithGithub = (req, res) => {
         // TODO: if the user is not found with emails,
         // save the profile details in session and ask for otp authentication
         res.status(404).send('No user found with email');
+      } else if (err === 'GUEST_USER') {
+        // TODO: if the user is not found with emails,
+        // save the profile details in session and ask for otp authentication
+        res.status(401).send('User is not authorized to this platform');
       } else {
         logger.error(`Sign in failed: ${err}`);
         logger.error(`Error details: ${err.stack}`);
         res.status(500).send('Authentication Failed');
+      }
+      if (((err !== 'NO_EMAIL') || (err !== 'GUEST_USER')) && ('response' in err)) {
+        logger.error(err.response.text);
       }
     });
 };
@@ -357,6 +384,7 @@ export const handleGoogleCallback = async (req, res) => {
   try {
     if (code) {
       const data = await getTokensFromCode(code);
+      logger.debug('Email for Auth ', data.profile.email);
       const user = await getUserFromEmails([data.profile.email])
         .then((user0) => user0.toJSON())
         .catch((err) => {

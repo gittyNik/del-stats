@@ -54,9 +54,9 @@ export const onLeaveController = async (req, res) => {
       return [cohort, breakout, team];
     });
     res.json({ data: allOp });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send(error);
+  } catch (err) {
+    logger.console.error('Unable to delete learner: ', err);
+    res.status(500);
   }
 };
 

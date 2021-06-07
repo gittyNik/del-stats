@@ -52,7 +52,9 @@ export const EVENT_STATUS = [
   'running',
   'completed',
   'review-shared',
+  'completed-asynchronously',
 ];
+
 export const BREAKOUT_TYPE = [
   'lecture',
   'codealong',
@@ -63,6 +65,12 @@ export const BREAKOUT_TYPE = [
   'assessment',
   '1on1',
   'mockinterview-aftercapstone',
+];
+
+const request_status = [
+  'internal',
+  'external-pending',
+  'external-selected',
 ];
 
 export const CohortBreakout = db.define('cohort_breakouts', {
@@ -116,6 +124,10 @@ export const CohortBreakout = db.define('cohort_breakouts', {
   },
   time_started: {
     type: Sequelize.DATE,
+  },
+  catalyst_request_status: {
+    type: Sequelize.ENUM(...request_status),
+    defaultValue: 'internal',
   },
 });
 
@@ -195,7 +207,7 @@ export const markZoomAttendance = (cohort_breakout_details, mark_attendance = tr
     console.error(`Error in auto marking attendance: ${err}`);
     // console.warn('Meeting missing Zoom url');
     // console.warn(cohort_breakout_details);
-    throw HttpBadRequest('Meeting missing Zoom url');
+    throw new HttpBadRequest('Meeting missing Zoom url');
   }
   return markAttendanceFromZoom(meetingId, catalyst_id,
     cohort_breakout_id, mark_attendance);
@@ -224,6 +236,31 @@ export const markComplete = (topic_id, cohort_id) => CohortBreakout.update(
     plain: true,
   },
 );
+
+export const updateCohortBreakoutStatus = async (breakout_id, status, delete_breakouts) => {
+  delete_breakouts = delete_breakouts || false;
+  if (delete_breakouts) {
+    const cohortBreakout = await CohortBreakout.findByPk(breakout_id);
+    if (cohortBreakout.status !== 'completed') {
+      await LearnerBreakout.destroy({
+        where: {
+          cohort_breakout_id: breakout_id,
+        },
+      });
+    }
+  }
+  return CohortBreakout.update(
+    {
+      status,
+      updated_at: Date.now(),
+    },
+    {
+      where: { id: breakout_id },
+      returning: true,
+      plain: true,
+    },
+  );
+};
 
 export const checkForAttendance = (cohort_id, topic_id) => CohortBreakout.findOne({
   attributes: ['id', 'details', 'catalyst_id'],
