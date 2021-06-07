@@ -21,5 +21,5 @@ db.authenticate()
 
 // catch all unhandled promise rejections
 process.on('unhandledRejection', error => {
-  logger.error('didn\'t catch Unhandled promise rejection', error);
+  logger.error('Unhandled promise rejection', error);
 });

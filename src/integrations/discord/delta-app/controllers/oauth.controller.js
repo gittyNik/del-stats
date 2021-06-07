@@ -59,7 +59,7 @@ export const oauthRedirect = async ({ stateKey, originalUrl, host }) => {
   }
 
   // get discord user token to do stuff on their behalf
-  const authResponse = await discordOAuth2({ state: stateKey, original_url: host }).code.getToken(originalUrl);
+  const authResponse = await discordOAuth2({ state: stateKey, host }).code.getToken(originalUrl);
   const user = await getUser(authResponse.accessToken);
 
   // not user's first time
@@ -87,7 +87,7 @@ export const oauthRedirect = async ({ stateKey, originalUrl, host }) => {
 
     const result = await addGuildMember({
       discord_user_access_token: authResponse.accessToken,
-      discord_bot_access_token: botConfig.token,
+      discord_bot_access_token: botConfig().token,
       user_id: user.id,
       guild_id,
     });

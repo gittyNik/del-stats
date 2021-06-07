@@ -31,18 +31,13 @@ export const botConfig = () => Object.freeze({
 });
 
 export const OAuthRedirects = ({ host }) => {
-  if (process.env.DISCORD_FE_BASE_PATH.includes(host)) {
-    const isVerifiedUrl = (element) => element === host;
-
-    const index = process.env.DISCORD_FE_BASE_PATH.split(',').findIndex(isVerifiedUrl);
-
+  const allowedDomains = process.env.DISCORD_FE_BASE_PATH.split(',');
+  if (allowedDomains.includes(host)) {
     return {
       discordOAuth2:
-        process.env.DISCORD_FE_BASE_PATH.split(',')[index]
-        + process.env.DISCORD_OAUTH2_REDIRECT,
+        `${host}${process.env.DISCORD_OAUTH2_REDIRECT}`,
       discordBotOAuth2:
-        process.env.DISCORD_FE_BASE_PATH.split(',')[index]
-        + process.env.DISCORD_BOT_OAUTH2_REDIRECT,
+        `${host}${process.env.DISCORD_BOT_OAUTH2_REDIRECT}`,
     };
   }
   throw new HttpBadRequest(`${host} isn/'t authorised to redirect!`);
