@@ -7,7 +7,7 @@
  */
 
 import axios from 'axios';
-import config, {
+import {
   SETUP_CHANNELS,
   GUILD_IDS_BY_PROGRAM,
 } from '../config';
@@ -128,7 +128,7 @@ export const createInvite = async ({ guild_id }) => {
   return inviteUrl;
 };
 
-const { DISCORD_BASE_API_URL } = config;
+const { DISCORD_BASE_API_URL } = process.env;
 // Get Guild Member
 
 export const getGuildMemberById = ({ access_token, guild_id, user_id }) => axios.get(`${DISCORD_BASE_API_URL}/guilds/${guild_id}/members/${user_id}`,

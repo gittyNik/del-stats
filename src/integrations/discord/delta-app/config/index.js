@@ -1,5 +1,4 @@
 // eslint-disable-next-line import/prefer-default-export
-
 import { getCohortFromId } from '../../../../models/cohort';
 import { getGuildIdFromProgram } from '../controllers/guild.controller';
 import { findRole } from '../controllers/role.controller';
@@ -34,10 +33,6 @@ export const OAuthRedirects = Object.freeze({
   discordOAuth2: process.env.DISCORD_FE_BASE_PATH + process.env.DISCORD_OAUTH2_REDIRECT,
   discordBotOAuth2: process.env.DISCORD_FE_BASE_PATH + process.env.DISCORD_BOT_OAUTH2_REDIRECT,
 });
-
-export default {
-  DISCORD_BASE_API_URL: process.env.DISCORD_BASE_API_URL,
-};
 
 export const SAILOR_PERMISSIONS = [
   ROLE_PERMISSIONS.ADD_REACTIONS, ROLE_PERMISSIONS.STREAM, ROLE_PERMISSIONS.VIEW_CHANNEL, ROLE_PERMISSIONS.SEND_MESSAGES, ROLE_PERMISSIONS.EMBED_LINKS,
