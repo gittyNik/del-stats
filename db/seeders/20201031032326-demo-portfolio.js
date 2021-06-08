@@ -7,7 +7,7 @@ import logger from '../../src/util/logger';
 faker.locale = 'en_IND';
 
 // data
-const cohort_id = '8c4bb88a-f961-4d92-ac90-962c352e23b0';
+// const cohort_id = '8c4bb88a-f961-4d92-ac90-962c352e23b0';
 const learner_ids = [
   '023a7137-500c-4ae9-a559-cb322fd69ddb',
   '3dca2c03-a1af-420a-9212-ba0b8d340fbb',
@@ -56,21 +56,22 @@ const HIRING_STATUS = [
   'hired',
 ];
 // Helper functions
-function cleanArray(arr) {
-  return `{"${arr.map(e => cleanEntry(e)).join('", "')}"}`;
-}
 
 function cleanEntry(obj) {
   return JSON.stringify(obj).replace(/"/g, '\\"');
 }
 
-const getSomeElements = (array) => faker.random.arrayElements(array, faker.random.number({
+function cleanArray(arr) {
+  return `{"${arr.map(e => cleanEntry(e)).join('", "')}"}`;
+}
+
+const getSomeElements = (array) => faker.random.arrayElements(array, faker.datatype.number({
   min: 1, max: array.length,
 }));
 
 // Factory functions
 const showcaseProjectFactory = () => ({
-  title: `Milestone ${faker.random.number({ min: 1, max: 11 })}`,
+  title: `Milestone ${faker.datatype.number({ min: 1, max: 11 })}`,
   description: faker.lorem.sentences(),
   role_in_milestone: faker.lorem.sentences(),
   tech_stack: getSomeElements(tag_ids),
@@ -95,13 +96,13 @@ const workExperienceFactory = () => ({
 });
 const skillExpLvlFactorry = () => ({
   field: faker.hacker.noun,
-  experience: `${faker.random.number(7)} year`,
-  score: faker.random.number({ min: 1, max: 10 }),
+  experience: `${faker.datatype.number(7)} year`,
+  score: faker.datatype.number({ min: 1, max: 10 }),
 });
 
 const timeSlotFactory = () => {
   let res = {};
-  for (let i = 0; i < faker.random.number({ min: 2, max: 5 }); i++) {
+  for (let i = 0; i < faker.datatype.number({ min: 2, max: 5 }); i++) {
     res[faker.date.weekday()] = [{
       start_time: '12:00:00',
       duration: 240,
@@ -131,8 +132,8 @@ export const createPorfolio = (learner_id) => ({
   city_choices: getSomeElements(cities),
   educational_background: cleanArray([educationalBackgroundFactory(), educationalBackgroundFactory()]),
   work_experience: cleanArray([workExperienceFactory(), workExperienceFactory()]),
-  experience_level: `${faker.random.number(5)} year`,
-  relevant_experience_level: `${faker.random.number(5)} year`,
+  experience_level: `${faker.datatype.number(5)} year`,
+  relevant_experience_level: `${faker.datatype.number(5)} year`,
   skill_experience_level: cleanArray([skillExpLvlFactorry(), skillExpLvlFactorry(), skillExpLvlFactorry()]),
   resume: {
     path: `${faker.system.directoryPath()}/resume.pdf`,
@@ -141,7 +142,7 @@ export const createPorfolio = (learner_id) => ({
   review: faker.lorem.sentences(),
   reviewed_by: faker.random.arrayElement(learner_ids),
   tags: `{${getSomeElements(tag_ids).join(',')}}`,
-  profile_views: faker.random.number({ min: 1, max: 500 }),
+  profile_views: faker.datatype.number({ min: 1, max: 500 }),
   status: 'available',
   hiring_status: faker.random.arrayElement(HIRING_STATUS),
   created_at: new Date(),
@@ -184,7 +185,7 @@ const seeder = {
       });
   }),
 
-  down: (queryInterface, Sequelize) => queryInterface.sequelize.transaction(t => Promise.all([
+  down: (queryInterface) => queryInterface.sequelize.transaction(t => Promise.all([
     queryInterface.bulkDelete('portfolios', null, { transaction: t }),
     queryInterface.bulkDelete(
       'social_connections',

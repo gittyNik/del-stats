@@ -2,6 +2,9 @@ import { v4 as uuid } from 'uuid';
 import faker from 'faker';
 import _ from 'lodash';
 import { randomNum, generateUuids, cleanJSON } from '../../src/util/seederUtils';
+import {
+  BREAKOUT_PATH,
+} from '../../src/models/topic';
 
 // milestones
 const MILESTONE = {
@@ -55,7 +58,7 @@ const TOPIC = {
   domain: _.sample(['generic', 'tech', 'mindset', 'dsa']),
   created_at: new Date(),
   updated_at: new Date(),
- path: _.sample(BREAKOUT_PATH),
+  path: _.sample(BREAKOUT_PATH),
 };
 
 const RESOURCE = {

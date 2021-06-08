@@ -75,7 +75,7 @@ const cities = [
 ];
 
 // helper functions
-const getSomeElements = (array) => faker.random.arrayElements(array, faker.random.number({
+const getSomeElements = (array) => faker.random.arrayElements(array, faker.datatype.number({
   min: 1, max: array.length,
 }));
 
@@ -92,7 +92,7 @@ const createCompanyProfile = (id, recruiter_id) => ({
   website: faker.internet.url(),
   worklife: faker.lorem.sentences(),
   perks: faker.lorem.sentences(),
-  views: faker.random.number({ min: 1, max: 500 }),
+  views: faker.datatype.number({ min: 1, max: 500 }),
   created_at: new Date(),
   tags: `{${getSomeElements(tag_ids).join(',')}}`,
   locations: `{${getSomeElements(cities).join(',')}}`,

@@ -11,3 +11,5 @@ export const getWeekDay = (date) => {
   // Return the element that corresponds to that index.
   return weekdays[day];
 };
+
+export default capitalize;

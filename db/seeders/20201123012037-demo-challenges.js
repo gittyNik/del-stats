@@ -2,6 +2,9 @@ import { v4 as uuid } from 'uuid';
 import faker from 'faker';
 import _ from 'lodash';
 import { randomNum, generateUuids, cleanJSON } from '../../src/util/seederUtils';
+import {
+  BREAKOUT_PATH,
+} from '../../src/models/topic';
 
 const MILESTONE = {
   id: uuid(),
