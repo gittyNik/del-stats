@@ -4,9 +4,7 @@ import logger from '../../../../util/logger';
 export const postMessage = async ({
   channel, text, blocks,
 }) => {
-  console.log(`***************`)
   try {
-    console.log(`***************`, web)
     const res = await web.chat.postMessage({
       channel,
       text,
@@ -22,9 +20,11 @@ export const postMessage = async ({
   }
 };
 
-export const postEphemeral = async ({
-  attachments, channel, text, user,
-}) => {
-  logger.info('example');
-  return true;
-};
+export default postMessage;
+
+// export const postEphemeral = async ({
+//   attachments, channel, text, user,
+// }) => {
+//   logger.info('example');
+//   return true;
+// };
