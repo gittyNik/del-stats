@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { composeCatalystBreakoutMessage } from '../views/breakout.view';
 import web from '../client';
 import { User, getProfile } from '../../../../models/user';
@@ -294,44 +293,40 @@ export const postTodaysBreakouts = async (todaysBreakouts) => {
       return false;
     }
   };
-  let data = [];
-  // eslint-disable-next-line no-restricted-syntax
-  for (const [cohort_id, breakout_types] of Object.entries(todaysBreakouts)) {
-    const channelId = await getChannelIdForCohort(cohort_id);
-    let breakout_text = '';
-    // let b_type;
-    let b_topic;
+  try {
+    await Promise.all(Object.entries(todaysBreakouts).map(
+      async ([cohort_id, breakout_types]) => {
+        const channelId = await getChannelIdForCohort(cohort_id);
+        if (channelId === undefined) return false;
+        let breakout_text = '';
 
-    // eslint-disable-next-line no-restricted-syntax
-    for (const [type, breakouts] of Object.entries(breakout_types)) {
-      switch (type) {
-        case 'lecture':
-          // b_type = (breakout.details.type === 'tep') ? 'Tech Breakouts' : 'MindCasts';
-          b_topic = breakouts.map(b => b.topics).join('\n');
-          breakout_text += `${b_topic}`;
-          break;
-        case 'reviews':
-          // b_type = 'Reviews';
-          b_topic = `${breakouts.map(b => b.topics).join('\n')}`;
-          breakout_text += b_topic;
-          break;
-        case 'assessment':
-          b_topic = `${breakouts.map(b => b.topics).join('\n')}`;
-          breakout_text += b_topic;
-          break;
-        // no default
-      }
-    }
-    try {
-      // eslint-disable-next-line no-await-in-loop
-      const res = await postOnChannel(channelId, breakout_text);
-      data.push(res);
-    } catch (err) {
-      data.push({
-        text: 'failed to postOnChannel',
-      });
-    }
+        let b_topic;
+        Object.entries(breakout_types).map(async ([type, breakouts]) => {
+          switch (type) {
+            case 'lecture':
+              // b_type = (breakout.details.type === 'tep') ? 'Tech Breakouts' : 'MindCasts';
+              b_topic = breakouts.map(b => b.topics).join('\n');
+              breakout_text += `${b_topic}`;
+              break;
+            case 'reviews':
+              // b_type = 'Reviews';
+              b_topic = `${breakouts.map(b => b.topics).join('\n')}`;
+              breakout_text += b_topic;
+              break;
+            case 'assessment':
+              b_topic = `${breakouts.map(b => b.topics).join('\n')}`;
+              breakout_text += b_topic;
+              break;
+            // no default
+          }
+        });
+        await postOnChannel(channelId, breakout_text);
+        return true;
+      },
+    ));
+    return true;
+  } catch (err) {
+    logger.error(err);
+    return false;
   }
-  return data;
 };
-

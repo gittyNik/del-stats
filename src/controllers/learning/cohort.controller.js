@@ -22,8 +22,8 @@ import logger from '../../util/logger';
 export const getCohorts = (req, res) => {
   Cohort.findAll()
     .then((data) => res.json({ data }))
-    .catch((err) => {
-      logger.error(err);
+    .catch((error) => {
+      logger.error(error);
       return res.status(500);
     });
 };
@@ -33,15 +33,15 @@ export const getCohortsByProgram = (req, res) => {
   program_id = program_id || 'tep';
   duration = duration || 16;
 
-  let whereObj = {
+  let whereObject = {
     program_id,
     duration,
     status: 'live',
   };
-  findAllCohorts(whereObj)
+  findAllCohorts(whereObject)
     .then((data) => res.json({ data }))
-    .catch((err) => {
-      logger.error(err);
+    .catch((error) => {
+      logger.error(error);
       return res.status(500);
     });
 };
@@ -53,8 +53,8 @@ export const getCohortByName = (req, res) => {
     .then((cohorts) => {
       res.json({ cohorts });
     })
-    .catch((e) => {
-      logger.error(e);
+    .catch((error) => {
+      logger.error(error);
       res.sendStatus(404);
     });
 };
@@ -81,7 +81,7 @@ export const createCohort = (req, res) => {
     .then((data) => {
       res.status(201).json({ data });
     })
-    .catch((err) => res.status(500).send({ err }));
+    .catch((error) => res.status(500).send({ err: error }));
 };
 
 export const updateCohort = (req, res) => {
@@ -105,8 +105,8 @@ export const updateCohort = (req, res) => {
     updated_by_id,
     updated_by_name,
   }).then((data) => res.json({ data }))
-    .catch((err) => {
-      logger.error(err);
+    .catch((error) => {
+      logger.error(error);
       return res.status(500);
     });
 };
@@ -115,8 +115,8 @@ export const deleteCohort = (req, res) => {
   const { id } = req.params;
   Cohort.destroy({ where: { id } })
     .then(() => res.status(204))
-    .catch((err) => {
-      logger.error(err);
+    .catch((error) => {
+      logger.error(error);
       return res.status(500);
     });
 };
@@ -136,8 +136,8 @@ export const beginCohort = (req, res) => {
     .then((cohort) => {
       res.send(cohort);
     })
-    .catch((err) => {
-      logger.error(err);
+    .catch((error) => {
+      logger.error(error);
       res.sendStatus(404);
     });
 
@@ -154,8 +154,8 @@ export const beginParallelCohort = (req, res) => {
     .then((cohort) => {
       res.send(cohort);
     })
-    .catch((err) => {
-      logger.error(err);
+    .catch((error) => {
+      logger.error(error);
       res.sendStatus(404);
     });
 
@@ -181,8 +181,8 @@ export const getCohortByLearnerId = (req, res) => {
         data: cohort,
       });
     })
-    .catch((err) => {
-      logger.error(err);
+    .catch((error) => {
+      logger.error(error);
       res.sendStatus(404);
     });
 };
@@ -206,9 +206,9 @@ export const moveLearnertoDifferentCohortEndpoint = async (req, res) => {
       data: bk,
       type: 'success',
     });
-  } catch (err) {
+  } catch (error) {
     logger.error('Unable to move leaners: ');
-    logger.error(err);
+    logger.error(error);
     res.status(500);
   }
 };
@@ -231,9 +231,9 @@ export const removeLearnerEndpoint = async (req, res) => {
       data: bk,
       type: 'success',
     });
-  } catch (err) {
+  } catch (error) {
     logger.error('Unable to remove leaners: ');
-    logger.error(err);
+    logger.error(error);
     res.status(500);
   }
 };
@@ -253,9 +253,9 @@ export const addLearnerEndpoint = (req, res) => {
     message: `Learners added to new cohort: ${cohort_id}`,
     data,
     type: 'success',
-  })).catch(err => {
+  })).catch(error => {
     logger.error('ERROR ADDING LEARNER');
-    logger.error(err);
+    logger.error(error);
     res.status(500);
   });
 };
@@ -277,9 +277,9 @@ export const addLearnerStatusAPI = (req, res) => {
     message: `Learners added to new cohort: ${current_cohort_id}`,
     data,
     type: 'success',
-  })).catch(err => {
+  })).catch(error => {
     logger.error('ERROR ADDING LEARNER Status:');
-    logger.error(err);
+    logger.error(error);
     res.status(500);
   });
 };
@@ -290,9 +290,9 @@ export const liveCohorts = (req, res) => {
       message: 'Live Cohorts',
       data,
       type: 'success',
-    })).catch(err => {
+    })).catch(error => {
       logger.error('Unable to get live cohorts');
-      logger.error(err);
+      logger.error(error);
       res.status(500);
     });
 };
@@ -308,8 +308,8 @@ export const learnerDetailsAPI = async (req, res) => {
       data: result,
       type: 'success',
     });
-  } catch (err) {
-    logger.error(err);
+  } catch (error) {
+    logger.error(error);
 
     return res.status(500).send({
       message: 'Getting all learner details Failed!',

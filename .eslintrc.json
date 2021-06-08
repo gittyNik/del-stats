@@ -25,7 +25,8 @@
     "no-param-reassign": 0,
     "prefer-promise-reject-errors": 0,
     "import/no-cycle": 0,
-    "array-callback-return": 0
+    "array-callback-return": 0,
+    "no-loop-func": 0
   },
   "overrides": [
     {

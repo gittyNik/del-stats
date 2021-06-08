@@ -7,6 +7,8 @@ import { removeLearnerBreakouts } from '../../models/learner_breakout';
 import { currentTeamOfLearner, removeLearnerFromMSTeam } from '../../models/team';
 import { createApplication } from '../../models/application';
 import { createUser, USER_ROLES } from '../../models/user';
+import { stageLearnerFromDiscordChannel } from '../../integrations/discord/delta-app/controllers/channel.controller';
+import { removeLearnerFromSlackChannel } from '../../models/slack_channels';
 import logger from '../../util/logger';
 
 export const removeLearnerFromTeam = async (learner_id, cohort_id) => {
@@ -38,6 +40,13 @@ export const onLeaveController = async (req, res) => {
         status: 'staged',
       });
 
+      try {
+        await removeLearnerFromSlackChannel(learner_id, cohort_id);
+        await stageLearnerFromDiscordChannel({ learner_id, cohort_id });
+      } catch (err) {
+        logger.warn(`Failed to remove learner from slack/discord: ${learner_id}`, err);
+      }
+
       const team = removeLearnerFromTeam(learner_id, cohort_id);
       if (team === null) {
         return [cohort, breakout];
@@ -64,7 +73,7 @@ export const addLearnerForDesign = async (req, res) => {
     let application = await createApplication(user.id, cohort_applied_id, cohort_joining_id, 'archieved', is_isa, is_job_guarantee);
     let cohort = await addLearnerToCohort(user.id, cohort_joining_id);
     res.json({ data: { user, application, cohort } });
-  } catch (err) {
-    res.status(500).send(err);
+  } catch (error) {
+    res.status(500).send(error);
   }
 };

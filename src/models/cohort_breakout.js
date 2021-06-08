@@ -36,7 +36,7 @@ import {
 import {
   showCompletedBreakoutOnSlack, postOverlappingBreakouts,
 } from '../integrations/slack/team-app/controllers/milestone.controller';
-import { postAttendaceInCohortChannel } from '../integrations/slack/delta-app/controllers/web.controller';
+import { postAttendaceInCohortChannel as postAttendaceInCohortDiscordChannel } from '../integrations/discord/delta-app/controllers/bot.controller';
 import { getGoogleOauthOfUser } from '../util/calendar-util';
 import { createEvent, deleteEvent, updateEvent } from '../integrations/calendar/calendar.model';
 import logger from '../util/logger';
@@ -284,7 +284,7 @@ export const markStatusAndAttendance = (
     const { topic_id } = breakoutTemplate;
     [breakout_topic_id] = topic_id;
   }
-  return checkForAttendance(cohort_id, breakout_topic_id).then((attendance) => {
+  return checkForAttendance(cohort_id, breakout_topic_id).then(() => {
     if (_.isEmpty(breakoutTemplate)) {
       return startBreakout(
         breakout_topic_id,
@@ -354,8 +354,11 @@ export const markBreakoutFinished = async (
     name,
     cohort_breakout_id,
   );
-  const slackResponse = await postAttendaceInCohortChannel(cohort_breakout_id);
-  data.slackNotify = (slackResponse.ok) ? 'Notified on Slack' : slackResponse.error;
+  // const slackResponse = await postAttendaceInCohortChannel(cohort_breakout_id);
+  const discordResponse = await postAttendaceInCohortDiscordChannel(cohort_breakout_id);
+
+  // data.slackNotify = (slackResponse.ok) ? 'Notified on Slack' : slackResponse.error;
+  data = (discordResponse) ? 'Notified on Discord' : false;
   return data;
 };
 
@@ -438,9 +441,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
           time_scheduled, duration, location,
           catalyst_id, details, type, team_feedback, catalyst_notes,
         )
-          .then(data =>
-            // logger.info('Breakout created with codesandbox and videoMeeting');
-            data.toJSON());
+          .then(data => data.toJSON());
       });
     // eslint-disable-next-line no-else-return
   } else if (isCodeSandbox) {
@@ -450,9 +451,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
         breakout_template_id, topic_id, cohort_id,
         time_scheduled, duration, location,
         catalyst_id, details, type, team_feedback, catalyst_notes,
-      ).then(data =>
-        // logger.info('Breakout created with code sandbox only', data);
-        data);
+      ).then(data => data);
     });
   } else if (isVideoMeeting) {
     return createScheduledMeeting(zoomTopic, time, duration, agenda, 2, catalyst_id)
@@ -463,9 +462,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
           time_scheduled, duration, location,
           catalyst_id, details, type, team_feedback, catalyst_notes,
         )
-          .then(data =>
-            // logger.info('Breakout and video meeting created Created');
-            data);
+          .then(data => data);
       });
   } else {
     return createNewBreakout(
@@ -473,9 +470,7 @@ export const BreakoutWithOptions = (breakoutObject) => {
       time_scheduled, duration, location,
       catalyst_id, details, type, team_feedback, catalyst_notes,
     )
-      .then(data =>
-        // logger.info('Breakout created without video meeting created Created', data);
-        data);
+      .then(data => data);
   }
 };
 
@@ -699,6 +694,10 @@ export const getCohortBreakoutById = (cohort_breakout_id) => CohortBreakout.find
   where: {
     id: cohort_breakout_id,
   },
+  include: [{
+    model: BreakoutTemplate,
+    attributes: ['topic_id'],
+  }],
   raw: true,
 });
 
