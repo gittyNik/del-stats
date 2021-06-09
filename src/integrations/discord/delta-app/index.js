@@ -25,12 +25,16 @@ client.on('guildMemberAdd', member => welcomeMember({ member }));
 client.on('message', async message => {
   await delay(1000);
 
+  // message.author.bot returns a boolean
+  // true if the user who posted is the bot, else it returns false
+  if (message.author.bot) return;
+
   try {
     if (message.content === 'ping') {
       await message.reply('pong 🏓');
     } if (message.channel.type === 'dm') {
       await delay(1000);
-      await message.reply('You are DMing me now!');
+      await message.reply('Hello! The bot is up, This is a monitored inbox!');
     }
   } catch (error) {
     console.error('message listener error', error);

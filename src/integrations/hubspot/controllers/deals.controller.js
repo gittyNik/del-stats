@@ -1,31 +1,49 @@
 import moment from 'moment';
 import hubspot from './auth.controller';
 import logger from '../../../util/logger';
+import { createOrUpdateContact } from "./contacts.controller";
 
-const getPropertyName = name => {
+const getPropertyName = (name) => {
   switch (name) {
-    case 'name':
-      return 'dealname';
-    case 'email':
-      return 'email_id';
-    case 'phone':
-      return 'contact_number';
-    case 'program':
-      return 'program_chosen';
-    case 'format':
-      return 'format';
-    case 'preferredCampus':
-      return 'preferred_campus';
-    case 'cohortStartDate':
-      return 'cohort_start_date';
-    case 'applicantStatus':
-      return 'applicant_status';
-    case 'dateOfStartTest':
-      return 'date_of_start_test';
-    case 'dateOfTestCompletion':
-      return 'date_of_test_completion';
-    case 'dateOfReview':
-      return 'date_of_review';
+    case "name":
+      return "dealname";
+    case "email":
+      return "email_id";
+    case "phone":
+      return "contact_number";
+    case "program":
+      return "program_chosen";
+    case "format":
+      return "format";
+    case "preferredCampus":
+      return "preferred_campus";
+    case "cohortStartDate":
+      return "cohort_start_date";
+    case "applicantStatus":
+      return "applicant_status";
+    case "dateOfStartTest":
+      return "date_of_start_test";
+    case "dateOfTestCompletion":
+      return "date_of_test_completion";
+    case "dateOfReview":
+      return "date_of_review";
+    case "birthDate":
+      return "date_of_birth";
+    default:
+      return null;
+  }
+};
+
+export const getApplicationStatus = (status) => {
+  switch (status) {
+    case "applied":
+      return "Test In Progress";
+    case "review_pending":
+      return "Review Pending";
+    case "offered":
+      return "Offered";
+    case "rejected":
+      return "Rejected";
     default:
       return null;
   }
@@ -36,11 +54,22 @@ const createProperties = data => {
   // eslint-disable-next-line no-restricted-syntax
   for (let key in data) {
     if (data[key] !== undefined) {
-      // TODO: format date and add it to the property
-      if (key !== 'birthDate') {
-        const propertyName = getPropertyName(key);
+      if (key === "birthDate") {
         properties.push({
-          name: propertyName,
+          name: getPropertyName(key),
+          value: moment
+            .utc(data[key])
+            .set({
+              hour: 0,
+              minute: 0,
+              second: 0,
+              millisecond: 0,
+            })
+            .valueOf(),
+        });
+      } else {
+        properties.push({
+          name: getPropertyName(key),
           value: data[key],
         });
       }
@@ -112,4 +141,14 @@ export const getDealById = (req, res) => {
     logger.error(err);
     res.sendStatus(500);
   });
+};
+
+export const createContactAssociateDeal = async (
+  contactPayload,
+  dealPayload
+) => {
+  const contact = await createOrUpdateContact(contactPayload);
+  const deal = await createDeal(dealPayload);
+  await associateDealWithContact(deal.dealId, contact.vid);
+  return deal;
 };

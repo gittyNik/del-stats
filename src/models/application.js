@@ -316,3 +316,25 @@ export const logProcessStatus = (user_id, event) => {
     raw: true,
   });
 };
+
+export const getLatestbyUserId = (user_id) =>
+  Application.findOne({
+    order: [[Sequelize.col("created_at"), Sequelize.literal("DESC")]],
+    where: { user_id },
+  });
+
+export const updateApplicationStatusByUserId = (user_id, status) =>
+  getLatestbyUserId(user_id).then((application) => {
+    return Application.update(
+      {
+        status,
+        updated_at: new Date(),
+      },
+      {
+        order: [[Sequelize.col("created_at"), Sequelize.literal("DESC")]],
+        where: {
+          id: application.id,
+        },
+      }
+    );
+  });

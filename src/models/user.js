@@ -112,6 +112,21 @@ export const getUserByEmail = email => User.findOne(
   { raw: true },
 );
 
+export const getUserById = (id) =>
+  User.findOne({
+    where: {
+      id
+    },
+  });
+
+export const updateUserById = (id, user) => User.update(user, {
+  where: {
+    id,
+  },
+  returning: true,
+  raw: true,
+});
+
 export const getUsersWithStatus = (status, learner_ids) => User.findAll({
   where: {
     id: {
@@ -156,16 +171,18 @@ export const getUserFromEmails = emails => User.findOne(
   { raw: true },
 );
 
-export const getOrCreateUser = phone => User.findOrCreate({
-  where: {
-    phone,
-  },
-  defaults: {
-    id: uuid(),
-    role: USER_ROLES.GUEST,
-    roles: [USER_ROLES.GUEST],
-  },
-});
+export const getOrCreateUser = (where, user) =>
+  User.findOrCreate({
+      where,
+      defaults: {
+        id: uuid(),
+        role: USER_ROLES.GUEST,
+        roles: [USER_ROLES.GUEST],
+        ...user,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+    });
 
 export const createUser = (user, role = USER_ROLES.GUEST) => User.create({
   id: uuid(),
