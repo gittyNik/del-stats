@@ -1,5 +1,7 @@
 import Sequelize from 'sequelize';
 import { v4 as uuid } from 'uuid';
+import moment from 'moment';
+import 'moment-timezone';
 import { CohortBreakout, BreakoutWithOptions, overlappingCatalystBreakout } from './cohort_breakout';
 import {
   getLiveMilestones, getCohortLiveMilestones, getPreviousCohortMilestone,
@@ -7,25 +9,15 @@ import {
 import { getTeamsbyCohortMilestoneId } from './team';
 import { LearnerBreakout } from './learner_breakout';
 import { getReviewSlotsByProgram } from './review_slots';
-import { changeTimezone } from './breakout_template';
 import { getUserByEmail, User } from './user';
 import { Cohort, getCohortFromLearnerId } from './cohort';
 import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
 import { Topic } from './topic';
+import { calculateScheduleTime } from '../util/date-handlers';
 import logger from '../util/logger';
 import { HttpBadRequest } from '../util/errors';
 
 const GITHUB_BASE = process.env.GITHUB_TEAM_BASE;
-
-const WEEK_VALUES = {
-  monday: 1,
-  tuesday: 2,
-  wednesday: 3,
-  thursday: 4,
-  friday: 5,
-  saturday: 6,
-  sunday: 7,
-};
 
 const { gte } = Sequelize.Op;
 
@@ -276,24 +268,6 @@ export const updateStatusForTeam = (milestone_team_id, status) => CohortBreakout
   },
 });
 
-export const calculateReviewTime = (reviewDate, reviewForTeam) => {
-  let time_split = reviewForTeam.time_scheduled.split(':');
-  let scheduled_time = new Date(reviewDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-
-  scheduled_time.setDate(reviewDate.getDate() + (
-    (
-      (
-        WEEK_VALUES[reviewForTeam.review_day.toLowerCase()] + 7 - reviewDate.getDay()
-      ) % 7
-    )
-  ));
-
-  scheduled_time.setHours(time_split[0], time_split[1], time_split[2]);
-
-  let reviewScheduledUTC = changeTimezone(scheduled_time, 'Asia/Kolkata');
-  return reviewScheduledUTC;
-};
-
 export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone, start_date = null) => {
   let milestonecohort = cohortMilestone;
   let defaultSlot = reviewSlots[0];
@@ -376,17 +350,24 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone, sta
     let scheduled_date;
     // If start date provided, use that to schedule reviews
     if (start_date) {
-      scheduled_date = new Date(Date.parse(start_date));
+      scheduled_date = moment(start_date, 'YYYY-MM-DD');
     } else {
       scheduled_date = milestonecohort.review_scheduled;
     }
 
-    let timeSlot = calculateReviewTime(scheduled_date, reviewForTeam);
+    let timeSlot = calculateScheduleTime({
+      review_date: scheduled_date,
+      time_scheduled: reviewForTeam.time_scheduled,
+      slot_day: reviewForTeam.review_day,
+      slot_week: reviewForTeam.week,
+    });
     let { review_duration, reviewer } = reviewForTeam;
 
     // Logic to check for Overlapping session for Catalyst
-    let endTime = new Date(timeSlot.getTime());
-    endTime.setTime(endTime.getTime() + parseInt(review_duration, 10));
+    let endTime = timeSlot.clone();
+    endTime.set({
+      millisecond: parseInt(review_duration, 10),
+    });
 
     // check for overlaps
     let overlaps = await overlappingCatalystBreakout({
@@ -395,6 +376,7 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone, sta
       time_end: endTime,
       types: ['reviews', 'assessment'],
     });
+
     if (overlaps.length > 1) {
       let loopCount = 0;
       console.warn('Reviewer has breakout at this time, rescheduling');
@@ -410,13 +392,20 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone, sta
             warning_context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
         }
 
-        timeSlot = calculateReviewTime(scheduled_date, reviewForTeam);
+        timeSlot = calculateScheduleTime({
+          review_date: scheduled_date,
+          time_scheduled: reviewForTeam.time_scheduled,
+          slot_day: reviewForTeam.review_day,
+          slot_week: reviewForTeam.week,
+        });
         review_duration = reviewForTeam.review_duration;
         reviewer = reviewForTeam.reviewer;
 
         // Logic to check for Overlapping session for Catalyst
-        endTime = new Date(timeSlot.getTime());
-        endTime.setTime(endTime.getTime() + parseInt(review_duration, 10));
+        endTime = timeSlot.clone();
+        endTime.set({
+          millisecond: parseInt(review_duration, 10),
+        });
 
         // check for overlaps
         // eslint-disable-next-line no-await-in-loop

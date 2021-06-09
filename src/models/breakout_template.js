@@ -8,6 +8,7 @@ import { CohortMilestone } from './cohort_milestone';
 import { createCohortBreakouts } from './cohort_breakout';
 import { createLearnerBreakoutsForCohortMilestones } from './learner_breakout';
 import { Milestone } from './milestone';
+import { calculateBreakoutTime } from '../util/date-handlers';
 import logger from '../util/logger';
 
 export const BREAKOUT_LEVEL = ['beginner', 'intermediate', 'advanced'];
@@ -146,42 +147,11 @@ export const updateBreakoutTemplates = (breakoutTemplates, cohort_id) => Promise
   }),
 );
 
-export const changeTimezone = (date, ianatz) => {
-  // suppose the date is 02:30 UTC
-  let invdate = new Date(date.toLocaleString('en-US', {
-    timeZone: ianatz,
-  }));
-
-  // then invdate will be 08:00pm in India
-  // and the diff is 5:30 hours
-  let diff = date.getTime() - invdate.getTime();
-
-  // so 08:00pm in India is 02:30 UTC
-  return new Date(date.getTime() + diff);
-};
-
-export const calculateBreakoutTime = (eachBreakoutTemp) => {
-  // Shallow copy datetime object
-  const RELEASE_TIME = new Date(eachBreakoutTemp.release_time.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-  const { duration, time_scheduled, after_days } = eachBreakoutTemp;
-  let breakoutScheduledTime = RELEASE_TIME;
-  let time_split = time_scheduled.split(':');
-
-  breakoutScheduledTime.setDate(RELEASE_TIME.getDate() + after_days);
-  // logger.info('After adding days: ', breakoutScheduledTime);
-  breakoutScheduledTime.setHours(time_split[0], time_split[1], time_split[2]);
-  // logger.info('Breakout time: ', breakoutScheduledTime);
-
-  let breakoutScheduledUTC = changeTimezone(breakoutScheduledTime, 'Asia/Kolkata');
-  let breakoutSchedule = { breakout_schedule: breakoutScheduledUTC };
-  return { ...eachBreakoutTemp, ...breakoutSchedule };
-};
-
 export const scheduling = (updatedBreakout) => Promise.all(
   updatedBreakout.map(async (eachBreakout) => {
     try {
       let updateBreakout = await calculateBreakoutTime(eachBreakout);
-      return updateBreakout;
+      return { ...eachBreakout, ...updateBreakout };
     } catch (err) {
       logger.error('error in calculating Breakout Time', err);
       return null;
