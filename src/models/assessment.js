@@ -1,23 +1,15 @@
 import Sequelize from 'sequelize';
 import { v4 as uuid } from 'uuid';
+import moment from 'moment';
+import 'moment-timezone';
 import { CohortBreakout, BreakoutWithOptions, overlappingCatalystBreakout } from './cohort_breakout';
 import { getLearnersFromCohorts } from './cohort';
 import { LearnerBreakout } from './learner_breakout';
 import { getAssessmentSlotsByProgram } from './assessment_slots';
-import { changeTimezone } from './breakout_template';
 import { User, getProfile } from './user';
 import { getLiveCohortMilestone } from './cohort_milestone';
+import { calculateScheduleTime } from '../util/date-handlers';
 import { sendMessageToSlackChannel } from '../integrations/slack/team-app/controllers/milestone.controller';
-
-const WEEK_VALUES = {
-  monday: 1,
-  tuesday: 2,
-  wednesday: 3,
-  thursday: 4,
-  friday: 5,
-  saturday: 6,
-  sunday: 7,
-};
 
 const { gte } = Sequelize.Op;
 
@@ -212,20 +204,6 @@ export const updateStatusForTeam = (milestone_team_id, status) => CohortBreakout
   returning: true,
 });
 
-export const calculateAssessmentTime = (assessmentDate, assessmentForTeam) => {
-  let time_split = assessmentForTeam.time_scheduled.split(':');
-  let scheduled_time = new Date(assessmentDate.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-
-  scheduled_time.setDate(assessmentDate.getDate() + (((
-    WEEK_VALUES[assessmentForTeam.assessment_day.toLowerCase()]
-    + 7 - assessmentDate.getDay()) % 7)));
-
-  scheduled_time.setHours(time_split[0], time_split[1], time_split[2]);
-
-  let assessmentScheduledUTC = changeTimezone(scheduled_time, 'Asia/Kolkata');
-  return assessmentScheduledUTC;
-};
-
 export const createLearnerAssessmentBreakout = async (
   assessmentSlots,
   cohortLearners,
@@ -279,16 +257,21 @@ export const createLearnerAssessmentBreakout = async (
           warning_context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
       }
 
-      assessment_start = new Date(Date.parse(assessment_start));
+      assessment_start = moment(assessment_start, 'YYYY-MM-DD');
 
-      let timeSlot = calculateAssessmentTime(assessment_start,
-        assessmentForLearner);
+      let timeSlot = calculateScheduleTime({
+        review_date: assessment_start,
+        time_scheduled: assessmentForLearner.time_scheduled,
+        slot_day: assessmentForLearner.assessment_day,
+      });
       count += 1;
       let { assessment_duration, reviewer, phase } = assessmentForLearner;
 
       // Logic to check for Overlapping session for Catalyst
-      let endTime = new Date(timeSlot.getTime());
-      endTime.setTime(endTime.getTime() + parseInt(assessment_duration, 10));
+      let endTime = timeSlot.clone();
+      endTime.set({
+        minute: parseInt(assessment_duration, 10),
+      });
 
       // check for overlaps
       let overlaps = await overlappingCatalystBreakout({
@@ -313,14 +296,19 @@ export const createLearnerAssessmentBreakout = async (
               warning_context, process.env.SLACK_PE_SCHEDULING_CHANNEL);
           }
 
-          timeSlot = calculateAssessmentTime(assessment_start,
-            assessmentForLearner);
+          timeSlot = calculateScheduleTime({
+            review_date: assessment_start,
+            time_scheduled: assessmentForLearner.time_scheduled,
+            slot_day: assessmentForLearner.assessment_day,
+          });
           assessment_duration = assessmentForLearner.assessment_duration;
           reviewer = assessmentForLearner.reviewer;
 
           // Logic to check for Overlapping session for Catalyst
-          endTime = new Date(timeSlot.getTime());
-          endTime.setTime(endTime.getTime() + parseInt(assessment_duration, 10));
+          endTime = timeSlot.clone();
+          endTime.set({
+            minute: parseInt(assessment_duration, 10),
+          });
 
           // check for overlaps
           // eslint-disable-next-line no-await-in-loop
