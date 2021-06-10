@@ -46,12 +46,12 @@ export const calculateScheduleTime = ({
   let scheduled_time = moment(moment(review_date).format('YYYY-MM-DDTHH:mm:ss'));
 
   const dayINeed = WEEK_VALUES[slot_day.toLowerCase()];
-  const today = moment().isoWeekday();
 
+  // const today = moment().isoWeekday();
   // If past date, get next week
-  if (today <= dayINeed) {
-    slot_week = 1;
-  }
+  // if (today <= dayINeed) {
+  //   slot_week = 1;
+  // }
 
   // for reviews/assessment the week starts from Tuesday and ends on Monday of next week
   let updatedDate = moment(scheduled_time).add(slot_week, 'weeks').isoWeekday(dayINeed);

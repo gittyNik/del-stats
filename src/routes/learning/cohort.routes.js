@@ -26,6 +26,7 @@ import {
   updateMilestonesBreakoutTimelines,
   createBreakoutsOfType,
   createCohortMilestoneLearnerBreakouts,
+  updateBreakoutByDaysTimelines,
 } from '../../controllers/learning/breakout.controller';
 import {
   allowSuperAdminOnly,
@@ -189,6 +190,14 @@ router.patch('/:id', updateCohort);
  * @apiGroup Cohort
  */
 router.patch('/:id/milestones', updateMilestonesBreakoutTimelines);
+
+/**
+ * @api {patch} /cohorts/:id/breakouts Update cohort breakouts
+ * @apiHeader {String} authorization JWT Token.
+ * @apiName UpdateCohortMilestoneBreakouts
+ * @apiGroup Cohort
+ */
+router.patch('/:id/breakouts', updateBreakoutByDaysTimelines);
 
 /**
  * @api {patch} /cohorts/schedule Schedule Breakouts for Cohorts
