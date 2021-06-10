@@ -13,6 +13,15 @@ const WEEK_VALUES = {
 
 const zone = 'Asia/Kolkata';
 
+export const calculateAfterDays = (previousTime, afterDays) => {
+  // Shallow copy datetime object
+  const RELEASE_TIME = moment(previousTime);
+  let updatedTime = RELEASE_TIME.clone();
+
+  updatedTime = RELEASE_TIME.add(afterDays, 'days');
+  return updatedTime;
+};
+
 export const calculateScheduleTime = ({
   review_date, time_scheduled, slot_day, slot_week,
 }) => {
@@ -39,7 +48,8 @@ export const calculateScheduleTime = ({
   });
 
   // TimeZone should ideally come from env or DB
-  const assessmentScheduledUTC = moment.tz(updatedDate, zone).utc();
+
+  const assessmentScheduledUTC = moment(updatedDate).tz(zone, true).utc();
 
   let twoWeeksAhead = moment(review_date).add(2, 'weeks');
   if (assessmentScheduledUTC > twoWeeksAhead) {
@@ -64,7 +74,7 @@ export const calculateBreakoutTime = ({
     second: time_to_schedule.get('second'),
   });
   // TimeZone should ideally come from env or DB
-  const breakoutScheduledUTC = moment.tz(breakoutScheduledTime, zone).utc();
+  const breakoutScheduledUTC = moment(breakoutScheduledTime).tz(zone, true).utc();
 
   let breakoutSchedule = { breakout_schedule: breakoutScheduledUTC };
   return breakoutSchedule;

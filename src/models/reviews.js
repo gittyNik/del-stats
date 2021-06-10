@@ -427,6 +427,8 @@ export const createTeamReviewBreakout = async (reviewSlots, cohortMilestone, sta
       overlapsResolvingAttempts += loopCount;
     }
     count += 1;
+    console.log(`Schedule time DB: ${reviewForTeam.time_scheduled}`);
+    console.log(`Date Time Scheduled: ${timeSlot}`);
     return createReviewEntry(
       id,
       cohort_id,
