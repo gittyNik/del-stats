@@ -52,7 +52,16 @@ export const createMockInterviewsForCohort_afterCapstone = ({
     raw: true,
   })))
     .then(data => ({ learners: data, slots })))
-  .then(({ learners, slots }) => {
+  .then(({ learners, slots }) => Topic.findOne({
+    where: {
+      title: 'Mock Interviews',
+      description: 'Mock Interviews After Capstone',
+    },
+    attributes: ['id'],
+    raw: true,
+  })
+    .then(topic => ({ learners, slots, topic_id: topic.id })))
+  .then(({ learners, slots, topic_id }) => {
     let cohort_breakouts = [];
     let cohort_breakouts_2 = [];
     let learner_breakouts = [];
@@ -80,6 +89,7 @@ export const createMockInterviewsForCohort_afterCapstone = ({
             type: 'mockinterview-aftercapstone',
             cohort_id,
             time_scheduled,
+            topic_id,
             duration: slot.mock_interview_duration,
             location: 'Online',
           });
@@ -89,6 +99,7 @@ export const createMockInterviewsForCohort_afterCapstone = ({
             type: 'mockinterview-aftercapstone',
             cohort_id,
             time_scheduled,
+            topic_id,
             duration: slot.mock_interview_duration,
             location: 'Online',
           });
