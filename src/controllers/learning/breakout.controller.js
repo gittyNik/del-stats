@@ -32,6 +32,7 @@ import { CohortMilestone } from '../../models/cohort_milestone';
 import { getLiveCohorts, Cohort } from '../../models/cohort';
 import { User, USER_ROLES } from '../../models/user';
 import { Milestone } from '../../models/milestone';
+import { calculateAfterDays } from '../../util/date-handlers';
 import logger from '../../util/logger';
 
 const {
@@ -758,13 +759,65 @@ export const updateCohortBreakout = async (req, res) => {
   }
 };
 
-export const calculateAfterDays = (previousTime, afterDays) => {
-  // Shallow copy datetime object
-  const RELEASE_TIME = new Date(previousTime.toLocaleString('en-US'));
-  let updatedTime = RELEASE_TIME;
-
-  updatedTime.setDate(RELEASE_TIME.getDate() + afterDays);
-  return updatedTime;
+export const updateBreakoutByDays = async ({
+  cohort_id, update_by_days, type, user, milestone_id,
+}) => {
+  type = type || 'lecture';
+  let currentDateTime = new Date();
+  let cohortBreakouts = await CohortBreakout.findAll({
+    attributes: ['id', 'time_scheduled', 'details'],
+    where: {
+      cohort_id,
+      type,
+      status: 'scheduled',
+      '$topic.milestone_id$': milestone_id,
+    },
+    include: [{
+      model: Topic,
+      attributes: ['milestone_id'],
+    }],
+    raw: true,
+  });
+  return Promise.all(
+    cohortBreakouts.map((cohortBreakout) => {
+      let updatedScheduledTime = calculateAfterDays(
+        cohortBreakout.time_scheduled,
+        update_by_days,
+      );
+      if (updatedScheduledTime > currentDateTime) {
+        // Update breakout time and Zoom meeting
+        let updated_by = cohortBreakout.updated_by_user;
+        if (updated_by) {
+          let user_details = {
+            user_id: user.id,
+            name: user.name,
+            date: new Date(),
+            details: `${user.name} has updated milestones by ${update_by_days} days`,
+          };
+          updated_by.push(user_details);
+        } else {
+          updated_by = [{
+            user_id: user.id,
+            name: user.name,
+            date: new Date(),
+            details: `${user.name} has updated milestones by ${update_by_days} days`,
+          }];
+        }
+        return CohortBreakout.update(
+          {
+            time_scheduled: updatedScheduledTime,
+            updated_by_user: updated_by,
+          },
+          {
+            where: {
+              id: cohortBreakout.id,
+            },
+          },
+        );
+      }
+      return null;
+    }),
+  );
 };
 
 // TODO: Make this transactional, if one fails, all should revert
@@ -816,10 +869,10 @@ export const updateMilestoneByDays = async (cohortId, updateByDays, user = null)
         updateByDays,
       );
       if (updatedScheduledTime > currentDateTime) {
-        let zoomMeetingId;
-        if ('zoom' in cohortBreakout.details) {
-          zoomMeetingId = cohortBreakout.details.zoom.id;
-        }
+        // let zoomMeetingId;
+        // if ('zoom' in cohortBreakout.details) {
+        //   zoomMeetingId = cohortBreakout.details.zoom.id;
+        // }
         // Update breakout time and Zoom meeting
         let updated_by = cohortBreakout.updated_by_user;
         if (updated_by) {
@@ -848,17 +901,34 @@ export const updateMilestoneByDays = async (cohortId, updateByDays, user = null)
               id: cohortBreakout.id,
             },
           },
-        ).then(() => {
-          if (zoomMeetingId !== undefined) {
-            return updateVideoMeeting(zoomMeetingId, updatedScheduledTime);
-          }
-          return 'Update breakout';
-        });
+        );
+        //   .then(() => {
+        //   // if (zoomMeetingId !== undefined) {
+        //   //   return updateVideoMeeting(zoomMeetingId, updatedScheduledTime);
+        //   // }
+        //   return 'Update breakout';
+        // });
       }
       return null;
     }),
   ));
   return { message: 'Update Milestones and breakouts' };
+};
+
+export const updateBreakoutByDaysTimelines = async (req, res) => {
+  let { update_by_days, type, milestone_id } = req.body;
+  const { id: cohort_id } = req.params;
+  const { user } = req.jwtData;
+  await updateBreakoutByDays({
+    cohort_id, update_by_days, type, user, milestone_id,
+  })
+    .then((data) => {
+      res.status(201).json({ data });
+    })
+    .catch((err) => {
+      logger.error(err);
+      res.status(500).send({ err });
+    });
 };
 
 export const updateMilestonesBreakoutTimelines = async (req, res) => {
