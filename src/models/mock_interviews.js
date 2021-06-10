@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid';
 import { Cohort } from './cohort';
 import { MockInterviewSlots } from './mock_interview_slots';
 import { CohortBreakout } from './cohort_breakout';
-import { changeTimezone, BreakoutTemplate } from './breakout_template';
+import { BreakoutTemplate } from './breakout_template';
 import { LearnerBreakout } from './learner_breakout';
 import { createBreakoutAppliedCatalystRelation } from './cohort_breakout_applied_catalysts';
 import { Topic } from './topic';
@@ -10,6 +10,7 @@ import { Milestone } from './milestone';
 import { populateTopics } from '../controllers/learning/breakout.controller';
 import { Rubrics } from './rubrics';
 import { User } from './user';
+import { changeTimezone } from '../util/date-handlers';
 
 const WEEK_VALUES = {
   monday: 1,

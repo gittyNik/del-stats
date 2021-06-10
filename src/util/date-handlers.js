@@ -13,6 +13,21 @@ const WEEK_VALUES = {
 
 const zone = 'Asia/Kolkata';
 
+// Need to change this to use moment
+export const changeTimezone = (date, ianatz) => {
+  // suppose the date is 02:30 UTC
+  let invdate = new Date(date.toLocaleString('en-US', {
+    timeZone: ianatz,
+  }));
+
+  // then invdate will be 08:00pm in India
+  // and the diff is 5:30 hours
+  let diff = date.getTime() - invdate.getTime();
+
+  // so 08:00pm in India is 02:30 UTC
+  return new Date(date.getTime() + diff);
+};
+
 export const calculateAfterDays = (previousTime, afterDays) => {
   // Shallow copy datetime object
   const RELEASE_TIME = moment(previousTime);
