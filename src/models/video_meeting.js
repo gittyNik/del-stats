@@ -13,7 +13,6 @@ import { CohortBreakout } from './cohort_breakout';
 import {
   User, getUserByEmail, getLimitedDetailsOfUser,
 } from './user';
-import { changeTimezone } from './breakout_template';
 import {
   notifyAttendanceLearnerInChannel,
 } from '../integrations/slack/delta-app/controllers/web.controller';
@@ -23,6 +22,7 @@ import {
 import {
   getLearnerAttendanceForBreakout,
 } from '../controllers/learning/learner_breakout.controller';
+import { changeTimezone } from '../util/date-handlers';
 import logger from '../util/logger';
 import { HttpBadRequest } from '../util/errors';
 
