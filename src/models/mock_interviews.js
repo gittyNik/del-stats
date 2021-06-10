@@ -22,6 +22,7 @@ const WEEK_VALUES = {
   sunday: 7,
 };
 
+// TODO: Rewrite the function with async/await instead of promise chain
 export const createMockInterviewsForCohort_afterCapstone = ({
   cohort_id, start_date, learners_exclude, program,
 }) => Cohort.findOne({
