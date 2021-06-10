@@ -134,40 +134,44 @@ export const createLearnerBreakoutsForLearners = (
 });
 
 export const removeLearnerBreakouts = async (learner_id, current_cohort_id) => {
-  const now = new Date(new Date()).toUTCString();
   await db.query(
-    'delete from learner_breakouts where id in (select l.id from learner_breakouts as l left join cohort_breakouts as c on l.cohort_breakout_id=c.id where l.learner_id=:learner_id and c.cohort_id=:current_cohort_id and c.time_scheduled>:time_scheduled);',
+    'delete from learner_breakouts where id in (select l.id from learner_breakouts as l left join cohort_breakouts as c on l.cohort_breakout_id=c.id where l.learner_id=:learner_id and c.cohort_id=:current_cohort_id and c.time_scheduled>NOW());',
     {
       model: LearnerBreakout,
       replacements: {
         learner_id: `${learner_id}`,
         current_cohort_id: `${current_cohort_id}`,
-        time_scheduled: `${now}`,
       },
     },
   );
   logger.info('Deleting Learner reviews and assessments');
   // Delete Reviews with Zero Learners assigned
-  await db.query('delete from cohort_breakouts where id in (select c.id from cohort_breakouts as c left join learner_breakouts as l on l.cohort_breakout_id=c.id where l.cohort_breakout_id is null and c.type=:type and c.time_scheduled>:time_scheduled and c.cohort_id=:current_cohort_id);',
-    {
-      model: CohortBreakout,
-      replacements: {
-        current_cohort_id: `${current_cohort_id}`,
-        time_scheduled: `${now}`,
-        type: 'reviews',
-      },
-    });
-
-  return db.query('delete from cohort_breakouts where id in (select l.cohort_breakout_id from learner_breakouts as l left join cohort_breakouts as c on l.cohort_breakout_id=c.id where l.learner_id=:learner_id and c.cohort_id=:current_cohort_id and c.time_scheduled>:time_scheduled and c.type=:type);',
-    {
-      model: CohortBreakout,
-      replacements: {
-        learner_id: `${learner_id}`,
-        current_cohort_id: `${current_cohort_id}`,
-        time_scheduled: `${now}`,
-        type: 'assessment',
-      },
-    });
+  try {
+    await db.query('delete from cohort_breakouts where id in (select l.cohort_breakout_id from learner_breakouts as l left join cohort_breakouts as c on l.cohort_breakout_id=c.id where l.learner_id=:learner_id and c.cohort_id=:current_cohort_id and c.time_scheduled>NOW() and c.type=:type);',
+      {
+        model: CohortBreakout,
+        replacements: {
+          learner_id: `${learner_id}`,
+          current_cohort_id: `${current_cohort_id}`,
+          type: 'assessment',
+        },
+      }, { logging: console.log });
+  } catch (err) {
+    logger.warn("Unable to delete Learner's Cohort Assessment Breakout");
+  }
+  try {
+    await db.query('delete from cohort_breakouts where id in (select c.id from cohort_breakouts as c left join learner_breakouts as l on l.cohort_breakout_id=c.id where l.cohort_breakout_id is null and c.type=:type and c.time_scheduled>NOW() and c.cohort_id=:current_cohort_id);',
+      {
+        model: CohortBreakout,
+        replacements: {
+          current_cohort_id: `${current_cohort_id}`,
+          type: 'reviews',
+        },
+      }, { logging: console.log });
+  } catch (err) {
+    logger.warn("Unable to delete Learner's Cohort Review Breakout");
+  }
+  return true;
 };
 
 export const createLearnerBreakouts = (
