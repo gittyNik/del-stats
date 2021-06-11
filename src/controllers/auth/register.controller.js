@@ -92,7 +92,7 @@ export const updateApplication = async (req, res) => {
       email,
       phone,
       birthDate: dob,
-      applicantStatus: getApplicationStatus(status),
+      uaasApplicationStatus: getApplicationStatus(status),
     };
     const [application, deal] = await Promise.all([
       updateApplicationStatusByUserId(user.id, status),

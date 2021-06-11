@@ -29,6 +29,8 @@ const getPropertyName = (name) => {
       return "date_of_review";
     case "birthDate":
       return "date_of_birth";
+    case "uaasApplicationStatus":
+      return "applicant_status_uaas";
     default:
       return null;
   }
